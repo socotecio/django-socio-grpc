@@ -70,7 +70,7 @@ class grcpMicroServices(TimestampedModel):
 	
 	SERVICE_TYPE = (
 	    (1,       'SOCOTEC'),
-	    (2,        'GOOGLE'),
+	    (2,       'GOOGLE'),
 	)
 	RESULT_TYPE = (
 	    (1,       'ARRAY'),
@@ -131,6 +131,9 @@ class socioGrpcErrors(TimestampedModel):
 	"""
 	
 	import datetime
+	from utils.utils import getFromCategory
+
+	#(DEFAULT_CALL_TYPE, CALL_TYPE) = getFromCategory('CALL_TYPE',  application='GRPC')
 
 
 	CALL_TYPE = (
@@ -139,6 +142,7 @@ class socioGrpcErrors(TimestampedModel):
 		(3,        'Retrieve'),
 		(4,        'Update'),
 		(5,        'Destroy'),
+		(6,        'Custom'),
 	)
 
 
@@ -149,7 +153,8 @@ class socioGrpcErrors(TimestampedModel):
 	method       = models.IntegerField(default=0, choices=CALL_TYPE)
 	aborted      = models.BooleanField(default=False, verbose_name="Thread aborted ?")
 	custom       = models.BooleanField(default=False, verbose_name="Customized Error")
-	query        = models.TextField(default='', null=True, blank=True)
+	query        = models.TextField(default='', null=True, blank=True, verbose_name="Service Input")
+	details      = models.TextField(default='', null=True, blank=True, verbose_name="Error Description")
 	elapse       = models.FloatField(default=0.00, verbose_name='Elapse Time (sec)')
 	
 	class Meta:
@@ -169,8 +174,7 @@ class grpcLogging(TimestampedModel):
 	"""
 	
 	import datetime
-
-
+	
 	CALL_TYPE = (
 	    (1,        'List'),
 	    (2,        'Create'),
@@ -180,12 +184,27 @@ class grpcLogging(TimestampedModel):
 	)
 
 
-	service      = models.ForeignKey(grcpMicroServices, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Socotec Microservice")    
-	database     = models.ForeignKey(grcpDataBases, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Database Microservice")    
+	LOG_LEVEL = (
+	    (1,        'DEBUG'),
+	    (2,        'INFO'),
+		(3,        'WARNING'),
+		(4,        'ERROR'),
+		(5,        'CRITICAL'),
+	)
+
+
+	service      = models.ForeignKey(grcpMicroServices, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Microservice")    
+	database     = models.ForeignKey(grcpDataBases, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Database")    
 	method       = models.IntegerField(default=0, choices=CALL_TYPE)
+	level        = models.IntegerField(default=0, choices=LOG_LEVEL, verbose_name="Level")
+	port         = models.IntegerField(default=0, verbose_name="Port")
+	error        = models.IntegerField(default=0, verbose_name="Error")
+	reason       = models.CharField(max_length=250, null=False, blank=False, db_index=True, verbose_name='Reason', default='')
 	query        = models.TextField(default='', null=True, blank=True)
-	elapse       = models.FloatField(default=0.00, verbose_name='Elapse Time (sec)')
+	time         = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+	elapse       = models.FloatField(default=0.00, verbose_name='Elapse(sec)')
 	result       = models.TextField(default='')
+	message      = models.TextField(default='')
 	CQRS         = models.BooleanField(default=False) 
 	EventStore   = models.BooleanField(default=False) 
 	
@@ -268,7 +287,8 @@ class grcpProtoBufFields(TimestampedModel):
 	database       = models.ForeignKey(grcpDataBases, null=True, blank=True, on_delete=models.CASCADE,  verbose_name="Microservice Database")    
 	protobuf       = models.ForeignKey(grcpProtoBuf, null=True, blank=True, on_delete=models.CASCADE,   verbose_name="Microservice Protobuf")    
 	field          = models.CharField(max_length=50, null=False, blank=False, db_index=True, default="",verbose_name="Protobuf Field")
-	is_query       = models.BooleanField(default=False)
+	is_query       = models.BooleanField(default=False, verbose_name="Query")
+	is_update      = models.BooleanField(default=False, verbose_name="Update")
 	field_sequence = models.IntegerField(default=1, verbose_name="Field Sequence")
 	query_sequence = models.IntegerField(default=1, verbose_name="Query Sequence" )
 	
@@ -280,5 +300,47 @@ class grcpProtoBufFields(TimestampedModel):
 	
 	def __str__(self):
 		return '%s' % (self.field)
+	
+	
+
+class sectionProfile(TimestampedModel):
+	"""
+	Major Section 
+	"""
+	section     = models.CharField(max_length=100, null=False, blank=False, db_index=True)
+	is_active   = models.BooleanField(default=True)
+	is_delete   = models.BooleanField(default=False)
+	description = models.TextField('Section Description', null=True, blank=True)
+
+	class Meta:
+		app_label = 'cupid'
+		verbose_name = _('CATEGORY SECTION')
+		verbose_name_plural = _('CATEGORY SECTIONS')
+		ordering =  ['section',  ]
+
+	def __str__(self):
+		return '%s' % (self.section)
+	
+
+class DBLogEntry(models.Model):
+	time = models.DateTimeField(auto_now_add=True)
+	level = models.CharField(max_length=10)
+	message = models.TextField()
+
+	class Meta:
+		abstract = True
+		app_label = 'django_grpc_framework'
+		verbose_name = _('DJANGO SYSTEM LOG')
+		verbose_name_plural = _('DJANGO SYSTEM LOGS')
+
+class GeneralLog(DBLogEntry, TimestampedModel):
+	pass
+
+class SpecialLog(DBLogEntry, TimestampedModel):
+	pass
+
+	
+
+	
 	
 	

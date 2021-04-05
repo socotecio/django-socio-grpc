@@ -4,6 +4,7 @@ from datetime import datetime
 import sys
 import errno
 import os
+import logging
 
 import grpc
 from django.utils import autoreload
@@ -11,6 +12,9 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from django_grpc_framework.settings import grpc_settings, GRPC_CHANNEL_PORT
+
+logger = logging.getLogger('grpc_server')
+
 
 
 class Command(BaseCommand):
@@ -21,7 +25,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'address', nargs='?', default='[::]:%s' % GRPC_CHANNEL_PORT,
+            'address', nargs='?', default='[::]:{}'.format(GRPC_CHANNEL_PORT),
             help='Optional address for which to open a port.'
         )
         parser.add_argument(
@@ -50,11 +54,9 @@ class Command(BaseCommand):
             else:
                 autoreload.main(self.inner_run, None, options)
         else:
+            logger.info(("Starting gRPC server at %(address)s\n") % {"address": self.address,})
             self.stdout.write((
-                "Starting gRPC server at %(address)s\n"
-            ) % {
-                "address": self.address,
-            })
+                "Starting gRPC server at %(address)s\n") % {"address": self.address,})
             self._serve()
 
     def _serve(self):
@@ -69,7 +71,7 @@ class Command(BaseCommand):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
         autoreload.raise_last_exception()
-
+        logger.info('"Performing system checks...\n\n')
         self.stdout.write("Performing system checks...\n\n")
         self.check(display_num_errors=True)
         # Need to check migrations here, so can't use the
@@ -78,32 +80,39 @@ class Command(BaseCommand):
         now = datetime.now().strftime('%B %d, %Y - %X')
         self.stdout.write(now)
         quit_command = 'CTRL-BREAK' if sys.platform == 'win32' else 'CONTROL-C'
-        self.stdout.write((
-            "Django version %(version)s, using settings %(settings)r\n"
+        serverStartDta = ("Django version %(version)s, using settings %(settings)r\n"
             "Starting development gRPC server at %(address)s\n"
             "Quit the server with %(quit_command)s.\n"
         ) % {
-            "version": self.get_version(),
-            "settings": settings.SETTINGS_MODULE,
-            "address": self.address,
+            "version":      self.get_version(),
+            "settings":     settings.SETTINGS_MODULE,
+            "address":      self.address,
             "quit_command": quit_command,
-        })
+        }
+
+        # --------------------------------------------
+        # ---  START GRPC   SERVER                 ---
+        # --------------------------------------------
+        logger.info(serverStartDta)
+        self.stdout.write(serverStartDta)
         try:
             self._serve()
         except OSError as e:
-            print('**** Error *****')
             # Use helpful error messages instead of ugly tracebacks.
             ERRORS = {
-                errno.EACCES: "You don't have permission to access that port.",
-                errno.EADDRINUSE: "That port is already in use.",
+                errno.EACCES       : "You don't have permission to access that port.",
+                errno.EADDRINUSE   : "That port is already in use.",
                 errno.EADDRNOTAVAIL: "That IP address can't be assigned to.",
             }
             try:
                 error_text = ERRORS[e.errno]
             except KeyError:
                 error_text = e
-            self.stderr.write("Error: %s" % error_text)
+            errorData = "Error: {}".format(error_text)
+            logger.error(errorData)
+            self.stderr.write(errorData)
             # Need to use an OS exit because sys.exit doesn't work in a thread
             os._exit(1)
         except KeyboardInterrupt:
+            log.warning('Exit gRPC Server')
             sys.exit(0)

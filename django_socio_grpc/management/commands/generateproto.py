@@ -15,7 +15,7 @@ class Command(BaseCommand):
         parser.add_argument('--fields', dest='fields',  default=None, type=str, help='specify which fields to include, comma-seperated' )
         parser.add_argument('--file',   dest='file',    default=None, type=str, help='the generated proto file path')
         parser.add_argument('--app',    dest='package', default=None, type=str, help='specify Django Application' )
-        parser.add_argument('--update', dest='update',  default='', type=str,   help='Replace the prooto file')
+        parser.add_argument('--update', dest='update',  default='', type=str,   help='Replace the proto file')
 
     def handle(self, *args, **options):
         
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         # ---- extract protog Gen Parameters     --- 
         # ------------------------------------------
         self.update = options['update']
-        self.package = options['app']
+        self.package = options['package']
         
         try:
             model       = import_string(options['model'])

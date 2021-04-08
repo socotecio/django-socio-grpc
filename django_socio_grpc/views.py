@@ -1,4 +1,4 @@
-from django_grpc_framework.settings import GRPC_CHANNEL_PORT
+from django_grpc_framework.settings import GRPC_CHANNEL_PORT, GRPC_HOST_DEFINITION
 import grpc
 import importlib
 from django_grpc_framework.models import grcpMicroServices, grcpDataBases, grcpProtoBufFields, grpcMethod
@@ -13,7 +13,7 @@ class grpcClient():
 	https://stackoverflow.com/questions/301134/how-to-import-a-module-given-its-name-as-string
 	"""
 	
-	def __init__(self, service, method='List', channel='50051', debug=True, value=None, logger=settings.LOGGING_SUPPORT['client']):
+	def __init__(self, service, method='List', channel='50051', debug=True, value=None, logger=settings.LOGGING_SUPPORT['client'], server='client'):
 		
 		from utils.utils import getFromChoices
 		from django_grpc_framework.models import socioGrpcErrors
@@ -34,6 +34,7 @@ class grpcClient():
 		self.debug              = debug
 		self.channel            = channel
 		self.service            = service
+		self.server             = server
 		self.query              = ''
 		self.abort              = True
 		self.value              = value
@@ -63,6 +64,7 @@ class grpcClient():
 			'Destroy' : ''   ,
 			'Custom'  : ''   ,
 		}
+		
 		
 		# ------------------------------------
 		# ---  Check Method                ---
@@ -137,10 +139,14 @@ class grpcClient():
 			
 			# --------------------------------------------------
 			# --- Instantiate grpc Server Handle             ---
+			# --------------------------------------------------
+			if self.server in GRPC_HOST_DEFINITION:
+				gRPCHost    = GRPC_HOST_DEFINITION[self.server][0]
+				gRPCChannel = GRPC_HOST_DEFINITION[self.server][1]
 			try:
-				self.grpcHandle = grpc.insecure_channel('localhost:{}'.format(GRPC_CHANNEL_PORT)) 
+				self.grpcHandle = grpc.insecure_channel('{}:{}'.format(gRPCHost, gRPCChannel)) 
 			except:
-				self.prepareError(907, reason='No grpc Server has been started or Invalid Port [{}]'.format(GRPC_CHANNEL_PORT))
+				self.prepareError(907, reason='No grpc Server has been started or Invalid Port [{}:{}]'.format(gRPCHost, gRPCChannel))
 				return
 			
 		# -----------------------------------------------
@@ -216,8 +222,8 @@ class grpcClient():
 		# --- connect to gRPC  Server with  preselected Channel Port (default : 50051 )  ---
 		# ----------------------------------------------------------------------------------
 		with self.grpcHandle:
-			# --------------------------------------------
-			# ---- Query on Django Auth User DataBase  ---
+			# ----------------------------------------------------------------------------
+			# ---- Query on Django Auth User DataBase or Car Database (as sample use ) ---
 			self.stub        = self.pb2GRPC(self.grpcHandle)
 			self._statusGRPC = self.executeMicroservice()
 			if self._statusGRPC:

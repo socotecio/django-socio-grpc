@@ -2,6 +2,7 @@ import os
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.module_loading import import_string
+from utils.utils import getModel, getModelColumn
 
 from django_grpc_framework.protobuf.generators import ModelProtoGenerator
 
@@ -10,21 +11,33 @@ class Command(BaseCommand):
     help = "Generates proto."
 
     def add_arguments(self, parser):
-        parser.add_argument('--model',  dest='model', type=str, required=True, help='dotted path to a model class')
-        parser.add_argument('--fields', dest='fields', default=None, type=str, help='specify which fields to include, comma-seperated' )
-        parser.add_argument('--file',   dest='file',   default=None, type=str, help='the generated proto file path')
-        parser.add_argument('--update', dest='update', default='', type=str, help='Replace the prooto file')
+        parser.add_argument('--model',  dest='model', type=str, required=True,  help='dotted path to a model class')
+        parser.add_argument('--fields', dest='fields',  default=None, type=str, help='specify which fields to include, comma-seperated' )
+        parser.add_argument('--file',   dest='file',    default=None, type=str, help='the generated proto file path')
+        parser.add_argument('--app',    dest='package', default=None, type=str, help='specify Django Application' )
+        parser.add_argument('--update', dest='update',  default='', type=str,   help='Replace the prooto file')
 
     def handle(self, *args, **options):
         
         self.validProto = True
+        modelValid      = False
+        fieldsArray     = []
+        fieldsSep       = ','
         
         # ------------------------------------------
         # ---- extract protog Gen Parameters     --- 
         # ------------------------------------------
         self.update = options['update']
-        model       = import_string(options['model'])
-        fields      = options['fields'].split(',') if options['fields'] else None
+        self.package = options['app']
+        
+        try:
+            model       = import_string(options['model'])
+            modelValid = True
+        except:
+            model       = options['model']
+        fields      = options['fields']
+        if fields != '*':
+            fields = options['fields'].split(',') if options['fields'] else None
         filepath    = options['file']
         
         # --------------------------------------------------
@@ -32,15 +45,42 @@ class Command(BaseCommand):
         # --------------------------------------------------
         if filepath and os.path.exists(filepath) and not self.update:
             raise CommandError('File "%s" already exists.' % filepath)
-        if filepath:
-            package = os.path.splitext(os.path.basename(filepath))[0]
+        
+        # -------------------------------------------------------------------------
+        # -- if no Django app provided, extract the App from protobuf file path ---
+        # -------------------------------------------------------------------------
+        if not self.package:
+            if filepath:
+                self.package = os.path.splitext(os.path.basename(filepath))[0]
+            else:
+                self.package = None
+            
+        # ---------------------------------------------
+        # --- extract all available model's Column  ---
+        # ---------------------------------------------
+        if not modelValid:
+            model = getModel(model)
+            
+        # --------------------------------------------------------
+        # ----  AUTO GENERATION OF ALL DATA MODEL FIELDS LIST  ---
+        # ----  Valid Model extract Data Fields definition     --- 
+        # --------------------------------------------------------
+        if model:
+            if fields == '*':
+                arrayFields = getModelColumn(model)
+                if len(arrayFields) > 0:
+                    for col in arrayFields:
+                        fieldsArray.append(col['name'])
+                    fields = fieldsArray
         else:
-            package = None
+            self.validProto = False
+            print ('**** ERROR  : Invalid Data Model [%s]    *****' % model)
+            
             
         # ----------------------------------------------
         # --- Proto Generation Process               ---
         # ----------------------------------------------
-        generator = ModelProtoGenerator(model=model, field_names=fields, package=package, filepath=filepath )
+        generator = ModelProtoGenerator(model=model, field_names=fields, package=self.package, filepath=filepath )
         if not generator.status_proto():
             self.validProto = False
             print ('**** ERROR   %s     *****' % generator.message_proto())

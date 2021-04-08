@@ -30,6 +30,17 @@ IMPORT_STRINGS = [
     'SERVER_INTERCEPTORS',
 ]
 
+
+GRPC_CHANNEL_PORT   = '50051'   # === Main gRPC Server Channel ===
+GRPC_LOGGING_SERVER = 'xxx.xxx.xxx.xxx'
+GRPC_SYSTEM_SERVER  = 'yyy.yyy.yyy.yyy'
+
+GRPC_HOST_DEFINITION = {
+    'client'  : ['localhost'        , GRPC_CHANNEL_PORT],
+    'logging' : [GRPC_LOGGING_SERVER, 50052],
+    'system'  : GRPC_SYSTEM_SERVER  , 50053],
+    
+}
 GRPC_CHANNEL_PORT = '50051'   # === Main gRPC Server Channel ===
 
 

@@ -1,3 +1,4 @@
+import os
 from unittest.mock import mock_open, patch
 
 from django.core.management import call_command
@@ -16,6 +17,7 @@ from .assets.generated_protobuf_files import (
 )
 
 
+@patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
 class TestProtoGeneration(TestCase):
     def test_generate_one_model(self):
         self.maxDiff = None

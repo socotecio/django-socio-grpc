@@ -49,8 +49,8 @@ class Command(BaseCommand):
         if self.model_name:
             self.model_name = self.model_name.lower()
         self.project_name = options["project"]
-        if not self.project_name and hasattr(settings, "DJANGO_SETTINGS_MODULE"):
-            self.project_name = settings.DJANGO_SETTINGS_MODULE.split(".")[0]
+        if not self.project_name and os.environ.get("DJANGO_SETTINGS_MODULE"):
+            self.project_name = os.environ.get("DJANGO_SETTINGS_MODULE").split(".")[0]
         else:
             raise ProtobufGenerationException(
                 app_name=self.app_name,

@@ -14,11 +14,13 @@ sys.path.append(FAKE_APP_DIR)
 
 
 def boot_django():
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
     settings.configure(
         BASE_DIR=BASE_DIR,
         DEBUG=True,
         GRPC_FRAMEWORK={
-            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination"
+            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+            "ROOT_HANDLERS_HOOK": "fakeapp.urls.grpc_handlers",
         },
         DATABASES={
             "default": {

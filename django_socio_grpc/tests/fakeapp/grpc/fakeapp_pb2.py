@@ -18,11 +18,11 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto',
-  package='fakeapp',
+  package='myproject.fakeapp',
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n2django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto\x12\x07\x66\x61keapp\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"8\n\rUnitTestModel\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"\x1a\n\x18UnitTestModelListRequest\"S\n\x19UnitTestModelListResponse\x12\'\n\x07results\x18\x01 \x03(\x0b\x32\x16.fakeapp.UnitTestModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"*\n\x1cUnitTestModelRetrieveRequest\x12\n\n\x02id\x18\x01 \x01(\x05\")\n\x1bUnitTestModelDestroyRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x1aUnitTestModelStreamRequest\"*\n\x0c\x46oreignModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x19\n\x17\x46oreignModelListRequest\"Q\n\x18\x46oreignModelListResponse\x12&\n\x07results\x18\x01 \x03(\x0b\x32\x15.fakeapp.ForeignModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"1\n!ForeignModelRetrieveRequestCustom\x12\x0c\n\x04name\x18\x01 \x01(\t\"+\n\rManyManyModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x1a\n\x18ManyManyModelListRequest\"S\n\x19ManyManyModelListResponse\x12\'\n\x07results\x18\x01 \x03(\x0b\x32\x16.fakeapp.ManyManyModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\",\n\x1cManyManyModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"+\n\x1bManyManyModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"2\n\x11RelatedFieldModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x02 \x01(\t\"\x1e\n\x1cRelatedFieldModelListRequest\"\x8c\x01\n\x1dRelatedFieldModelListResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x02 \x01(\t\x12\x11\n\tmany_many\x18\x03 \x03(\t\x12\x19\n\x11\x63ustom_field_name\x18\x04 \x01(\t\x12\x1e\n\x16list_custom_field_name\x18\x05 \x03(\t\"0\n RelatedFieldModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"/\n\x1fRelatedFieldModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"c\n\x12SpecialFieldsModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"\x1f\n\x1dSpecialFieldsModelListRequest\"]\n\x1eSpecialFieldsModelListResponse\x12,\n\x07results\x18\x01 \x03(\x0b\x32\x1b.fakeapp.SpecialFieldsModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"1\n!SpecialFieldsModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"0\n SpecialFieldsModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"Z\n\x1cImportStructEvenInArrayModel\x12\n\n\x02id\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct2\xc5\x03\n\x17UnitTestModelController\x12O\n\x04List\x12!.fakeapp.UnitTestModelListRequest\x1a\".fakeapp.UnitTestModelListResponse\"\x00\x12:\n\x06\x43reate\x12\x16.fakeapp.UnitTestModel\x1a\x16.fakeapp.UnitTestModel\"\x00\x12K\n\x08Retrieve\x12%.fakeapp.UnitTestModelRetrieveRequest\x1a\x16.fakeapp.UnitTestModel\"\x00\x12:\n\x06Update\x12\x16.fakeapp.UnitTestModel\x1a\x16.fakeapp.UnitTestModel\"\x00\x12I\n\x07\x44\x65stroy\x12$.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12I\n\x06Stream\x12#.fakeapp.UnitTestModelStreamRequest\x1a\x16.fakeapp.UnitTestModel\"\x00\x30\x01\x32\xcd\x01\n\x16\x46oreignModelController\x12M\n\x04List\x12 .fakeapp.ForeignModelListRequest\x1a!.fakeapp.ForeignModelListResponse\"\x00\x12\x64\n\x08Retrieve\x12*.fakeapp.ForeignModelRetrieveRequestCustom\x1a*.fakeapp.ForeignModelRetrieveRequestCustom\"\x00\x32\xfa\x02\n\x17ManyManyModelController\x12O\n\x04List\x12!.fakeapp.ManyManyModelListRequest\x1a\".fakeapp.ManyManyModelListResponse\"\x00\x12:\n\x06\x43reate\x12\x16.fakeapp.ManyManyModel\x1a\x16.fakeapp.ManyManyModel\"\x00\x12K\n\x08Retrieve\x12%.fakeapp.ManyManyModelRetrieveRequest\x1a\x16.fakeapp.ManyManyModel\"\x00\x12:\n\x06Update\x12\x16.fakeapp.ManyManyModel\x1a\x16.fakeapp.ManyManyModel\"\x00\x12I\n\x07\x44\x65stroy\x12$.fakeapp.ManyManyModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\xa2\x03\n\x1bRelatedFieldModelController\x12W\n\x04List\x12%.fakeapp.RelatedFieldModelListRequest\x1a&.fakeapp.RelatedFieldModelListResponse\"\x00\x12\x42\n\x06\x43reate\x12\x1a.fakeapp.RelatedFieldModel\x1a\x1a.fakeapp.RelatedFieldModel\"\x00\x12S\n\x08Retrieve\x12).fakeapp.RelatedFieldModelRetrieveRequest\x1a\x1a.fakeapp.RelatedFieldModel\"\x00\x12\x42\n\x06Update\x12\x1a.fakeapp.RelatedFieldModel\x1a\x1a.fakeapp.RelatedFieldModel\"\x00\x12M\n\x07\x44\x65stroy\x12(.fakeapp.RelatedFieldModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\xac\x03\n\x1cSpecialFieldsModelController\x12Y\n\x04List\x12&.fakeapp.SpecialFieldsModelListRequest\x1a\'.fakeapp.SpecialFieldsModelListResponse\"\x00\x12\x44\n\x06\x43reate\x12\x1b.fakeapp.SpecialFieldsModel\x1a\x1b.fakeapp.SpecialFieldsModel\"\x00\x12U\n\x08Retrieve\x12*.fakeapp.SpecialFieldsModelRetrieveRequest\x1a\x1b.fakeapp.SpecialFieldsModel\"\x00\x12\x44\n\x06Update\x12\x1b.fakeapp.SpecialFieldsModel\x1a\x1b.fakeapp.SpecialFieldsModel\"\x00\x12N\n\x07\x44\x65stroy\x12).fakeapp.SpecialFieldsModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n2django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto\x12\x11myproject.fakeapp\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"8\n\rUnitTestModel\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"\x1a\n\x18UnitTestModelListRequest\"]\n\x19UnitTestModelListResponse\x12\x31\n\x07results\x18\x01 \x03(\x0b\x32 .myproject.fakeapp.UnitTestModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"*\n\x1cUnitTestModelRetrieveRequest\x12\n\n\x02id\x18\x01 \x01(\x05\")\n\x1bUnitTestModelDestroyRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x1aUnitTestModelStreamRequest\"*\n\x0c\x46oreignModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x19\n\x17\x46oreignModelListRequest\"[\n\x18\x46oreignModelListResponse\x12\x30\n\x07results\x18\x01 \x03(\x0b\x32\x1f.myproject.fakeapp.ForeignModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"1\n!ForeignModelRetrieveRequestCustom\x12\x0c\n\x04name\x18\x01 \x01(\t\"+\n\rManyManyModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x1a\n\x18ManyManyModelListRequest\"]\n\x19ManyManyModelListResponse\x12\x31\n\x07results\x18\x01 \x03(\x0b\x32 .myproject.fakeapp.ManyManyModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\",\n\x1cManyManyModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"+\n\x1bManyManyModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"2\n\x11RelatedFieldModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x02 \x01(\t\"\x1e\n\x1cRelatedFieldModelListRequest\"\x8c\x01\n\x1dRelatedFieldModelListResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x02 \x01(\t\x12\x11\n\tmany_many\x18\x03 \x03(\t\x12\x19\n\x11\x63ustom_field_name\x18\x04 \x01(\t\x12\x1e\n\x16list_custom_field_name\x18\x05 \x03(\t\"0\n RelatedFieldModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"/\n\x1fRelatedFieldModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"c\n\x12SpecialFieldsModel\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"\x1f\n\x1dSpecialFieldsModelListRequest\"g\n\x1eSpecialFieldsModelListResponse\x12\x36\n\x07results\x18\x01 \x03(\x0b\x32%.myproject.fakeapp.SpecialFieldsModel\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"1\n!SpecialFieldsModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"0\n SpecialFieldsModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"Z\n\x1cImportStructEvenInArrayModel\x12\n\n\x02id\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct2\xb3\x04\n\x17UnitTestModelController\x12\x63\n\x04List\x12+.myproject.fakeapp.UnitTestModelListRequest\x1a,.myproject.fakeapp.UnitTestModelListResponse\"\x00\x12N\n\x06\x43reate\x12 .myproject.fakeapp.UnitTestModel\x1a .myproject.fakeapp.UnitTestModel\"\x00\x12_\n\x08Retrieve\x12/.myproject.fakeapp.UnitTestModelRetrieveRequest\x1a .myproject.fakeapp.UnitTestModel\"\x00\x12N\n\x06Update\x12 .myproject.fakeapp.UnitTestModel\x1a .myproject.fakeapp.UnitTestModel\"\x00\x12S\n\x07\x44\x65stroy\x12..myproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12]\n\x06Stream\x12-.myproject.fakeapp.UnitTestModelStreamRequest\x1a .myproject.fakeapp.UnitTestModel\"\x00\x30\x01\x32\xf5\x01\n\x16\x46oreignModelController\x12\x61\n\x04List\x12*.myproject.fakeapp.ForeignModelListRequest\x1a+.myproject.fakeapp.ForeignModelListResponse\"\x00\x12x\n\x08Retrieve\x12\x34.myproject.fakeapp.ForeignModelRetrieveRequestCustom\x1a\x34.myproject.fakeapp.ForeignModelRetrieveRequestCustom\"\x00\x32\xd4\x03\n\x17ManyManyModelController\x12\x63\n\x04List\x12+.myproject.fakeapp.ManyManyModelListRequest\x1a,.myproject.fakeapp.ManyManyModelListResponse\"\x00\x12N\n\x06\x43reate\x12 .myproject.fakeapp.ManyManyModel\x1a .myproject.fakeapp.ManyManyModel\"\x00\x12_\n\x08Retrieve\x12/.myproject.fakeapp.ManyManyModelRetrieveRequest\x1a .myproject.fakeapp.ManyManyModel\"\x00\x12N\n\x06Update\x12 .myproject.fakeapp.ManyManyModel\x1a .myproject.fakeapp.ManyManyModel\"\x00\x12S\n\x07\x44\x65stroy\x12..myproject.fakeapp.ManyManyModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\xfc\x03\n\x1bRelatedFieldModelController\x12k\n\x04List\x12/.myproject.fakeapp.RelatedFieldModelListRequest\x1a\x30.myproject.fakeapp.RelatedFieldModelListResponse\"\x00\x12V\n\x06\x43reate\x12$.myproject.fakeapp.RelatedFieldModel\x1a$.myproject.fakeapp.RelatedFieldModel\"\x00\x12g\n\x08Retrieve\x12\x33.myproject.fakeapp.RelatedFieldModelRetrieveRequest\x1a$.myproject.fakeapp.RelatedFieldModel\"\x00\x12V\n\x06Update\x12$.myproject.fakeapp.RelatedFieldModel\x1a$.myproject.fakeapp.RelatedFieldModel\"\x00\x12W\n\x07\x44\x65stroy\x12\x32.myproject.fakeapp.RelatedFieldModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\x86\x04\n\x1cSpecialFieldsModelController\x12m\n\x04List\x12\x30.myproject.fakeapp.SpecialFieldsModelListRequest\x1a\x31.myproject.fakeapp.SpecialFieldsModelListResponse\"\x00\x12X\n\x06\x43reate\x12%.myproject.fakeapp.SpecialFieldsModel\x1a%.myproject.fakeapp.SpecialFieldsModel\"\x00\x12i\n\x08Retrieve\x12\x34.myproject.fakeapp.SpecialFieldsModelRetrieveRequest\x1a%.myproject.fakeapp.SpecialFieldsModel\"\x00\x12X\n\x06Update\x12%.myproject.fakeapp.SpecialFieldsModel\x1a%.myproject.fakeapp.SpecialFieldsModel\"\x00\x12X\n\x07\x44\x65stroy\x12\x33.myproject.fakeapp.SpecialFieldsModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_struct__pb2.DESCRIPTOR,])
 
@@ -31,28 +31,28 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _UNITTESTMODEL = _descriptor.Descriptor(
   name='UnitTestModel',
-  full_name='fakeapp.UnitTestModel',
+  full_name='myproject.fakeapp.UnitTestModel',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='fakeapp.UnitTestModel.id', index=0,
+      name='id', full_name='myproject.fakeapp.UnitTestModel.id', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='title', full_name='fakeapp.UnitTestModel.title', index=1,
+      name='title', full_name='myproject.fakeapp.UnitTestModel.title', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='text', full_name='fakeapp.UnitTestModel.text', index=2,
+      name='text', full_name='myproject.fakeapp.UnitTestModel.text', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -70,14 +70,14 @@ _UNITTESTMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=122,
-  serialized_end=178,
+  serialized_start=132,
+  serialized_end=188,
 )
 
 
 _UNITTESTMODELLISTREQUEST = _descriptor.Descriptor(
   name='UnitTestModelListRequest',
-  full_name='fakeapp.UnitTestModelListRequest',
+  full_name='myproject.fakeapp.UnitTestModelListRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -95,28 +95,28 @@ _UNITTESTMODELLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=180,
-  serialized_end=206,
+  serialized_start=190,
+  serialized_end=216,
 )
 
 
 _UNITTESTMODELLISTRESPONSE = _descriptor.Descriptor(
   name='UnitTestModelListResponse',
-  full_name='fakeapp.UnitTestModelListResponse',
+  full_name='myproject.fakeapp.UnitTestModelListResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='results', full_name='fakeapp.UnitTestModelListResponse.results', index=0,
+      name='results', full_name='myproject.fakeapp.UnitTestModelListResponse.results', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='count', full_name='fakeapp.UnitTestModelListResponse.count', index=1,
+      name='count', full_name='myproject.fakeapp.UnitTestModelListResponse.count', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -134,21 +134,21 @@ _UNITTESTMODELLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=208,
-  serialized_end=291,
+  serialized_start=218,
+  serialized_end=311,
 )
 
 
 _UNITTESTMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   name='UnitTestModelRetrieveRequest',
-  full_name='fakeapp.UnitTestModelRetrieveRequest',
+  full_name='myproject.fakeapp.UnitTestModelRetrieveRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='fakeapp.UnitTestModelRetrieveRequest.id', index=0,
+      name='id', full_name='myproject.fakeapp.UnitTestModelRetrieveRequest.id', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -166,21 +166,21 @@ _UNITTESTMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=293,
-  serialized_end=335,
+  serialized_start=313,
+  serialized_end=355,
 )
 
 
 _UNITTESTMODELDESTROYREQUEST = _descriptor.Descriptor(
   name='UnitTestModelDestroyRequest',
-  full_name='fakeapp.UnitTestModelDestroyRequest',
+  full_name='myproject.fakeapp.UnitTestModelDestroyRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='fakeapp.UnitTestModelDestroyRequest.id', index=0,
+      name='id', full_name='myproject.fakeapp.UnitTestModelDestroyRequest.id', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -198,14 +198,14 @@ _UNITTESTMODELDESTROYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=337,
-  serialized_end=378,
+  serialized_start=357,
+  serialized_end=398,
 )
 
 
 _UNITTESTMODELSTREAMREQUEST = _descriptor.Descriptor(
   name='UnitTestModelStreamRequest',
-  full_name='fakeapp.UnitTestModelStreamRequest',
+  full_name='myproject.fakeapp.UnitTestModelStreamRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -223,28 +223,28 @@ _UNITTESTMODELSTREAMREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=380,
-  serialized_end=408,
+  serialized_start=400,
+  serialized_end=428,
 )
 
 
 _FOREIGNMODEL = _descriptor.Descriptor(
   name='ForeignModel',
-  full_name='fakeapp.ForeignModel',
+  full_name='myproject.fakeapp.ForeignModel',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.ForeignModel.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.ForeignModel.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='name', full_name='fakeapp.ForeignModel.name', index=1,
+      name='name', full_name='myproject.fakeapp.ForeignModel.name', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -262,14 +262,14 @@ _FOREIGNMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=410,
-  serialized_end=452,
+  serialized_start=430,
+  serialized_end=472,
 )
 
 
 _FOREIGNMODELLISTREQUEST = _descriptor.Descriptor(
   name='ForeignModelListRequest',
-  full_name='fakeapp.ForeignModelListRequest',
+  full_name='myproject.fakeapp.ForeignModelListRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -287,28 +287,28 @@ _FOREIGNMODELLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=454,
-  serialized_end=479,
+  serialized_start=474,
+  serialized_end=499,
 )
 
 
 _FOREIGNMODELLISTRESPONSE = _descriptor.Descriptor(
   name='ForeignModelListResponse',
-  full_name='fakeapp.ForeignModelListResponse',
+  full_name='myproject.fakeapp.ForeignModelListResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='results', full_name='fakeapp.ForeignModelListResponse.results', index=0,
+      name='results', full_name='myproject.fakeapp.ForeignModelListResponse.results', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='count', full_name='fakeapp.ForeignModelListResponse.count', index=1,
+      name='count', full_name='myproject.fakeapp.ForeignModelListResponse.count', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -326,21 +326,21 @@ _FOREIGNMODELLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=481,
-  serialized_end=562,
+  serialized_start=501,
+  serialized_end=592,
 )
 
 
 _FOREIGNMODELRETRIEVEREQUESTCUSTOM = _descriptor.Descriptor(
   name='ForeignModelRetrieveRequestCustom',
-  full_name='fakeapp.ForeignModelRetrieveRequestCustom',
+  full_name='myproject.fakeapp.ForeignModelRetrieveRequestCustom',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='fakeapp.ForeignModelRetrieveRequestCustom.name', index=0,
+      name='name', full_name='myproject.fakeapp.ForeignModelRetrieveRequestCustom.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -358,28 +358,28 @@ _FOREIGNMODELRETRIEVEREQUESTCUSTOM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=564,
-  serialized_end=613,
+  serialized_start=594,
+  serialized_end=643,
 )
 
 
 _MANYMANYMODEL = _descriptor.Descriptor(
   name='ManyManyModel',
-  full_name='fakeapp.ManyManyModel',
+  full_name='myproject.fakeapp.ManyManyModel',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.ManyManyModel.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.ManyManyModel.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='name', full_name='fakeapp.ManyManyModel.name', index=1,
+      name='name', full_name='myproject.fakeapp.ManyManyModel.name', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -397,14 +397,14 @@ _MANYMANYMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=615,
-  serialized_end=658,
+  serialized_start=645,
+  serialized_end=688,
 )
 
 
 _MANYMANYMODELLISTREQUEST = _descriptor.Descriptor(
   name='ManyManyModelListRequest',
-  full_name='fakeapp.ManyManyModelListRequest',
+  full_name='myproject.fakeapp.ManyManyModelListRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -422,28 +422,28 @@ _MANYMANYMODELLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=660,
-  serialized_end=686,
+  serialized_start=690,
+  serialized_end=716,
 )
 
 
 _MANYMANYMODELLISTRESPONSE = _descriptor.Descriptor(
   name='ManyManyModelListResponse',
-  full_name='fakeapp.ManyManyModelListResponse',
+  full_name='myproject.fakeapp.ManyManyModelListResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='results', full_name='fakeapp.ManyManyModelListResponse.results', index=0,
+      name='results', full_name='myproject.fakeapp.ManyManyModelListResponse.results', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='count', full_name='fakeapp.ManyManyModelListResponse.count', index=1,
+      name='count', full_name='myproject.fakeapp.ManyManyModelListResponse.count', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -461,21 +461,21 @@ _MANYMANYMODELLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=688,
-  serialized_end=771,
+  serialized_start=718,
+  serialized_end=811,
 )
 
 
 _MANYMANYMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   name='ManyManyModelRetrieveRequest',
-  full_name='fakeapp.ManyManyModelRetrieveRequest',
+  full_name='myproject.fakeapp.ManyManyModelRetrieveRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.ManyManyModelRetrieveRequest.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.ManyManyModelRetrieveRequest.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -493,21 +493,21 @@ _MANYMANYMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=773,
-  serialized_end=817,
+  serialized_start=813,
+  serialized_end=857,
 )
 
 
 _MANYMANYMODELDESTROYREQUEST = _descriptor.Descriptor(
   name='ManyManyModelDestroyRequest',
-  full_name='fakeapp.ManyManyModelDestroyRequest',
+  full_name='myproject.fakeapp.ManyManyModelDestroyRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.ManyManyModelDestroyRequest.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.ManyManyModelDestroyRequest.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -525,28 +525,28 @@ _MANYMANYMODELDESTROYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=819,
-  serialized_end=862,
+  serialized_start=859,
+  serialized_end=902,
 )
 
 
 _RELATEDFIELDMODEL = _descriptor.Descriptor(
   name='RelatedFieldModel',
-  full_name='fakeapp.RelatedFieldModel',
+  full_name='myproject.fakeapp.RelatedFieldModel',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.RelatedFieldModel.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.RelatedFieldModel.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='foreign', full_name='fakeapp.RelatedFieldModel.foreign', index=1,
+      name='foreign', full_name='myproject.fakeapp.RelatedFieldModel.foreign', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -564,14 +564,14 @@ _RELATEDFIELDMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=864,
-  serialized_end=914,
+  serialized_start=904,
+  serialized_end=954,
 )
 
 
 _RELATEDFIELDMODELLISTREQUEST = _descriptor.Descriptor(
   name='RelatedFieldModelListRequest',
-  full_name='fakeapp.RelatedFieldModelListRequest',
+  full_name='myproject.fakeapp.RelatedFieldModelListRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -589,49 +589,49 @@ _RELATEDFIELDMODELLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=916,
-  serialized_end=946,
+  serialized_start=956,
+  serialized_end=986,
 )
 
 
 _RELATEDFIELDMODELLISTRESPONSE = _descriptor.Descriptor(
   name='RelatedFieldModelListResponse',
-  full_name='fakeapp.RelatedFieldModelListResponse',
+  full_name='myproject.fakeapp.RelatedFieldModelListResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.RelatedFieldModelListResponse.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.RelatedFieldModelListResponse.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='foreign', full_name='fakeapp.RelatedFieldModelListResponse.foreign', index=1,
+      name='foreign', full_name='myproject.fakeapp.RelatedFieldModelListResponse.foreign', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='many_many', full_name='fakeapp.RelatedFieldModelListResponse.many_many', index=2,
+      name='many_many', full_name='myproject.fakeapp.RelatedFieldModelListResponse.many_many', index=2,
       number=3, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='custom_field_name', full_name='fakeapp.RelatedFieldModelListResponse.custom_field_name', index=3,
+      name='custom_field_name', full_name='myproject.fakeapp.RelatedFieldModelListResponse.custom_field_name', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='list_custom_field_name', full_name='fakeapp.RelatedFieldModelListResponse.list_custom_field_name', index=4,
+      name='list_custom_field_name', full_name='myproject.fakeapp.RelatedFieldModelListResponse.list_custom_field_name', index=4,
       number=5, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -649,21 +649,21 @@ _RELATEDFIELDMODELLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=949,
-  serialized_end=1089,
+  serialized_start=989,
+  serialized_end=1129,
 )
 
 
 _RELATEDFIELDMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   name='RelatedFieldModelRetrieveRequest',
-  full_name='fakeapp.RelatedFieldModelRetrieveRequest',
+  full_name='myproject.fakeapp.RelatedFieldModelRetrieveRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.RelatedFieldModelRetrieveRequest.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.RelatedFieldModelRetrieveRequest.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -681,21 +681,21 @@ _RELATEDFIELDMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1091,
-  serialized_end=1139,
+  serialized_start=1131,
+  serialized_end=1179,
 )
 
 
 _RELATEDFIELDMODELDESTROYREQUEST = _descriptor.Descriptor(
   name='RelatedFieldModelDestroyRequest',
-  full_name='fakeapp.RelatedFieldModelDestroyRequest',
+  full_name='myproject.fakeapp.RelatedFieldModelDestroyRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.RelatedFieldModelDestroyRequest.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.RelatedFieldModelDestroyRequest.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -713,35 +713,35 @@ _RELATEDFIELDMODELDESTROYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1141,
-  serialized_end=1188,
+  serialized_start=1181,
+  serialized_end=1228,
 )
 
 
 _SPECIALFIELDSMODEL = _descriptor.Descriptor(
   name='SpecialFieldsModel',
-  full_name='fakeapp.SpecialFieldsModel',
+  full_name='myproject.fakeapp.SpecialFieldsModel',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.SpecialFieldsModel.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.SpecialFieldsModel.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='meta_datas', full_name='fakeapp.SpecialFieldsModel.meta_datas', index=1,
+      name='meta_datas', full_name='myproject.fakeapp.SpecialFieldsModel.meta_datas', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='list_datas', full_name='fakeapp.SpecialFieldsModel.list_datas', index=2,
+      name='list_datas', full_name='myproject.fakeapp.SpecialFieldsModel.list_datas', index=2,
       number=3, type=5, cpp_type=1, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -759,14 +759,14 @@ _SPECIALFIELDSMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1190,
-  serialized_end=1289,
+  serialized_start=1230,
+  serialized_end=1329,
 )
 
 
 _SPECIALFIELDSMODELLISTREQUEST = _descriptor.Descriptor(
   name='SpecialFieldsModelListRequest',
-  full_name='fakeapp.SpecialFieldsModelListRequest',
+  full_name='myproject.fakeapp.SpecialFieldsModelListRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
@@ -784,28 +784,28 @@ _SPECIALFIELDSMODELLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1291,
-  serialized_end=1322,
+  serialized_start=1331,
+  serialized_end=1362,
 )
 
 
 _SPECIALFIELDSMODELLISTRESPONSE = _descriptor.Descriptor(
   name='SpecialFieldsModelListResponse',
-  full_name='fakeapp.SpecialFieldsModelListResponse',
+  full_name='myproject.fakeapp.SpecialFieldsModelListResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='results', full_name='fakeapp.SpecialFieldsModelListResponse.results', index=0,
+      name='results', full_name='myproject.fakeapp.SpecialFieldsModelListResponse.results', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='count', full_name='fakeapp.SpecialFieldsModelListResponse.count', index=1,
+      name='count', full_name='myproject.fakeapp.SpecialFieldsModelListResponse.count', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -823,21 +823,21 @@ _SPECIALFIELDSMODELLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1324,
-  serialized_end=1417,
+  serialized_start=1364,
+  serialized_end=1467,
 )
 
 
 _SPECIALFIELDSMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   name='SpecialFieldsModelRetrieveRequest',
-  full_name='fakeapp.SpecialFieldsModelRetrieveRequest',
+  full_name='myproject.fakeapp.SpecialFieldsModelRetrieveRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.SpecialFieldsModelRetrieveRequest.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.SpecialFieldsModelRetrieveRequest.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -855,21 +855,21 @@ _SPECIALFIELDSMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1419,
-  serialized_end=1468,
+  serialized_start=1469,
+  serialized_end=1518,
 )
 
 
 _SPECIALFIELDSMODELDESTROYREQUEST = _descriptor.Descriptor(
   name='SpecialFieldsModelDestroyRequest',
-  full_name='fakeapp.SpecialFieldsModelDestroyRequest',
+  full_name='myproject.fakeapp.SpecialFieldsModelDestroyRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='uuid', full_name='fakeapp.SpecialFieldsModelDestroyRequest.uuid', index=0,
+      name='uuid', full_name='myproject.fakeapp.SpecialFieldsModelDestroyRequest.uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -887,28 +887,28 @@ _SPECIALFIELDSMODELDESTROYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1470,
-  serialized_end=1518,
+  serialized_start=1520,
+  serialized_end=1568,
 )
 
 
 _IMPORTSTRUCTEVENINARRAYMODEL = _descriptor.Descriptor(
   name='ImportStructEvenInArrayModel',
-  full_name='fakeapp.ImportStructEvenInArrayModel',
+  full_name='myproject.fakeapp.ImportStructEvenInArrayModel',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='id', full_name='fakeapp.ImportStructEvenInArrayModel.id', index=0,
+      name='id', full_name='myproject.fakeapp.ImportStructEvenInArrayModel.id', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='this_is_crazy', full_name='fakeapp.ImportStructEvenInArrayModel.this_is_crazy', index=1,
+      name='this_is_crazy', full_name='myproject.fakeapp.ImportStructEvenInArrayModel.this_is_crazy', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -926,8 +926,8 @@ _IMPORTSTRUCTEVENINARRAYMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1520,
-  serialized_end=1610,
+  serialized_start=1570,
+  serialized_end=1660,
 )
 
 _UNITTESTMODELLISTRESPONSE.fields_by_name['results'].message_type = _UNITTESTMODEL
@@ -967,182 +967,182 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 UnitTestModel = _reflection.GeneratedProtocolMessageType('UnitTestModel', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODEL,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.UnitTestModel)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.UnitTestModel)
   })
 _sym_db.RegisterMessage(UnitTestModel)
 
 UnitTestModelListRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELLISTREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.UnitTestModelListRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.UnitTestModelListRequest)
   })
 _sym_db.RegisterMessage(UnitTestModelListRequest)
 
 UnitTestModelListResponse = _reflection.GeneratedProtocolMessageType('UnitTestModelListResponse', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELLISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.UnitTestModelListResponse)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.UnitTestModelListResponse)
   })
 _sym_db.RegisterMessage(UnitTestModelListResponse)
 
 UnitTestModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelRetrieveRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELRETRIEVEREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.UnitTestModelRetrieveRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.UnitTestModelRetrieveRequest)
   })
 _sym_db.RegisterMessage(UnitTestModelRetrieveRequest)
 
 UnitTestModelDestroyRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelDestroyRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELDESTROYREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.UnitTestModelDestroyRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.UnitTestModelDestroyRequest)
   })
 _sym_db.RegisterMessage(UnitTestModelDestroyRequest)
 
 UnitTestModelStreamRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelStreamRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELSTREAMREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.UnitTestModelStreamRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.UnitTestModelStreamRequest)
   })
 _sym_db.RegisterMessage(UnitTestModelStreamRequest)
 
 ForeignModel = _reflection.GeneratedProtocolMessageType('ForeignModel', (_message.Message,), {
   'DESCRIPTOR' : _FOREIGNMODEL,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ForeignModel)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ForeignModel)
   })
 _sym_db.RegisterMessage(ForeignModel)
 
 ForeignModelListRequest = _reflection.GeneratedProtocolMessageType('ForeignModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _FOREIGNMODELLISTREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ForeignModelListRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ForeignModelListRequest)
   })
 _sym_db.RegisterMessage(ForeignModelListRequest)
 
 ForeignModelListResponse = _reflection.GeneratedProtocolMessageType('ForeignModelListResponse', (_message.Message,), {
   'DESCRIPTOR' : _FOREIGNMODELLISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ForeignModelListResponse)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ForeignModelListResponse)
   })
 _sym_db.RegisterMessage(ForeignModelListResponse)
 
 ForeignModelRetrieveRequestCustom = _reflection.GeneratedProtocolMessageType('ForeignModelRetrieveRequestCustom', (_message.Message,), {
   'DESCRIPTOR' : _FOREIGNMODELRETRIEVEREQUESTCUSTOM,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ForeignModelRetrieveRequestCustom)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ForeignModelRetrieveRequestCustom)
   })
 _sym_db.RegisterMessage(ForeignModelRetrieveRequestCustom)
 
 ManyManyModel = _reflection.GeneratedProtocolMessageType('ManyManyModel', (_message.Message,), {
   'DESCRIPTOR' : _MANYMANYMODEL,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ManyManyModel)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ManyManyModel)
   })
 _sym_db.RegisterMessage(ManyManyModel)
 
 ManyManyModelListRequest = _reflection.GeneratedProtocolMessageType('ManyManyModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _MANYMANYMODELLISTREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ManyManyModelListRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ManyManyModelListRequest)
   })
 _sym_db.RegisterMessage(ManyManyModelListRequest)
 
 ManyManyModelListResponse = _reflection.GeneratedProtocolMessageType('ManyManyModelListResponse', (_message.Message,), {
   'DESCRIPTOR' : _MANYMANYMODELLISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ManyManyModelListResponse)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ManyManyModelListResponse)
   })
 _sym_db.RegisterMessage(ManyManyModelListResponse)
 
 ManyManyModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('ManyManyModelRetrieveRequest', (_message.Message,), {
   'DESCRIPTOR' : _MANYMANYMODELRETRIEVEREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ManyManyModelRetrieveRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ManyManyModelRetrieveRequest)
   })
 _sym_db.RegisterMessage(ManyManyModelRetrieveRequest)
 
 ManyManyModelDestroyRequest = _reflection.GeneratedProtocolMessageType('ManyManyModelDestroyRequest', (_message.Message,), {
   'DESCRIPTOR' : _MANYMANYMODELDESTROYREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ManyManyModelDestroyRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ManyManyModelDestroyRequest)
   })
 _sym_db.RegisterMessage(ManyManyModelDestroyRequest)
 
 RelatedFieldModel = _reflection.GeneratedProtocolMessageType('RelatedFieldModel', (_message.Message,), {
   'DESCRIPTOR' : _RELATEDFIELDMODEL,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.RelatedFieldModel)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.RelatedFieldModel)
   })
 _sym_db.RegisterMessage(RelatedFieldModel)
 
 RelatedFieldModelListRequest = _reflection.GeneratedProtocolMessageType('RelatedFieldModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _RELATEDFIELDMODELLISTREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.RelatedFieldModelListRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.RelatedFieldModelListRequest)
   })
 _sym_db.RegisterMessage(RelatedFieldModelListRequest)
 
 RelatedFieldModelListResponse = _reflection.GeneratedProtocolMessageType('RelatedFieldModelListResponse', (_message.Message,), {
   'DESCRIPTOR' : _RELATEDFIELDMODELLISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.RelatedFieldModelListResponse)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.RelatedFieldModelListResponse)
   })
 _sym_db.RegisterMessage(RelatedFieldModelListResponse)
 
 RelatedFieldModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('RelatedFieldModelRetrieveRequest', (_message.Message,), {
   'DESCRIPTOR' : _RELATEDFIELDMODELRETRIEVEREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.RelatedFieldModelRetrieveRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.RelatedFieldModelRetrieveRequest)
   })
 _sym_db.RegisterMessage(RelatedFieldModelRetrieveRequest)
 
 RelatedFieldModelDestroyRequest = _reflection.GeneratedProtocolMessageType('RelatedFieldModelDestroyRequest', (_message.Message,), {
   'DESCRIPTOR' : _RELATEDFIELDMODELDESTROYREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.RelatedFieldModelDestroyRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.RelatedFieldModelDestroyRequest)
   })
 _sym_db.RegisterMessage(RelatedFieldModelDestroyRequest)
 
 SpecialFieldsModel = _reflection.GeneratedProtocolMessageType('SpecialFieldsModel', (_message.Message,), {
   'DESCRIPTOR' : _SPECIALFIELDSMODEL,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.SpecialFieldsModel)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.SpecialFieldsModel)
   })
 _sym_db.RegisterMessage(SpecialFieldsModel)
 
 SpecialFieldsModelListRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _SPECIALFIELDSMODELLISTREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.SpecialFieldsModelListRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.SpecialFieldsModelListRequest)
   })
 _sym_db.RegisterMessage(SpecialFieldsModelListRequest)
 
 SpecialFieldsModelListResponse = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelListResponse', (_message.Message,), {
   'DESCRIPTOR' : _SPECIALFIELDSMODELLISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.SpecialFieldsModelListResponse)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.SpecialFieldsModelListResponse)
   })
 _sym_db.RegisterMessage(SpecialFieldsModelListResponse)
 
 SpecialFieldsModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelRetrieveRequest', (_message.Message,), {
   'DESCRIPTOR' : _SPECIALFIELDSMODELRETRIEVEREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.SpecialFieldsModelRetrieveRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.SpecialFieldsModelRetrieveRequest)
   })
 _sym_db.RegisterMessage(SpecialFieldsModelRetrieveRequest)
 
 SpecialFieldsModelDestroyRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelDestroyRequest', (_message.Message,), {
   'DESCRIPTOR' : _SPECIALFIELDSMODELDESTROYREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.SpecialFieldsModelDestroyRequest)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.SpecialFieldsModelDestroyRequest)
   })
 _sym_db.RegisterMessage(SpecialFieldsModelDestroyRequest)
 
 ImportStructEvenInArrayModel = _reflection.GeneratedProtocolMessageType('ImportStructEvenInArrayModel', (_message.Message,), {
   'DESCRIPTOR' : _IMPORTSTRUCTEVENINARRAYMODEL,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeapp.ImportStructEvenInArrayModel)
+  # @@protoc_insertion_point(class_scope:myproject.fakeapp.ImportStructEvenInArrayModel)
   })
 _sym_db.RegisterMessage(ImportStructEvenInArrayModel)
 
@@ -1150,17 +1150,17 @@ _sym_db.RegisterMessage(ImportStructEvenInArrayModel)
 
 _UNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   name='UnitTestModelController',
-  full_name='fakeapp.UnitTestModelController',
+  full_name='myproject.fakeapp.UnitTestModelController',
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1613,
-  serialized_end=2066,
+  serialized_start=1663,
+  serialized_end=2226,
   methods=[
   _descriptor.MethodDescriptor(
     name='List',
-    full_name='fakeapp.UnitTestModelController.List',
+    full_name='myproject.fakeapp.UnitTestModelController.List',
     index=0,
     containing_service=None,
     input_type=_UNITTESTMODELLISTREQUEST,
@@ -1170,7 +1170,7 @@ _UNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Create',
-    full_name='fakeapp.UnitTestModelController.Create',
+    full_name='myproject.fakeapp.UnitTestModelController.Create',
     index=1,
     containing_service=None,
     input_type=_UNITTESTMODEL,
@@ -1180,7 +1180,7 @@ _UNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Retrieve',
-    full_name='fakeapp.UnitTestModelController.Retrieve',
+    full_name='myproject.fakeapp.UnitTestModelController.Retrieve',
     index=2,
     containing_service=None,
     input_type=_UNITTESTMODELRETRIEVEREQUEST,
@@ -1190,7 +1190,7 @@ _UNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Update',
-    full_name='fakeapp.UnitTestModelController.Update',
+    full_name='myproject.fakeapp.UnitTestModelController.Update',
     index=3,
     containing_service=None,
     input_type=_UNITTESTMODEL,
@@ -1200,7 +1200,7 @@ _UNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Destroy',
-    full_name='fakeapp.UnitTestModelController.Destroy',
+    full_name='myproject.fakeapp.UnitTestModelController.Destroy',
     index=4,
     containing_service=None,
     input_type=_UNITTESTMODELDESTROYREQUEST,
@@ -1210,7 +1210,7 @@ _UNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Stream',
-    full_name='fakeapp.UnitTestModelController.Stream',
+    full_name='myproject.fakeapp.UnitTestModelController.Stream',
     index=5,
     containing_service=None,
     input_type=_UNITTESTMODELSTREAMREQUEST,
@@ -1226,17 +1226,17 @@ DESCRIPTOR.services_by_name['UnitTestModelController'] = _UNITTESTMODELCONTROLLE
 
 _FOREIGNMODELCONTROLLER = _descriptor.ServiceDescriptor(
   name='ForeignModelController',
-  full_name='fakeapp.ForeignModelController',
+  full_name='myproject.fakeapp.ForeignModelController',
   file=DESCRIPTOR,
   index=1,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2069,
-  serialized_end=2274,
+  serialized_start=2229,
+  serialized_end=2474,
   methods=[
   _descriptor.MethodDescriptor(
     name='List',
-    full_name='fakeapp.ForeignModelController.List',
+    full_name='myproject.fakeapp.ForeignModelController.List',
     index=0,
     containing_service=None,
     input_type=_FOREIGNMODELLISTREQUEST,
@@ -1246,7 +1246,7 @@ _FOREIGNMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Retrieve',
-    full_name='fakeapp.ForeignModelController.Retrieve',
+    full_name='myproject.fakeapp.ForeignModelController.Retrieve',
     index=1,
     containing_service=None,
     input_type=_FOREIGNMODELRETRIEVEREQUESTCUSTOM,
@@ -1262,17 +1262,17 @@ DESCRIPTOR.services_by_name['ForeignModelController'] = _FOREIGNMODELCONTROLLER
 
 _MANYMANYMODELCONTROLLER = _descriptor.ServiceDescriptor(
   name='ManyManyModelController',
-  full_name='fakeapp.ManyManyModelController',
+  full_name='myproject.fakeapp.ManyManyModelController',
   file=DESCRIPTOR,
   index=2,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2277,
-  serialized_end=2655,
+  serialized_start=2477,
+  serialized_end=2945,
   methods=[
   _descriptor.MethodDescriptor(
     name='List',
-    full_name='fakeapp.ManyManyModelController.List',
+    full_name='myproject.fakeapp.ManyManyModelController.List',
     index=0,
     containing_service=None,
     input_type=_MANYMANYMODELLISTREQUEST,
@@ -1282,7 +1282,7 @@ _MANYMANYMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Create',
-    full_name='fakeapp.ManyManyModelController.Create',
+    full_name='myproject.fakeapp.ManyManyModelController.Create',
     index=1,
     containing_service=None,
     input_type=_MANYMANYMODEL,
@@ -1292,7 +1292,7 @@ _MANYMANYMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Retrieve',
-    full_name='fakeapp.ManyManyModelController.Retrieve',
+    full_name='myproject.fakeapp.ManyManyModelController.Retrieve',
     index=2,
     containing_service=None,
     input_type=_MANYMANYMODELRETRIEVEREQUEST,
@@ -1302,7 +1302,7 @@ _MANYMANYMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Update',
-    full_name='fakeapp.ManyManyModelController.Update',
+    full_name='myproject.fakeapp.ManyManyModelController.Update',
     index=3,
     containing_service=None,
     input_type=_MANYMANYMODEL,
@@ -1312,7 +1312,7 @@ _MANYMANYMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Destroy',
-    full_name='fakeapp.ManyManyModelController.Destroy',
+    full_name='myproject.fakeapp.ManyManyModelController.Destroy',
     index=4,
     containing_service=None,
     input_type=_MANYMANYMODELDESTROYREQUEST,
@@ -1328,17 +1328,17 @@ DESCRIPTOR.services_by_name['ManyManyModelController'] = _MANYMANYMODELCONTROLLE
 
 _RELATEDFIELDMODELCONTROLLER = _descriptor.ServiceDescriptor(
   name='RelatedFieldModelController',
-  full_name='fakeapp.RelatedFieldModelController',
+  full_name='myproject.fakeapp.RelatedFieldModelController',
   file=DESCRIPTOR,
   index=3,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2658,
-  serialized_end=3076,
+  serialized_start=2948,
+  serialized_end=3456,
   methods=[
   _descriptor.MethodDescriptor(
     name='List',
-    full_name='fakeapp.RelatedFieldModelController.List',
+    full_name='myproject.fakeapp.RelatedFieldModelController.List',
     index=0,
     containing_service=None,
     input_type=_RELATEDFIELDMODELLISTREQUEST,
@@ -1348,7 +1348,7 @@ _RELATEDFIELDMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Create',
-    full_name='fakeapp.RelatedFieldModelController.Create',
+    full_name='myproject.fakeapp.RelatedFieldModelController.Create',
     index=1,
     containing_service=None,
     input_type=_RELATEDFIELDMODEL,
@@ -1358,7 +1358,7 @@ _RELATEDFIELDMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Retrieve',
-    full_name='fakeapp.RelatedFieldModelController.Retrieve',
+    full_name='myproject.fakeapp.RelatedFieldModelController.Retrieve',
     index=2,
     containing_service=None,
     input_type=_RELATEDFIELDMODELRETRIEVEREQUEST,
@@ -1368,7 +1368,7 @@ _RELATEDFIELDMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Update',
-    full_name='fakeapp.RelatedFieldModelController.Update',
+    full_name='myproject.fakeapp.RelatedFieldModelController.Update',
     index=3,
     containing_service=None,
     input_type=_RELATEDFIELDMODEL,
@@ -1378,7 +1378,7 @@ _RELATEDFIELDMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Destroy',
-    full_name='fakeapp.RelatedFieldModelController.Destroy',
+    full_name='myproject.fakeapp.RelatedFieldModelController.Destroy',
     index=4,
     containing_service=None,
     input_type=_RELATEDFIELDMODELDESTROYREQUEST,
@@ -1394,17 +1394,17 @@ DESCRIPTOR.services_by_name['RelatedFieldModelController'] = _RELATEDFIELDMODELC
 
 _SPECIALFIELDSMODELCONTROLLER = _descriptor.ServiceDescriptor(
   name='SpecialFieldsModelController',
-  full_name='fakeapp.SpecialFieldsModelController',
+  full_name='myproject.fakeapp.SpecialFieldsModelController',
   file=DESCRIPTOR,
   index=4,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=3079,
-  serialized_end=3507,
+  serialized_start=3459,
+  serialized_end=3977,
   methods=[
   _descriptor.MethodDescriptor(
     name='List',
-    full_name='fakeapp.SpecialFieldsModelController.List',
+    full_name='myproject.fakeapp.SpecialFieldsModelController.List',
     index=0,
     containing_service=None,
     input_type=_SPECIALFIELDSMODELLISTREQUEST,
@@ -1414,7 +1414,7 @@ _SPECIALFIELDSMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Create',
-    full_name='fakeapp.SpecialFieldsModelController.Create',
+    full_name='myproject.fakeapp.SpecialFieldsModelController.Create',
     index=1,
     containing_service=None,
     input_type=_SPECIALFIELDSMODEL,
@@ -1424,7 +1424,7 @@ _SPECIALFIELDSMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Retrieve',
-    full_name='fakeapp.SpecialFieldsModelController.Retrieve',
+    full_name='myproject.fakeapp.SpecialFieldsModelController.Retrieve',
     index=2,
     containing_service=None,
     input_type=_SPECIALFIELDSMODELRETRIEVEREQUEST,
@@ -1434,7 +1434,7 @@ _SPECIALFIELDSMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Update',
-    full_name='fakeapp.SpecialFieldsModelController.Update',
+    full_name='myproject.fakeapp.SpecialFieldsModelController.Update',
     index=3,
     containing_service=None,
     input_type=_SPECIALFIELDSMODEL,
@@ -1444,7 +1444,7 @@ _SPECIALFIELDSMODELCONTROLLER = _descriptor.ServiceDescriptor(
   ),
   _descriptor.MethodDescriptor(
     name='Destroy',
-    full_name='fakeapp.SpecialFieldsModelController.Destroy',
+    full_name='myproject.fakeapp.SpecialFieldsModelController.Destroy',
     index=4,
     containing_service=None,
     input_type=_SPECIALFIELDSMODELDESTROYREQUEST,

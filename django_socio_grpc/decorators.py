@@ -11,7 +11,7 @@ class _grpc_action:
         print(f"Je suis dans le décorateur voici mon params: {self.params}")
         print(f"Ici j'ai un seralizer par ex: {owner.serializer_class}")
         service_registry = RegistrySingleton()
-        service_registry.register_service(owner, self.function, name, self.params)
+        service_registry.register_custom_action(owner, self.function, name, self.params)
         setattr(owner, name, self.function)
 
     def __get__(self, obj, type=None):

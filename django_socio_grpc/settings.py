@@ -120,7 +120,6 @@ class GRPCSettings:
     def __getattr__(self, attr):
         if attr not in self.defaults:
             raise AttributeError("Invalid gRPC setting: '%s'" % attr)
-
         try:
             # Check if present in user settings
             val = self.user_settings[attr]

@@ -7,6 +7,7 @@ from django.core.management.base import BaseCommand
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf.generators import ModelProtoGenerator
+from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.model_extractor import is_app_in_installed_app, is_model_exist
 
 
@@ -48,6 +49,8 @@ class Command(BaseCommand):
         # ------------------------------------------
         # ---- extract protog Gen Parameters     ---
         # ------------------------------------------
+        print("icicicicic ", grpc_settings.ROOT_HANDLERS_HOOK)
+        grpc_settings.ROOT_HANDLERS_HOOK(None)
         self.app_name = options["app"]
         self.model_name = options["model"]
         if self.model_name:

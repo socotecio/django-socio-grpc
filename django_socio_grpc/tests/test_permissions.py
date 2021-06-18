@@ -24,6 +24,13 @@ class DummyService(Service):
     pass
 
 
+service = DummyService()
+
+
+def fake_create_service(self):
+    return service
+
+
 class TestPermissionUnitary(TestCase):
     @override_settings(
         GRPC_FRAMEWORK={
@@ -116,6 +123,9 @@ class TestPermissionUnitary(TestCase):
         mock_check_permissions.assert_called_once_with()
 
 
+@mock.patch(
+    "django_socio_grpc.servicer_proxy.ServicerProxy.create_service", new=fake_create_service
+)
 class TestPermissionsIntegration(TestCase):
     def setUp(self):
         self.service = DummyService
@@ -152,29 +162,29 @@ class TestPermissionsIntegration(TestCase):
     def test_method_map_to_http_list(self):
         self.service.List = self.dummy_method
         self.servicer.List(None, self.fake_context)
-        self.assertEqual(self.servicer.service_instance.context.method, "GET")
+        self.assertEqual(service.context.method, "GET")
 
     def test_method_map_to_http_retrieve(self):
         self.service.Retrieve = self.dummy_method
         self.servicer.Retrieve(None, self.fake_context)
-        self.assertEqual(self.servicer.service_instance.context.method, "GET")
+        self.assertEqual(service.context.method, "GET")
 
     def test_method_map_to_http_create(self):
         self.service.Create = self.dummy_method
         self.servicer.Create(None, self.fake_context)
-        self.assertEqual(self.servicer.service_instance.context.method, "POST")
+        self.assertEqual(service.context.method, "POST")
 
     def test_method_map_to_http_update(self):
         self.service.Update = self.dummy_method
         self.servicer.Update(None, self.fake_context)
-        self.assertEqual(self.servicer.service_instance.context.method, "PUT")
+        self.assertEqual(service.context.method, "PUT")
 
     def test_method_map_to_http_partial_update(self):
         self.service.PartialUpdate = self.dummy_method
         self.servicer.PartialUpdate(None, self.fake_context)
-        self.assertEqual(self.servicer.service_instance.context.method, "PATCH")
+        self.assertEqual(service.context.method, "PATCH")
 
     def test_method_map_to_http_destroy(self):
         self.service.Destroy = self.dummy_method
         self.servicer.Destroy(None, self.fake_context)
-        self.assertEqual(self.servicer.service_instance.context.method, "DELETE")
+        self.assertEqual(service.context.method, "DELETE")

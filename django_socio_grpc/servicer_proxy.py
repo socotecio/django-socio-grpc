@@ -15,11 +15,13 @@ logger = logging.getLogger("django_socio_grpc")
 
 class ServicerProxy:
     def __init__(self, ServiceClass, **initkwargs):
-        self.service_instance = ServiceClass(**initkwargs)
+        self.service_class = ServiceClass
+        self.initkwargs = initkwargs
         # TODO - AM - 06/05 - convert to boolean ?
         self.grpc_async = os.environ.get("GRPC_ASYNC", False)
 
     def call_handler(self, action):
+        service_instance = self.create_service()
         if self.grpc_async:
 
             async def async_handler(request, context):
@@ -28,15 +30,15 @@ class ServicerProxy:
                 # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
                 # db.close_old_connections()
                 try:
-                    self.service_instance.request = request
-                    self.service_instance.context = GRPCSocioProxyContext(context, action)
-                    self.service_instance.action = action
-                    await sync_to_async(self.service_instance.before_action)()
+                    service_instance.request = request
+                    service_instance.context = GRPCSocioProxyContext(context, action)
+                    service_instance.action = action
+                    await sync_to_async(service_instance.before_action)()
 
                     # INFO - AM - 05/05/2021 - getting the real function in the service and then calling it if necessary
-                    instance_action = getattr(self.service_instance, action)
+                    instance_action = getattr(service_instance, action)
                     return await instance_action(
-                        self.service_instance.request, self.service_instance.context
+                        service_instance.request, service_instance.context
                     )
                 except GRPCException as grpc_error:
                     logger.error(grpc_error)
@@ -55,18 +57,16 @@ class ServicerProxy:
                 # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
                 # db.close_old_connections()
                 try:
-                    self.service_instance.request = request
-                    self.service_instance.context = GRPCSocioProxyContext(context, action)
-                    self.service_instance.action = action
-                    self.service_instance.before_action()
+                    service_instance.request = request
+                    service_instance.context = GRPCSocioProxyContext(context, action)
+                    service_instance.action = action
+                    service_instance.before_action()
 
                     # INFO - AM - 05/05/2021 - getting the real function in the service and then calling it if necessary
-                    instance_action = getattr(self.service_instance, action)
+                    instance_action = getattr(service_instance, action)
                     if asyncio.iscoroutinefunction(instance_action):
                         instance_action = async_to_sync(instance_action)
-                    return instance_action(
-                        self.service_instance.request, self.service_instance.context
-                    )
+                    return instance_action(service_instance.request, service_instance.context)
                 except GRPCException as grpc_error:
                     logger.error(grpc_error)
                     context.abort(grpc_error.status_code, grpc_error.get_full_details())
@@ -77,8 +77,11 @@ class ServicerProxy:
 
             return handler
 
+    def create_service(self):
+        return self.service_class(**self.initkwargs)
+
     def __getattr__(self, action):
-        if not hasattr(self.service_instance, action):
+        if not hasattr(self.service_class, action):
             raise Unimplemented()
 
         return self.call_handler(action)

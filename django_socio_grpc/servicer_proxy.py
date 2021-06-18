@@ -17,11 +17,12 @@ class ServicerProxy:
     def __init__(self, ServiceClass, **initkwargs):
         self.service_class = ServiceClass
         self.initkwargs = initkwargs
+        self.service_instance = ServiceClass(**initkwargs)
         # TODO - AM - 06/05 - convert to boolean ?
         self.grpc_async = os.environ.get("GRPC_ASYNC", False)
 
     def call_handler(self, action):
-        service_instance = self.service_class(**self.initkwargs)
+        service_instance = self.create_service()
         if self.grpc_async:
 
             async def async_handler(request, context):
@@ -66,9 +67,7 @@ class ServicerProxy:
                     instance_action = getattr(service_instance, action)
                     if asyncio.iscoroutinefunction(instance_action):
                         instance_action = async_to_sync(instance_action)
-                    return instance_action(
-                        service_instance.request, service_instance.context
-                    )
+                    return instance_action(service_instance.request, service_instance.context)
                 except GRPCException as grpc_error:
                     logger.error(grpc_error)
                     context.abort(grpc_error.status_code, grpc_error.get_full_details())
@@ -79,8 +78,11 @@ class ServicerProxy:
 
             return handler
 
+    def create_service(self):
+        return self.service_class(**self.initkwargs)
+
     def __getattr__(self, action):
-        if not hasattr(self.service_class, action):
+        if not hasattr(self.service_instance, action):
             raise Unimplemented()
 
         return self.call_handler(action)

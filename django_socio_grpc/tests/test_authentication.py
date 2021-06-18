@@ -1,4 +1,5 @@
 import json
+import logging
 
 import mock
 from django.test import TestCase, override_settings
@@ -9,6 +10,8 @@ from django_socio_grpc.settings import grpc_settings
 
 from .utils import FakeContext
 
+logger = logging.getLogger()
+
 
 class FakeAuthentication:
     def authenticate(self, context):
@@ -17,6 +20,13 @@ class FakeAuthentication:
 
 class DummyService(Service):
     pass
+
+
+service = DummyService()
+
+
+def fake_create_service(self):
+    return service
 
 
 class TestAuthenticationUnitary(TestCase):
@@ -65,6 +75,9 @@ class TestAuthenticationUnitary(TestCase):
             mock_perform_authentication.assert_called_once_with()
 
 
+@mock.patch(
+    "django_socio_grpc.servicer_proxy.ServicerProxy.create_service", new=fake_create_service
+)
 class TestAuthenticationIntegration(TestCase):
     def setUp(self):
         self.service = DummyService
@@ -79,8 +92,8 @@ class TestAuthenticationIntegration(TestCase):
 
     def test_user_and_token_none_if_no_auth_class(self):
         self.servicer.DummyMethod(None, self.fake_context)
-        self.assertIsNone(self.servicer.service_instance.context.user)
-        self.assertIsNone(self.servicer.service_instance.context.auth)
+        self.assertIsNone(service.context.user)
+        self.assertIsNone(service.context.auth)
 
     def test_user_and_token_set(self):
         self.service.authentication_classes = [FakeAuthentication]
@@ -88,10 +101,6 @@ class TestAuthenticationIntegration(TestCase):
         self.fake_context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
         self.servicer.DummyMethod(None, self.fake_context)
 
-        self.assertEqual(
-            self.servicer.service_instance.context.META, {"HTTP_AUTHORIZATION": "faketoken"}
-        )
-        self.assertEqual(
-            self.servicer.service_instance.context.user, {"email": "john.doe@johndoe.com"}
-        )
-        self.assertEqual(self.servicer.service_instance.context.auth, "faketoken")
+        self.assertEqual(service.context.META, {"HTTP_AUTHORIZATION": "faketoken"})
+        self.assertEqual(service.context.user, {"email": "john.doe@johndoe.com"})
+        self.assertEqual(service.context.auth, "faketoken")

@@ -1,5 +1,22 @@
 ## Changelog
 
+
+#### version 0.8.7
+
+- Fix concurrency call overriding request and context
+
+#### version 0.8.6
+
+- Use os.environ instead of settings fpr getting project name
+
+#### version 0.8.5
+
+- Add project name in package
+
+#### version 0.8.4
+
+- Add details for generateproto --check command
+
 #### version 0.8.3
 
 - Add option check to generateproto command for ci

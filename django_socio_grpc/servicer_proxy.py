@@ -17,7 +17,6 @@ class ServicerProxy:
     def __init__(self, ServiceClass, **initkwargs):
         self.service_class = ServiceClass
         self.initkwargs = initkwargs
-        self.service_instance = ServiceClass(**initkwargs)
         # TODO - AM - 06/05 - convert to boolean ?
         self.grpc_async = os.environ.get("GRPC_ASYNC", False)
 
@@ -82,7 +81,7 @@ class ServicerProxy:
         return self.service_class(**self.initkwargs)
 
     def __getattr__(self, action):
-        if not hasattr(self.service_instance, action):
+        if not hasattr(self.service_class, action):
             raise Unimplemented()
 
         return self.call_handler(action)

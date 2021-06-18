@@ -28,8 +28,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
     ]
 
     def __init__(self):
-        self.registered_controlleur = OrderedDict()
-        self.registered_message = OrderedDict()
+        self.registered_app = OrderedDict()
 
     def register_service(self, Service):
         print("register_service", Service)
@@ -37,45 +36,68 @@ class RegistrySingleton(metaclass=SingletonMeta):
         service_instance = Service()
 
         ModelService = service_instance.get_queryset().model
-
-        print("ModelSefice", ModelService)
+        app_name = ModelService._meta.app_label
 
         model_service_name = ModelService.__name__
-        controlleur_name = f"{model_service_name}Controlleur"
 
-        self.registered_controlleur[controlleur_name] = {}
+        if app_name not in self.registered_app:
+            self.registered_app[app_name] = {
+                "registered_controllers": OrderedDict(),
+                "registered_messages": OrderedDict()
+            }
 
-        default_grpc_methods = mixins.get_default_grpc_methods(model_service_name)
-        default_grpc_messages = mixins.get_default_grpc_messages(model_service_name)
+        controller_name = f"{model_service_name}Controller"
 
-        for method in self.know_methods:
-            if not getattr(Service, method, None):
-                continue
+        print("REGISTER:")
+        print("App name: ", app_name)
+        print("Model", model_service_name)
+        print("Controller", controller_name)
 
-            # If we already have registered this method for this controlleur (with a decorator) we do not use the default behavior
-            if method in self.registered_controlleur[controlleur_name]:
-                continue
+        self.set_controller_and_messages(app_name, model_service_name, controller_name, service_instance)
 
-            self.registered_controlleur[controlleur_name][method] = default_grpc_methods[
-                method
-            ]
 
-            self.register_default_message_from_method(
-                model_service_name, method, service_instance
-            )
-
-        print(self.registered_controlleur)
-        print(self.registered_message)
+        
 
     def register_custom_action(self, *args, **kwargs):
         print("register_custom_action", args, kwargs)
 
+    def set_controller_and_messages(self, app_name, model_service_name, controller_name, service_instance):
+        default_grpc_methods = mixins.get_default_grpc_methods(model_service_name)
+        default_grpc_messages = mixins.get_default_grpc_messages(model_service_name)
+
+        print(self.registered_app[app_name])
+
+        if controller_name not in self.registered_app[app_name]["registered_controllers"]:
+            self.registered_app[app_name]["registered_controllers"][controller_name] = {}
+
+        controller_object = self.registered_app[app_name]["registered_controllers"][controller_name]
+
+        for method in self.know_methods:
+            if not getattr(service_instance, method, None):
+                continue
+
+            # If we already have registered this method for this controlleur (with a decorator) we do not use the default behavior
+            if method in controller_object:
+                continue
+
+            controller_object[method] = default_grpc_methods[
+                method
+            ]
+
+            self.register_default_message_from_method(
+                app_name, model_service_name, method, service_instance
+            )
+
+        print(self.registered_app[app_name]["registered_controllers"])
+        print(self.registered_app[app_name]["registered_messages"])
+
     def register_default_message_from_method(
-        self, model_service_name, method, service_instance
+        self, app_name, model_service_name, method, service_instance
     ):
+        registered_messages = self.registered_app[app_name]["registered_messages"]
         if method == "List":
-            self.registered_message = {
-                **self.registered_message,
+            self.registered_app[app_name]["registered_messages"] = {
+                **registered_messages,
                 **mixins.ListModelMixin.get_default_message(
                     model_name=model_service_name, pagination=service_instance.pagination_class
                 ),

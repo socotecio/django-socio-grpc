@@ -6,5 +6,5 @@ from boot_django import boot_django
 boot_django()
 
 args = []
-opts = {"app": "fakeapp"}
+opts = {}
 call_command("generateproto2", *args, **opts)

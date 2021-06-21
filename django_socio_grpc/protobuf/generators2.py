@@ -51,7 +51,6 @@ class ModelProtoGenerator:
         self.registry_instance = registry_instance
         self.project_name = project_name
 
-
     def get_protos_by_app(self):
         proto_by_app = {}
         for app_name, registered_items in self.registry_instance.registered_app.items():
@@ -59,25 +58,21 @@ class ModelProtoGenerator:
 
         return proto_by_app
 
-
     def get_proto(self, app_name, registered_items):
         self._writer = _CodeWriter()
 
         self._writer.write_line('syntax = "proto3";')
         self._writer.write_line("")
-        self._writer.write_line(
-            f"package {self.project_name}.{app_name};"
-        )
+        self._writer.write_line(f"package {self.project_name}.{app_name};")
         self._writer.write_line("")
         self._writer.write_line("IMPORT_PLACEHOLDER")
-        for grpc_controller_name, grpc_methods in registered_items["registered_controllers"].items():
+        for grpc_controller_name, grpc_methods in registered_items[
+            "registered_controllers"
+        ].items():
             self._generate_controller(grpc_controller_name, grpc_methods)
 
-        # for model in self.models:
-        #     # we do not want generate code for abstract model
-        #     if model_meta.is_abstract_model(model):
-        #         continue
-        #     self._generate_messages(model)
+        for grpc_message_name, grpc_message in registered_items["registered_messages"].items():
+            self._generate_message(grpc_message_name, grpc_message)
 
         return self._writer.get_code()
 
@@ -113,35 +108,28 @@ class ModelProtoGenerator:
             self._writer.import_empty = True
         return f"{'stream ' if method_info.get('is_stream', False) else ''}{grpc_message}"
 
-    def _generate_messages(self, model):
+    def _generate_message(self, grpc_message_name, grpc_message):
         """
         Take a model and smartly decide why messages and which field for each message to write in the protobuf file.
         It use the model._meta.grpc_messages if exist or use the default configurations
         """
-        grpc_messages = (
-            model._meta.grpc_messages
-            if hasattr(model, "_meta") and hasattr(model._meta, "grpc_messages")
-            else get_default_grpc_messages(model.__name__)
-        )
 
-        if not grpc_messages:
-            return
+        print(grpc_message_name, grpc_message)
 
-        for grpc_message_name, grpc_message_fields_name in grpc_messages.items():
-            # We support the possibility to use "__all__" as parameter for fields
-            if grpc_message_fields_name == "__all__":
+        # We support the possibility to use "__all__" as parameter for fields
+        # if grpc_message_fields_name == "__all__":
 
-                # TODO - AM - 22/04/2021 - Add global settings or model settings or both to change this default behavior
-                # Could be by default to include m2m or reverse relaiton
-                # then should use `get_model_fields(model)`
-                grpc_message_fields_name = [
-                    field_info.name for field_info in model._meta.concrete_fields
-                ]
+        #     # TODO - AM - 22/04/2021 - Add global settings or model settings or both to change this default behavior
+        #     # Could be by default to include m2m or reverse relaiton
+        #     # then should use `get_model_fields(model)`
+        #     grpc_message_fields_name = [
+        #         field_info.name for field_info in model._meta.concrete_fields
+        #     ]
 
-            elif grpc_message_fields_name == "__pk__":
-                grpc_message_fields_name = [model._meta.pk.name]
+        # elif grpc_message_fields_name == "__pk__":
+        #     grpc_message_fields_name = [model._meta.pk.name]
 
-            self._generate_one_message(model, grpc_message_name, grpc_message_fields_name)
+        # self._generate_one_message(model, grpc_message_name, grpc_message_fields_name)
 
     def _generate_one_message(self, model, grpc_message_name, grpc_message_fields_name):
         # Info - AM - 30/04/2021 - Write the name of the message

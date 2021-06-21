@@ -1,4 +1,3 @@
-from django_socio_grpc.utils.servicer_register import RegistrySingleton
 import errno
 import os
 
@@ -10,6 +9,7 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf.generators2 import ModelProtoGenerator
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.model_extractor import is_app_in_installed_app, is_model_exist
+from django_socio_grpc.utils.servicer_register import RegistrySingleton
 
 
 class Command(BaseCommand):

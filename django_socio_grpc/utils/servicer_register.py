@@ -1,8 +1,11 @@
 from collections import OrderedDict
 from importlib import import_module
 
+from rest_framework.fields import IntegerField
+
 from django_socio_grpc import mixins
 from django_socio_grpc.mixins import get_default_grpc_messages, get_default_grpc_methods
+from django_socio_grpc.settings import grpc_settings
 
 
 class SingletonMeta(type):
@@ -35,42 +38,45 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         service_instance = Service()
 
-        ModelService = service_instance.get_queryset().model
-        app_name = ModelService._meta.app_label
+        Model = service_instance.get_queryset().model
+        app_name = Model._meta.app_label
 
-        model_service_name = ModelService.__name__
+        model_name = Model.__name__
 
         if app_name not in self.registered_app:
             self.registered_app[app_name] = {
                 "registered_controllers": OrderedDict(),
-                "registered_messages": OrderedDict()
+                "registered_messages": OrderedDict(),
             }
 
-        controller_name = f"{model_service_name}Controller"
+        controller_name = f"{model_name}Controller"
 
         print("REGISTER:")
         print("App name: ", app_name)
-        print("Model", model_service_name)
+        print("Model", model_name)
         print("Controller", controller_name)
 
-        self.set_controller_and_messages(app_name, model_service_name, controller_name, service_instance)
-
-
-        
+        self.set_controller_and_messages(
+            app_name, model_name, controller_name, service_instance
+        )
 
     def register_custom_action(self, *args, **kwargs):
         print("register_custom_action", args, kwargs)
 
-    def set_controller_and_messages(self, app_name, model_service_name, controller_name, service_instance):
-        default_grpc_methods = mixins.get_default_grpc_methods(model_service_name)
-        default_grpc_messages = mixins.get_default_grpc_messages(model_service_name)
+    def set_controller_and_messages(
+        self, app_name, model_name, controller_name, service_instance
+    ):
+        default_grpc_methods = mixins.get_default_grpc_methods(model_name)
+        default_grpc_messages = mixins.get_default_grpc_messages(model_name)
 
         print(self.registered_app[app_name])
 
         if controller_name not in self.registered_app[app_name]["registered_controllers"]:
             self.registered_app[app_name]["registered_controllers"][controller_name] = {}
 
-        controller_object = self.registered_app[app_name]["registered_controllers"][controller_name]
+        controller_object = self.registered_app[app_name]["registered_controllers"][
+            controller_name
+        ]
 
         for method in self.know_methods:
             if not getattr(service_instance, method, None):
@@ -80,36 +86,74 @@ class RegistrySingleton(metaclass=SingletonMeta):
             if method in controller_object:
                 continue
 
-            controller_object[method] = default_grpc_methods[
-                method
-            ]
+            controller_object[method] = default_grpc_methods[method]
 
             self.register_default_message_from_method(
-                app_name, model_service_name, method, service_instance
+                app_name, model_name, method, service_instance
             )
 
         print(self.registered_app[app_name]["registered_controllers"])
         print(self.registered_app[app_name]["registered_messages"])
 
     def register_default_message_from_method(
-        self, app_name, model_service_name, method, service_instance
+        self, app_name, model_name, method, service_instance
     ):
         registered_messages = self.registered_app[app_name]["registered_messages"]
         if method == "List":
-            self.registered_app[app_name]["registered_messages"] = {
-                **registered_messages,
-                **mixins.ListModelMixin.get_default_message(
-                    model_name=model_service_name, pagination=service_instance.pagination_class
-                ),
-            }
-            # TODO add the serializer response if get_message_from_serializer != retrieve
-            # TODO add serializer for retrieve if no Retrieve but list yes
+
+            serializer_instance = self.get_message_from_serializer(service_instance, method)
+            self.register_list_serializer_as_message_response(
+                app_name, service_instance, serializer_instance
+            )
+
+            self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+
+            # If we have only list without create or update or retrieve we need to add the model message
+            if model_name not in self.registered_app[app_name]["registered_messages"]:
+                pass
 
     def get_message_from_serializer(self, service_instance, method):
-        service_instance.action = method
-        serializer_class = service_instance.get_serializer_class()
+        service_instance.action = method.lower()
+        SerializerClass = service_instance.get_serializer_class()
 
-        print(serializer_class)
+        serializer_instance = SerializerClass()
+
+        # fields = serializer_instance.get_fields()
+
+        return serializer_instance
+
+    def register_serializer_as_message_if_not_exist(self, app_name, serializer_instance):
+        serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        if serializer_name not in self.registered_app[app_name]["registered_messages"]:
+            self.registered_app[app_name]["registered_messages"][
+                serializer_name
+            ] = serializer_instance.get_fields()
+
+            print(
+                "icicic ",
+                self.registered_app[app_name]["registered_messages"][serializer_name],
+            )
+
+    def register_list_serializer_as_message_response(
+        self, app_name, service_instance, serializer_instance, response_field_name="results"
+    ):
+        serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        pagination = service_instance.pagination_class
+        if pagination is None:
+            pagination = grpc_settings.DEFAULT_PAGINATION_CLASS is not None
+
+        response_fields = [(f"{serializer_name}", serializer_instance)]
+        if pagination:
+            response_fields += [("count", IntegerField())]
+
+        self.registered_app[app_name]["registered_messages"][
+            f"{serializer_name}ListRequest"
+        ] = []
+        self.registered_app[app_name]["registered_messages"][
+            f"{serializer_name}ListResponse"
+        ] = response_fields
+
+        self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
 
 
 class AppHandlerRegistry:
@@ -126,14 +170,14 @@ class AppHandlerRegistry:
             )
         else:
             model_service_path = f"{self.app_name}.services"
-        ModelService = getattr(
+        Model = getattr(
             import_module(model_service_path),
             f"{model_name}Service",
         )
 
         if self.server is None:
             service_registry = RegistrySingleton()
-            service_registry.register_service(ModelService)
+            service_registry.register_service(Model)
             return
 
         pb2_grpc = import_module(
@@ -141,4 +185,4 @@ class AppHandlerRegistry:
         )
         add_server = getattr(pb2_grpc, f"add_{model_name}ControllerServicer_to_server")
 
-        add_server(ModelService.as_servicer(), self.server)
+        add_server(Model.as_servicer(), self.server)

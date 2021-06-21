@@ -3,8 +3,7 @@ from importlib import import_module
 
 from rest_framework.fields import IntegerField
 
-from django_socio_grpc import mixins
-from django_socio_grpc.mixins import get_default_grpc_messages, get_default_grpc_methods
+from django_socio_grpc.mixins import get_default_grpc_methods
 from django_socio_grpc.settings import grpc_settings
 
 
@@ -66,10 +65,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
     def set_controller_and_messages(
         self, app_name, model_name, controller_name, service_instance
     ):
-        default_grpc_methods = mixins.get_default_grpc_methods(model_name)
-        default_grpc_messages = mixins.get_default_grpc_messages(model_name)
+        default_grpc_methods = get_default_grpc_methods(model_name)
 
-        print(self.registered_app[app_name])
+        # print(self.registered_app[app_name])
 
         if controller_name not in self.registered_app[app_name]["registered_controllers"]:
             self.registered_app[app_name]["registered_controllers"][controller_name] = {}
@@ -88,17 +86,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
             controller_object[method] = default_grpc_methods[method]
 
-            self.register_default_message_from_method(
-                app_name, model_name, method, service_instance
-            )
+            self.register_default_message_from_method(app_name, method, service_instance)
 
-        print(self.registered_app[app_name]["registered_controllers"])
-        print(self.registered_app[app_name]["registered_messages"])
+        # print(self.registered_app[app_name]["registered_controllers"])
+        # print(self.registered_app[app_name]["registered_messages"])
 
-    def register_default_message_from_method(
-        self, app_name, model_name, method, service_instance
-    ):
-        registered_messages = self.registered_app[app_name]["registered_messages"]
+    def register_default_message_from_method(self, app_name, method, service_instance):
         if method == "List":
 
             serializer_instance = self.get_message_from_serializer(service_instance, method)
@@ -107,10 +100,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
             )
 
             self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
-
-            # If we have only list without create or update or retrieve we need to add the model message
-            if model_name not in self.registered_app[app_name]["registered_messages"]:
-                pass
 
     def get_message_from_serializer(self, service_instance, method):
         service_instance.action = method.lower()
@@ -125,14 +114,21 @@ class RegistrySingleton(metaclass=SingletonMeta):
     def register_serializer_as_message_if_not_exist(self, app_name, serializer_instance):
         serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
         if serializer_name not in self.registered_app[app_name]["registered_messages"]:
-            self.registered_app[app_name]["registered_messages"][
-                serializer_name
-            ] = serializer_instance.get_fields()
-
-            print(
-                "icicic ",
-                self.registered_app[app_name]["registered_messages"][serializer_name],
+            self.registered_app[app_name]["registered_messages"][serializer_name] = list(
+                serializer_instance.get_fields().items()
             )
+
+            print("cicicicicicici ", list(serializer_instance.get_fields().items()))
+
+            # for field in serializer_instance.get_fields():
+            #     field_class, field_kwargs = serializer_instance.build_field(
+            #         field[0], info, model, depth
+            #     )
+
+            # print(
+            #     "icicic ",
+            #     self.registered_app[app_name]["registered_messages"][serializer_name],
+            # )
 
     def register_list_serializer_as_message_response(
         self, app_name, service_instance, serializer_instance, response_field_name="results"
@@ -142,7 +138,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if pagination is None:
             pagination = grpc_settings.DEFAULT_PAGINATION_CLASS is not None
 
-        response_fields = [(f"{serializer_name}", serializer_instance)]
+        response_fields = [("results", f"repeated {serializer_name}")]
         if pagination:
             response_fields += [("count", IntegerField())]
 

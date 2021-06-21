@@ -1,14 +1,10 @@
 import io
 import logging
 
-from django.apps import apps
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from rest_framework.utils import model_meta
+from rest_framework.relations import ManyRelatedField, RelatedField
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
-from django_socio_grpc.mixins import get_default_grpc_messages, get_default_grpc_methods
-from django_socio_grpc.utils.model_extractor import get_model
 
 logger = logging.getLogger("django_socio_grpc")
 
@@ -108,13 +104,35 @@ class ModelProtoGenerator:
             self._writer.import_empty = True
         return f"{'stream ' if method_info.get('is_stream', False) else ''}{grpc_message}"
 
-    def _generate_message(self, grpc_message_name, grpc_message):
+    def _generate_message(self, grpc_message_name, grpc_message_fields):
         """
         Take a model and smartly decide why messages and which field for each message to write in the protobuf file.
         It use the model._meta.grpc_messages if exist or use the default configurations
         """
 
-        print(grpc_message_name, grpc_message)
+        print("_generate_message: ", grpc_message_name, grpc_message_fields)
+
+        if len(grpc_message_fields) > 0:
+            print("lalalaal ", grpc_message_fields[0][1])
+            print("lalalaal ", grpc_message_fields[0][1].__class__.__name__)
+
+        self._writer.write_line(f"message {grpc_message_name} {{")
+        with self._writer.indent():
+            number = 0
+            # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields
+            for field_name, field_type in grpc_message_fields:
+                number += 1
+
+                proto_type = self.get_proto_type(field_type)
+
+                if "google.protobuf.Empty" in proto_type:
+                    self._writer.import_empty = True
+                if "google.protobuf.Struct" in proto_type:
+                    self._writer.import_struct = True
+
+                self._writer.write_line(f"{proto_type} {field_name} = {number};")
+        self._writer.write_line("}")
+        self._writer.write_line("")
 
         # We support the possibility to use "__all__" as parameter for fields
         # if grpc_message_fields_name == "__all__":
@@ -131,62 +149,30 @@ class ModelProtoGenerator:
 
         # self._generate_one_message(model, grpc_message_name, grpc_message_fields_name)
 
-    def _generate_one_message(self, model, grpc_message_name, grpc_message_fields_name):
-        # Info - AM - 30/04/2021 - Write the name of the message
-        self._writer.write_line(f"message {grpc_message_name} {{")
-        with self._writer.indent():
-            number = 0
-            # Info - AM - 30/04/2021 - Write all fields as defined in the meta of the model
-            for field_name in grpc_message_fields_name:
-                number += 1
-
-                proto_type, field_name = self.get_proto_type_and_field_name(model, field_name)
-
-                if "google.protobuf.Empty" in proto_type:
-                    self._writer.import_empty = True
-                if "google.protobuf.Struct" in proto_type:
-                    self._writer.import_struct = True
-
-                self._writer.write_line(f"{proto_type} {field_name} = {number};")
-        self._writer.write_line("}")
-        self._writer.write_line("")
-
-    def get_proto_type_and_field_name(self, model, field_name):
+    def get_proto_type(self, field_type):
         """
-        Return a proto_type and a field_name to use in the proto file from a field_name and a model.
+        Return a proto_type  to use in the proto file from a field_name and a model.
 
         this method is the magic method that tranform custom attribute like __repeated-link-- to correct proto buff file
         """
-        # Info - AM - 30/04/2021 - this is used for m2m nested serializer, nested serializer, custom field
-        if field_name.startswith("__custom__"):
-            return self.get_custom_item_type_and_name(field_name)
 
-        # Info - AM - 30/04/2021 - this is used for field that belong to model
-        else:
-            # Info - AM - 30/04/2021 - field_info is type of django.db.models.fields
-            # Info - AM - 30/04/2021 - Seethis page for attr list: https://docs.djangoproject.com/fr/3.1/ref/models/fields/#attributes-for-fields
-            field_info = model._meta.get_field(field_name)
+        # If field type is a str that mean we use a custom field
+        if isinstance(field_type, str):
+            return field_type
 
-            # Info - AM - 30/04/2021 - Support arrayfield by getting the type of the data in the array field
-            if field_info.get_internal_type() == ArrayField.__name__:
-                proto_type = self.type_mapping.get(
-                    field_info.base_field.get_internal_type(), "string"
-                )
-            # Info - AM - 30/04/2021 - default behavior for field
-            elif not field_info.is_relation:
-                proto_type = self.type_mapping.get(field_info.get_internal_type(), "string")
-            # Info - AM - 30/04/2021 - support relation field as m2m and FK
-            else:
-                remote_field_type = field_info.remote_field.model._meta.pk.get_internal_type()
-                proto_type = self.type_mapping.get(remote_field_type, "string")
+        proto_type = self.type_mapping.get(field_type.__class__.__name__, "string")
 
-            if field_info.get_internal_type() in [
-                models.ManyToManyField.__name__,
-                ArrayField.__name__,
-            ]:
-                proto_type = f"repeated {proto_type}"
+        print("class is : ", field_type.__class__)
+        print("is subclas of RelatedField: ", issubclass(field_type.__class__, RelatedField))
+        print(
+            "is subclas of ManyRelatedField: ",
+            issubclass(field_type.__class__, ManyRelatedField),
+        )
 
-            return proto_type, field_name
+        # if field_type.many:
+        #     proto_type = f"repeated {proto_type}"
+
+        return proto_type
 
     def get_custom_item_type_and_name(self, field_name):
         """

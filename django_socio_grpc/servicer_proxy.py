@@ -42,7 +42,7 @@ class ServicerProxy:
                     )
                 except GRPCException as grpc_error:
                     logger.error(grpc_error)
-                    context.abort(grpc_error.status_code, grpc_error.get_full_details())
+                    await context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 finally:
                     # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
                     # db.close_old_connections()

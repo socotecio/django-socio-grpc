@@ -26,11 +26,21 @@ class BaseProtoSerializer(BaseSerializer):
 
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
-        raise NotImplementedError("`message_to_data()` must be implemented.")
+        return message_to_dict(message)
 
     def data_to_message(self, data):
         """Protobuf message <- Dict of python primitive datatypes."""
-        raise NotImplementedError("`data_to_message()` must be implemented.")
+        assert hasattr(
+            self, "Meta"
+        ), 'Class {serializer_class} missing "Meta" attribute'.format(
+            serializer_class=self.__class__.__name__
+        )
+        assert hasattr(
+            self.Meta, "proto_class"
+        ), 'Class {serializer_class} missing "Meta.proto_class" attribute'.format(
+            serializer_class=self.__class__.__name__
+        )
+        return parse_dict(data, self.Meta.proto_class())
 
     @property
     def message(self):
@@ -58,23 +68,7 @@ class BaseProtoSerializer(BaseSerializer):
 
 
 class ProtoSerializer(BaseProtoSerializer, Serializer):
-    def message_to_data(self, message):
-        """Protobuf message -> Dict of python primitive datatypes."""
-        return message_to_dict(message)
-
-    def data_to_message(self, data):
-        """Protobuf message <- Dict of python primitive datatypes."""
-        assert hasattr(
-            self, "Meta"
-        ), 'Class {serializer_class} missing "Meta" attribute'.format(
-            serializer_class=self.__class__.__name__
-        )
-        assert hasattr(
-            self.Meta, "proto_class"
-        ), 'Class {serializer_class} missing "Meta.proto_class" attribute'.format(
-            serializer_class=self.__class__.__name__
-        )
-        return parse_dict(data, self.Meta.proto_class())
+    pass
 
 
 class ListProtoSerializer(ListSerializer, BaseProtoSerializer):

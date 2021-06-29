@@ -1,5 +1,9 @@
 ## Changelog
 
+#### version 0.8.8
+
+- Fix context abort await on permission denied
+- BaseSerializer now usable directly with default methods
 
 #### version 0.8.7
 
@@ -55,7 +59,7 @@
 
 #### version 0.6.2
 
-- fix exceptions messages not serializable 
+- fix exceptions messages not serializable
 - nested field support
 
 #### version 0.6.1

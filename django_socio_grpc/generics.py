@@ -1,10 +1,10 @@
-import grpc
 from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from django_socio_grpc import mixins, services
+from django_socio_grpc.exceptions import NotFound
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 
@@ -86,10 +86,7 @@ class GenericService(services.Service):
         try:
             obj = get_object_or_404(queryset, **filter_kwargs)
         except (TypeError, ValueError, ValidationError, Http404):
-            self.context.abort(
-                grpc.StatusCode.NOT_FOUND,
-                ("%s: %s not found!" % (queryset.model.__name__, lookup_value)),
-            )
+            raise NotFound(detail=f"{queryset.model.__name__}: {lookup_value} not found!")
         self.check_object_permissions(obj)
         return obj
 

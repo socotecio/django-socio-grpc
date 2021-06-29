@@ -1,5 +1,9 @@
 ## Changelog
 
+#### version 0.8.9
+
+- Fix raise not found instead of constext.abort
+
 #### version 0.8.8
 
 - Fix context abort await on permission denied

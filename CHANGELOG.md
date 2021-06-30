@@ -1,5 +1,9 @@
 ## Changelog
 
+#### version 0.8.10
+
+- Update dependency
+- Fix async context.write not await and add an FakeAsyncContext for Fake gRPC toolkit
 #### version 0.8.9
 
 - Fix raise not found instead of constext.abort

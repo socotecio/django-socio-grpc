@@ -1,5 +1,6 @@
 import os
 
+from asgiref.sync import async_to_sync
 from django.test import TestCase
 
 from django_socio_grpc import generics, mixins
@@ -86,6 +87,7 @@ class TestAsyncModelService(TestCase):
         request = fakeapp_pb2.UnitTestModelStreamRequest()
         grpc_stub.Stream(request=request)
 
-        response_list = [response for response in self.fake_grpc.grpc_channel.context.read()]
+        responses = async_to_sync(self.fake_grpc.grpc_channel.context.read)()
+        response_list = [response for response in responses]
 
         self.assertEqual(len(response_list), 10)

@@ -6,7 +6,7 @@ import asyncio
 import socket
 
 import grpc
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from grpc._cython.cygrpc import _Metadatum
 
 
@@ -65,6 +65,17 @@ class FakeContext(object):
             yield data
 
 
+class FakeAsyncContext(FakeContext):
+    async def abort(self, code, details):
+        await sync_to_async(super().abort)(code, details)
+
+    async def write(self, data):
+        await sync_to_async(super().write)(data)
+
+    async def read(self):
+        return await sync_to_async(super().read)()
+
+
 def get_brand_new_default_event_loop():
     try:
         old_loop = asyncio.get_event_loop()
@@ -103,6 +114,7 @@ class FakeChannel:
 
             if asyncio.iscoroutinefunction(real_method):
                 real_method = async_to_sync(real_method)
+                self.context = FakeAsyncContext()
 
             return real_method(request, self.context)
 

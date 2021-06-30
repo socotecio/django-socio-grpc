@@ -29,6 +29,7 @@ class ServicerProxy:
                 db.reset_queries()
                 # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
                 # db.close_old_connections()
+                await sync_to_async(close_old_connections)()
                 try:
                     service_instance.request = request
                     service_instance.context = GRPCSocioProxyContext(context, action)
@@ -46,6 +47,7 @@ class ServicerProxy:
                 finally:
                     # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
                     # db.close_old_connections()
+                    await sync_to_async(close_old_connections)()
                     pass
 
             return async_handler
@@ -56,6 +58,7 @@ class ServicerProxy:
                 db.reset_queries()
                 # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
                 # db.close_old_connections()
+                close_old_connections()
                 try:
                     service_instance.request = request
                     service_instance.context = GRPCSocioProxyContext(context, action)
@@ -73,6 +76,7 @@ class ServicerProxy:
                 finally:
                     # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
                     # db.close_old_connections()
+                    close_old_connections()
                     pass
 
             return handler
@@ -85,3 +89,9 @@ class ServicerProxy:
             raise Unimplemented()
 
         return self.call_handler(action)
+
+
+def close_old_connections():
+    for conn in db.connections.all():
+        if conn.get_autocommit():
+            conn.close_if_unusable_or_obsolete()

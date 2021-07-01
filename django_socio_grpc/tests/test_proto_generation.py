@@ -30,11 +30,22 @@ class TestProtoGeneration(TestCase):
         with patch("builtins.open", mock_open()) as m:
             call_command("generateproto", *args, **opts)
 
-        m.assert_called_once_with("proto/unittestmodel.proto", "r+")
+        m.assert_called_once_with("proto/unittestmodel.proto", "w+")
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_MODEL_GENERATED)
+
+    def test_check_option(self):
+        self.maxDiff = None
+        args = []
+        opts = {"app": "fakeapp", "generate_python": False, "check": True}
+        with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED)) as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "r+"
 
     def test_raise_when_no_app_and_no_model_options(self):
         args = []
@@ -90,7 +101,7 @@ class TestProtoGeneration(TestCase):
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
+        assert m.mock_calls[0].args[1] == "w+"
 
         handle = m()
 
@@ -107,7 +118,7 @@ class TestProtoGeneration(TestCase):
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
+        assert m.mock_calls[0].args[1] == "w+"
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
@@ -122,7 +133,7 @@ class TestProtoGeneration(TestCase):
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
+        assert m.mock_calls[0].args[1] == "w+"
 
         handle = m()
 
@@ -139,7 +150,7 @@ class TestProtoGeneration(TestCase):
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
+        assert m.mock_calls[0].args[1] == "w+"
 
         handle = m()
 
@@ -155,7 +166,7 @@ class TestProtoGeneration(TestCase):
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
+        assert m.mock_calls[0].args[1] == "w+"
 
         handle = m()
 
@@ -175,7 +186,7 @@ class TestProtoGeneration(TestCase):
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
+        assert m.mock_calls[0].args[1] == "w+"
 
         handle = m()
 

@@ -109,10 +109,11 @@ class Command(BaseCommand):
                 model_name=self.model_name,
                 detail="Check fail ! You doesn't have a proto file to compare to",
             )
-        with open(file_path, "r+") as f:
-            if self.check:
+        if self.check:
+            with open(file_path, "r+") as f:
                 self.check_proto_generation(f.read(), proto)
-            else:
+        else:
+            with open(file_path, "w+") as f:
                 f.write(proto)
 
     def check_proto_generation(self, original_file, new_proto_content):

@@ -1,9 +1,15 @@
 ## Changelog
 
+#### version 0.8.11
+
+- Close old connection on get_autocommit True to avoid production bug of db already closed
+- use w+ when generating proto and r+ when checking
+
 #### version 0.8.10
 
 - Update dependency
 - Fix async context.write not await and add an FakeAsyncContext for Fake gRPC toolkit
+
 #### version 0.8.9
 
 - Fix raise not found instead of constext.abort

@@ -27,8 +27,8 @@ class ServicerProxy:
             async def async_handler(request, context):
                 # db connection state managed similarly to the wsgi handler
                 db.reset_queries()
-                # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
-                # db.close_old_connections()
+                # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
+                await sync_to_async(close_old_connections)()
                 try:
                     service_instance.request = request
                     service_instance.context = GRPCSocioProxyContext(context, action)
@@ -44,8 +44,8 @@ class ServicerProxy:
                     logger.error(grpc_error)
                     await context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 finally:
-                    # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
-                    # db.close_old_connections()
+                    # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
+                    await sync_to_async(close_old_connections)()
                     pass
 
             return async_handler
@@ -54,8 +54,8 @@ class ServicerProxy:
             def handler(request, context):
                 # db connection state managed similarly to the wsgi handler
                 db.reset_queries()
-                # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
-                # db.close_old_connections()
+                # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
+                close_old_connections()
                 try:
                     service_instance.request = request
                     service_instance.context = GRPCSocioProxyContext(context, action)
@@ -71,8 +71,8 @@ class ServicerProxy:
                     logger.error(grpc_error)
                     context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 finally:
-                    # INFO - AM - 22/04/2021 - next line break tests. Need to more understand the drowback about memory in production
-                    # db.close_old_connections()
+                    # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
+                    close_old_connections()
                     pass
 
             return handler
@@ -85,3 +85,9 @@ class ServicerProxy:
             raise Unimplemented()
 
         return self.call_handler(action)
+
+
+def close_old_connections():
+    for conn in db.connections.all():
+        if conn.get_autocommit():
+            conn.close_if_unusable_or_obsolete()

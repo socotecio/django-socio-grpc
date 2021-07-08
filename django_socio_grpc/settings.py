@@ -42,6 +42,8 @@ DEFAULTS = {
     "GRPC_ASYNC": False,
     #  Default grpc channel port
     "GRPC_CHANNEL_PORT": 50051,
+     # Default logging action
+    "LOGGING_ACTION": None
 }
 
 
@@ -52,6 +54,7 @@ IMPORT_STRINGS = [
     "DEFAULT_AUTHENTICATION_CLASSES",
     "DEFAULT_PERMISSION_CLASSES",
     "DEFAULT_PAGINATION_CLASS",
+    "LOGGING_ACTION",
 ]
 
 

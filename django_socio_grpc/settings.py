@@ -42,8 +42,8 @@ DEFAULTS = {
     "GRPC_ASYNC": False,
     #  Default grpc channel port
     "GRPC_CHANNEL_PORT": 50051,
-     # Default logging action
-    "LOGGING_ACTION": None
+    # Default logging action
+    "LOGGING_ACTION": None,
 }
 
 

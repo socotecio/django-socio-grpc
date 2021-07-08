@@ -29,7 +29,7 @@ services:
     # ports:
     #   - "5532:5432"
     volumes:
-      - /srv/atlasaas/database/atlasaas:/var/lib/postgresql/data
+      - /srv/django-socio-grpc/database/django-socio-grpc:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: test
       POSTGRES_USER: test

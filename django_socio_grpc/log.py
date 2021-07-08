@@ -4,8 +4,9 @@ logging utils
 import logging
 import logging.config
 
-from django_socio_grpc.settings import grpc_settings
 from django.utils.module_loading import import_string
+
+from django_socio_grpc.settings import grpc_settings
 
 DEFAULT_LOGGING = {
     "version": 1,
@@ -30,6 +31,7 @@ DEFAULT_LOGGING = {
     },
 }
 
+
 def configure_logging(logging_config, logging_settings):
     if logging_config:
         logging_config_func = import_string(logging_config)
@@ -38,6 +40,7 @@ def configure_logging(logging_config, logging_settings):
 
         if logging_settings:
             logging_config_func(logging_settings)
+
 
 class GRPCHandler(logging.Handler):
     def emit(self, record):

@@ -107,14 +107,15 @@ class FakeChannel:
         def fake_handler(request, metadata=None):
             nonlocal real_method
             self.context = FakeContext()
-            if metadata:
-                self.context._invocation_metadata.extend(
-                    (_Metadatum(k, v) for k, v in metadata)
-                )
 
             if asyncio.iscoroutinefunction(real_method):
                 real_method = async_to_sync(real_method)
                 self.context = FakeAsyncContext()
+
+            if metadata:
+                self.context._invocation_metadata.extend(
+                    (_Metadatum(k, v) for k, v in metadata)
+                )
 
             return real_method(request, self.context)
 

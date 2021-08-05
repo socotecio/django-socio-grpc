@@ -1,5 +1,21 @@
 ## Changelog
 
+#### version 0.10.2
+
+- Allow logging to work in async mode
+
+#### version 0.10.1
+
+- Fix metadata not send in async stub for test (FakeGrpcClass)
+
+#### version 0.10.0
+
+- Integrate handle exception to improve monitoring if you want to
+
+#### version 0.9.0
+
+- Integrate logging handler option
+
 #### version 0.8.11
 
 - Close old connection on get_autocommit True to avoid production bug of db already closed

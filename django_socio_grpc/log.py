@@ -7,6 +7,7 @@ import sys
 from datetime import datetime
 from traceback import format_exception
 
+from asgiref.sync import async_to_sync
 from django.utils.module_loading import import_string
 
 from django_socio_grpc.settings import grpc_settings
@@ -46,10 +47,12 @@ def configure_logging(logging_config, logging_settings):
 
 
 class GRPCHandler(logging.Handler):
-    def emit(self, record, is_intercept_except=False):
+
+    @async_to_sync
+    async def emit(self, record, is_intercept_except=False):
         self.format(record)
         if grpc_settings.LOGGING_ACTION:
-            grpc_settings.LOGGING_ACTION(record, is_intercept_except)
+           await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, e_type, e_value, e_traceback):
         formatted_exception = format_exception(e_type, e_value, e_traceback)
@@ -97,7 +100,6 @@ class GRPCHandler(logging.Handler):
         func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
 
         return (pathname, lineno, func_name)
-
 
 grpcHandler = GRPCHandler()
 sys.excepthook = grpcHandler.log_unhandled_exception

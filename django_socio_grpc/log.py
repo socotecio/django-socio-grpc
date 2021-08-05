@@ -47,12 +47,11 @@ def configure_logging(logging_config, logging_settings):
 
 
 class GRPCHandler(logging.Handler):
-
     @async_to_sync
     async def emit(self, record, is_intercept_except=False):
         self.format(record)
         if grpc_settings.LOGGING_ACTION:
-           await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
+            await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, e_type, e_value, e_traceback):
         formatted_exception = format_exception(e_type, e_value, e_traceback)
@@ -100,6 +99,7 @@ class GRPCHandler(logging.Handler):
         func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
 
         return (pathname, lineno, func_name)
+
 
 grpcHandler = GRPCHandler()
 sys.excepthook = grpcHandler.log_unhandled_exception

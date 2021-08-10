@@ -10,12 +10,10 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import autoreload
 
-from django_socio_grpc.log import GRPCLogger
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.log import GRPCLogger
 
 logger = logging.getLogger("django_socio_grpc")
-logger.__class__ = GRPCLogger
-
 
 class Command(BaseCommand):
     help = "Starts an async gRPC server"
@@ -95,7 +93,7 @@ class Command(BaseCommand):
         # to be raised in the child process, raise it now.
         # ------------------------------------------------------------------------
         autoreload.raise_last_exception()
-        logger.info('"Performing system checks...\n\n', True)
+        logger.info('"Performing system checks...\n\n', **{"emit_to_server": True})
         self.check(display_num_errors=True)
 
         # -----------------------------------------------------------
@@ -113,7 +111,7 @@ class Command(BaseCommand):
         # --------------------------------------------
         # ---  START ASYNC GRPC SERVER             ---
         # --------------------------------------------
-        logger.info(serverStartDta, True)
+        logger.info(serverStartDta, **{"emit_to_server": True})
         try:
             asyncio.run(self._serve())
         except OSError as e:
@@ -135,5 +133,5 @@ class Command(BaseCommand):
         # ---------------------------------------
         # ----  EXIT OF GRPC SERVER           ---
         except KeyboardInterrupt:
-            logger.warning("Exit gRPC Server", True)
+            logger.warning("Exit gRPC Server")
             sys.exit(0)

@@ -47,28 +47,39 @@ def configure_logging(logging_config, logging_settings):
 
 
 class GRPCLogger(logging.Logger):
-    def debug(self, msg, emit_to_server=False, *args, **kwargs):
+    def debug(self, msg, *args, **kwargs):
+        emit_to_server = kwargs.get("emit_to_server", False)
         if emit_to_server:
+            del kwargs["emit_to_server"]
             return super(GRPCLogger, self).debug(msg, *args, **kwargs)
         sys.stdout.write(msg)
 
-    def info(self, msg, emit_to_server=False, *args, **kwargs):
+    def info(self, msg, *args, **kwargs):
+        emit_to_server = kwargs.get("emit_to_server", False)
         if emit_to_server:
+            del kwargs["emit_to_server"]
             return super(GRPCLogger, self).info(msg, *args, **kwargs)
         sys.stdout.write(msg)
 
-    def warning(self, msg, emit_to_server=False, *args, **kwargs):
+    def warning(self, msg, *args, **kwargs):
+        emit_to_server = kwargs.get("emit_to_server", False)
         if emit_to_server:
+            print("icicicicicic\n"*20)
+            print(kwargs)
+            del kwargs["emit_to_server"]
             return super(GRPCLogger, self).warning(msg, *args, **kwargs)
         sys.stdout.write(msg)
 
-    def error(self, msg, emit_to_server=False, *args, **kwargs):
+    def error(self, msg, *args, **kwargs):
+        emit_to_server = kwargs.get("emit_to_server", False)
         if emit_to_server:
             return super(GRPCLogger, self).error(msg, *args, **kwargs)
         sys.stdout.write(msg)
 
-    def critical(self, msg, emit_to_server=False, *args, **kwargs):
+    def critical(self, msg, *args, **kwargs):
+        emit_to_server = kwargs.get("emit_to_server", False)
         if emit_to_server:
+            del kwargs["emit_to_server"]
             return super(GRPCLogger, self).critical(msg, *args, **kwargs)
         sys.stdout.write(msg)
 

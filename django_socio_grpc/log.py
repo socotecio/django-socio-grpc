@@ -99,7 +99,7 @@ class GRPCHandler(logging.Handler):
         # INFO - FB - 21/07/2021 - transform string like: line <linenumber> to <linenumber>
         lineno = text_line_number.replace("line", "").strip()
 
-        # INFO - FB - 21/07/2021 - transform string like: 'in <function_name>\n    <text line that raise error>\n' to <function_name>
+        # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
         func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
 
         return (pathname, lineno, func_name)

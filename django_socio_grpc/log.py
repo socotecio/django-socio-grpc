@@ -46,6 +46,38 @@ def configure_logging(logging_config, logging_settings):
             logging_config_func(logging_settings)
 
 
+class GRPCLogger(logging.Logger):
+    def debug(self, msg, send=False, *args, **kwargs):
+        if send:
+            return super(GRPCLogger, self).debug(msg, *args, **kwargs)
+        else:
+            sys.stdout.write(msg)
+
+    def info(self, msg, send=False, *args, **kwargs):
+        if send:
+            return super(GRPCLogger, self).info(msg, *args, **kwargs)
+        else:
+            sys.stdout.write(msg)
+
+    def warning(self, msg, send=False, *args, **kwargs):
+        if send:
+            return super(GRPCLogger, self).warning(msg, *args, **kwargs)
+        else:
+            sys.stdout.write(msg)
+
+    def error(self, msg, send=False, *args, **kwargs):
+        if send:
+            return super(GRPCLogger, self).error(msg, *args, **kwargs)
+        else:
+            sys.stdout.write(msg)
+
+    def critical(self, msg, send=False, *args, **kwargs):
+        if send:
+            return super(GRPCLogger, self).critical(msg, *args, **kwargs)
+        else:
+            sys.stdout.write(msg)
+
+
 class GRPCHandler(logging.Handler):
     @async_to_sync
     async def emit(self, record, is_intercept_except=False):

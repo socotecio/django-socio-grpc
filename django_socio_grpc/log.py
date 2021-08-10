@@ -64,7 +64,7 @@ class GRPCLogger(logging.Logger):
     def warning(self, msg, *args, **kwargs):
         emit_to_server = kwargs.get("emit_to_server", False)
         if emit_to_server:
-            print("icicicicicic\n"*20)
+            print("icicicicicic\n" * 20)
             print(kwargs)
             del kwargs["emit_to_server"]
             return super(GRPCLogger, self).warning(msg, *args, **kwargs)

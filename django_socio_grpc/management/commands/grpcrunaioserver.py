@@ -11,9 +11,9 @@ from django.core.management.base import BaseCommand
 from django.utils import autoreload
 
 from django_socio_grpc.settings import grpc_settings
-from django_socio_grpc.log import GRPCLogger
 
 logger = logging.getLogger("django_socio_grpc")
+
 
 class Command(BaseCommand):
     help = "Starts an async gRPC server"

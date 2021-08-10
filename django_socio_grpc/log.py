@@ -47,35 +47,30 @@ def configure_logging(logging_config, logging_settings):
 
 
 class GRPCLogger(logging.Logger):
-    def debug(self, msg, send=False, *args, **kwargs):
-        if send:
+    def debug(self, msg, emit_to_server=False, *args, **kwargs):
+        if emit_to_server:
             return super(GRPCLogger, self).debug(msg, *args, **kwargs)
-        else:
-            sys.stdout.write(msg)
+        sys.stdout.write(msg)
 
-    def info(self, msg, send=False, *args, **kwargs):
-        if send:
+    def info(self, msg, emit_to_server=False, *args, **kwargs):
+        if emit_to_server:
             return super(GRPCLogger, self).info(msg, *args, **kwargs)
-        else:
-            sys.stdout.write(msg)
+        sys.stdout.write(msg)
 
-    def warning(self, msg, send=False, *args, **kwargs):
-        if send:
+    def warning(self, msg, emit_to_server=False, *args, **kwargs):
+        if emit_to_server:
             return super(GRPCLogger, self).warning(msg, *args, **kwargs)
-        else:
-            sys.stdout.write(msg)
+        sys.stdout.write(msg)
 
-    def error(self, msg, send=False, *args, **kwargs):
-        if send:
+    def error(self, msg, emit_to_server=False, *args, **kwargs):
+        if emit_to_server:
             return super(GRPCLogger, self).error(msg, *args, **kwargs)
-        else:
-            sys.stdout.write(msg)
+        sys.stdout.write(msg)
 
-    def critical(self, msg, send=False, *args, **kwargs):
-        if send:
+    def critical(self, msg, emit_to_server=False, *args, **kwargs):
+        if emit_to_server:
             return super(GRPCLogger, self).critical(msg, *args, **kwargs)
-        else:
-            sys.stdout.write(msg)
+        sys.stdout.write(msg)
 
 
 class GRPCHandler(logging.Handler):

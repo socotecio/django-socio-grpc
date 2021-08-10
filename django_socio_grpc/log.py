@@ -46,47 +46,14 @@ def configure_logging(logging_config, logging_settings):
             logging_config_func(logging_settings)
 
 
-class GRPCLogger(logging.Logger):
-    def debug(self, msg, *args, **kwargs):
-        emit_to_server = kwargs.get("emit_to_server", False)
-        if emit_to_server:
-            del kwargs["emit_to_server"]
-            return super(GRPCLogger, self).debug(msg, *args, **kwargs)
-        sys.stdout.write(msg)
-
-    def info(self, msg, *args, **kwargs):
-        emit_to_server = kwargs.get("emit_to_server", False)
-        if emit_to_server:
-            del kwargs["emit_to_server"]
-            return super(GRPCLogger, self).info(msg, *args, **kwargs)
-        sys.stdout.write(msg)
-
-    def warning(self, msg, *args, **kwargs):
-        emit_to_server = kwargs.get("emit_to_server", False)
-        if emit_to_server:
-            del kwargs["emit_to_server"]
-            return super(GRPCLogger, self).warning(msg, *args, **kwargs)
-        sys.stdout.write(msg)
-
-    def error(self, msg, *args, **kwargs):
-        emit_to_server = kwargs.get("emit_to_server", False)
-        if emit_to_server:
-            del kwargs["emit_to_server"]
-            return super(GRPCLogger, self).error(msg, *args, **kwargs)
-        sys.stdout.write(msg)
-
-    def critical(self, msg, *args, **kwargs):
-        emit_to_server = kwargs.get("emit_to_server", False)
-        if emit_to_server:
-            del kwargs["emit_to_server"]
-            return super(GRPCLogger, self).critical(msg, *args, **kwargs)
-        sys.stdout.write(msg)
-
-
 class GRPCHandler(logging.Handler):
-    @async_to_sync
-    async def emit(self, record, is_intercept_except=False):
+    def emit(self, record, is_intercept_except=False):
         self.format(record)
+        if getattr(record, "emit_to_server", True):
+            self.call_user_handler(record, is_intercept_except)
+
+    @async_to_sync
+    async def call_user_handler(self, record, is_intercept_except):
         if grpc_settings.LOGGING_ACTION:
             await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 

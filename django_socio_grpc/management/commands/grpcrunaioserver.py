@@ -67,7 +67,8 @@ class Command(BaseCommand):
                 ("Starting async gRPC server at %(address)s\n")
                 % {
                     "address": self.address,
-                }
+                },
+                extra={"emit_to_server": "False"},
             )
             await self._serve()
 
@@ -93,7 +94,7 @@ class Command(BaseCommand):
         # to be raised in the child process, raise it now.
         # ------------------------------------------------------------------------
         autoreload.raise_last_exception()
-        logger.info('"Performing system checks...\n\n', **{"emit_to_server": True})
+        logger.info('"Performing system checks...\n\n')
         self.check(display_num_errors=True)
 
         # -----------------------------------------------------------
@@ -111,7 +112,7 @@ class Command(BaseCommand):
         # --------------------------------------------
         # ---  START ASYNC GRPC SERVER             ---
         # --------------------------------------------
-        logger.info(serverStartDta, **{"emit_to_server": True})
+        logger.info(serverStartDta)
         try:
             asyncio.run(self._serve())
         except OSError as e:

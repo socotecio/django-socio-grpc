@@ -68,7 +68,7 @@ class Command(BaseCommand):
                 % {
                     "address": self.address,
                 },
-                extra={"emit_to_server": "False"},
+                extra={"emit_to_server": False},
             )
             await self._serve()
 

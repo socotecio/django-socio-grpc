@@ -47,9 +47,13 @@ def configure_logging(logging_config, logging_settings):
 
 
 class GRPCHandler(logging.Handler):
-    @async_to_sync
-    async def emit(self, record, is_intercept_except=False):
+    def emit(self, record, is_intercept_except=False):
         self.format(record)
+        if getattr(record, "emit_to_server", True):
+            self.call_user_handler(record, is_intercept_except)
+
+    @async_to_sync
+    async def call_user_handler(self, record, is_intercept_except):
         if grpc_settings.LOGGING_ACTION:
             await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
@@ -95,7 +99,7 @@ class GRPCHandler(logging.Handler):
         # INFO - FB - 21/07/2021 - transform string like: line <linenumber> to <linenumber>
         lineno = text_line_number.replace("line", "").strip()
 
-        # INFO - FB - 21/07/2021 - transform string like: 'in <function_name>\n    <text line that raise error>\n' to <function_name>
+        # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
         func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
 
         return (pathname, lineno, func_name)

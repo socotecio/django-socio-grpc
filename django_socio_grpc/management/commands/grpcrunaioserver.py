@@ -67,7 +67,8 @@ class Command(BaseCommand):
                 ("Starting async gRPC server at %(address)s\n")
                 % {
                     "address": self.address,
-                }
+                },
+                extra={"emit_to_server": "False"},
             )
             await self._serve()
 

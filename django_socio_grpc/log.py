@@ -1,6 +1,7 @@
 """
 logging utils
 """
+import concurrent.futures
 import logging
 import logging.config
 import sys
@@ -50,7 +51,8 @@ class GRPCHandler(logging.Handler):
     def emit(self, record, is_intercept_except=False):
         self.format(record)
         if getattr(record, "emit_to_server", True):
-            self.call_user_handler(record, is_intercept_except)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.submit(self.call_user_handler, record, is_intercept_except)
 
     @async_to_sync
     async def call_user_handler(self, record, is_intercept_except):

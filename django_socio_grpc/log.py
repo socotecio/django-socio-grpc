@@ -6,7 +6,7 @@ import logging
 import logging.config
 import sys
 from datetime import datetime
-from traceback import format_exception
+import traceback
 
 from asgiref.sync import async_to_sync
 from django.conf import settings
@@ -61,7 +61,7 @@ class GRPCHandler(logging.Handler):
             await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, e_type, e_value, e_traceback):
-        formatted_exception = format_exception(e_type, e_value, e_traceback)
+        formatted_exception = traceback.format_exception(e_type, e_value, e_traceback)
 
         msg = "".join(formatted_exception)
         pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)
@@ -77,6 +77,7 @@ class GRPCHandler(logging.Handler):
                 "funcName": funcName,
             }
         )
+        traceback.print_exception(e_type, e_value, e_traceback)
         self.emit(record, True)
 
     def generate_asctime(self):

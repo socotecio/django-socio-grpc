@@ -25,6 +25,9 @@ class ServicerProxy:
         if self.grpc_async:
 
             async def async_handler(request, context):
+                logger.info(
+                    f"Receive action {action} on service {self.service_class.__name__}"
+                )
                 # db connection state managed similarly to the wsgi handler
                 db.reset_queries()
                 # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
@@ -41,7 +44,7 @@ class ServicerProxy:
                         service_instance.request, service_instance.context
                     )
                 except GRPCException as grpc_error:
-                    logger.error(grpc_error)
+                    logger.error({grpc_error})
                     await context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 finally:
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
@@ -52,6 +55,9 @@ class ServicerProxy:
         else:
 
             def handler(request, context):
+                logger.info(
+                    f"Receive action {action} on service {self.service_class.__name__}"
+                )
                 # db connection state managed similarly to the wsgi handler
                 db.reset_queries()
                 # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database

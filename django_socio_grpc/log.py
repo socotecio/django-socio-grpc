@@ -9,6 +9,7 @@ from datetime import datetime
 from traceback import format_exception
 
 from asgiref.sync import async_to_sync
+from django.conf import settings
 from django.utils.module_loading import import_string
 
 from django_socio_grpc.settings import grpc_settings
@@ -107,5 +108,6 @@ class GRPCHandler(logging.Handler):
         return (pathname, lineno, func_name)
 
 
-grpcHandler = GRPCHandler()
-sys.excepthook = grpcHandler.log_unhandled_exception
+if not settings.DEBUG:
+    grpcHandler = GRPCHandler()
+    sys.excepthook = grpcHandler.log_unhandled_exception

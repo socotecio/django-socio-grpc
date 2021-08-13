@@ -5,8 +5,8 @@ import concurrent.futures
 import logging
 import logging.config
 import sys
-from datetime import datetime
 import traceback
+from datetime import datetime
 
 from asgiref.sync import async_to_sync
 from django.conf import settings

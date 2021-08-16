@@ -9,7 +9,6 @@ import traceback
 from datetime import datetime
 
 from asgiref.sync import async_to_sync
-from django.conf import settings
 from django.utils.module_loading import import_string
 
 from django_socio_grpc.settings import grpc_settings
@@ -24,6 +23,9 @@ DEFAULT_LOGGING = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "style": "{",
         },
+        "verbose": {
+            "format": "[django]-[%(levelname)s]-[%(asctime)s]-[%(name)s:%(lineno)s] %(message)s"
+        },
     },
     "handlers": {
         "django_socio_grpc_handler": {
@@ -31,9 +33,17 @@ DEFAULT_LOGGING = {
             "class": "django_socio_grpc.log.GRPCHandler",
             "formatter": "django_socio_grpc_format",
         },
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "verbose",
+        },
     },
     "loggers": {
-        "django_socio_grpc": {"handlers": ["django_socio_grpc_handler"], "propagate": False},
+        "django_socio_grpc": {
+            "handlers": ["django_socio_grpc_handler", "console"],
+            "propagate": False,
+        },
     },
 }
 
@@ -77,8 +87,8 @@ class GRPCHandler(logging.Handler):
                 "funcName": funcName,
             }
         )
-        traceback.print_exception(e_type, e_value, e_traceback)
         self.emit(record, True)
+        traceback.print_exception(e_type, e_value, e_traceback)
 
     def generate_asctime(self):
         now = datetime.now()
@@ -109,6 +119,5 @@ class GRPCHandler(logging.Handler):
         return (pathname, lineno, func_name)
 
 
-if not settings.DEBUG:
-    grpcHandler = GRPCHandler()
-    sys.excepthook = grpcHandler.log_unhandled_exception
+grpcHandler = GRPCHandler()
+sys.excepthook = grpcHandler.log_unhandled_exception

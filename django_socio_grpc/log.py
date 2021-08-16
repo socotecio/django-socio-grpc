@@ -5,8 +5,8 @@ import concurrent.futures
 import logging
 import logging.config
 import sys
+import traceback
 from datetime import datetime
-from traceback import format_exception
 
 from asgiref.sync import async_to_sync
 from django.utils.module_loading import import_string
@@ -23,6 +23,9 @@ DEFAULT_LOGGING = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
             "style": "{",
         },
+        "verbose": {
+            "format": "[django]-[%(levelname)s]-[%(asctime)s]-[%(name)s:%(lineno)s] %(message)s"
+        },
     },
     "handlers": {
         "django_socio_grpc_handler": {
@@ -30,9 +33,17 @@ DEFAULT_LOGGING = {
             "class": "django_socio_grpc.log.GRPCHandler",
             "formatter": "django_socio_grpc_format",
         },
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "verbose",
+        },
     },
     "loggers": {
-        "django_socio_grpc": {"handlers": ["django_socio_grpc_handler"], "propagate": False},
+        "django_socio_grpc": {
+            "handlers": ["django_socio_grpc_handler", "console"],
+            "propagate": False,
+        },
     },
 }
 
@@ -60,7 +71,7 @@ class GRPCHandler(logging.Handler):
             await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, e_type, e_value, e_traceback):
-        formatted_exception = format_exception(e_type, e_value, e_traceback)
+        formatted_exception = traceback.format_exception(e_type, e_value, e_traceback)
 
         msg = "".join(formatted_exception)
         pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)
@@ -77,6 +88,7 @@ class GRPCHandler(logging.Handler):
             }
         )
         self.emit(record, True)
+        traceback.print_exception(e_type, e_value, e_traceback)
 
     def generate_asctime(self):
         now = datetime.now()

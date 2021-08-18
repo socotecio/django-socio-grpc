@@ -92,7 +92,6 @@ class ServicerProxy:
                         logger.error(grpc_error)
                         context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 except Exception as error:
-                    traceback.print_exc()
                     e_type, e_value, e_traceback = sys.exc_info()
                     grpcHandler = GRPCHandler()
                     grpcHandler.log_unhandled_exception(e_type, e_value, e_traceback)

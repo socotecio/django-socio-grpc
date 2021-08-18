@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os
 import sys
-import traceback
 
 import grpc
 from asgiref.sync import async_to_sync, sync_to_async

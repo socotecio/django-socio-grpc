@@ -73,48 +73,15 @@ class Command(BaseCommand):
             await self._serve()
 
     async def _serve(self):
-        server = grpc.aio.server(
-            futures.ThreadPoolExecutor(max_workers=self.max_workers),
-            interceptors=grpc_settings.SERVER_INTERCEPTORS,
-        )
-        grpc_settings.ROOT_HANDLERS_HOOK(server)
-        server.add_insecure_port(self.address)
-        await server.start()
         try:
+            server = grpc.aio.server(
+                futures.ThreadPoolExecutor(max_workers=self.max_workers),
+                interceptors=grpc_settings.SERVER_INTERCEPTORS,
+            )
+            grpc_settings.ROOT_HANDLERS_HOOK(server)
+            server.add_insecure_port(self.address)
+            await server.start()
             await server.wait_for_termination()
-        except KeyboardInterrupt:
-            # Shuts down the server with 0 seconds of grace period. During the
-            # grace period, the server won't accept new connections and allow
-            # existing RPCs to continue within the grace period.
-            await server.stop(0)
-
-    def inner_run(self, *args, **options):
-        # ------------------------------------------------------------------------
-        # If an exception was silenced in ManagementUtility.execute in order
-        # to be raised in the child process, raise it now.
-        # ------------------------------------------------------------------------
-        autoreload.raise_last_exception()
-        logger.info('"Performing system checks...\n\n')
-        self.check(display_num_errors=True)
-
-        # -----------------------------------------------------------
-        # Need to check migrations here, so can't use the
-        # requires_migrations_check attribute.
-        # -----------------------------------------------------------
-        self.check_migrations()
-        quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
-        serverStartDta = (
-            f"Django version {self.get_version()}, using settings {settings.SETTINGS_MODULE}\n"
-            f"Starting development async gRPC server at {self.address}\n"
-            f"Quit the server with {quit_command}s.\n"
-        )
-
-        # --------------------------------------------
-        # ---  START ASYNC GRPC SERVER             ---
-        # --------------------------------------------
-        logger.info(serverStartDta)
-        try:
-            asyncio.run(self._serve())
         except OSError as e:
             # Use helpful error messages instead of ugly tracebacks.
             ERRORS = {
@@ -134,5 +101,35 @@ class Command(BaseCommand):
         # ---------------------------------------
         # ----  EXIT OF GRPC SERVER           ---
         except KeyboardInterrupt:
+            # Shuts down the server with 0 seconds of grace period. During the
+            # grace period, the server won't accept new connections and allow
+            # existing RPCs to continue within the grace period.
+            await server.stop(0)
             logger.warning("Exit gRPC Server")
-            sys.exit(0)
+
+    def inner_run(self, *args, **options):
+        # ------------------------------------------------------------------------
+        # If an exception was silenced in ManagementUtility.execute in order
+        # to be raised in the child process, raise it now.
+        # ------------------------------------------------------------------------
+        autoreload.raise_last_exception()
+        logger.info('"Performing system checks...\n\n', extra={"emit_to_server": False})
+        self.check(display_num_errors=True)
+
+        # -----------------------------------------------------------
+        # Need to check migrations here, so can't use the
+        # requires_migrations_check attribute.
+        # -----------------------------------------------------------
+        self.check_migrations()
+        quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
+        serverStartDta = (
+            f"Django version {self.get_version()}, using settings {settings.SETTINGS_MODULE}\n"
+            f"Starting development async gRPC server at {self.address}\n"
+            f"Quit the server with {quit_command}s.\n"
+        )
+
+        # --------------------------------------------
+        # ---  START ASYNC GRPC SERVER             ---
+        # --------------------------------------------
+        logger.info(serverStartDta, extra={"emit_to_server": False})
+        asyncio.run(self._serve())

@@ -50,11 +50,11 @@ class ServicerProxy:
                 except GRPCException as grpc_error:
                     logger.error({grpc_error})
                     await context.abort(grpc_error.status_code, grpc_error.get_full_details())
-                # except Exception as error:
-                #     e_type, e_value, e_traceback = sys.exc_info()
-                #     grpcHandler = GRPCHandler()
-                #     grpcHandler.log_unhandled_exception(e_type, e_value, e_traceback)
-                #     await context.abort(grpc.StatusCode.UNKNOWN, str(error))
+                except Exception as error:
+                    e_type, e_value, e_traceback = sys.exc_info()
+                    grpcHandler = GRPCHandler()
+                    grpcHandler.log_unhandled_exception(e_type, e_value, e_traceback)
+                    await context.abort(grpc.StatusCode.UNKNOWN, str(error))
                 finally:
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
                     await sync_to_async(close_old_connections)()

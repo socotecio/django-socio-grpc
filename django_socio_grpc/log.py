@@ -1,76 +1,41 @@
 """
 logging utils
 """
-import concurrent.futures
+import asyncio
 import logging
 import logging.config
 import sys
+import threading
 import traceback
 from datetime import datetime
 
 from asgiref.sync import async_to_sync
-from django.utils.module_loading import import_string
 
 from django_socio_grpc.settings import grpc_settings
-
-DEFAULT_LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
-    "formatters": {
-        "django_socio_grpc_format": {
-            "format": "{asctime}:{levelno}:{name}:{pathname}:{funcName}:{lineno:d}:{levelname}:{message}",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-            "style": "{",
-        },
-        "verbose": {
-            "format": "[django]-[%(levelname)s]-[%(asctime)s]-[%(name)s:%(lineno)s] %(message)s"
-        },
-    },
-    "handlers": {
-        "django_socio_grpc_handler": {
-            "level": "INFO",
-            "class": "django_socio_grpc.log.GRPCHandler",
-            "formatter": "django_socio_grpc_format",
-        },
-        "console": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django_socio_grpc": {
-            "handlers": ["django_socio_grpc_handler", "console"],
-            "propagate": False,
-        },
-    },
-}
-
-
-def configure_logging(logging_config, logging_settings):
-    if logging_config:
-        logging_config_func = import_string(logging_config)
-
-        logging.config.dictConfig(DEFAULT_LOGGING)
-
-        if logging_settings:
-            logging_config_func(logging_settings)
 
 
 class GRPCHandler(logging.Handler):
     def emit(self, record, is_intercept_except=False):
         self.format(record)
-        if getattr(record, "emit_to_server", True):
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                executor.submit(self.call_user_handler, record, is_intercept_except)
+        if record.name == "django_socio_grpc" and getattr(record, "emit_to_server", True):
+            try:
+                loop = asyncio.get_running_loop()
+                loop.create_task(self.call_user_handler(record, is_intercept_except))
+            except Exception:
+                # Info - AM - 17/08/2021 - This is not working for log in grpcrunaioserver. be careful
+                t = threading.Thread(
+                    target=async_to_sync(self.call_user_handler),
+                    args=[record, is_intercept_except],
+                    daemon=True,
+                )
+                t.start()
 
-    @async_to_sync
     async def call_user_handler(self, record, is_intercept_except):
         if grpc_settings.LOGGING_ACTION:
             await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, e_type, e_value, e_traceback):
+        traceback.print_exc()
         formatted_exception = traceback.format_exception(e_type, e_value, e_traceback)
 
         msg = "".join(formatted_exception)
@@ -88,7 +53,6 @@ class GRPCHandler(logging.Handler):
             }
         )
         self.emit(record, True)
-        traceback.print_exception(e_type, e_value, e_traceback)
 
     def generate_asctime(self):
         now = datetime.now()

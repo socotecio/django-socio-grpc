@@ -151,10 +151,12 @@ class TestPermissionsIntegration(TestCase):
             self.service.permission_classes = [FakePermission]
             self.service.ListDummyMethod = self.dummy_method
             self.servicer.ListDummyMethod(None, self.fake_context)
-        self.assertEqual(fake_rpc_error.exception._code, grpc.StatusCode.UNKNOWN)
+        self.assertEqual(
+            fake_rpc_error.exception._code, grpc.StatusCode.PERMISSION_DENIED.value
+        )
         self.assertEqual(
             fake_rpc_error.exception._details,
-            '((7, \'permission denied\'), \'{"message": "fake message", "code": "permission_denied"}\')',
+            '{"message": "fake message", "code": "permission_denied"}',
         )
 
     def test_method_map_to_http_list(self):

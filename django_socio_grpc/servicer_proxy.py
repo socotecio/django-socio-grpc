@@ -36,22 +36,22 @@ class ServicerProxy:
                     db.reset_queries()
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
                     await sync_to_async(close_old_connections)()
-                    try:
-                        service_instance.request = request
-                        service_instance.context = GRPCSocioProxyContext(context, action)
-                        service_instance.action = action
-                        await sync_to_async(service_instance.before_action)()
 
-                        # INFO - AM - 05/05/2021 - getting the real function in the service and then calling it if necessary
-                        instance_action = getattr(service_instance, action)
-                        return await instance_action(
-                            service_instance.request, service_instance.context
-                        )
-                    except GRPCException as grpc_error:
-                        logger.error({grpc_error})
-                        await context.abort(
-                            grpc_error.status_code, grpc_error.get_full_details()
-                        )
+                    service_instance.request = request
+                    service_instance.context = GRPCSocioProxyContext(context, action)
+                    service_instance.action = action
+                    await sync_to_async(service_instance.before_action)()
+
+                    # INFO - AM - 05/05/2021 - getting the real function in the service and then calling it if necessary
+                    instance_action = getattr(service_instance, action)
+                    return await instance_action(
+                        service_instance.request, service_instance.context
+                    )
+                except GRPCException as grpc_error:
+                    logger.error({grpc_error})
+                    await context.abort(
+                        grpc_error.status_code, grpc_error.get_full_details()
+                    )
                 except Exception as error:
                     e_type, e_value, e_traceback = sys.exc_info()
                     grpcHandler = GRPCHandler()
@@ -74,22 +74,22 @@ class ServicerProxy:
                     db.reset_queries()
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
                     close_old_connections()
-                    try:
-                        service_instance.request = request
-                        service_instance.context = GRPCSocioProxyContext(context, action)
-                        service_instance.action = action
-                        service_instance.before_action()
 
-                        # INFO - AM - 05/05/2021 - getting the real function in the service and then calling it if necessary
-                        instance_action = getattr(service_instance, action)
-                        if asyncio.iscoroutinefunction(instance_action):
-                            instance_action = async_to_sync(instance_action)
-                        return instance_action(
-                            service_instance.request, service_instance.context
-                        )
-                    except GRPCException as grpc_error:
-                        logger.error(grpc_error)
-                        context.abort(grpc_error.status_code, grpc_error.get_full_details())
+                    service_instance.request = request
+                    service_instance.context = GRPCSocioProxyContext(context, action)
+                    service_instance.action = action
+                    service_instance.before_action()
+
+                    # INFO - AM - 05/05/2021 - getting the real function in the service and then calling it if necessary
+                    instance_action = getattr(service_instance, action)
+                    if asyncio.iscoroutinefunction(instance_action):
+                        instance_action = async_to_sync(instance_action)
+                    return instance_action(
+                        service_instance.request, service_instance.context
+                    )
+                except GRPCException as grpc_error:
+                    logger.error(grpc_error)
+                    context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 except Exception as error:
                     e_type, e_value, e_traceback = sys.exc_info()
                     grpcHandler = GRPCHandler()

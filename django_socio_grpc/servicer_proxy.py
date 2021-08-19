@@ -49,9 +49,7 @@ class ServicerProxy:
                     )
                 except GRPCException as grpc_error:
                     logger.error({grpc_error})
-                    await context.abort(
-                        grpc_error.status_code, grpc_error.get_full_details()
-                    )
+                    await context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 except Exception as error:
                     e_type, e_value, e_traceback = sys.exc_info()
                     grpcHandler = GRPCHandler()
@@ -84,9 +82,7 @@ class ServicerProxy:
                     instance_action = getattr(service_instance, action)
                     if asyncio.iscoroutinefunction(instance_action):
                         instance_action = async_to_sync(instance_action)
-                    return instance_action(
-                        service_instance.request, service_instance.context
-                    )
+                    return instance_action(service_instance.request, service_instance.context)
                 except GRPCException as grpc_error:
                     logger.error(grpc_error)
                     context.abort(grpc_error.status_code, grpc_error.get_full_details())

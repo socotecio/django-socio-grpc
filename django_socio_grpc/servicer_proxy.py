@@ -24,7 +24,6 @@ class ServicerProxy:
         self.grpc_async = os.environ.get("GRPC_ASYNC", False)
 
     def call_handler(self, action):
-        service_instance = self.create_service()
         if self.grpc_async:
 
             async def async_handler(request, context):
@@ -35,8 +34,9 @@ class ServicerProxy:
                     # db connection state managed similarly to the wsgi handler
                     db.reset_queries()
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
-                    await sync_to_async(close_old_connections)()
+                    close_old_connections()
 
+                    service_instance = self.create_service()
                     service_instance.request = request
                     service_instance.context = GRPCSocioProxyContext(context, action)
                     service_instance.action = action
@@ -73,6 +73,7 @@ class ServicerProxy:
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
                     close_old_connections()
 
+                    service_instance = self.create_service()
                     service_instance.request = request
                     service_instance.context = GRPCSocioProxyContext(context, action)
                     service_instance.action = action

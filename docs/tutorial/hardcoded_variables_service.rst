@@ -1,33 +1,44 @@
 .. hardcoded_variables_service:
 
-Globals Variables Service
+Constants Service
 ===========================
 
-Sometimes, we need to create globals variables. Instead to copy and paste them on your front-end as JSON
-you should use `GlobalsServiceFactory`
+Sometimes, we need to create shared constants variables. Instead to copy and paste them on your front-end as JSON
+you should use `ConstantsToMapMessageServiceFactory`
 
 Usage
 -------
+
+Define a class inherit from `ConstantsToMapMessageServiceFactory` in ex you managing stock and you want to define status for your product:
+ 
+```python
+    class ProductType(metaclass=ConstantsToMapMessageServiceFactory):
+        # product status code = food status label
+        DF = "Dry Food"
+        PF = "Perishable Food"
+        NE = "No edible"
+```
+
+and this class (here ProductType) will offer attributes and methods below. 
 
 Methods
 ^^^^^^^^^
 
 - `get_as_choices`: which can be used ie. on Django CharField in `choices` keyword param.
+  in our `ProductType` class a tuple containing `(("DF", "Dry Food",)("PF", "Perishable Food",),)`
 
-- `get_as_method` will be used on `Meta.grpc_methods` of the corresponding models
-  for allow proto method definition.
+- `get_as_method` that you must be use on `Meta.grpc_methods` of the corresponding models
+  for generate proto method definition.
 
-- `get_as_message` will be used on `Meta.grpc_messages` of the corresponding
-  models for allow proto message deinition.
+- `get_as_message`  that you must be use on `Meta.grpc_messages` of the corresponding
+  models for generate proto message definition.
 
-- `get_as_service` must be called on the corresponding ModelService inside a
-  simple `List<your class name>` method define by him. 
+- `get_as_service` must be called on the corresponding `ModelService` inside the method `List<your class name>` method you will define. 
 
 Attributes
 ^^^^^^^^^^^^
 
-- `avaible_choices: dict` allow you to do things with attributes you have defined
-    exposed py a dict.
+- `available_choices: dict` allow you to READ attributes you have defined as dict. 
 
 Customize
 ^^^^^^^^^^^^
@@ -58,7 +69,7 @@ For example we want to define product type for our product models.
 - `models.py`
 
 ```python
-    class ProductType(metaclass=GlobalsServiceFactory):
+    class ProductType(metaclass=ConstantsToMapMessageServiceFactory):
         DF = "Dry Food"
         PF = "Perishable Food"
         NE = "No edible"
@@ -75,7 +86,7 @@ For example we want to define product type for our product models.
             grpc_methods = {**ProductType.get_as_method()}
 
 ```
-- `view.py` (or where you hav defined your services)
+- `view.py` (or where you havedefined your services)
 
 ```python
     from product.models import Product

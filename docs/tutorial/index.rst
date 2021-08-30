@@ -16,4 +16,3 @@ source code in `tutorial example`_.
    building_services
    using_generics
    writing_tests
-   hardcoded_variables_service

@@ -37,7 +37,7 @@ class GRPCHandler(logging.Handler):
             grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, e_type, e_value, e_traceback):
-        traceback.print_exc()
+        traceback.print_exception(e_type, e_value)
         formatted_exception = traceback.format_exception(e_type, e_value, e_traceback)
 
         msg = "".join(formatted_exception)

@@ -24,7 +24,7 @@ class GRPCHandler(logging.Handler):
             except Exception:
                 # Info - AM - 17/08/2021 - This is not working for log in grpcrunaioserver. be careful
                 t = threading.Thread(
-                    target=async_to_sync(self.call_user_handler),
+                    target=self.call_user_handler_sync,
                     args=[record, is_intercept_except],
                     daemon=True,
                 )
@@ -33,6 +33,10 @@ class GRPCHandler(logging.Handler):
     async def call_user_handler(self, record, is_intercept_except):
         if grpc_settings.LOGGING_ACTION:
             await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
+
+    def call_user_handler_sync(self, record, is_intercept_except):
+        if grpc_settings.LOGGING_ACTION:
+            grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, e_type, e_value, e_traceback):
         traceback.print_exc()

@@ -9,8 +9,6 @@ import threading
 import traceback
 from datetime import datetime
 
-from asgiref.sync import async_to_sync
-
 from django_socio_grpc.settings import grpc_settings
 
 

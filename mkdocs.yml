@@ -1,0 +1,4 @@
+site_name: "Django Socio gRPC Documentation"
+nav:
+    - Home: index.md
+    - Tutorial: tutorial.md

@@ -24,6 +24,18 @@ services:
     networks:
       django-socio-grpc-network:
 
+  django-socio-grpc-docs:
+    image: django-socio-grpc
+    build:
+      context: .
+    command: mkdocs serve -a 0.0.0.0:6001 -t readthedocs
+    volumes:
+      - .:/opt/code
+    ports:
+      - "6001:6001"
+    networks:
+      django-socio-grpc-network:
+
   test-database:
     image: library/postgres:11.5
     # ports:

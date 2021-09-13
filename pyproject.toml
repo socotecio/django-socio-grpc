@@ -23,6 +23,7 @@ mock = "*"
 django-filter = "^2.4.0"
 psycopg2-binary = "^2.8.6"
 pytest-django = "^4.2.0"
+mkdocs = "^1.2.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

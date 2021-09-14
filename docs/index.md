@@ -51,7 +51,7 @@ class Question(models.Model):
     pub_date = models.DateTimeField('date published')
 ```
 
-### Generate the protofile associated to the model
+### Generate the protofile and the client associated to the model
 
 ```bash
 python manage.py generateproto --app quickstart
@@ -78,7 +78,7 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
 ### Define a Service
 
 ```python
-# services.py
+# quickstart/services.py
 from django_socio_grpc import generics
 from .models import Question
 from .serializers import QuestionProtoSerializer
@@ -93,7 +93,7 @@ class QuestionService(generics.AsyncModelService):
 ### Register the service
 
 ```python
-# handlers.py
+# quickstart/handlers.py
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 

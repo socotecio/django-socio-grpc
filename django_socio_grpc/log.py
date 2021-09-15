@@ -86,11 +86,8 @@ class GRPCHandler(logging.Handler):
 
     def add_custom_print_exception(self):
         def custom_print_exception(etype, value, tb, limit=None, file=None, chain=True):
-            self.log_unhandled_exception(
-                etype=etype,
-                value=value,
-                tb=tb
-            )
+            self.log_unhandled_exception(etype=etype, value=value, tb=tb)
+
         traceback.print_exception = custom_print_exception
 
 

@@ -36,9 +36,9 @@ class GRPCHandler(logging.Handler):
         if grpc_settings.LOGGING_ACTION:
             grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
-    def log_unhandled_exception(self, e_type, e_value, e_traceback):
-        traceback.print_exception(e_type, e_value, e_traceback)
-        formatted_exception = traceback.format_exception(e_type, e_value, e_traceback)
+    def log_unhandled_exception(self, etype, value, tb):
+        traceback.print_tb(tb)
+        formatted_exception = traceback.format_exception(etype, value, tb)
 
         msg = "".join(formatted_exception)
         pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)
@@ -84,6 +84,13 @@ class GRPCHandler(logging.Handler):
 
         return (pathname, lineno, func_name)
 
+    def add_custom_print_exception(self):
+        def custom_print_exception(etype, value, tb, limit=None, file=None, chain=True):
+            self.log_unhandled_exception(etype=etype, value=value, tb=tb)
+
+        traceback.print_exception = custom_print_exception
+
 
 grpcHandler = GRPCHandler()
+grpcHandler.add_custom_print_exception()
 sys.excepthook = grpcHandler.log_unhandled_exception

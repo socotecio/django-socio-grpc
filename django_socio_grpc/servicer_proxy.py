@@ -51,9 +51,9 @@ class ServicerProxy:
                     logger.error(grpc_error)
                     await context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 except Exception as error:
-                    e_type, e_value, e_traceback = sys.exc_info()
+                    etype, value, tb = sys.exc_info()
                     grpcHandler = GRPCHandler()
-                    grpcHandler.log_unhandled_exception(e_type, e_value, e_traceback)
+                    grpcHandler.log_unhandled_exception(etype, value, tb)
                     await context.abort(grpc.StatusCode.UNKNOWN, str(error))
                 finally:
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
@@ -88,9 +88,9 @@ class ServicerProxy:
                     logger.error(grpc_error)
                     context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 except Exception as error:
-                    e_type, e_value, e_traceback = sys.exc_info()
+                    etype, value, tb = sys.exc_info()
                     grpcHandler = GRPCHandler()
-                    grpcHandler.log_unhandled_exception(e_type, e_value, e_traceback)
+                    grpcHandler.log_unhandled_exception(etype, value, tb)
                     context.abort(grpc.StatusCode.UNKNOWN, str(error))
                 finally:
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database

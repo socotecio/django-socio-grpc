@@ -34,14 +34,14 @@ class GRPCHandler(logging.Handler):
         try:
             if grpc_settings.LOGGING_ACTION:
                 await grpc_settings.LOGGING_ACTION(record, is_intercept_except)
-        except:
+        except Exception:
             pass
 
     def call_user_handler_sync(self, record, is_intercept_except):
         try:
             if grpc_settings.LOGGING_ACTION:
                 grpc_settings.LOGGING_ACTION(record, is_intercept_except)
-        except:
+        except Exception:
             pass
 
     def log_unhandled_exception(self, etype, value, tb):

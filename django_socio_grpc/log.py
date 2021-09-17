@@ -11,6 +11,8 @@ from datetime import datetime
 
 from django_socio_grpc.settings import grpc_settings
 
+old_taceback_function = None
+
 
 class GRPCHandler(logging.Handler):
     def emit(self, record, is_intercept_except=False):
@@ -37,7 +39,9 @@ class GRPCHandler(logging.Handler):
             grpc_settings.LOGGING_ACTION(record, is_intercept_except)
 
     def log_unhandled_exception(self, etype, value, tb):
-        traceback.print_tb(tb)
+
+        if old_taceback_function is not None:
+            old_taceback_function(etype=etype, value=value, tb=tb)
         formatted_exception = traceback.format_exception(etype, value, tb)
 
         msg = "".join(formatted_exception)
@@ -85,6 +89,9 @@ class GRPCHandler(logging.Handler):
         return (pathname, lineno, func_name)
 
     def add_custom_print_exception(self):
+        global old_taceback_function
+        old_taceback_function = traceback.print_exception
+
         def custom_print_exception(etype, value, tb, limit=None, file=None, chain=True):
             self.log_unhandled_exception(etype=etype, value=value, tb=tb)
 

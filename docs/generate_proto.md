@@ -155,3 +155,165 @@ message SomethingSmall {
 ## Customize gRPC Methods
 
 ### Format
+
+`grpc_methods` attribute is a dict with the format `{[MethodName<String>]: { request: Request<Object>, response: Response<Object>}}` where `Request` and `Response` are object like: `{message: MessageName<String>, is_stream: <Boolean>}`
+
+This data are simply used to generate the line of the method specified by MethodName in the grpc controller.
+Example:
+
+```python
+class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_methods = {
+            "StreamList": {
+                "request": {"is_stream": False, "message": "SomethingListRequest"},
+                "response": {"is_stream": True, "message": "SomethingListStreamResponse"},
+            },
+        }
+```
+
+This will generate a proto file like:
+```proto
+syntax = "proto3";
+
+package tutorial.quickstart;
+
+service ForeignModelController {
+    rpc StreamList(SomethingListRequest) returns (stream SomethingListStreamResponse) {}
+}
+```
+
+This will crash you have not SomethingListRequest and SomethingListStreamResponse defined in the messages of the proto file.
+See the [default generated message and methods](#using-default-methods-to-simplify-overwriting)
+
+
+## Using default methods to simplify overwriting
+
+As seen in the first part of this page we have some default generation. But at soon as you overwrite `grpc_methods` or `grpc_messages` you loose all the default generation. 
+Often you only want to add a custom field or doesn't want to rewrite the all things.
+
+For that you can use the mixins methods `get_default_message` and `get_default_method` like:
+
+```python
+class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {
+            **CreateModelMixin.get_default_message("Something"),
+            **ListModelMixin.get_default_message("Something"),
+            "SomethingRetrieveRequestCustom": ["name"],
+            "SomethingRetrieveResponseCustom": ["uuid"],
+        }
+        grpc_methods = {
+            **ListModelMixin.get_default_method("Something"),
+            "Retrieve": {
+                "request": {
+                    "is_stream": False,
+                    "message": "SomethingRetrieveRequestCustom",
+                },
+                "response": {
+                    "is_stream": False,
+                    "message": "SomethingRetrieveResponseCustom",
+                },
+            },
+        }
+```
+
+this will generate something like:
+
+```proto
+syntax = "proto3";
+
+package tutorial.quickstart;
+
+import "google/protobuf/empty.proto";
+
+service SomethingController {
+    rpc List(SomethingListRequest) returns (SomethingListResponse) {}
+    rpc Retrieve(SomethingRetrieveRequest) returns (Something) {}
+}
+
+message Something {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+
+message SomethingListRequest {
+}
+
+message SomethingListResponse {
+    repeated Something results = 1;
+}
+
+message SomethingRetrieveRequestCustom {
+    string name = 1;
+}
+
+message SomethingRetrieveResponseCustom {
+    string uuid = 1;
+}
+```
+
+`get_default_message` and `get_default_method` exist for all the mixins: CreateModelMixin, ListModelMixin, StreamModelMixin, RetrieveModelMixin, UpdateModelMixin, PartialUpdateModelMixin, DestroyModelMixin. Same for the async model that just inherit from the sync models.
+
+You can also use `mixins.get_default_grpc_methods` and `mixins.get_default_grpc_messages` to simulate all the defautl configuration and overwrite it after:
+
+
+```python
+class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {
+            **get_default_grpc_messages("Something"),
+            "Something": ["uuid", "start_date", "rate", "__custom__string__new_field__"]
+        }
+
+        grpc_methods = {
+            **get_default_grpc_methods("Something"),
+        }
+```
+
+this will generate something like:
+
+```proto
+syntax = "proto3";
+
+package tutorial.quickstart;
+
+import "google/protobuf/empty.proto";
+
+service SomethingController {
+    rpc List(SomethingListRequest) returns (SomethingListResponse) {}
+    rpc Create(Something) returns (Something) {}
+    rpc Retrieve(SomethingRetrieveRequest) returns (Something) {}
+    rpc Update(Something) returns (Something) {}
+    rpc Destroy(SomethingDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message Something {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+    string new_filed = 4;
+}
+
+message SomethingListRequest {
+}
+
+message SomethingListResponse {
+    repeated Something results = 1;
+}
+
+message SomethingRetrieveRequest {
+    string uuid = 1;
+}
+
+message SomethingDestroyRequest {
+    string uuid = 1;
+}
+```

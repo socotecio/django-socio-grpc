@@ -2,3 +2,11 @@ site_name: "Django Socio gRPC Documentation"
 nav:
     - Home: index.md
     - Generate Proto: generate_proto.md
+    - Generic Service: generic_service.md
+    - Model Service: model_service.md
+    - Proto Serializer: proto_serializer.md
+    - Sync vs Async: sync_vs_async.md
+    - Server and service register: server_and_service_register.md
+    - Logging: logging.md
+    - Settings: settings.md
+    - Testing: testing.md

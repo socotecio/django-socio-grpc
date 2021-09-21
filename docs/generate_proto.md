@@ -1,5 +1,9 @@
 # Proto Generation
 
+## Command 
+
+TODO
+
 ## Default generation 
 
 By default each model generate the default viewset as proto file. It allow by default to match all the endpoint given by the generics.AsyncModelService or generics.ModelService classes.

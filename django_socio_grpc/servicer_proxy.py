@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import sys
+import traceback
 
 import grpc
 from asgiref.sync import async_to_sync, sync_to_async
@@ -88,8 +89,10 @@ class ServicerProxy:
                     logger.error(grpc_error)
                     context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 except Exception as error:
-                    logger.error(error, extra={"emit_to_server": False})
                     etype, value, tb = sys.exc_info()
+                    formatted_exception = traceback.format_exception(etype, value, tb)
+                    # No need to send it to µservices logging because we did it as exception with log_unhandled_exception
+                    logger.error("".join(formatted_exception), extra={"emit_to_server": False})
                     grpcHandler = GRPCHandler()
                     grpcHandler.log_unhandled_exception(etype, value, tb)
                     context.abort(grpc.StatusCode.UNKNOWN, str(error))

@@ -153,24 +153,24 @@ class PermissionDenied(GRPCException):
 
 
 class NotFound(GRPCException):
-    status_code = StatusCode.NOT_FOUND
+    status_code = StatusCode.NOT_FOUND.value
     default_detail = _("Not found.")
     default_code = "not_found"
 
 
 class AlreadyExist(GRPCException):
-    status_code = StatusCode.ALREADY_EXISTS
+    status_code = StatusCode.ALREADY_EXISTS.value
     default_detail = _("Alrerady exist.")
     default_code = "already_exist"
 
 
 class InvalidArgument(GRPCException):
-    status_code = StatusCode.INVALID_ARGUMENT
+    status_code = StatusCode.INVALID_ARGUMENT.value
     default_detail = _("Invalid argument.")
     default_code = "invalid_argument"
 
 
 class Unimplemented(GRPCException):
-    status_code = StatusCode.UNIMPLEMENTED
+    status_code = StatusCode.UNIMPLEMENTED.value
     default_detail = _("Unimplemented.")
     default_code = "unimplemented"

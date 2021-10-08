@@ -141,36 +141,36 @@ class GRPCException(Exception):
 
 
 class Unauthenticated(GRPCException):
-    status_code = StatusCode.UNAUTHENTICATED.value
+    status_code = StatusCode.UNAUTHENTICATED
     default_detail = _("Authentication credentials were not provided.")
     default_code = "not_authenticated"
 
 
 class PermissionDenied(GRPCException):
-    status_code = StatusCode.PERMISSION_DENIED.value
+    status_code = StatusCode.PERMISSION_DENIED
     default_detail = _("You do not have permission to perform this action.")
     default_code = "permission_denied"
 
 
 class NotFound(GRPCException):
-    status_code = StatusCode.NOT_FOUND.value
+    status_code = StatusCode.NOT_FOUND
     default_detail = _("Not found.")
     default_code = "not_found"
 
 
 class AlreadyExist(GRPCException):
-    status_code = StatusCode.ALREADY_EXISTS.value
+    status_code = StatusCode.ALREADY_EXISTS
     default_detail = _("Alrerady exist.")
     default_code = "already_exist"
 
 
 class InvalidArgument(GRPCException):
-    status_code = StatusCode.INVALID_ARGUMENT.value
+    status_code = StatusCode.INVALID_ARGUMENT
     default_detail = _("Invalid argument.")
     default_code = "invalid_argument"
 
 
 class Unimplemented(GRPCException):
-    status_code = StatusCode.UNIMPLEMENTED.value
+    status_code = StatusCode.UNIMPLEMENTED
     default_detail = _("Unimplemented.")
     default_code = "unimplemented"

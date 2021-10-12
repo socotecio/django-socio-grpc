@@ -4,7 +4,6 @@ logging utils
 import asyncio
 import logging
 import logging.config
-import sys
 import threading
 import traceback
 from datetime import datetime

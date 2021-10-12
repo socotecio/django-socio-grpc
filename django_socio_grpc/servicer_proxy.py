@@ -53,6 +53,9 @@ class ServicerProxy:
                     await context.abort(grpc_error.status_code, grpc_error.get_full_details())
                 except Exception as error:
                     etype, value, tb = sys.exc_info()
+                    formatted_exception = traceback.format_exception(etype, value, tb)
+                    # No need to send it to µservices logging because we did it as exception with log_unhandled_exception
+                    logger.error("".join(formatted_exception), extra={"emit_to_server": False})
                     grpcHandler = GRPCHandler()
                     grpcHandler.log_unhandled_exception(etype, value, tb)
                     await context.abort(grpc.StatusCode.UNKNOWN, str(error))

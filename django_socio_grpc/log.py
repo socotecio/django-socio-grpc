@@ -106,4 +106,3 @@ class GRPCHandler(logging.Handler):
 
 grpcHandler = GRPCHandler()
 grpcHandler.add_custom_print_exception()
-sys.excepthook = grpcHandler.log_unhandled_exception

@@ -12,6 +12,8 @@ FAKE_APP_DIR = os.path.join(BASE_DIR, "django_socio_grpc", "tests")
 sys.path.append(BASE_DIR)
 sys.path.append(FAKE_APP_DIR)
 
+os.environ["DJANGO_SETTINGS_MODULE"] = "fakeproject.settings"
+
 
 def boot_django():
     settings.configure(

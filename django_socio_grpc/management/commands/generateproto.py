@@ -66,32 +66,37 @@ class Command(BaseCommand):
         self.check_options()
 
         # ----------------------------------------------
-        # --- Proto Generation Process               ---
+        # --- Getting the proto path               ---
         # ----------------------------------------------
-        generator = ModelProtoGenerator(
-            project_name=self.project_name, app_name=self.app_name, model_name=self.model_name
-        )
-
-        # ------------------------------------------------------------
-        # ---- Produce a proto file on current filesystem and Path ---
-        # ------------------------------------------------------------
-        path_used_for_generation = None
-        proto = generator.get_proto()
-
-        if self.dry_run and not self.check:
-            self.stdout.write(proto)
-        elif self.file_path:
-            self.create_directory_if_not_exist(self.file_path)
-            self.check_or_write(self.file_path, proto)
+        if self.file_path:
             path_used_for_generation = self.file_path
         # if no filepath specified we create it in a grpc directory in the app
         else:
             auto_file_path = os.path.join(
                 apps.get_app_config(self.app_name).path, "grpc", f"{self.app_name}.proto"
             )
-            self.create_directory_if_not_exist(auto_file_path)
-            self.check_or_write(auto_file_path, proto)
             path_used_for_generation = auto_file_path
+
+        # ----------------------------------------------
+        # --- Proto Generation Process               ---
+        # ----------------------------------------------
+        generator = ModelProtoGenerator(
+            project_name=self.project_name,
+            app_name=self.app_name,
+            model_name=self.model_name,
+            existing_proto_path=path_used_for_generation,
+        )
+
+        # ------------------------------------------------------------
+        # ---- Produce a proto file on current filesystem and Path ---
+        # ------------------------------------------------------------
+        proto = generator.get_proto()
+
+        if self.dry_run and not self.check:
+            self.stdout.write(proto)
+        else:
+            self.create_directory_if_not_exist(path_used_for_generation)
+            self.check_or_write(path_used_for_generation, proto)
 
         if self.generate_python:
             os.system(

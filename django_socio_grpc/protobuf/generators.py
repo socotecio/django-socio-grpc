@@ -1,5 +1,7 @@
 import io
 import logging
+import os
+import protoparser
 
 from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
@@ -47,7 +49,7 @@ class ModelProtoGenerator:
         models.Field.__name__: "string",
     }
 
-    def __init__(self, project_name, app_name, model_name=None):
+    def __init__(self, project_name, app_name, model_name=None, existing_proto_path=None):
         self.model_name = model_name
         self.app_name = app_name
         self.project_name = project_name
@@ -61,7 +63,34 @@ class ModelProtoGenerator:
             # INFO - AM - 20/04/2021 - Can use tee method to duplicate the generator but I don't see the main goal here
             self.models = list(app.get_models())
 
+        self.existing_proto_data = self.parse_existing_proto_file(existing_proto_path)
+
         self._writer = _CodeWriter()
+
+    def parse_existing_proto_file(self, existing_proto_path):
+        if not os.path.exists(existing_proto_path):
+            return None
+
+        with open(existing_proto_path, "r") as file:
+            proto_data = protoparser.serialize2json(file.read())
+
+        return proto_data
+
+    def find_existing_number_for_field(self, message_name, field_name):
+        if not self.existing_proto_data:
+            return None
+
+        if message_name not in self.existing_proto_data.get("messages", {}):
+            return None
+
+        for parsed_field in self.existing_proto_data["messages"][message_name]["fields"]:
+            if parsed_field["name"] == field_name:
+                return parsed_field["number"]
+
+        return None
+
+    def order_message_by_existing_number(self, grpc_message_fields_name):
+        pass
 
     def get_proto(self):
         self._writer.write_line('syntax = "proto3";')
@@ -157,6 +186,9 @@ class ModelProtoGenerator:
         with self._writer.indent():
             number = 0
             # Info - AM - 30/04/2021 - Write all fields as defined in the meta of the model
+            grpc_message_fields_name = self.order_message_by_existing_number(
+                grpc_message_fields_name
+            )
             for field_name in grpc_message_fields_name:
                 number += 1
 

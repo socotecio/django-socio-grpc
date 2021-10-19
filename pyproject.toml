@@ -12,6 +12,7 @@ djangorestframework = "*"
 grpcio = "*"
 grpcio-tools = "*"
 asyncio = "^3.4.3"
+proto-parser = "^1.6.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

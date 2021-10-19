@@ -40,7 +40,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         # ------------------------------------------
         # ---- extract protog Gen Parameters     ---
         # ------------------------------------------

@@ -329,3 +329,87 @@ message ImportStructEvenInArrayModel {
 }
 
 """
+
+
+SIMPLE_APP_MODEL_OLD_ORDER = """syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+
+service UnitTestModelController {
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc Create(UnitTestModel) returns (UnitTestModel) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
+    rpc Update(UnitTestModel) returns (UnitTestModel) {}
+    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
+}
+
+message UnitTestModel {
+    int32 id = 1;
+    string text = 2;
+}
+
+message UnitTestModelListRequest {
+}
+
+message UnitTestModelListResponse {
+    repeated UnitTestModel results = 1;
+    int32 count = 2;
+}
+
+message UnitTestModelRetrieveRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelStreamRequest {
+}
+
+"""
+
+SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER = """syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+
+service UnitTestModelController {
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc Create(UnitTestModel) returns (UnitTestModel) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
+    rpc Update(UnitTestModel) returns (UnitTestModel) {}
+    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
+}
+
+message UnitTestModel {
+    int32 id = 1;
+    string text = 2;
+    string title = 3;
+}
+
+message UnitTestModelListRequest {
+}
+
+message UnitTestModelListResponse {
+    repeated UnitTestModel results = 1;
+    int32 count = 2;
+}
+
+message UnitTestModelRetrieveRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelStreamRequest {
+}
+
+"""

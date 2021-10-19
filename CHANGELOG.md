@@ -1,5 +1,48 @@
 ## Changelog
 
+#### version 0.10.21
+
+- Fix the reuse old number that was not working because of `__custom__` field
+
+#### version 0.10.2O
+
+- Avoid breaking changes with fields number changes by trying to reuse old number
+
+#### version 0.10.19
+
+- Display log when getting an unexpected exception in a grpc call
+
+
+#### version 0.10.17 & 0.10.18
+
+- Uniformize the status code returned by exceptions
+
+
+#### version 0.10.8 -> 0.10.16
+
+- Test and improve logger emitter and exception catcher 
+
+
+#### version 0.10.7
+
+- Add log when receiving an incoming grpc-request
+
+#### version 0.10.6
+
+- Add log when receiving an incoming grpc-request
+
+#### version 0.10.5
+
+- Not stop current thread to send a log if server is launch in sync mode
+
+#### version 0.10.4
+
+- Fix a log call to not be send
+
+#### version 0.10.3
+
+- Add option to not send log to server
+
 #### version 0.10.2
 
 - Allow logging to work in async mode

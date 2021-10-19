@@ -94,6 +94,9 @@ class ModelProtoGenerator:
         if grpc_message_name not in self.existing_proto_data.get("messages", {}):
             return MAX_SORT_NUMBER
 
+        if field_name.startswith("__custom__"):
+            _, field_name = self.get_custom_item_type_and_name(field_name)
+
         for parsed_field in self.existing_proto_data["messages"][grpc_message_name]["fields"]:
             if parsed_field["name"] == field_name:
                 return parsed_field["number"]

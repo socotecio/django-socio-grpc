@@ -413,3 +413,79 @@ message UnitTestModelStreamRequest {
 }
 
 """
+
+APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER = """syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+
+service RelatedFieldModelController {
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
+    rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
+    rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
+    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message RelatedFieldModel {
+    string uuid = 1;
+}
+
+message RelatedFieldModelListRequest {
+}
+
+message RelatedFieldModelListResponse {
+    string uuid = 1;
+    string custom_field_name = 2;
+}
+
+message RelatedFieldModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message RelatedFieldModelDestroyRequest {
+    string uuid = 1;
+}
+
+"""
+
+APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER = """syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+
+service RelatedFieldModelController {
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
+    rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
+    rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
+    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message RelatedFieldModel {
+    string uuid = 1;
+    string foreign = 2;
+}
+
+message RelatedFieldModelListRequest {
+}
+
+message RelatedFieldModelListResponse {
+    string uuid = 1;
+    string custom_field_name = 2;
+    string foreign = 3;
+    repeated string many_many = 4;
+    repeated string list_custom_field_name = 5;
+}
+
+message RelatedFieldModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message RelatedFieldModelDestroyRequest {
+    string uuid = 1;
+}
+
+"""

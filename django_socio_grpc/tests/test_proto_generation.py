@@ -9,6 +9,8 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 
 from .assets.generated_protobuf_files import (
     ALL_APP_GENERATED,
+    APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER,
+    APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER,
     CUSTOM_APP_MODEL_GENERATED,
     MODEL_WITH_M2M_GENERATED,
     MODEL_WITH_STRUCT_IMORT_IN_ARRAY,
@@ -263,3 +265,29 @@ class TestProtoGeneration(TestCase):
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=True),
+    )
+    def test_order_proto_field_if_existing_with_custom_field(self):
+        """
+        This test make the like the old RelatedFieldModel on the RelatedFieldModelListResponse message have only uuid and custom_field_name field.
+        So when regeneration with all the new field custom_field_name should keep is second position and the other go at the end
+        """
+        self.maxDiff = None
+        args = []
+        opts = {"app": "fakeapp", "model": "relatedfieldmodel", "generate_python": False}
+        with patch(
+            "builtins.open", mock_open(read_data=APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER)
+        ) as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "r"
+
+        handle = m()
+
+        called_with_data = handle.write.call_args[0][0]
+        self.assertEqual(called_with_data, APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER)

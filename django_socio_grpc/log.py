@@ -71,7 +71,7 @@ class GRPCHandler(logging.Handler):
         return str_now
 
     def extract_exc_info_from_traceback(self, formatted_exception):
-        
+
         try:
             # INFO - FB - 21/07/2021 - formatted_exception is an array where each item is a line of the traceback from the exeption and the last item is the text of the exception
             # INFO - FB - 21/07/2021 - Getting the -2 element mean getting the line where the exception is raised
@@ -92,7 +92,7 @@ class GRPCHandler(logging.Handler):
 
             # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
             func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
-        
+
         except IndexError:
             pathname = "Error when trying to extract pathname"
             lineno = 0

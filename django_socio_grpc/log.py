@@ -71,25 +71,32 @@ class GRPCHandler(logging.Handler):
         return str_now
 
     def extract_exc_info_from_traceback(self, formatted_exception):
-        # INFO - FB - 21/07/2021 - formatted_exception is an array where each item is a line of the traceback from the exeption and the last item is the text of the exception
-        # INFO - FB - 21/07/2021 - Getting the -2 element mean getting the line where the exception is raised
-        traceback_last_line = formatted_exception[-2]
+        
+        try:
+            # INFO - FB - 21/07/2021 - formatted_exception is an array where each item is a line of the traceback from the exeption and the last item is the text of the exception
+            # INFO - FB - 21/07/2021 - Getting the -2 element mean getting the line where the exception is raised
+            traceback_last_line = formatted_exception[-2]
 
-        # INFO - FB - 21/07/2021 - traceback_last_line look lie: '  File "<pathtofile>", line <linenumber>, in <function_name>\n    <text line that raise error>\n'
-        (
-            text_path_file,
-            text_line_number,
-            text_function_and_line_error,
-        ) = traceback_last_line.split(",", 2)
+            # INFO - FB - 21/07/2021 - traceback_last_line look lie: '  File "<pathtofile>", line <linenumber>, in <function_name>\n    <text line that raise error>\n'
+            (
+                text_path_file,
+                text_line_number,
+                text_function_and_line_error,
+            ) = traceback_last_line.split(",", 2)
 
-        # INFO - FB - 21/07/2021 - transform string like:  File "<pathtofile>" to <pathtofile>
-        pathname = text_path_file.strip().split('"')[1]
+            # INFO - FB - 21/07/2021 - transform string like:  File "<pathtofile>" to <pathtofile>
+            pathname = text_path_file.strip().split('"')[1]
 
-        # INFO - FB - 21/07/2021 - transform string like: line <linenumber> to <linenumber>
-        lineno = text_line_number.replace("line", "").strip()
+            # INFO - FB - 21/07/2021 - transform string like: line <linenumber> to <linenumber>
+            lineno = text_line_number.replace("line", "").strip()
 
-        # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
-        func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
+            # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
+            func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
+        
+        except IndexError:
+            pathname = "Error when trying to extract pathname"
+            lineno = 0
+            func_name = "Error when trying to extract func_name"
 
         return (pathname, lineno, func_name)
 

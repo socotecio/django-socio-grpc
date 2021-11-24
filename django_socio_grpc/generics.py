@@ -130,9 +130,9 @@ class GenericService(services.Service):
 
     def paginate_queryset(self, queryset):
         """
-        Return a single page of results, or `None` if pagination is disabled.
+        Return a single page of results, or `None` if pagination is disabled by context or not configured.
         """
-        if self.paginator is None:
+        if self.paginator is None or self.context.query_params.get("no_page") is True:
             return None
         return self.paginator.paginate_queryset(queryset, self.context, view=self)
 

@@ -57,3 +57,12 @@ class TestPagination(TestCase):
 
         self.assertEqual(response.count, 10)
         self.assertEqual(len(response.results), 6)
+
+    def test_no_page(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+        request = UnitTestModelListRequest()
+        pagination_as_dict = {"no_page": True}
+        metadata = (("PAGINATION", (json.dumps(pagination_as_dict))),)
+        response = grpc_stub.List(request=request, metadata=metadata)
+        self.assertEqual(response.count, 0)
+        self.assertEqual(len(response.results), 10)

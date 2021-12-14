@@ -28,7 +28,7 @@ class ModelProtoGenerator:
         models.IntegerField.__name__: "int32",
         models.BigIntegerField.__name__: "int64",
         models.PositiveSmallIntegerField.__name__: "int32",
-        models.PositiveBigIntegerField.__name__: "int32",
+        models.PositiveBigIntegerField.__name__: "int64",
         models.PositiveIntegerField.__name__: "int32",
         models.FloatField.__name__: "float",
         models.DecimalField.__name__: "string",

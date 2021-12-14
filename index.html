@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="None">
+        
+        
+        <link rel="shortcut icon" href="img/favicon.ico">
+        <title>Django Socio gRPC Documentation</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/font-awesome.min.css" rel="stylesheet">
+        <link href="css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
+
+        <script src="js/jquery-1.10.2.min.js" defer></script>
+        <script src="js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body class="homepage">
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href=".">Django Socio gRPC Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem active">
+                                <a href="." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="generate_proto/" class="nav-link">Generate Proto</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="generic_service/" class="nav-link">Generic Service</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="model_service/" class="nav-link">Model Service</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="proto_serializer/" class="nav-link">Proto Serializer</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="sync_vs_async/" class="nav-link">Sync vs Async</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="server_and_service_register/" class="nav-link">Server and service register</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="logging/" class="nav-link">Logging</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="settings/" class="nav-link">Settings</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="testing/" class="nav-link">Testing</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" class="nav-link disabled">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="generate_proto/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#django-socio-grpc-documentation" class="nav-link">Django Socio gRPC Documentation</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#what-is-django-socio-grpc" class="nav-link">What is Django Socio gRPC</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#quickstart" class="nav-link">Quickstart</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="django-socio-grpc-documentation">Django Socio gRPC Documentation</h1>
+<p>Learn how to use gRPC with Django like you usually code with Django Rest Framework.</p>
+<h2 id="what-is-django-socio-grpc">What is Django Socio gRPC</h2>
+<p>Django Socio gRPC is the implementation of how to do gRPC in a django web serveur in the Django Rest Framework way. This project is strongly inspired from <a href="https://github.com/fengsp/django-grpc-framework">Django gRPC Framework</a> but add all the necessary features to be production ready such as pagination, filtering, async, authentification, ...
+And some really cool helper as the protobuf generation from the model or the register helper.</p>
+<h2 id="quickstart">Quickstart</h2>
+<h3 id="install-dependencies">Install dependencies</h3>
+<pre><code class="language-bash">pip install djangogrpcframework
+pip install django
+pip install grpcio
+pip install grpcio-tools
+pip install asyncio # Not mandatory but it's the default behavior used in the quickstart
+pip install django-socio-grpc
+</code></pre>
+<h3 id="django-setup">Django setup</h3>
+<pre><code class="language-bash">django-admin startproject tutorial
+cd tutorial
+django-admin startapp quickstart
+python manage.py migrate
+</code></pre>
+<h3 id="django-settings">Django settings</h3>
+<p>Add django_socio_grpc to INSTALLED_APPS, settings module is in tutorial/settings.py:</p>
+<pre><code class="language-python">INSTALLED_APPS = [
+    ...
+    'django_socio_grpc',
+]
+</code></pre>
+<h3 id="define-a-model">Define a model</h3>
+<pre><code class="language-python"># quickstart/models.py
+from django.db import models
+
+
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+</code></pre>
+<h3 id="generate-the-protofile-and-the-client-associated-to-the-model">Generate the protofile and the client associated to the model</h3>
+<pre><code class="language-bash">python manage.py generateproto --app quickstart
+</code></pre>
+<h3 id="define-a-serializer">Define a Serializer</h3>
+<pre><code class="language-python"># quickstart/serializers.py
+from django_socio_grpc import proto_serializers
+import quickstart.grpc.quickstart_pb2 as quickstart_pb2
+from .models import Question
+
+
+class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = Question
+        proto_class = quickstart_pb2.Question
+        proto_class_list = quickstart_pb2.QuestionListResponse
+        fields = [&quot;id&quot;, &quot;question_text&quot;, &quot;pub_date&quot;]
+
+</code></pre>
+<h3 id="define-a-service">Define a Service</h3>
+<pre><code class="language-python"># quickstart/services.py
+from django_socio_grpc import generics
+from .models import Question
+from .serializers import QuestionProtoSerializer
+
+
+class QuestionService(generics.AsyncModelService):
+    queryset = Question.objects.all()
+    serializer_class = QuestionProtoSerializer
+
+</code></pre>
+<h3 id="register-the-service">Register the service</h3>
+<pre><code class="language-python"># quickstart/handlers.py
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+
+
+def grpc_handlers(server):
+    app_registry = AppHandlerRegistry(&quot;quickstart&quot;, server)
+    app_registry.register(&quot;Question&quot;)
+</code></pre>
+<h3 id="launch-the-server">Launch the server</h3>
+<pre><code class="language-bash">python manage.py grpcrunaioserver --dev
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = ".",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="js/base.js" defer></script>
+        <script src="search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
+
+<!--
+MkDocs version : 1.2.2
+Build Date UTC : 2021-12-14 10:50:13.702127+00:00
+-->

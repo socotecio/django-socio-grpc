@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Generate Proto - Django Socio gRPC Documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">Django Socio gRPC Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Generate Proto</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../generic_service/" class="nav-link">Generic Service</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../model_service/" class="nav-link">Model Service</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../proto_serializer/" class="nav-link">Proto Serializer</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../sync_vs_async/" class="nav-link">Sync vs Async</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../server_and_service_register/" class="nav-link">Server and service register</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../logging/" class="nav-link">Logging</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../settings/" class="nav-link">Settings</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../testing/" class="nav-link">Testing</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href=".." class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../generic_service/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#proto-generation" class="nav-link">Proto Generation</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#command" class="nav-link">Command</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#default-generation" class="nav-link">Default generation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#customize-proto-generation" class="nav-link">Customize proto generation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#customize-grpc-messages" class="nav-link">Customize gRPC Messages</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#customize-grpc-methods" class="nav-link">Customize gRPC Methods</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#using-default-methods-to-simplify-overwriting" class="nav-link">Using default methods to simplify overwriting</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="proto-generation">Proto Generation</h1>
+<h2 id="command">Command</h2>
+<p>To automatically generate proto and python files use the generateproto command:</p>
+<pre><code class="language-bash">python manage.py generateproto
+</code></pre>
+<p>Options Available:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Shortcut</th>
+<th>Default value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>--app</td>
+<td>-a</td>
+<td>required / use model option value</td>
+<td>Name of the django app we want to generate a proto for if not specified will use the model option. If None are specified the command will raise an error.</td>
+</tr>
+<tr>
+<td>--model</td>
+<td>-m</td>
+<td>required / use app option value</td>
+<td>Name of the django app we want to generate a proto for if not specified will use the model option. If None are specified the command will raise an error.</td>
+</tr>
+<tr>
+<td>--file</td>
+<td>-f</td>
+<td>appName.grpc.appName.proto</td>
+<td>Path to the generated proto file.</td>
+</tr>
+<tr>
+<td>--project</td>
+<td>-p</td>
+<td>Directory name</td>
+<td>Name used to build the package name inside the proto file.</td>
+</tr>
+<tr>
+<td>--dry-run</td>
+<td>-dr</td>
+<td>False</td>
+<td>Print in terminal the protofile content without writing it to a file or generate new python code.</td>
+</tr>
+<tr>
+<td>--generate-python</td>
+<td>-gp</td>
+<td>True</td>
+<td>Generate python file same time you generate proto file.</td>
+</tr>
+<tr>
+<td>--check</td>
+<td>-c</td>
+<td>False</td>
+<td>Check if the current protofile is the same that one that will be generated by a new command to be sur your api is sync with your models.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="default-generation">Default generation</h2>
+<p>By default each model generate the default viewset as proto file. It allow by default to match all the endpoint given by the generics.AsyncModelService or generics.ModelService classes.</p>
+<p>For example if we have a model like:</p>
+<pre><code class="language-python">class Something(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    start_date = models.DateField()
+    rate = models.CharField(max_length=255, null=True, blank=True, verbose_name=_(&quot;Rate&quot;))
+</code></pre>
+<p>this will generate a proto like:</p>
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+
+package tutorial.quickstart;
+
+import &quot;google/protobuf/empty.proto&quot;;
+
+service SomethingController {
+    rpc List(SomethingListRequest) returns (SomethingListResponse) {}
+    rpc Create(Something) returns (Something) {}
+    rpc Retrieve(SomethingRetrieveRequest) returns (Something) {}
+    rpc Update(Something) returns (Something) {}
+    rpc Destroy(SomethingDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message Something {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+
+message SomethingListRequest {
+}
+
+message SomethingListResponse {
+    repeated Something results = 1;
+}
+
+message SomethingRetrieveRequest {
+    string uuid = 1;
+}
+
+message SomethingDestroyRequest {
+    string uuid = 1;
+}
+</code></pre>
+<h2 id="customize-proto-generation">Customize proto generation</h2>
+<p><a href="https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/models.py">See exemple used for test here</a></p>
+<p>It is possible to adapt the proto generation depending of your need. To customize your proto generation you need to override <code>grpc_messages</code> and <code>grpc_methods</code> attributes of the Meta class of the model:</p>
+<pre><code class="language-python">class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {...}
+        grpc_methods = {...}
+</code></pre>
+<p>This two dictionnary will allow you to customize the messages and the methods generated by the command <code>generate_proto</code> by simply reconstruct the file from the data of the dict. To see the data format read the next two sections.</p>
+<h2 id="customize-grpc-messages">Customize gRPC Messages</h2>
+<h3 id="format">Format</h3>
+<p><code>grpc_messages</code> attribute is a dict with the format: <code>{[MessageName&lt;String&gt;]: FieldNames&lt;Array&lt;String&gt;&gt;}</code> where:</p>
+<ul>
+<li>MessageName is the name of the message as it appear in the proto file (SomethingListRequest, SomethingListResponse...)</li>
+<li>FieldNames is an array of models field. We use django instrospection to find the correct type to display in the proto file</li>
+</ul>
+<p>Example if we want a message named SomethingSmall:</p>
+<pre><code class="language-python">class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {&quot;SomethingSmall&quot;: [&quot;uuid&quot;, &quot;start_date&quot;]}
+        grpc_methods = {}
+</code></pre>
+<p>This will generate a proto file like:</p>
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+
+package tutorial.quickstart;
+
+message SomethingSmall {
+    string uuid = 1;
+    string start_date = 2;
+}
+</code></pre>
+<h3 id="specific-fieldname-values">Specific FieldName Values</h3>
+<p>There is two helper to help building message:
+- <code>__all__</code>: Allow you to use all the fields of the model</p>
+<pre><code class="language-python">class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {&quot;SomethingAll&quot;: &quot;__all__&quot;}
+        grpc_methods = {}
+</code></pre>
+<p>This will generate a proto file like:</p>
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+
+package tutorial.quickstart;
+
+message SomethingSmall {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+</code></pre>
+<ul>
+<li><code>__custom__[proto_type]__[field_name]__</code>: Allow to specify a name not existing in the model and specify its type. You can put everything you want it will be directly transformed into protobuf format without django instropection. Be carefull when you use it to match your serializer and if you use nested messages that the other message it already declared.</li>
+</ul>
+<pre><code class="language-python">class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {&quot;SomethingAll&quot;: [&quot;uuid&quot;, &quot;__custom__int32__counter__&quot;, &quot;__custom__repeated string__last_rates__&quot;]}
+        grpc_methods = {}
+</code></pre>
+<p>This will generate a proto file like:</p>
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+
+package tutorial.quickstart;
+
+message SomethingSmall {
+    string uuid = 1;
+    int32 counter = 2;
+    repeated string last_rates = 3;
+}
+</code></pre>
+<h2 id="customize-grpc-methods">Customize gRPC Methods</h2>
+<h3 id="format_1">Format</h3>
+<p><code>grpc_methods</code> attribute is a dict with the format <code>{[MethodName&lt;String&gt;]: { request: Request&lt;Object&gt;, response: Response&lt;Object&gt;}}</code> where <code>Request</code> and <code>Response</code> are object like: <code>{message: MessageName&lt;String&gt;, is_stream: &lt;Boolean&gt;}</code></p>
+<p>This data are simply used to generate the line of the method specified by MethodName in the grpc controller.
+Example:</p>
+<pre><code class="language-python">class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_methods = {
+            &quot;StreamList&quot;: {
+                &quot;request&quot;: {&quot;is_stream&quot;: False, &quot;message&quot;: &quot;SomethingListRequest&quot;},
+                &quot;response&quot;: {&quot;is_stream&quot;: True, &quot;message&quot;: &quot;SomethingListStreamResponse&quot;},
+            },
+        }
+</code></pre>
+<p>This will generate a proto file like:</p>
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+
+package tutorial.quickstart;
+
+service ForeignModelController {
+    rpc StreamList(SomethingListRequest) returns (stream SomethingListStreamResponse) {}
+}
+</code></pre>
+<p>This will crash you have not SomethingListRequest and SomethingListStreamResponse defined in the messages of the proto file.
+See the <a href="#using-default-methods-to-simplify-overwriting">default generated message and methods</a></p>
+<h2 id="using-default-methods-to-simplify-overwriting">Using default methods to simplify overwriting</h2>
+<p>As seen in the first part of this page we have some default generation. But at soon as you overwrite <code>grpc_methods</code> or <code>grpc_messages</code> you loose all the default generation. 
+Often you only want to add a custom field or doesn't want to rewrite the all things.</p>
+<p>For that you can use the mixins methods <code>get_default_message</code> and <code>get_default_method</code> like:</p>
+<pre><code class="language-python">class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {
+            **CreateModelMixin.get_default_message(&quot;Something&quot;),
+            **ListModelMixin.get_default_message(&quot;Something&quot;),
+            &quot;SomethingRetrieveRequestCustom&quot;: [&quot;name&quot;],
+            &quot;SomethingRetrieveResponseCustom&quot;: [&quot;uuid&quot;],
+        }
+        grpc_methods = {
+            **ListModelMixin.get_default_method(&quot;Something&quot;),
+            &quot;Retrieve&quot;: {
+                &quot;request&quot;: {
+                    &quot;is_stream&quot;: False,
+                    &quot;message&quot;: &quot;SomethingRetrieveRequestCustom&quot;,
+                },
+                &quot;response&quot;: {
+                    &quot;is_stream&quot;: False,
+                    &quot;message&quot;: &quot;SomethingRetrieveResponseCustom&quot;,
+                },
+            },
+        }
+</code></pre>
+<p>this will generate something like:</p>
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+
+package tutorial.quickstart;
+
+import &quot;google/protobuf/empty.proto&quot;;
+
+service SomethingController {
+    rpc List(SomethingListRequest) returns (SomethingListResponse) {}
+    rpc Retrieve(SomethingRetrieveRequest) returns (Something) {}
+}
+
+message Something {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+
+message SomethingListRequest {
+}
+
+message SomethingListResponse {
+    repeated Something results = 1;
+}
+
+message SomethingRetrieveRequestCustom {
+    string name = 1;
+}
+
+message SomethingRetrieveResponseCustom {
+    string uuid = 1;
+}
+</code></pre>
+<p><code>get_default_message</code> and <code>get_default_method</code> exist for all the mixins: CreateModelMixin, ListModelMixin, StreamModelMixin, RetrieveModelMixin, UpdateModelMixin, PartialUpdateModelMixin, DestroyModelMixin. Same for the async model that just inherit from the sync models.</p>
+<p>You can also use <code>mixins.get_default_grpc_methods</code> and <code>mixins.get_default_grpc_messages</code> to simulate all the defautl configuration and overwrite it after:</p>
+<pre><code class="language-python">class Something(models.Model):
+    ...
+
+    class Meta:
+        grpc_messages = {
+            **get_default_grpc_messages(&quot;Something&quot;),
+            &quot;Something&quot;: [&quot;uuid&quot;, &quot;start_date&quot;, &quot;rate&quot;, &quot;__custom__string__new_field__&quot;]
+        }
+
+        grpc_methods = {
+            **get_default_grpc_methods(&quot;Something&quot;),
+        }
+</code></pre>
+<p>this will generate something like:</p>
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+
+package tutorial.quickstart;
+
+import &quot;google/protobuf/empty.proto&quot;;
+
+service SomethingController {
+    rpc List(SomethingListRequest) returns (SomethingListResponse) {}
+    rpc Create(Something) returns (Something) {}
+    rpc Retrieve(SomethingRetrieveRequest) returns (Something) {}
+    rpc Update(Something) returns (Something) {}
+    rpc Destroy(SomethingDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message Something {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+    string new_filed = 4;
+}
+
+message SomethingListRequest {
+}
+
+message SomethingListResponse {
+    repeated Something results = 1;
+}
+
+message SomethingRetrieveRequest {
+    string uuid = 1;
+}
+
+message SomethingDestroyRequest {
+    string uuid = 1;
+}
+</code></pre></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

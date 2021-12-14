@@ -21,9 +21,14 @@ class Command(BaseCommand):
         )
         parser.add_argument("--file", "-f", help="the generated proto file path")
         parser.add_argument("--app", "-a", help="specify Django Application")
-        parser.add_argument("--project", "-p", help="specify Django project. Use path by default")
         parser.add_argument(
-            "--dry-run", "-dr", action="store_true", help="print proto data without writing them"
+            "--project", "-p", help="specify Django project. Use path by default"
+        )
+        parser.add_argument(
+            "--dry-run",
+            "-dr",
+            action="store_true",
+            help="print proto data without writing them",
         )
         parser.add_argument(
             "--generate-python",

@@ -105,17 +105,6 @@ class TestProtoGeneration(TestCase):
             "Error on protobuf generation on model model_not_existing on app None: Invalid Django model",
         )
 
-    def test_raise_when_file_exist_no_update(self):
-        args = []
-        opts = {"app": "fakeapp", "file": "proto/fakeapp.proto", "update": False}
-        with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-            call_command("generateproto", *args, **opts)
-
-        self.assertEqual(
-            str(fake_generation_error.exception),
-            "Error on protobuf generation on model None on app fakeapp: File proto/fakeapp.proto already exist",
-        )
-
     @mock.patch(
         "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),

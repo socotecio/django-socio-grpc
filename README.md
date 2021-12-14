@@ -1,12 +1,12 @@
 # Django Socio Grpc
 
-[https://img.shields.io/pypi/v/django-socio-grpc.svg](https://img.shields.io/pypi/v/django-socio-grpc.svg)
+![https://img.shields.io/pypi/v/django-socio-grpc.svg](https://img.shields.io/pypi/v/django-socio-grpc.svg)
 
-[https://img.shields.io/badge/Maintained%3F-yes-green.svg](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+![https://img.shields.io/badge/Maintained%3F-yes-green.svg](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
-[https://img.shields.io/pypi/pyversions/django-socio-grpc](https://img.shields.io/pypi/pyversions/django-socio-grpc)
+![https://img.shields.io/pypi/pyversions/django-socio-grpc](https://img.shields.io/pypi/pyversions/django-socio-grpc)
 
-[https://img.shields.io/pypi/l/django-socio-grpc](https://img.shields.io/pypi/l/django-socio-grpc)
+![https://img.shields.io/pypi/l/django-socio-grpc](https://img.shields.io/pypi/l/django-socio-grpc)
 
 Django Socio gRPC is a toolkit for building gRPC services, inspired by djangorestframework. It is base on [django-grpc-framework](https://github.com/fengsp/django-grpc-framework) with all the DRF features enable Auth, Filter, Pagination, more complex proto generation...
 

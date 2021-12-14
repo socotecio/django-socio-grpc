@@ -16,25 +16,30 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--model",
+            "-m",
             help="dotted path to a model class",
         )
-        parser.add_argument("--file", help="the generated proto file path")
-        parser.add_argument("--app", help="specify Django Application")
-        parser.add_argument("--project", help="specify Django project. Use path by default")
+        parser.add_argument("--file", "-f", help="the generated proto file path")
+        parser.add_argument("--app", "-a", help="specify Django Application")
         parser.add_argument(
-            "--update", action="store_true", default=True, help="Replace the proto file"
+            "--project", "-p", help="specify Django project. Use path by default"
         )
         parser.add_argument(
-            "--dry-run", action="store_true", help="print proto data without writing them"
+            "--dry-run",
+            "-dr",
+            action="store_true",
+            help="print proto data without writing them",
         )
         parser.add_argument(
             "--generate-python",
+            "-gp",
             action="store_true",
             default=True,
             help="generate python file too",
         )
         parser.add_argument(
             "--check",
+            "-c",
             action="store_true",
             help="Return an error if the file generated is different from the file existent",
         )
@@ -56,7 +61,6 @@ class Command(BaseCommand):
                 model_name=self.model_name,
                 detail="Can't automatically found the correct project name. Set DJANGO_SETTINGS_MODULE or specify the --project option",
             )
-        self.update_proto_file = options["update"]
         self.file_path = options["file"]
         self.dry_run = options["dry_run"]
         self.generate_python = options["generate_python"]
@@ -155,16 +159,6 @@ class Command(BaseCommand):
                 app_name=self.app_name,
                 model_name=self.model_name,
                 detail="Invalid Django model",
-            )
-
-        # --------------------------------------------------
-        # --- Check Path for generating the protbuf file ---
-        # --------------------------------------------------
-        if self.file_path and os.path.exists(self.file_path) and not self.update_proto_file:
-            raise ProtobufGenerationException(
-                app_name=self.app_name,
-                model_name=self.model_name,
-                detail=f"File {self.file_path} already exist",
             )
 
     def create_directory_if_not_exist(self, file_path):

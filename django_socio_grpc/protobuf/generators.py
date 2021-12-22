@@ -20,15 +20,12 @@ MAX_SORT_NUMBER = 99
 
 class ModelProtoGenerator:
     type_mapping = {
-        # Special
-        models.JSONField.__name__: "google.protobuf.Struct",
         # Numeric
         models.AutoField.__name__: "int32",
         models.SmallIntegerField.__name__: "int32",
         models.IntegerField.__name__: "int32",
         models.BigIntegerField.__name__: "int64",
         models.PositiveSmallIntegerField.__name__: "int32",
-        models.PositiveBigIntegerField.__name__: "int64",
         models.PositiveIntegerField.__name__: "int32",
         models.FloatField.__name__: "float",
         models.DecimalField.__name__: "string",
@@ -52,6 +49,20 @@ class ModelProtoGenerator:
         # Default
         models.Field.__name__: "string",
     }
+
+    # JSONField and PositiveBigIntegerField not available on Django 2.2
+    try:
+        # Special
+        type_mapping[models.JSONField.__name__] = "google.protobuf.Struct"
+    except AttributeError:
+        from django.contrib.postgres.fields import JSONField
+
+        type_mapping[JSONField.__name__] = "google.protobuf.Struct"
+
+    try:
+        type_mapping[models.PositiveBigIntegerField.__name__] = "int64"
+    except AttributeError:
+        pass
 
     def __init__(self, project_name, app_name, model_name=None, existing_proto_path=None):
         self.model_name = model_name

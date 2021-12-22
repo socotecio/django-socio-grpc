@@ -49,16 +49,19 @@ class ModelProtoGenerator:
         # Default
         models.Field.__name__: "string",
     }
-    
+
+    # JSONField and PositiveBigIntegerField not available on Django 2.2
     try:
+        # Special
         type_mapping[models.JSONField.__name__] = "google.protobuf.Struct"
     except AttributeError:
         from django.contrib.postgres.fields import JSONField
+
         type_mapping[JSONField.__name__] = "google.protobuf.Struct"
-    
+
     try:
         type_mapping[models.PositiveBigIntegerField.__name__] = "int64"
-    except:
+    except AttributeError:
         pass
 
     def __init__(self, project_name, app_name, model_name=None, existing_proto_path=None):

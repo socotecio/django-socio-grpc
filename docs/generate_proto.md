@@ -27,6 +27,8 @@ By default each model generate the default viewset as proto file. It allow by de
 For example if we have a model like:
 
 ```python
+from django.db import models
+
 class Something(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     start_date = models.DateField()

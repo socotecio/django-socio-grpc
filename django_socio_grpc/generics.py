@@ -66,6 +66,14 @@ class GenericService(services.Service):
         )
         return self.serializer_class
 
+    def get_lookup_request_field(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        lookup_field = self.lookup_field or model_meta.get_model_pk(queryset.model).name
+        print("CICIC\n"*5)
+        lookup_request_field = self.lookup_request_field or lookup_field
+        return lookup_request_field
+
     def get_object(self):
         """
         Returns an object instance that should be used for detail services.
@@ -73,8 +81,7 @@ class GenericService(services.Service):
         queryset.
         """
         queryset = self.filter_queryset(self.get_queryset())
-        lookup_field = self.lookup_field or model_meta.get_model_pk(queryset.model).name
-        lookup_request_field = self.lookup_request_field or lookup_field
+        lookup_request_field = self.get_lookup_request_field(queryset)
         assert hasattr(self.request, lookup_request_field), (
             "Expected service %s to be called with request that has a field "
             'named "%s". Fix your request protocol definition, or set the '
@@ -82,7 +89,7 @@ class GenericService(services.Service):
             % (self.__class__.__name__, lookup_request_field)
         )
         lookup_value = getattr(self.request, lookup_request_field)
-        filter_kwargs = {lookup_field: lookup_value}
+        filter_kwargs = {lookup_request_field: lookup_value}
         try:
             obj = get_object_or_404(queryset, **filter_kwargs)
         except (TypeError, ValueError, ValidationError, Http404):

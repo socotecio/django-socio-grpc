@@ -1,10 +1,15 @@
 from collections import OrderedDict
 from importlib import import_module
 
-from rest_framework.fields import IntegerField
-
 from django_socio_grpc.mixins import get_default_grpc_methods
 from django_socio_grpc.settings import grpc_settings
+from django.db import models
+
+from rest_framework.relations import ManyRelatedField, RelatedField
+from rest_framework.serializers import BaseSerializer, ListSerializer
+from django_socio_grpc.utils import model_meta
+
+from django_socio_grpc.proto_serializers import ModelProtoSerializer, BaseProtoSerializer, ListProtoSerializer
 
 
 class SingletonMeta(type):
@@ -39,6 +44,39 @@ class RegistrySingleton(metaclass=SingletonMeta):
     Registry Singleton is a singleton class allowing to grab all the service declared in grpc_settings.ROOT_HANDLERS_HOOK 
     and introspect django model and serializer to determine the proto to generate
     """
+
+    type_mapping = {
+        # Special
+        models.JSONField.__name__: "google.protobuf.Struct",
+        # Numeric
+        models.AutoField.__name__: "int32",
+        models.SmallIntegerField.__name__: "int32",
+        models.IntegerField.__name__: "int32",
+        models.BigIntegerField.__name__: "int64",
+        models.PositiveSmallIntegerField.__name__: "int32",
+        models.PositiveIntegerField.__name__: "int32",
+        models.FloatField.__name__: "float",
+        models.DecimalField.__name__: "string",
+        # Boolean
+        models.BooleanField.__name__: "bool",
+        models.NullBooleanField.__name__: "bool",
+        # Date and time
+        models.DateField.__name__: "string",
+        models.TimeField.__name__: "string",
+        models.DateTimeField.__name__: "string",
+        models.DurationField.__name__: "string",
+        # String
+        models.CharField.__name__: "string",
+        models.TextField.__name__: "string",
+        models.EmailField.__name__: "string",
+        models.SlugField.__name__: "string",
+        models.URLField.__name__: "string",
+        models.UUIDField.__name__: "string",
+        models.GenericIPAddressField.__name__: "string",
+        models.FilePathField.__name__: "string",
+        # Default
+        models.Field.__name__: "string",
+    }
 
     _instances = {}
 
@@ -182,22 +220,76 @@ class RegistrySingleton(metaclass=SingletonMeta):
         This message need to be in a correct format that will be used by generators to transform it into generators
         """
         serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
-        if serializer_name not in self.registered_app[app_name]["registered_messages"]:
-            self.registered_app[app_name]["registered_messages"][serializer_name] = list(
-                serializer_instance.get_fields().items()
-            )
+        if serializer_name in self.registered_app[app_name]["registered_messages"]:
+            return 
 
-            print("serializer name: ", serializer_name, ", fields: ", list(serializer_instance.get_fields().items()))
+        self.registered_app[app_name]["registered_messages"][serializer_name] = []
 
-            # for field in serializer_instance.get_fields():
-            #     field_class, field_kwargs = serializer_instance.build_field(
-            #         field[0], info, model, depth
-            #     )
+        for field_name, field_type in serializer_instance.get_fields().items():
+            field_grpc_generator_format = (field_name, self.get_proto_type(app_name, field_type))
+            self.registered_app[app_name]["registered_messages"][serializer_name].append(field_grpc_generator_format)
 
-            # print(
-            #     "icicic ",
-            #     self.registered_app[app_name]["registered_messages"][serializer_name],
-            # )
+
+    def get_proto_type(self, app_name, field_type):
+        """
+        Return a proto_type  to use in the proto file from a field_name and a model.
+
+        this method is the magic method that tranform custom attribute like __repeated-link-- to correct proto buff file
+        """
+
+        # If field type is a str that mean we use a custom field
+        if isinstance(field_type, str):
+            return field_type
+
+        proto_type = self.type_mapping.get(field_type.__class__.__name__, "string")
+        
+        # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have  
+        if issubclass(field_type.__class__, ListProtoSerializer):
+            proto_type = f"repeated {field_type.child.__class__.__name__.replace('Serializer', '')}"
+            # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
+            self.register_serializer_as_message_if_not_exist(app_name, field_type.child)
+
+        # INFO - AM - 07/01/2022 - else if the field type inherit from proto serializer that mean that it is generated as a message in the proto file
+        elif issubclass(field_type.__class__, BaseProtoSerializer):
+            proto_type = field_type.__class__.__name__.replace("Serializer", "")
+            # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
+            self.register_serializer_as_message_if_not_exist(app_name, field_type)
+
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ManyRelatedField that mean the type is the type of the pk of the child_relation (see relations.py of drf)
+        elif issubclass(field_type.__class__, ManyRelatedField):
+            proto_type = f"repeated {self.get_pk_from_related_field(field_type.child_relation)}"
+
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the RelatedField that mean the type is the type of the pk of the foreign model
+        elif issubclass(field_type.__class__, RelatedField):
+            proto_type = self.get_pk_from_related_field(field_type)
+
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListSerializer that mean it's a repaeated Struct
+        elif issubclass(field_type.__class__, ListSerializer):
+            proto_type = "repeated google.protobuf.Struct"
+
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
+        elif issubclass(field_type.__class__, BaseSerializer):
+            proto_type = "google.protobuf.Struct"
+
+        # self.print(f"class is : {field_type.__class__}", 4)
+        # self.print(f"is subclas of BaseSerializer: {issubclass(field_type.__class__, BaseSerializer)}", 4)
+        # self.print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}", 4)
+        # self.print(f"is subclas of ModelProtoSerializer: {issubclass(field_type.__class__, ModelProtoSerializer)}", 4)
+        # self.print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}", 4)
+        # self.print(f"is subclas of RelatedField: {issubclass(field_type.__class__, RelatedField)}", 4)
+        # self.print(
+        #     f"is subclas of ManyRelatedField: {issubclass(field_type.__class__, ManyRelatedField)}", 4
+        # )
+
+        return proto_type
+
+
+    def get_pk_from_related_field(self, related_field):
+        if related_field.pk_field:
+            return related_field.pk_field
+        else:
+            type_name = model_meta.get_model_pk(related_field.queryset.model).__class__.__name__
+            return self.type_mapping.get(type_name, "related_not_found")
 
     def register_list_serializer_as_message(
         self, app_name, service_instance, serializer_instance, response_field_name="results"
@@ -209,7 +301,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         response_fields = [(response_field_name, f"repeated {serializer_name}")]
         if pagination:
-            response_fields += [("count", IntegerField())]
+            response_fields += [("count", "int32")]
 
         self.registered_app[app_name]["registered_messages"][
             f"{serializer_name}ListRequest"
@@ -269,9 +361,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # TODO - AM - 07/01/2022 - Check if the fied name in the existing field 
         if field_name not in serializer_instance.fields:
             raise Exception(f"Trying to build a Retrieve or Destroy request with retrieve field named: {field_name} but this field is not existing in the serializer: {serializer_instance.__class__.__name__}")
+
+        field_proto_type = self.type_mapping.get(serializer_instance.fields[field_name].__class__.__name__, "lookup_field_type_not_found")
         
-        # INFO - AM - 07/01/2022 - to match the format retuned by get_fields used for the generation we need to return an iterable with first element field_name and second element Instance of the Field class
-        return [field_name, serializer_instance.fields[field_name]]
+        # INFO - AM - 07/01/2022 - to match the format retuned by get_fields used for the generation we need to return an iterable with first element field_name and second element the proto type format
+        return [field_name, field_proto_type]
 
 
 class AppHandlerRegistry:

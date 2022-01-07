@@ -84,6 +84,11 @@ message RelatedFieldModel {
     repeated string many_many = 5;
 }
 
+message ManyManyModel {
+    string uuid = 1;
+    string name = 2;
+}
+
 message RelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }

@@ -13,6 +13,11 @@ service UnitTestModelController {
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
 }
 
+service ForeignModelController {
+    rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
+    rpc Retrieve(ForeignModelRetrieveRequest) returns (ForeignModel) {}
+}
+
 message UnitTestModelListRequest {
 }
 
@@ -36,5 +41,22 @@ message UnitTestModelDestroyRequest {
 }
 
 message UnitTestModelStreamRequest {
+}
+
+message ForeignModelListRequest {
+}
+
+message ForeignModelListResponse {
+    repeated ForeignModel results = 1;
+    int32 count = 2;
+}
+
+message ForeignModel {
+    string uuid = 1;
+    string name = 2;
+}
+
+message ForeignModelRetrieveRequest {
+    string uuid = 1;
 }
 

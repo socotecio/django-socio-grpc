@@ -2,9 +2,14 @@ import io
 import logging
 
 from django.db import models
+from django.db.models.query_utils import select_related_descend
 from rest_framework.relations import ManyRelatedField, RelatedField
+from rest_framework.serializers import BaseSerializer, ListSerializer
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django_socio_grpc.proto_serializers import ModelProtoSerializer, BaseProtoSerializer, ListProtoSerializer
+
+from django_socio_grpc.utils import model_meta
 
 logger = logging.getLogger("django_socio_grpc")
 
@@ -43,13 +48,30 @@ class ModelProtoGenerator:
         models.Field.__name__: "string",
     }
 
-    def __init__(self, registry_instance, project_name):
+    def __init__(self, registry_instance, project_name, verbose=0, only_messages=None):
         self.registry_instance = registry_instance
         self.project_name = project_name
+        self.verbose = verbose
+        self.only_messages = only_messages if only_messages is not None else []
+        self.current_message = ""
+
+
+        # TODO for debug remove this after
+        self.verbose = 4
+        self.only_messages = ["RelatedFieldModel"]
+
+    def print(self, message, verbose_level=0):
+        # INFO - AM - 07/01/2022 - This is used to debug only one message. This is manual code. 
+        if self.current_message not in self.only_messages:
+            return
+        if verbose_level <= self.verbose:
+            print(message)
 
     def get_protos_by_app(self):
         proto_by_app = {}
         for app_name, registered_items in self.registry_instance.registered_app.items():
+            self.print("\n\n--------------------------------\n\n", 1)
+            self.print(f"GENERATE APP {app_name}", 1)
             proto_by_app[app_name] = self.get_proto(app_name, registered_items)
 
         return proto_by_app
@@ -110,17 +132,23 @@ class ModelProtoGenerator:
         It use the model._meta.grpc_messages if exist or use the default configurations
         """
 
-        print("_generate_message: ", grpc_message_name, grpc_message_fields)
+        self.current_message = grpc_message_name
 
-        if len(grpc_message_fields) > 0:
-            print("lalalaal ", grpc_message_fields[0][1])
-            print("lalalaal ", grpc_message_fields[0][1].__class__.__name__)
+        self.print("\n------\n", 2)
+        self.print(f"GENERATE MESSAGE: {grpc_message_name}", 2)
+        self.print(grpc_message_fields, 3)
+
+        # if len(grpc_message_fields) > 0:
+        #     print("lalalaal ", grpc_message_fields[0][1])
+        #     print("lalalaal ", grpc_message_fields[0][1].__class__.__name__)
 
         self._writer.write_line(f"message {grpc_message_name} {{")
         with self._writer.indent():
             number = 0
             # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields
             for field_name, field_type in grpc_message_fields:
+
+                self.print(f"GENERATE FIELD: {field_name}", 4)
                 number += 1
 
                 proto_type = self.get_proto_type(field_type)
@@ -161,18 +189,46 @@ class ModelProtoGenerator:
             return field_type
 
         proto_type = self.type_mapping.get(field_type.__class__.__name__, "string")
+        
+        # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have  
+        if issubclass(field_type.__class__, ListProtoSerializer):
+            proto_type = f"repeated {field_type.child.__class__.__name__.replace('Serializer', '')}"
+        # INFO - AM - 07/01/2022 - else if the field type inherit from proto serializer that mean that it is generated as a message in the proto file
+        elif issubclass(field_type.__class__, BaseProtoSerializer):
+            proto_type = field_type.__class__.__name__.replace("Serializer", "")
+        elif issubclass(field_type.__class__, ManyRelatedField):
+            # print("ciicicic")
+            # print(field_type.child_relation)
+            proto_type = f"repeated {self.get_pk_from_related_field(field_type.child_relation)}"
+        elif issubclass(field_type.__class__, RelatedField):
+            proto_type = self.get_pk_from_related_field(field_type)
+        elif issubclass(field_type.__class__, ListSerializer):
+            proto_type = "repeated google.protobuf.Struct"
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
+        elif issubclass(field_type.__class__, BaseSerializer):
+            proto_type = "google.protobuf.Struct"
 
-        print("class is : ", field_type.__class__)
-        print("is subclas of RelatedField: ", issubclass(field_type.__class__, RelatedField))
-        print(
-            "is subclas of ManyRelatedField: ",
-            issubclass(field_type.__class__, ManyRelatedField),
+        self.print(f"class is : {field_type.__class__}", 4)
+        self.print(f"is subclas of BaseSerializer: {issubclass(field_type.__class__, BaseSerializer)}", 4)
+        self.print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}", 4)
+        self.print(f"is subclas of ModelProtoSerializer: {issubclass(field_type.__class__, ModelProtoSerializer)}", 4)
+        self.print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}", 4)
+        self.print(f"is subclas of RelatedField: {issubclass(field_type.__class__, RelatedField)}", 4)
+        self.print(
+            f"is subclas of ManyRelatedField: {issubclass(field_type.__class__, ManyRelatedField)}", 4
         )
 
         # if field_type.many:
         #     proto_type = f"repeated {proto_type}"
 
         return proto_type
+
+    def get_pk_from_related_field(self, related_field):
+        if related_field.pk_field:
+            return related_field.pk_field
+        else:
+            type_name = model_meta.get_model_pk(related_field.queryset.model).__class__.__name__
+            return self.type_mapping.get(type_name, "related_not_found")
 
     def get_custom_item_type_and_name(self, field_name):
         """

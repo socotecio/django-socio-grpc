@@ -49,6 +49,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         """"
         For each service register in ROOT_HANDLERS_HOOK we try to register its controller and its messages 
         """
+        print("-----------------\n"*5)
         print("register_service", Service)
 
         service_instance = Service()
@@ -186,7 +187,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 serializer_instance.get_fields().items()
             )
 
-            print("cicicicicicici ", list(serializer_instance.get_fields().items()))
+            print("serializer name: ", serializer_name, ", fields: ", list(serializer_instance.get_fields().items()))
 
             # for field in serializer_instance.get_fields():
             #     field_class, field_kwargs = serializer_instance.build_field(

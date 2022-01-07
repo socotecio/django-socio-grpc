@@ -18,6 +18,14 @@ service ForeignModelController {
     rpc Retrieve(ForeignModelRetrieveRequest) returns (ForeignModel) {}
 }
 
+service RelatedFieldModelController {
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
+    rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
+    rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
+    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
 message UnitTestModelListRequest {
 }
 
@@ -57,6 +65,30 @@ message ForeignModel {
 }
 
 message ForeignModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message RelatedFieldModelListRequest {
+}
+
+message RelatedFieldModelListResponse {
+    repeated RelatedFieldModel results = 1;
+    int32 count = 2;
+}
+
+message RelatedFieldModel {
+    string uuid = 1;
+    ForeignModel foreign_obj = 2;
+    repeated ManyManyModel many_many_obj = 3;
+    string foreign = 4;
+    repeated string many_many = 5;
+}
+
+message RelatedFieldModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message RelatedFieldModelDestroyRequest {
     string uuid = 1;
 }
 

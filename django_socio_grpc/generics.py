@@ -70,7 +70,6 @@ class GenericService(services.Service):
         if queryset is None:
             queryset = self.get_queryset()
         lookup_field = self.lookup_field or model_meta.get_model_pk(queryset.model).name
-        print("CICIC\n"*5)
         lookup_request_field = self.lookup_request_field or lookup_field
         return lookup_request_field
 

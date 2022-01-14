@@ -1,8 +1,15 @@
 from django_socio_grpc import generics, mixins
 from fakeapp.models import ForeignModel
-from fakeapp.serializers import ForeignModelSerializer
+from fakeapp.serializers import ForeignModelSerializer, ForeignModelRetrieveRequestCustomSerializer
 
 
 class ForeignModelService(generics.GenericService, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = ForeignModel.objects.all().order_by("uuid")
     serializer_class = ForeignModelSerializer
+    lookup_field = "name"
+
+    # def get_serializer_class(self):
+    #     print("cicicicici ", self.action)
+    #     if self.action == "retrieve":
+    #         return ForeignModelRetrieveRequestCustomSerializer
+    #     return super().get_serializer_class()

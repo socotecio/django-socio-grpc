@@ -78,7 +78,7 @@ message ForeignModel {
 }
 
 message ForeignModelRetrieveRequest {
-    string uuid = 1;
+    string name = 1;
 }
 
 message RelatedFieldModelListRequest {

@@ -5,6 +5,15 @@ from .models import UnitTestModel, ForeignModel, RelatedFieldModel, ManyManyMode
 
 from rest_framework import serializers
 
+class ForeignModelRetrieveRequestCustomSerializer(proto_serializers.ProtoSerializer):
+
+    name = serializers.CharField()
+
+    class Meta:
+        model = ForeignModel
+        # proto_class = grpc_model.ForeignModel
+        fields = ["name"]
+
 
 class ForeignModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:

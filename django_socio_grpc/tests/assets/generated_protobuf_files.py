@@ -40,12 +40,6 @@ message UnitTestModelStreamRequest {
 
 """
 
-SIMPLE_APP_MODEL_NO_GENERATION = """syntax = "proto3";
-
-package myproject.fakeapp;
-
-"""
-
 SIMPLE_APP_MODEL_GENERATED = """syntax = "proto3";
 
 package myproject.fakeapp;
@@ -168,7 +162,7 @@ message ForeignModel {
 }
 
 message ForeignModelRetrieveRequest {
-    string uuid = 1;
+    string name = 1;
 }
 
 message RelatedFieldModelListRequest {
@@ -236,12 +230,7 @@ package myproject.fakeapp;
 
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
-    rpc Retrieve(ForeignModelRetrieveRequestCustom) returns (ForeignModelRetrieveRequestCustom) {}
-}
-
-message ForeignModel {
-    string uuid = 1;
-    string name = 2;
+    rpc Retrieve(ForeignModelRetrieveRequest) returns (ForeignModel) {}
 }
 
 message ForeignModelListRequest {
@@ -252,7 +241,12 @@ message ForeignModelListResponse {
     int32 count = 2;
 }
 
-message ForeignModelRetrieveRequestCustom {
+message ForeignModel {
+    string uuid = 1;
+    string name = 2;
+}
+
+message ForeignModelRetrieveRequest {
     string name = 1;
 }
 
@@ -314,6 +308,10 @@ MODEL_WITH_STRUCT_IMORT_IN_ARRAY = """syntax = "proto3";
 package myproject.fakeapp;
 
 import "google/protobuf/struct.proto";
+
+service ImportStructEvenInArrayModelController {
+    rpc Create(ImportStructEvenInArrayModel) returns (ImportStructEvenInArrayModel) {}
+}
 
 message ImportStructEvenInArrayModel {
     string uuid = 1;
@@ -379,18 +377,18 @@ service UnitTestModelController {
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
 }
 
-message UnitTestModel {
-    int32 id = 1;
-    string text = 2;
-    string title = 3;
-}
-
 message UnitTestModelListRequest {
 }
 
 message UnitTestModelListResponse {
     repeated UnitTestModel results = 1;
     int32 count = 2;
+}
+
+message UnitTestModel {
+    int32 id = 1;
+    string text = 2;
+    string title = 3;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -402,82 +400,6 @@ message UnitTestModelDestroyRequest {
 }
 
 message UnitTestModelStreamRequest {
-}
-
-"""
-
-APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER = """syntax = "proto3";
-
-package myproject.fakeapp;
-
-import "google/protobuf/empty.proto";
-
-service RelatedFieldModelController {
-    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
-    rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
-    rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
-    rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
-    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
-}
-
-message RelatedFieldModel {
-    string uuid = 1;
-}
-
-message RelatedFieldModelListRequest {
-}
-
-message RelatedFieldModelListResponse {
-    string uuid = 1;
-    string custom_field_name = 2;
-}
-
-message RelatedFieldModelRetrieveRequest {
-    string uuid = 1;
-}
-
-message RelatedFieldModelDestroyRequest {
-    string uuid = 1;
-}
-
-"""
-
-APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER = """syntax = "proto3";
-
-package myproject.fakeapp;
-
-import "google/protobuf/empty.proto";
-
-service RelatedFieldModelController {
-    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
-    rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
-    rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
-    rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
-    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
-}
-
-message RelatedFieldModel {
-    string uuid = 1;
-    string foreign = 2;
-}
-
-message RelatedFieldModelListRequest {
-}
-
-message RelatedFieldModelListResponse {
-    string uuid = 1;
-    string custom_field_name = 2;
-    string foreign = 3;
-    repeated string many_many = 4;
-    repeated string list_custom_field_name = 5;
-}
-
-message RelatedFieldModelRetrieveRequest {
-    string uuid = 1;
-}
-
-message RelatedFieldModelDestroyRequest {
-    string uuid = 1;
 }
 
 """

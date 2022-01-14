@@ -113,7 +113,7 @@ class RegistryToProtoGenerator:
         self.print("\n------\n", 2)
         self.print(f"GENERATE MESSAGE: {grpc_message_name}", 2)
         self.print(grpc_message_fields, 3)
-        self.print("not ordered yet", 3)
+        self.print("not ordered yet", 4)
 
         # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {grpc_message_name} {{")
@@ -156,13 +156,14 @@ class RegistryToProtoGenerator:
 
         return MAX_SORT_NUMBER
 
-    def order_message_by_existing_number(self, grpc_message_name, grpc_message_fields_name):
-        grpc_message_fields_name.sort(
-            key=lambda field_name: self.find_existing_number_for_field(
-                grpc_message_name, field_name
+    def order_message_by_existing_number(self, grpc_message_name, grpc_message_fields):
+        # INFO - AM - 14/01/2022 - grpc_message_fields is a list of tuple. Tuple of two element first is field_name second is field prototype
+        grpc_message_fields.sort(
+            key=lambda field: self.find_existing_number_for_field(
+                grpc_message_name, field[0]
             )
         )
-        return grpc_message_fields_name
+        return grpc_message_fields
     
 
     def check_if_existing_proto_file(self, existing_proto_path):

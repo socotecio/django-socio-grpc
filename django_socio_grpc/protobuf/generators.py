@@ -7,7 +7,7 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 logger = logging.getLogger("django_socio_grpc")
 
 
-class ModelProtoGenerator:
+class RegistryToProtoGenerator:
 
     def __init__(self, registry_instance, project_name, verbose=0, only_messages=None):
         self.registry_instance = registry_instance

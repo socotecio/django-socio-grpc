@@ -112,10 +112,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # TODO - AM - 07/01/2022 - Maybe use an attr here like this no need to work on the generic_service. Maybe use the name of the class too
         controller_name = f"{model_name}Controller"
 
-        print("REGISTER:")
-        print("App name: ", app_name)
-        print("Model", model_name)
-        print("Controller", controller_name)
+        # print("REGISTER:")
+        # print("App name: ", app_name)
+        # print("Model", model_name)
+        # print("Controller", controller_name)
 
         self.set_controller_and_messages(
             app_name, model_name, controller_name, service_instance
@@ -228,9 +228,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         for field_name, field_type in serializer_instance.get_fields().items():
             field_grpc_generator_format = (field_name, self.get_proto_type(app_name, field_type))
-            
-            if field_name == "list_datas":
-                print("icicicic ", field_type, field_grpc_generator_format)
+
             self.registered_app[app_name]["registered_messages"][serializer_name].append(field_grpc_generator_format)
 
 

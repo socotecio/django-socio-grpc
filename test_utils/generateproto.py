@@ -7,4 +7,4 @@ boot_django()
 
 args = []
 opts = {}
-call_command("generateproto2", *args, **opts)
+call_command("generateproto", *args, **opts)

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
-from django_socio_grpc.protobuf.generators2 import ModelProtoGenerator
+from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.servicer_register import RegistrySingleton
 
@@ -57,7 +57,7 @@ class Command(BaseCommand):
         # ----------------------------------------------
         # --- Proto Generation Process               ---
         # ----------------------------------------------
-        generator = ModelProtoGenerator(
+        generator = RegistryToProtoGenerator(
             registry_instance=registry_instance, project_name=self.project_name
         )
 

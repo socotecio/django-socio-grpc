@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 
-from .assets.generated_protobuf_files import (
+from .assets.generated_protobuf_files_old_way import (
     ALL_APP_GENERATED,
     APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER,
     APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER,

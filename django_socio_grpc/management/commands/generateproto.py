@@ -72,9 +72,7 @@ class Command(BaseCommand):
         # if no filepath specified we create it in a grpc directory in the app
         else:
             for app_name, proto in protos_by_app.items():
-                auto_file_path = os.path.join(
-                    apps.get_app_config(app_name).path, "grpc", f"{app_name}.proto"
-                )
+                auto_file_path = generator.get_proto_path_for_app_name(app_name)
                 self.create_directory_if_not_exist(auto_file_path)
                 self.check_or_write(auto_file_path, proto, app_name)
                 path_used_for_generation = auto_file_path

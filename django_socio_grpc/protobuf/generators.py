@@ -1,8 +1,15 @@
 import io
 import logging
+import os
+
+from django.apps import apps
+import protoparser
+import json
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 
+
+MAX_SORT_NUMBER = 9999
 
 logger = logging.getLogger("django_socio_grpc")
 
@@ -33,9 +40,16 @@ class RegistryToProtoGenerator:
         for app_name, registered_items in self.registry_instance.registered_app.items():
             self.print("\n\n--------------------------------\n\n", 1)
             self.print(f"GENERATE APP {app_name}", 1)
+
+            self.current_existing_proto_data = self.parse_existing_proto_file(self.get_proto_path_for_app_name(app_name))
             proto_by_app[app_name] = self.get_proto(app_name, registered_items)
 
         return proto_by_app
+
+    def get_proto_path_for_app_name(self, app_name):
+        return os.path.join(
+            apps.get_app_config(app_name).path, "grpc", f"{app_name}.proto"
+        )
 
     def get_proto(self, app_name, registered_items):
         self._writer = _CodeWriter()
@@ -93,19 +107,24 @@ class RegistryToProtoGenerator:
         It use the model._meta.grpc_messages if exist or use the default configurations
         """
 
+        # Info - AM - 14/01/2022 - This is used to simplify debugging in large project. See self.print
         self.current_message = grpc_message_name
 
         self.print("\n------\n", 2)
         self.print(f"GENERATE MESSAGE: {grpc_message_name}", 2)
         self.print(grpc_message_fields, 3)
+        self.print("not ordered yet", 3)
 
-        # if len(grpc_message_fields) > 0:
-        #     print("lalalaal ", grpc_message_fields[0][1])
-        #     print("lalalaal ", grpc_message_fields[0][1].__class__.__name__)
-
+        # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {grpc_message_name} {{")
         with self._writer.indent():
             number = 0
+
+            # Info - AM - 14/01/2022 - this is used to try to keep the same order of field in the protofile to avoid breaking change
+            grpc_message_fields = self.order_message_by_existing_number(
+                grpc_message_name, grpc_message_fields
+            )
+
             # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields
             for field_name, proto_type in grpc_message_fields:
 
@@ -121,24 +140,44 @@ class RegistryToProtoGenerator:
         self._writer.write_line("}")
         self._writer.write_line("")
 
-    def get_custom_item_type_and_name(self, field_name):
+    def find_existing_number_for_field(self, grpc_message_name, field_name):
         """
-        Get the Message name we want to inject to an other message to make nested serializer, repeated serializer or just custom message
-        field_name should look like:
-        __custom__[proto_type]__[proto_field_name]__
-        and the method will return proto_type, proto_field_name
+        Find if the field for this grpc message was already existing and return its number
         """
-        try:
-            field_name_splitted = field_name.split("__")
-            item_type = field_name_splitted[2]
-            item_name = field_name_splitted[3]
-            return item_type, item_name
-        except Exception:
-            raise ProtobufGenerationException(
-                self.app_name,
-                self.model_name,
-                detail=f"Wrong formated custom field name {field_name}",
+        if not self.current_existing_proto_data:
+            return MAX_SORT_NUMBER
+
+        if grpc_message_name not in self.current_existing_proto_data.get("messages", {}):
+            return MAX_SORT_NUMBER
+
+        for parsed_field in self.current_existing_proto_data["messages"][grpc_message_name]["fields"]:
+            if parsed_field["name"] == field_name:
+                return parsed_field["number"]
+
+        return MAX_SORT_NUMBER
+
+    def order_message_by_existing_number(self, grpc_message_name, grpc_message_fields_name):
+        grpc_message_fields_name.sort(
+            key=lambda field_name: self.find_existing_number_for_field(
+                grpc_message_name, field_name
             )
+        )
+        return grpc_message_fields_name
+    
+
+    def check_if_existing_proto_file(self, existing_proto_path):
+        """
+        This method is here only to help mocking test because os.path.exists is call multiple time
+        """
+        return os.path.exists(existing_proto_path)
+
+    def parse_existing_proto_file(self, existing_proto_path):
+        if not self.check_if_existing_proto_file(existing_proto_path):
+            return None
+
+        proto_data = protoparser.serialize2json_from_file(existing_proto_path)
+
+        return json.loads(proto_data)
 
 
 class _CodeWriter:

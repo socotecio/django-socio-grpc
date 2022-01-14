@@ -116,10 +116,7 @@ class ModelProtoGeneratorOldWay:
         return MAX_SORT_NUMBER
 
     def order_message_by_existing_number(self, grpc_message_name, grpc_message_fields_name):
-        fields = grpc_message_fields_name
-        if isinstance(grpc_message_fields_name, dict):
-            fields = grpc_message_fields_name["fields"]
-        fields.sort(
+        grpc_message_fields_name.sort(
             key=lambda field_name: self.find_existing_number_for_field(
                 grpc_message_name, field_name
             )

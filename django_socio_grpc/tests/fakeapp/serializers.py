@@ -30,11 +30,19 @@ class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
         proto_class_list = grpc_model.UnitTestModelListResponse
         fields = "__all__"
 
+class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
+    count = serializers.IntegerField()
+    query_fetched_datetime = serializers.DateTimeField()
+    results = UnitTestModelSerializer(many=True)
+
+    # class Meta:
+        # proto_class = grpc_model.UnitTestModel
+        
+
 class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = ManyManyModel
-        # proto_class = grpc_model.ManyManyModel
-        # proto_class_list = grpc_model.ManyManyModelListResponse
+        proto_class = grpc_model.ManyManyModel
         fields = "__all__"
 
 
@@ -47,21 +55,20 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
 
     class Meta:
         model = RelatedFieldModel
-        # proto_class = grpc_model.RelatedFieldModel
-        # proto_class_list = grpc_model.RelatedFieldModelListResponse
+        proto_class = grpc_model.RelatedFieldModel
+        proto_class_list = grpc_model.RelatedFieldModelListResponse
         message_list_attr = "list_custom_field_name"
         fields = "__all__"
 
 class SpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = SpecialFieldsModel
-        # proto_class = grpc_model.SpecialFieldsModel
-        # proto_class_list = grpc_model.SpecialFieldsModelListResponse
+        proto_class = grpc_model.SpecialFieldsModel
+        proto_class_list = grpc_model.SpecialFieldsModelListResponse
         fields = "__all__"
 
 class ImportStructEvenInArrayModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = ImportStructEvenInArrayModel
-        # proto_class = grpc_model.ImportStructEvenInArrayModel
-        # proto_class_list = grpc_model.ImportStructEvenInArrayModelListResponse
+        proto_class = grpc_model.ImportStructEvenInArrayModel
         fields = "__all__"

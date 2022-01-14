@@ -15,6 +15,11 @@ class UnitTestModelControllerStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.ListWithExtraArgs = channel.unary_unary(
+                '/fakeproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsResponse.FromString,
+                )
         self.List = channel.unary_unary(
                 '/fakeproject.fakeapp.UnitTestModelController/List',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListRequest.SerializeToString,
@@ -49,6 +54,12 @@ class UnitTestModelControllerStub(object):
 
 class UnitTestModelControllerServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def ListWithExtraArgs(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def List(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -89,6 +100,11 @@ class UnitTestModelControllerServicer(object):
 
 def add_UnitTestModelControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'ListWithExtraArgs': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListWithExtraArgs,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsResponse.SerializeToString,
+            ),
             'List': grpc.unary_unary_rpc_method_handler(
                     servicer.List,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListRequest.FromString,
@@ -128,6 +144,23 @@ def add_UnitTestModelControllerServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class UnitTestModelController(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def ListWithExtraArgs(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def List(request,

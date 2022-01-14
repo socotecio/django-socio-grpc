@@ -89,22 +89,14 @@ class RegistrySingleton(metaclass=SingletonMeta):
     def __init__(self):
         self.registered_app = OrderedDict()
 
-    def register_service(self, Service):
+    def register_service(self, app_name, service_class):
         """"
         For each service register in ROOT_HANDLERS_HOOK we try to register its controller and its messages 
         """
         # print("-----------------\n"*5)
         # print("register_service", Service)
 
-        service_instance = Service()
-
-        # INFO - AM - 07/01/2022 - we can get the model associated to a service with it queryset
-        # TODO - AM - 07/01/2022 - Find a way when using a Generic service and not a Model Service (decorator, attribute ? mostly attribute I think really simple, istropection with file name ossible too but way harder)
-        # TODO - AM - 07/01/2022 - Answer from above: Add a method and a attr like serializer_class ang get_serializer_class in the generic service class 
-        Model = service_instance.get_queryset().model
-        app_name = Model._meta.app_label
-
-        model_name = Model.__name__
+        service_instance = service_class()
         
         # INFO - AM - 07/01/2022 - Initialize the app in the project to be generated as a specific proto file
         if app_name not in self.registered_app:
@@ -113,24 +105,62 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 "registered_messages": OrderedDict(),
             }
 
-        # INFO - AM - 07/01/2022 - Choose the name of the controler
-        # TODO - AM - 07/01/2022 - Maybe use an attr here like this no need to work on the generic_service. Maybe use the name of the class too
-        controller_name = f"{model_name}Controller"
-
         # print("REGISTER:")
         # print("App name: ", app_name)
         # print("Model", model_name)
         # print("Controller", controller_name)
 
         self.set_controller_and_messages(
-            app_name, model_name, controller_name, service_instance
+            app_name, service_instance
         )
 
-    def register_custom_action(self, *args, **kwargs):
-        print("register_custom_action", args, kwargs)
+    def register_custom_action(self, service_class, function_name, request=None, response=None, request_stream=False, response_stream=False):
+
+        print("register_custom_action", service_class, function_name)
+        app_name = self.get_app_name_from_service_class(service_class)
+        # INFO - AM - 14/01/2022 - Initialize the app in the project to be generated as a specific proto file
+        if app_name not in self.registered_app:
+            self.registered_app[app_name] = {
+                "registered_controllers": OrderedDict(),
+                "registered_messages": OrderedDict(),
+            }
+
+        service_instance = service_class()
+        service_name = service_instance.get_service_name()
+        self.register_method_for_custom_action(app_name, service_name, function_name, request, response, request_stream, response_stream)
+        self.register_message_for_custom_action(app_name, function_name, request, "Request")
+        self.register_message_for_custom_action(app_name, function_name, response, "Response")
+
+    def register_method_for_custom_action(self, app_name, service_name, function_name, request, response, request_stream, response_stream):
+        controller_name = f"{service_name}Controller"
+        self.registered_app[app_name]["registered_controllers"][
+            controller_name
+        ] = {
+            function_name: {
+                "request": {"is_stream": request_stream, "message": f"{function_name}Request"},
+                "response": {"is_stream": response_stream, "message": f"{function_name}Response"},
+            },
+        }
+
+    def register_message_for_custom_action(self, app_name, function_name, message, message_name_suffix):
+        if isinstance(message, list):
+
+            messages_fields = [(item["name"], item["type"]) for item in message]
+
+            self.registered_app[app_name]["registered_messages"][
+                f"{function_name}{message_name_suffix}"
+            ] = messages_fields
+        elif issubclass(message, BaseSerializer):
+            serializer_instance = message()
+            self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+        else:
+            raise Exception(f"{message_name_suffix} message for function {function_name} in app {app_name} is not a list or a serializer")
+    
+    def get_app_name_from_service_class(self, service_class):
+        return service_class.__module__.split('.')[0]
 
     def set_controller_and_messages(
-        self, app_name, model_name, controller_name, service_instance
+        self, app_name, service_instance
     ):
         """
         Generate proto methods and messages for a service instance.
@@ -139,7 +169,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         If existing we look if it already register with a decorator that will prevent the default behavior
         If not already register that mean we want to use the default behavior so we just go with that and call register_default_message_from_method
         """
-        default_grpc_methods = get_all_default_grpc_methods(model_name)
+        service_name = service_instance.get_service_name()
+        default_grpc_methods = get_all_default_grpc_methods(service_name)
+
+        # INFO - AM - 07/01/2022 - Choose the name of the controler
+        controller_name = f"{service_name}Controller"
 
         # print(self.registered_app[app_name])
 
@@ -396,26 +430,26 @@ class AppHandlerRegistry:
         self.service_folder = service_folder
         self.grpc_folder = grpc_folder
 
-    def register(self, model_name):
+    def register(self, service_name):
         if self.service_folder:
             model_service_path = (
-                f"{self.app_name}.{self.service_folder}.{model_name.lower()}_service"
+                f"{self.app_name}.{self.service_folder}.{service_name.lower()}_service"
             )
         else:
             model_service_path = f"{self.app_name}.services"
-        Model = getattr(
+        service_class = getattr(
             import_module(model_service_path),
-            f"{model_name}Service",
+            f"{service_name}Service",
         )
 
         if self.server is None:
             service_registry = RegistrySingleton()
-            service_registry.register_service(Model)
+            service_registry.register_service(self.app_name, service_class)
             return
 
         pb2_grpc = import_module(
             f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
         )
-        add_server = getattr(pb2_grpc, f"add_{model_name}ControllerServicer_to_server")
+        add_server = getattr(pb2_grpc, f"add_{service_name}ControllerServicer_to_server")
 
-        add_server(Model.as_servicer(), self.server)
+        add_server(service_class.as_servicer(), self.server)

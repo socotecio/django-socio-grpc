@@ -28,6 +28,14 @@ class GenericService(services.Service):
     # The style to use for queryset pagination.
     pagination_class = grpc_settings.DEFAULT_PAGINATION_CLASS
 
+    service_name = None
+
+    def get_service_name(self):
+        if self.service_name:
+            return self.service_name
+        else:
+            return self.__class__.__name__.replace('Service', '')
+
     def get_queryset(self):
         """
         Get the list of items for this service.

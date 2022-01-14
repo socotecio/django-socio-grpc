@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
-from django_socio_grpc.protobuf.generators import ModelProtoGenerator
+from django_socio_grpc.protobuf.generators_old_way import ModelProtoGeneratorOldWay
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.model_extractor import is_app_in_installed_app, is_model_exist
 
@@ -84,7 +84,7 @@ class Command(BaseCommand):
         # ----------------------------------------------
         # --- Proto Generation Process               ---
         # ----------------------------------------------
-        generator = ModelProtoGenerator(
+        generator = ModelProtoGeneratorOldWay(
             project_name=self.project_name,
             app_name=self.app_name,
             model_name=self.model_name,

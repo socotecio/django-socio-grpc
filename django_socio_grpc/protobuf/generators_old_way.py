@@ -18,7 +18,7 @@ logger = logging.getLogger("django_socio_grpc")
 MAX_SORT_NUMBER = 99
 
 
-class ModelProtoGenerator:
+class ModelProtoGeneratorOldWay:
     type_mapping = {
         # Numeric
         models.AutoField.__name__: "int32",

@@ -7,4 +7,4 @@ boot_django()
 
 args = []
 opts = {"app": "fakeapp"}
-call_command("generateproto", *args, **opts)
+call_command("generate_proto_old_way", *args, **opts)

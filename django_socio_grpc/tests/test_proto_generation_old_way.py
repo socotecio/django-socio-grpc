@@ -23,9 +23,9 @@ from .assets.generated_protobuf_files import (
 
 
 @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
-class TestProtoGeneration(TestCase):
+class TestProtoGenerationOldWay(TestCase):
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_generate_one_model(self):
@@ -37,7 +37,7 @@ class TestProtoGeneration(TestCase):
             "generate_python": False,
         }
         with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         m.assert_called_once_with("proto/unittestmodel.proto", "w+")
         handle = m()
@@ -46,7 +46,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, SIMPLE_MODEL_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_check_option(self):
@@ -54,21 +54,21 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"app": "fakeapp", "generate_python": False, "check": True}
         with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED)) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
         assert m.mock_calls[0].args[1] == "r+"
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_raise_when_no_app_and_no_model_options(self):
         args = []
         opts = {}
         with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         self.assertEqual(
             str(fake_generation_error.exception),
@@ -76,14 +76,14 @@ class TestProtoGeneration(TestCase):
         )
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_raise_when_app_not_found(self):
         args = []
         opts = {"app": "app_not_existing"}
         with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         self.assertEqual(
             str(fake_generation_error.exception),
@@ -91,14 +91,14 @@ class TestProtoGeneration(TestCase):
         )
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_raise_when_model_not_found(self):
         args = []
         opts = {"model": "model_not_existing"}
         with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         self.assertEqual(
             str(fake_generation_error.exception),
@@ -106,7 +106,7 @@ class TestProtoGeneration(TestCase):
         )
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_generate_message_with_repeated_for_m2m(self):
@@ -115,7 +115,7 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"app": "fakeapp", "model": "RelatedFieldModel", "generate_python": False}
         with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -127,7 +127,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, MODEL_WITH_M2M_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_generate_one_app_one_model_no_message_no_methods(self):
@@ -136,7 +136,7 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"app": "fakeapp", "model": "NotDisplayedModel", "generate_python": False}
         with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -147,7 +147,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_NO_GENERATION)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_generate_one_app_one_model(self):
@@ -155,7 +155,7 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
         with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -167,7 +167,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_generate_one_app_all_models(self):
@@ -176,7 +176,7 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"app": "fakeapp", "generate_python": False}
         with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -188,7 +188,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, ALL_APP_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_generate_one_app_one_model_customized(self):
@@ -196,7 +196,7 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"app": "fakeapp", "model": "ForeignModel", "generate_python": False}
         with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -208,7 +208,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, CUSTOM_APP_MODEL_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_generate_one_app_one_model_import_struct_in_array(self):
@@ -220,7 +220,7 @@ class TestProtoGeneration(TestCase):
             "generate_python": False,
         }
         with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -232,7 +232,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, MODEL_WITH_STRUCT_IMORT_IN_ARRAY)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=True),
     )
     def test_order_proto_field_if_existing(self):
@@ -244,7 +244,7 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
         with patch("builtins.open", mock_open(read_data=SIMPLE_APP_MODEL_OLD_ORDER)) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -256,7 +256,7 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
         mock.MagicMock(return_value=True),
     )
     def test_order_proto_field_if_existing_with_custom_field(self):
@@ -270,7 +270,7 @@ class TestProtoGeneration(TestCase):
         with patch(
             "builtins.open", mock_open(read_data=APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER)
         ) as m:
-            call_command("generateproto", *args, **opts)
+            call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")

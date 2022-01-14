@@ -22,6 +22,7 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 
+
 class KnowMethods:
     LIST = "List"
     CREATE = "Create"
@@ -80,6 +81,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
     }
 
     _instances = {}
+
+    @classmethod
+    def clean_all(cls):
+        cls._instances = {}
 
     def __init__(self):
         self.registered_app = OrderedDict()

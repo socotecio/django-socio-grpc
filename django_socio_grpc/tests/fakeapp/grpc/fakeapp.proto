@@ -6,10 +6,10 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service UnitTestModelController {
-    rpc Create(UnitTestModel) returns (UnitTestModel) {}
-    rpc Update(UnitTestModel) returns (UnitTestModel) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
+    rpc Update(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
 }
@@ -20,29 +20,23 @@ service ForeignModelController {
 }
 
 service RelatedFieldModelController {
-    rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
-    rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
     rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
+    rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
 service SpecialFieldsModelController {
-    rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
-    rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (SpecialFieldsModel) {}
+    rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
 service ImportStructEvenInArrayModelController {
     rpc Create(ImportStructEvenInArrayModel) returns (ImportStructEvenInArrayModel) {}
-}
-
-message UnitTestModel {
-    int32 id = 1;
-    string title = 2;
-    string text = 3;
 }
 
 message UnitTestModelListRequest {
@@ -51,6 +45,12 @@ message UnitTestModelListRequest {
 message UnitTestModelListResponse {
     repeated UnitTestModel results = 1;
     int32 count = 2;
+}
+
+message UnitTestModel {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -81,6 +81,14 @@ message ForeignModelRetrieveRequest {
     string uuid = 1;
 }
 
+message RelatedFieldModelListRequest {
+}
+
+message RelatedFieldModelListResponse {
+    repeated RelatedFieldModel list_custom_field_name = 1;
+    int32 count = 2;
+}
+
 message RelatedFieldModel {
     string uuid = 1;
     ForeignModel foreign_obj = 2;
@@ -95,14 +103,6 @@ message ManyManyModel {
     string name = 2;
 }
 
-message RelatedFieldModelListRequest {
-}
-
-message RelatedFieldModelListResponse {
-    repeated RelatedFieldModel list_custom_field_name = 1;
-    int32 count = 2;
-}
-
 message RelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }
@@ -111,18 +111,18 @@ message RelatedFieldModelDestroyRequest {
     string uuid = 1;
 }
 
-message SpecialFieldsModel {
-    string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
-    repeated int32 list_datas = 3;
-}
-
 message SpecialFieldsModelListRequest {
 }
 
 message SpecialFieldsModelListResponse {
     repeated SpecialFieldsModel results = 1;
     int32 count = 2;
+}
+
+message SpecialFieldsModel {
+    string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
+    repeated int32 list_datas = 3;
 }
 
 message SpecialFieldsModelRetrieveRequest {

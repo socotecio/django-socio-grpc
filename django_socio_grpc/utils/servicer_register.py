@@ -7,6 +7,7 @@ from django.db import models
 
 from rest_framework.relations import ManyRelatedField, RelatedField
 from rest_framework.serializers import BaseSerializer, ListSerializer
+from rest_framework.fields import ListField
 from django_socio_grpc.utils import model_meta
 
 from django_socio_grpc.proto_serializers import ModelProtoSerializer, BaseProtoSerializer, ListProtoSerializer
@@ -32,7 +33,7 @@ class KnowMethods:
     
     @classmethod
     def get_as_list(cls):
-        return [cls.LIST, cls.CREATE, cls.RETRIEVE, cls.UPDATE, cls.PARTIAL_UPDATE, cls.DESTROY,  cls.STREAM]
+        return [cls.CREATE, cls.UPDATE, cls.PARTIAL_UPDATE, cls.LIST, cls.RETRIEVE, cls.DESTROY,  cls.STREAM]
     
     @classmethod
     def get_methods_no_custom_messages(cls):
@@ -227,6 +228,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         for field_name, field_type in serializer_instance.get_fields().items():
             field_grpc_generator_format = (field_name, self.get_proto_type(app_name, field_type))
+            
+            if field_name == "list_datas":
+                print("icicicic ", field_type, field_grpc_generator_format)
             self.registered_app[app_name]["registered_messages"][serializer_name].append(field_grpc_generator_format)
 
 
@@ -266,6 +270,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListSerializer that mean it's a repaeated Struct
         elif issubclass(field_type.__class__, ListSerializer):
             proto_type = "repeated google.protobuf.Struct"
+        
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repaeated of the child attr proto type
+        elif issubclass(field_type.__class__, ListField):
+            child_type = self.type_mapping.get(field_type.child.__class__.__name__, "string")
+            proto_type = f"repeated {child_type}"
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
         elif issubclass(field_type.__class__, BaseSerializer):
@@ -292,12 +301,21 @@ class RegistrySingleton(metaclass=SingletonMeta):
             return self.type_mapping.get(type_name, "related_not_found")
 
     def register_list_serializer_as_message(
-        self, app_name, service_instance, serializer_instance, response_field_name="results"
+        self, app_name, service_instance, serializer_instance
     ):
         serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
         pagination = service_instance.pagination_class
         if pagination is None:
             pagination = grpc_settings.DEFAULT_PAGINATION_CLASS is not None
+
+        response_field_name="results"
+
+        # INFO - AM - 14/01/2022 - We let the possibility to the user to customize the name of the attr where the list items are set by message_list_attr attr in meta class. If not present we use the default results
+        serializer_meta = getattr(serializer_instance, "Meta", None)
+        if serializer_meta:
+            message_list_attr = getattr(serializer_meta, "message_list_attr", None)
+            if message_list_attr:
+                response_field_name = message_list_attr
 
         response_fields = [(response_field_name, f"repeated {serializer_name}")]
         if pagination:

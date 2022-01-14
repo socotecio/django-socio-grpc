@@ -126,6 +126,7 @@ class SpecialFieldsModel(models.Model):
 
 
 class ImportStructEvenInArrayModel(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     this_is_crazy = ArrayField(
         models.JSONField(
             default=dict,

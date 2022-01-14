@@ -19,7 +19,7 @@ class ModelProtoGenerator:
 
         # TODO for debug remove this after
         self.verbose = 4
-        self.only_messages = ["RelatedFieldModel"]
+        self.only_messages = ["SpecialFieldsModel"]
 
     def print(self, message, verbose_level=0):
         # INFO - AM - 07/01/2022 - This is used to debug only one message. This is manual code. 

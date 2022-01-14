@@ -77,10 +77,16 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
         List of protobuf messages -> List of dicts of python primitive datatypes.
         """
 
-        if self.message_list_attr is None:
+        assert hasattr(self.child, "Meta"), f'Class {self.__class__.__name__} missing "Meta" attribute'
+
+        message_list_attr = getattr(self.child.Meta, "message_list_attr", None)
+        if not message_list_attr and self.message_list_attr:
+            message_list_attr = self.message_list_attr
+
+        if message_list_attr is None:
             raise TypeError("message_list_attr is NoneType")
 
-        repeated_message = getattr(message, self.message_list_attr, "")
+        repeated_message = getattr(message, message_list_attr, "")
         if not isinstance(repeated_message, RepeatedCompositeContainer):
             error_message = self.default_error_messages["not_a_list"].format(
                 input_type=repeated_message.__class__.__name__
@@ -97,16 +103,9 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
         """
         List of protobuf messages <- List of dicts of python primitive datatypes.
         """
-        assert hasattr(
-            self.child, "Meta"
-        ), 'Class {serializer_class} missing "Meta" attribute'.format(
-            serializer_class=self.__class__.__name__
-        )
-        assert hasattr(
-            self.child.Meta, "proto_class_list"
-        ), 'Class {serializer_class} missing "Meta.proto_class_list" attribute'.format(
-            serializer_class=self.__class__.__name__
-        )
+        
+        assert hasattr(self.child, "Meta"), f'Class {self.__class__.__name__} missing "Meta" attribute'
+        assert hasattr(self.child.Meta, "proto_class_list"), f'Class {self.__class__.__name__} missing "Meta.proto_class_list" attribute'
 
         if getattr(self.child, "stream", False):
             return [self.child.data_to_message(item) for item in data]

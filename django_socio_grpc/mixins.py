@@ -85,8 +85,8 @@ class ListModelMixin:
         if pagination:
             response_fields += ["__custom__int32__count__"]
         return {
-            f"{model_name}ListRequest": {"fields": fields, "serializer_class": None},
-            f"{model_name}ListResponse": {"fields": response_fields, "serializer_class": None},
+            f"{model_name}ListRequest": fields,
+            f"{model_name}ListResponse": response_fields,
         }
 
 
@@ -356,11 +356,24 @@ def get_default_grpc_methods(model_name):
         **CreateModelMixin.get_default_method(model_name),
         **RetrieveModelMixin.get_default_method(model_name),
         **UpdateModelMixin.get_default_method(model_name),
+        **DestroyModelMixin.get_default_method(model_name),
+    }
+
+
+
+def get_all_default_grpc_methods(model_name):
+    """
+    return the default grpc methods generated for a django model.
+    """
+    return {
+        **ListModelMixin.get_default_method(model_name),
+        **CreateModelMixin.get_default_method(model_name),
+        **RetrieveModelMixin.get_default_method(model_name),
+        **UpdateModelMixin.get_default_method(model_name),
         **PartialUpdateModelMixin.get_default_method(model_name),
         **DestroyModelMixin.get_default_method(model_name),
         **StreamModelMixin.get_default_method(model_name),
     }
-
 
 def get_default_grpc_messages(model_name):
     """
@@ -370,7 +383,5 @@ def get_default_grpc_messages(model_name):
         **CreateModelMixin.get_default_message(model_name),
         **ListModelMixin.get_default_message(model_name),
         **RetrieveModelMixin.get_default_message(model_name),
-        **PartialUpdateModelMixin.get_default_message(model_name),
         **DestroyModelMixin.get_default_message(model_name),
-        **StreamModelMixin.get_default_message(model_name),
     }

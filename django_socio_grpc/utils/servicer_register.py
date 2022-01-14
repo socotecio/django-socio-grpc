@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from importlib import import_module
 
-from django_socio_grpc.mixins import get_default_grpc_methods
+from django_socio_grpc.mixins import get_all_default_grpc_methods
 from django_socio_grpc.settings import grpc_settings
 from django.db import models
 
@@ -88,8 +88,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
         """"
         For each service register in ROOT_HANDLERS_HOOK we try to register its controller and its messages 
         """
-        print("-----------------\n"*5)
-        print("register_service", Service)
+        # print("-----------------\n"*5)
+        # print("register_service", Service)
 
         service_instance = Service()
 
@@ -134,7 +134,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         If existing we look if it already register with a decorator that will prevent the default behavior
         If not already register that mean we want to use the default behavior so we just go with that and call register_default_message_from_method
         """
-        default_grpc_methods = get_default_grpc_methods(model_name)
+        default_grpc_methods = get_all_default_grpc_methods(model_name)
 
         # print(self.registered_app[app_name])
 
@@ -155,7 +155,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 continue
             
             # INFO - AM - 07/01/2022 - this is just the register of the methods with all the data necessary for the generation function in generators.py
-            # default_grpc_methods[method] is a dictionnary see get_default_grpc_methods for more informations
+            # default_grpc_methods[method] is a dictionnary see get_all_default_grpc_methods for more informations
             controller_object[method] = default_grpc_methods[method]
 
             self.register_default_message_from_method(app_name, method, service_instance)

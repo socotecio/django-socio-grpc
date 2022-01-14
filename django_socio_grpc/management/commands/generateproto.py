@@ -49,8 +49,6 @@ class Command(BaseCommand):
         # ------------------------------------------
         # ---- extract protog Gen Parameters     ---
         # ------------------------------------------
-        print("icicicicic ", grpc_settings.ROOT_HANDLERS_HOOK)
-        grpc_settings.ROOT_HANDLERS_HOOK(None)
         self.app_name = options["app"]
         self.model_name = options["model"]
         if self.model_name:

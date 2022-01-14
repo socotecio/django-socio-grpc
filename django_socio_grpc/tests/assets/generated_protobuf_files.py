@@ -243,7 +243,7 @@ message SpecialFieldsModelDestroyRequest {
 }
 
 message ImportStructEvenInArrayModel {
-    string id = 1;
+    string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
@@ -324,7 +324,7 @@ package myproject.fakeapp;
 import "google/protobuf/struct.proto";
 
 message ImportStructEvenInArrayModel {
-    string id = 1;
+    string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 

@@ -33,7 +33,7 @@ class KnowMethods:
     
     @classmethod
     def get_as_list(cls):
-        return [cls.CREATE, cls.UPDATE, cls.PARTIAL_UPDATE, cls.LIST, cls.RETRIEVE, cls.DESTROY,  cls.STREAM]
+        return [cls.LIST, cls.CREATE, cls.RETRIEVE, cls.UPDATE, cls.PARTIAL_UPDATE, cls.DESTROY,  cls.STREAM]
     
     @classmethod
     def get_methods_no_custom_messages(cls):

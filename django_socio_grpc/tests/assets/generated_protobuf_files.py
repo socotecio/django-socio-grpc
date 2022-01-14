@@ -1,6 +1,6 @@
 SIMPLE_MODEL_GENERATED = """syntax = "proto3";
 
-package myproject.unittestmodel;
+package myproject.fakeapp;
 
 import "google/protobuf/empty.proto";
 
@@ -13,18 +13,18 @@ service UnitTestModelController {
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
 }
 
-message UnitTestModel {
-    int32 id = 1;
-    string title = 2;
-    string text = 3;
-}
-
 message UnitTestModelListRequest {
 }
 
 message UnitTestModelListResponse {
     repeated UnitTestModel results = 1;
     int32 count = 2;
+}
+
+message UnitTestModel {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
 }
 
 message UnitTestModelRetrieveRequest {

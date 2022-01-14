@@ -6,6 +6,7 @@ from django.core.management import call_command
 from django.test import TestCase
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django.test import override_settings
 
 from .assets.generated_protobuf_files import (
     ALL_APP_GENERATED,
@@ -20,6 +21,19 @@ from .assets.generated_protobuf_files import (
     SIMPLE_APP_MODEL_OLD_ORDER,
     SIMPLE_MODEL_GENERATED,
 )
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+
+
+def one_model_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("UnitTestModel")
+
+
+def overide_grpc_framework(name_of_function):
+    return {
+        "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+        "ROOT_HANDLERS_HOOK": f"django_socio_grpc.tests.test_proto_generation.{name_of_function}",
+    }
 
 
 @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
@@ -28,18 +42,21 @@ class TestProtoGeneration(TestCase):
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("one_model_handler_hook"))
     def test_generate_one_model(self):
         self.maxDiff = None
         args = []
         opts = {
-            "model": "unittestmodel",
-            "file": "proto/unittestmodel.proto",
             "generate_python": False,
         }
         with patch("builtins.open", mock_open()) as m:
-            call_command("generate_proto_old_way", *args, **opts)
+            call_command("generateproto", *args, **opts)
 
-        m.assert_called_once_with("proto/unittestmodel.proto", "w+")
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "w+"
+
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
@@ -54,7 +71,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "fakeapp", "generate_python": False, "check": True}
     #     with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED)) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -68,7 +85,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {}
     #     with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     self.assertEqual(
     #         str(fake_generation_error.exception),
@@ -83,7 +100,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "app_not_existing"}
     #     with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     self.assertEqual(
     #         str(fake_generation_error.exception),
@@ -98,7 +115,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"model": "model_not_existing"}
     #     with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     self.assertEqual(
     #         str(fake_generation_error.exception),
@@ -115,7 +132,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "fakeapp", "model": "RelatedFieldModel", "generate_python": False}
     #     with patch("builtins.open", mock_open()) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -136,7 +153,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "fakeapp", "model": "NotDisplayedModel", "generate_python": False}
     #     with patch("builtins.open", mock_open()) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -155,7 +172,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
     #     with patch("builtins.open", mock_open()) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -176,7 +193,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "fakeapp", "generate_python": False}
     #     with patch("builtins.open", mock_open()) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -196,7 +213,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "fakeapp", "model": "ForeignModel", "generate_python": False}
     #     with patch("builtins.open", mock_open()) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -220,7 +237,7 @@ class TestProtoGeneration(TestCase):
     #         "generate_python": False,
     #     }
     #     with patch("builtins.open", mock_open()) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -244,7 +261,7 @@ class TestProtoGeneration(TestCase):
     #     args = []
     #     opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
     #     with patch("builtins.open", mock_open(read_data=SIMPLE_APP_MODEL_OLD_ORDER)) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
@@ -270,7 +287,7 @@ class TestProtoGeneration(TestCase):
     #     with patch(
     #         "builtins.open", mock_open(read_data=APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER)
     #     ) as m:
-    #         call_command("generate_proto_old_way", *args, **opts)
+    #         call_command("generateproto", *args, **opts)
 
     #     # this is done to avoid error on different absolute path
     #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")

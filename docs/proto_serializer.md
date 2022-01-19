@@ -54,6 +54,13 @@ If the message received in request is different than the one used in response th
 
 Django Socio gRPC support retro compatibility so `serializer.data` is still accessible and still in dictionnary format. However, it's recommended to use `serializer.message` that is in the gRPC message format and should always return `serializer.message` as response data.
 
+### Extra kwargs options
+
+Extra kwargs options are used like this: `serializer_instance = SerializerClass(**extra_kwras_options)`
+
+- `stream <Boolean>`: return the message as a list of proto_class instead of an instance of proto_class_list to be used in stream. See [Stream exemple](https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/mixins.py#L107)
+
+- `message_list_attr <String>`: change the attribute name for the list of instance returned by a proto_class_list (default is results).
 
 ### Tips for converting UUID Field
 
@@ -65,4 +72,30 @@ related_object = serializers.PrimaryKeyRelatedField(
     queryset=Something.objects.all(),
     pk_field=UUIDField(format="hex_verbose"),
 )
+```
+
+### Tips for converting empty string to None
+
+As gRPC always send the default value for type if not send some behavior of DRF like handling differently None value and empty string are not working.
+You can design your own system by adding arguments to adapt the behavior but if you have field where empty string mean None as for Datetime for example you can use code like this:
+
+```python
+from django_socio_grpc import proto_serializers
+from rest_framework.fields import DateTimeField
+from django.core.exceptions import ObjectDoesNotExist
+
+class NullableDatetimeField(DateTimeField):
+    def to_internal_value(self, value):
+        if not value:
+            return None
+        return super().to_internal_value()
+
+class ExampleProtoSerializer(proto_serializers.ModelProtoSerializer):
+    example_datetime = NullableDatetimeField(validators=[])
+
+    class Meta:
+        model = Example
+        proto_class = example_pb2.Example
+        proto_class_list = example_pb2.ExampleListResponse
+        fields = "__all__"
 ```

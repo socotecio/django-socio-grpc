@@ -118,5 +118,7 @@ class ServicerProxy:
 
 def close_old_connections():
     for conn in db.connections.all():
+        if conn.connection is None:
+            continue
         if conn.get_autocommit():
             conn.close_if_unusable_or_obsolete()

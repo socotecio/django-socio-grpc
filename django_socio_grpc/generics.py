@@ -194,21 +194,13 @@ class UpdateService(mixins.UpdateModelMixin, GenericService):
     pass
 
 
-class CreateService(mixins.CreateModelMixin, GenericService):
-    """
-    Concrete service for creating a model instance that provides a ``Create()``
-    handler.
-    """
-
-    pass
-
-
 class ListCreateService(mixins.ListModelMixin, mixins.CreateModelMixin, GenericService):
     """
     Concrete service for listing a queryset that provides a ``List()`` and ``Create()`` handler.
     """
 
     pass
+
 
 class ReadOnlyModelService(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericService):
     """
@@ -290,12 +282,15 @@ class AsyncUpdateService(mixins.AsyncUpdateModelMixin, GenericService):
     pass
 
 
-class AsyncListCreateService(mixins.AsyncListModelMixin, mixins.AsyncCreateModelMixin, GenericService):
+class AsyncListCreateService(
+    mixins.AsyncListModelMixin, mixins.AsyncCreateModelMixin, GenericService
+):
     """
     Concrete service for listing a queryset that provides a ``List()`` and ``Create()`` handler.
     """
 
     pass
+
 
 class AsyncReadOnlyModelService(
     mixins.AsyncRetrieveModelMixin, mixins.AsyncListModelMixin, GenericService

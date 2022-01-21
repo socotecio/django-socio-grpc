@@ -1,4 +1,7 @@
-from django_socio_grpc.utils.servicer_register import RegistrySingleton
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
+import logging
+
+logger = logging.getLogger("django_socio_grpc")
 
 
 class _grpc_action:
@@ -10,9 +13,11 @@ class _grpc_action:
         self.function = function
 
     def __set_name__(self, owner, name):
-        print("alala ", owner)
-        service_registry = RegistrySingleton()
-        service_registry.register_custom_action(owner, name, self.request, self.response, self.request_stream, self.response_stream)
+        try:
+            service_registry = RegistrySingleton()
+            service_registry.register_custom_action(owner, name, self.request, self.response, self.request_stream, self.response_stream)
+        except Exception as e:
+            logger.exception(f"Error while registering grpc_action {owner} - {name}: {e}")
         setattr(owner, name, self.function)
 
     def __get__(self, obj, type=None):

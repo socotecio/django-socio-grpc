@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
-from django_socio_grpc.utils.servicer_register import RegistrySingleton
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 
 
 class Command(BaseCommand):
@@ -73,7 +73,6 @@ class Command(BaseCommand):
         else:
             for app_name, proto in protos_by_app.items():
                 auto_file_path = generator.get_proto_path_for_app_name(app_name)
-                print(auto_file_path)
                 self.create_directory_if_not_exist(auto_file_path)
                 self.check_or_write(auto_file_path, proto, app_name)
                 path_used_for_generation = auto_file_path

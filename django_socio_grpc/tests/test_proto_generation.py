@@ -18,7 +18,8 @@ from .assets.generated_protobuf_files import (
     SIMPLE_MODEL_GENERATED,
     MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED
 )
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry, RegistrySingleton
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 import fakeapp.services.unit_test_model_service as unitestmodel_service
 import fakeapp.services.special_fields_model_service as special_fields_model_service
 import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service

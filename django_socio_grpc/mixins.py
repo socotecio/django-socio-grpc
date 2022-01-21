@@ -360,21 +360,6 @@ def get_default_grpc_methods(model_name):
     }
 
 
-
-def get_all_default_grpc_methods(model_name):
-    """
-    return the default grpc methods generated for a django model.
-    """
-    return {
-        **ListModelMixin.get_default_method(model_name),
-        **CreateModelMixin.get_default_method(model_name),
-        **RetrieveModelMixin.get_default_method(model_name),
-        **UpdateModelMixin.get_default_method(model_name),
-        **PartialUpdateModelMixin.get_default_method(model_name),
-        **DestroyModelMixin.get_default_method(model_name),
-        **StreamModelMixin.get_default_method(model_name),
-    }
-
 def get_default_grpc_messages(model_name):
     """
     return the default protobuff message we want to generate

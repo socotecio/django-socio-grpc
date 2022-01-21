@@ -8,6 +8,4 @@ TODO
 GENERATION NOUVELLE GENERATION
 ====
 
-- tester un generic service sans model
-- refacto servicer_register to split the file into multiple files
 - faire un test avec un controllerName overridé

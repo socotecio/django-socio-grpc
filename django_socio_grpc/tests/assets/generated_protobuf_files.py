@@ -88,7 +88,7 @@ service SpecialFieldsModelController {
 
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
-    rpc Retrieve(ForeignModelRetrieveRequest) returns (ForeignModel) {}
+    rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustom) {}
 }
 
 service RelatedFieldModelController {
@@ -165,8 +165,13 @@ message ForeignModel {
     string name = 2;
 }
 
-message ForeignModelRetrieveRequest {
+message ForeignModelRetrieveCustomRetrieveRequest {
     string name = 1;
+}
+
+message ForeignModelRetrieveCustom {
+    string name = 1;
+    string custom = 2;
 }
 
 message RelatedFieldModelListRequest {
@@ -230,7 +235,7 @@ package myproject.fakeapp;
 
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
-    rpc Retrieve(ForeignModelRetrieveRequest) returns (ForeignModel) {}
+    rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustom) {}
 }
 
 message ForeignModelListRequest {
@@ -246,8 +251,13 @@ message ForeignModel {
     string name = 2;
 }
 
-message ForeignModelRetrieveRequest {
+message ForeignModelRetrieveCustomRetrieveRequest {
     string name = 1;
+}
+
+message ForeignModelRetrieveCustom {
+    string name = 1;
+    string custom = 2;
 }
 
 """

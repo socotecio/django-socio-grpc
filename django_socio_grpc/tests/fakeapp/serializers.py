@@ -1,3 +1,4 @@
+import string
 from typing import Dict, List
 
 from rest_framework import serializers
@@ -15,14 +16,18 @@ from .models import (
 )
 
 
-class ForeignModelRetrieveRequestCustomSerializer(proto_serializers.ProtoSerializer):
+class ForeignModelRetrieveCustomSerializer(proto_serializers.ProtoSerializer):
 
     name = serializers.CharField()
+    custom = serializers.SerializerMethodField()
+
+    def get_custom(self, obj) -> str:
+        return f"{obj.uuid} - {obj.name}"
 
     class Meta:
         model = ForeignModel
-        proto_class = grpc_model.ForeignModel
-        fields = ["name"]
+        proto_class = grpc_model.ForeignModelRetrieveCustom
+        fields = ["uuid", "name"]
 
 
 class ForeignModelSerializer(proto_serializers.ModelProtoSerializer):

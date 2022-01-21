@@ -128,17 +128,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance, is_request
         )
 
-        # print("icicic", message_name)
-
         if message_name in self.registered_app[app_name]["registered_messages"]:
             return message_name
 
         self.registered_app[app_name]["registered_messages"][message_name] = []
 
         for field_name, field_type in serializer_instance.get_fields().items():
-
-            if field_name == "id":
-                print(field_name, field_type, serializer_instance)
 
             # INFO - AM - 21/01/2022 - HiddenField are not used in api so not showed in protobuf file
             if issubclass(field_type.__class__, HiddenField):

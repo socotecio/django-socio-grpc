@@ -66,6 +66,8 @@ class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
 
 class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
 
+    uuid = serializers.UUIDField(read_only=False)
+
     foreign_obj = ForeignModelSerializer(read_only=True)
     many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
 
@@ -80,6 +82,9 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class SpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
+
+    uuid = serializers.UUIDField(read_only=False)
+
     class Meta:
         model = SpecialFieldsModel
         proto_class = grpc_model.SpecialFieldsModelResponse

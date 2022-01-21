@@ -180,9 +180,10 @@ message RelatedFieldModelListResponse {
 }
 
 message RelatedFieldModelRequest {
-    string custom_field_name = 1;
-    string foreign = 2;
-    repeated string many_many = 3;
+    string uuid = 1;
+    string custom_field_name = 2;
+    string foreign = 3;
+    repeated string many_many = 4;
 }
 
 message RelatedFieldModelRetrieveRequest {
@@ -352,8 +353,9 @@ message SpecialFieldsModelListResponse {
 }
 
 message SpecialFieldsModelRequest {
-    google.protobuf.Struct meta_datas = 1;
-    repeated int32 list_datas = 2;
+    string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
+    repeated int32 list_datas = 3;
 }
 
 message SpecialFieldsModelDestroyRequest {
@@ -693,9 +695,10 @@ message RelatedFieldModelListResponse {
 }
 
 message RelatedFieldModelRequest {
-    string custom_field_name = 1;
-    string foreign = 2;
-    repeated string many_many = 3;
+    string uuid = 1;
+    string custom_field_name = 2;
+    string foreign = 3;
+    repeated string many_many = 4;
 }
 
 message RelatedFieldModelRetrieveRequest {
@@ -721,8 +724,9 @@ message SpecialFieldsModelListResponse {
 }
 
 message SpecialFieldsModelRequest {
-    google.protobuf.Struct meta_datas = 1;
-    repeated int32 list_datas = 2;
+    string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
+    repeated int32 list_datas = 3;
 }
 
 message SpecialFieldsModelDestroyRequest {

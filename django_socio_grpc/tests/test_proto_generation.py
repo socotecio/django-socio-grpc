@@ -15,10 +15,12 @@ from .assets.generated_protobuf_files import (
     MODEL_WITH_STRUCT_IMORT_IN_ARRAY,
     SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER,
     SIMPLE_APP_MODEL_OLD_ORDER,
-    SIMPLE_MODEL_GENERATED
+    SIMPLE_MODEL_GENERATED,
+    MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED
 )
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry, RegistrySingleton
 import fakeapp.services.unittestmodel_service as unitestmodel_service
+import fakeapp.services.specialfieldsmodel_service as specialfieldsmodel_service
 import fakeapp.services.syncunittestmodel_service as syncunitestmodel_service
 
 def relatedfieldmodel_handler_hook(server):
@@ -28,6 +30,10 @@ def relatedfieldmodel_handler_hook(server):
 def unittestmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
     app_registry.register("UnitTestModel")
+
+def specialfieldmodel_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("SpecialFieldsModel")
 
 def foreignmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
@@ -98,7 +104,7 @@ class TestProtoGeneration(TestCase):
         mock.MagicMock(return_value=False),
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("unittestmodel_handler_hook"))
-    def test_generate_one_app_one_model(self):
+    def test_generate_one_app_one_model_with_custom_action(self):
         reload(unitestmodel_service)
         self.maxDiff = None
         args = []
@@ -114,6 +120,28 @@ class TestProtoGeneration(TestCase):
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_MODEL_GENERATED)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("specialfieldmodel_handler_hook"))
+    def test_generate_one_app_one_model_with_override_know_method(self):
+        reload(specialfieldsmodel_service)
+        self.maxDiff = None
+        args = []
+        opts = {"generate_python": False}
+        with patch("builtins.open", mock_open()) as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "w+"
+
+        handle = m()
+
+        called_with_data = handle.write.call_args[0][0]
+        self.assertEqual(called_with_data, MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED)
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
@@ -190,6 +218,7 @@ class TestProtoGeneration(TestCase):
     def test_generate_all_models(self):
         reload(unitestmodel_service)
         reload(syncunitestmodel_service)
+        reload(specialfieldsmodel_service)
         self.maxDiff = None
 
         args = []

@@ -17,7 +17,7 @@ class UnitTestModelControllerStub(object):
         """
         self.ListWithExtraArgs = channel.unary_unary(
                 '/fakeproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
-                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.SerializeToString,
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgs.FromString,
                 )
         self.List = channel.unary_unary(
@@ -102,7 +102,7 @@ def add_UnitTestModelControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ListWithExtraArgs': grpc.unary_unary_rpc_method_handler(
                     servicer.ListWithExtraArgs,
-                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.FromString,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgs.SerializeToString,
             ),
             'List': grpc.unary_unary_rpc_method_handler(
@@ -157,7 +157,7 @@ class UnitTestModelController(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
-            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgs.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -276,7 +276,7 @@ class SyncUnitTestModelControllerStub(object):
         """
         self.ListWithExtraArgs = channel.unary_unary(
                 '/fakeproject.fakeapp.SyncUnitTestModelController/ListWithExtraArgs',
-                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.SerializeToString,
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SyncUnitTestModelListWithExtraArgsRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgs.FromString,
                 )
         self.List = channel.unary_unary(
@@ -361,7 +361,7 @@ def add_SyncUnitTestModelControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ListWithExtraArgs': grpc.unary_unary_rpc_method_handler(
                     servicer.ListWithExtraArgs,
-                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.FromString,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SyncUnitTestModelListWithExtraArgsRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgs.SerializeToString,
             ),
             'List': grpc.unary_unary_rpc_method_handler(
@@ -416,7 +416,7 @@ class SyncUnitTestModelController(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/ListWithExtraArgs',
-            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ListWithExtraArgsRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SyncUnitTestModelListWithExtraArgsRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgs.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -820,6 +820,11 @@ class SpecialFieldsModelControllerStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.Retrieve = channel.unary_unary(
+                '/fakeproject.fakeapp.SpecialFieldsModelController/Retrieve',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomRetrieveResponseSpecialFieldsModel.FromString,
+                )
         self.List = channel.unary_unary(
                 '/fakeproject.fakeapp.SpecialFieldsModelController/List',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListRequest.SerializeToString,
@@ -828,11 +833,6 @@ class SpecialFieldsModelControllerStub(object):
         self.Create = channel.unary_unary(
                 '/fakeproject.fakeapp.SpecialFieldsModelController/Create',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.SerializeToString,
-                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.FromString,
-                )
-        self.Retrieve = channel.unary_unary(
-                '/fakeproject.fakeapp.SpecialFieldsModelController/Retrieve',
-                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.FromString,
                 )
         self.Update = channel.unary_unary(
@@ -850,6 +850,12 @@ class SpecialFieldsModelControllerStub(object):
 class SpecialFieldsModelControllerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def Retrieve(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def List(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -857,12 +863,6 @@ class SpecialFieldsModelControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Create(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def Retrieve(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -883,6 +883,11 @@ class SpecialFieldsModelControllerServicer(object):
 
 def add_SpecialFieldsModelControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'Retrieve': grpc.unary_unary_rpc_method_handler(
+                    servicer.Retrieve,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomRetrieveResponseSpecialFieldsModel.SerializeToString,
+            ),
             'List': grpc.unary_unary_rpc_method_handler(
                     servicer.List,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListRequest.FromString,
@@ -891,11 +896,6 @@ def add_SpecialFieldsModelControllerServicer_to_server(servicer, server):
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.FromString,
-                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.SerializeToString,
-            ),
-            'Retrieve': grpc.unary_unary_rpc_method_handler(
-                    servicer.Retrieve,
-                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.SerializeToString,
             ),
             'Update': grpc.unary_unary_rpc_method_handler(
@@ -917,6 +917,23 @@ def add_SpecialFieldsModelControllerServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class SpecialFieldsModelController(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Retrieve(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/Retrieve',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomRetrieveResponseSpecialFieldsModel.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def List(request,
@@ -948,23 +965,6 @@ class SpecialFieldsModelController(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/Create',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.SerializeToString,
-            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def Retrieve(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/Retrieve',
-            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModel.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -72,3 +72,15 @@ class ImportStructEvenInArrayModelSerializer(proto_serializers.ModelProtoSeriali
         model = ImportStructEvenInArrayModel
         proto_class = grpc_model.ImportStructEvenInArrayModel
         fields = "__all__"
+
+class CustomRetrieveResponseSpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
+
+    custom_from_decorator = serializers.SerializerMethodField()
+
+    def get_custom_from_decorator(self, obj) -> int:
+        return 3
+
+    class Meta:
+        model = SpecialFieldsModel
+        proto_class = grpc_model.RelatedFieldModel
+        fields = ["uuid", "custom_from_decorator"]

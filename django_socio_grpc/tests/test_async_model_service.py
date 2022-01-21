@@ -93,7 +93,7 @@ class TestAsyncModelService(TestCase):
 
         with freeze_time(datetime(2022, 1, 21, tzinfo=timezone.utc)):
             grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
-            request = fakeapp_pb2.ListWithExtraArgsRequest(archived=False)
+            request = fakeapp_pb2.UnitTestModelListWithExtraArgsRequest(archived=False)
             response = grpc_stub.ListWithExtraArgs(request=request)
 
             self.assertEqual(len(response.results), 10)

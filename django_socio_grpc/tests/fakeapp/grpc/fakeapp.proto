@@ -6,7 +6,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service UnitTestModelController {
-    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -16,7 +16,7 @@ service UnitTestModelController {
 }
 
 service SyncUnitTestModelController {
-    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -39,9 +39,9 @@ service RelatedFieldModelController {
 }
 
 service SpecialFieldsModelController {
+    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModel) {}
     rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
     rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
-    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (SpecialFieldsModel) {}
     rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
@@ -50,7 +50,7 @@ service ImportStructEvenInArrayModelController {
     rpc Create(ImportStructEvenInArrayModel) returns (ImportStructEvenInArrayModel) {}
 }
 
-message ListWithExtraArgsRequest {
+message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
 }
 
@@ -83,6 +83,10 @@ message UnitTestModelDestroyRequest {
 }
 
 message UnitTestModelStreamRequest {
+}
+
+message SyncUnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
 }
 
 message ForeignModelListRequest {
@@ -132,6 +136,15 @@ message RelatedFieldModelDestroyRequest {
     string uuid = 1;
 }
 
+message SpecialFieldsModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message CustomRetrieveResponseSpecialFieldsModel {
+    string uuid = 1;
+    string custom_from_decorator = 2;
+}
+
 message SpecialFieldsModelListRequest {
 }
 
@@ -144,10 +157,6 @@ message SpecialFieldsModel {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
-}
-
-message SpecialFieldsModelRetrieveRequest {
-    string uuid = 1;
 }
 
 message SpecialFieldsModelDestroyRequest {

@@ -5,7 +5,7 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service UnitTestModelController {
-    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -14,7 +14,7 @@ service UnitTestModelController {
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
 }
 
-message ListWithExtraArgsRequest {
+message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
 }
 
@@ -59,7 +59,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service UnitTestModelController {
-    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -69,13 +69,21 @@ service UnitTestModelController {
 }
 
 service SyncUnitTestModelController {
-    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
     rpc Update(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
+}
+
+service SpecialFieldsModelController {
+    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModel) {}
+    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
+    rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
+    rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
 service ForeignModelController {
@@ -91,19 +99,11 @@ service RelatedFieldModelController {
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
-service SpecialFieldsModelController {
-    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
-    rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
-    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (SpecialFieldsModel) {}
-    rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
-    rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
-}
-
 service ImportStructEvenInArrayModelController {
     rpc Create(ImportStructEvenInArrayModel) returns (ImportStructEvenInArrayModel) {}
 }
 
-message ListWithExtraArgsRequest {
+message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
 }
 
@@ -117,6 +117,19 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+}
+
+message SyncUnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
+}
+
+message SpecialFieldsModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message CustomRetrieveResponseSpecialFieldsModel {
+    string uuid = 1;
+    string custom_from_decorator = 2;
 }
 
 message UnitTestModelListRequest {
@@ -197,10 +210,6 @@ message SpecialFieldsModel {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
-}
-
-message SpecialFieldsModelRetrieveRequest {
-    string uuid = 1;
 }
 
 message SpecialFieldsModelDestroyRequest {
@@ -390,6 +399,50 @@ message UnitTestModelDestroyRequest {
 }
 
 message UnitTestModelStreamRequest {
+}
+
+"""
+
+MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED = """syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+service SpecialFieldsModelController {
+    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModel) {}
+    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
+    rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
+    rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message SpecialFieldsModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message CustomRetrieveResponseSpecialFieldsModel {
+    string uuid = 1;
+    string custom_from_decorator = 2;
+}
+
+message SpecialFieldsModelListRequest {
+}
+
+message SpecialFieldsModelListResponse {
+    repeated SpecialFieldsModel results = 1;
+    int32 count = 2;
+}
+
+message SpecialFieldsModel {
+    string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
+    repeated int32 list_datas = 3;
+}
+
+message SpecialFieldsModelDestroyRequest {
+    string uuid = 1;
 }
 
 """

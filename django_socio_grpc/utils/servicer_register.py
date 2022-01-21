@@ -131,8 +131,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         service_instance = service_class()
         service_name = service_instance.get_service_name()
-        request_message_name = self.register_message_for_custom_action(app_name, function_name, request, "Request")
-        response_message_name = self.register_message_for_custom_action(app_name, function_name, response, "Response")
+        request_message_name = self.register_message_for_custom_action(app_name, service_name, function_name, request, "Request")
+        response_message_name = self.register_message_for_custom_action(app_name, service_name, function_name, response, "Response")
         self.register_method_for_custom_action(app_name, service_name, function_name, request_message_name, response_message_name, request_stream, response_stream)
 
     def register_method_for_custom_action(self, app_name, service_name, function_name, request_message_name, response_message_name, request_stream, response_stream):
@@ -146,12 +146,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
             },
         }
 
-    def register_message_for_custom_action(self, app_name, function_name, message, message_name_suffix):
+    def register_message_for_custom_action(self, app_name, service_name, function_name, message, message_name_suffix):
         if isinstance(message, list):
 
             messages_fields = [(item["name"], item["type"]) for item in message]
 
-            message_name = f"{function_name}{message_name_suffix}"
+            message_name = f"{service_name}{function_name}{message_name_suffix}"
             self.registered_app[app_name]["registered_messages"][
                 message_name
             ] = messages_fields

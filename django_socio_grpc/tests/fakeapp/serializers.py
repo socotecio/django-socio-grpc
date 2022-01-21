@@ -1,4 +1,3 @@
-import string
 from typing import Dict, List
 
 from rest_framework import serializers

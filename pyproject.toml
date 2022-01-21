@@ -51,6 +51,7 @@ line_length = 95
 multi_line_output = 3
 use_parentheses = true
 known_third_party = ['mock']
+skip_glob = ["**/migrations/*","**/grpc/*"]
 
 [tool.poetry.scripts]
 tests = "test_utils.load_tests:launch"

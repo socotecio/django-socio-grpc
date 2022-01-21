@@ -36,7 +36,7 @@ class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
     results = UnitTestModelSerializer(many=True)
 
     class Meta:
-        proto_class = grpc_model.ListWithExtraArgsResponse
+        proto_class = grpc_model.UnitTestModelListExtraArgs
         
 
 class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):

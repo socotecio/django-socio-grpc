@@ -10,6 +10,7 @@ class _grpc_action:
         self.function = function
 
     def __set_name__(self, owner, name):
+        print(f"decorator set name {owner}, {name}")
         # print(f"Je décore la fonction {self.function} de la class {owner}")
         # print(f"Je suis dans le décorateur voici mon params: {self.params}")
         # print(f"Ici j'ai un seralizer par ex: {owner.serializer_class}")

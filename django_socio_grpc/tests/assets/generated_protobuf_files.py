@@ -5,6 +5,7 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service UnitTestModelController {
+    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -13,46 +14,20 @@ service UnitTestModelController {
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
 }
 
-message UnitTestModelListRequest {
+message ListWithExtraArgsRequest {
+    bool archived = 1;
 }
 
-message UnitTestModelListResponse {
-    repeated UnitTestModel results = 1;
-    int32 count = 2;
+message UnitTestModelListExtraArgs {
+    int32 count = 1;
+    string query_fetched_datetime = 2;
+    repeated UnitTestModel results = 3;
 }
 
 message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
-}
-
-message UnitTestModelRetrieveRequest {
-    int32 id = 1;
-}
-
-message UnitTestModelDestroyRequest {
-    int32 id = 1;
-}
-
-message UnitTestModelStreamRequest {
-}
-
-"""
-
-SIMPLE_APP_MODEL_GENERATED = """syntax = "proto3";
-
-package myproject.fakeapp;
-
-import "google/protobuf/empty.proto";
-
-service UnitTestModelController {
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
-    rpc Create(UnitTestModel) returns (UnitTestModel) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
-    rpc Update(UnitTestModel) returns (UnitTestModel) {}
-    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
 }
 
 message UnitTestModelListRequest {
@@ -61,12 +36,6 @@ message UnitTestModelListRequest {
 message UnitTestModelListResponse {
     repeated UnitTestModel results = 1;
     int32 count = 2;
-}
-
-message UnitTestModel {
-    int32 id = 1;
-    string title = 2;
-    string text = 3;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -90,6 +59,17 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service UnitTestModelController {
+    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc Create(UnitTestModel) returns (UnitTestModel) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
+    rpc Update(UnitTestModel) returns (UnitTestModel) {}
+    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
+}
+
+service SyncUnitTestModelController {
+    rpc ListWithExtraArgs(ListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -123,18 +103,28 @@ service ImportStructEvenInArrayModelController {
     rpc Create(ImportStructEvenInArrayModel) returns (ImportStructEvenInArrayModel) {}
 }
 
-message UnitTestModelListRequest {
+message ListWithExtraArgsRequest {
+    bool archived = 1;
 }
 
-message UnitTestModelListResponse {
-    repeated UnitTestModel results = 1;
-    int32 count = 2;
+message UnitTestModelListExtraArgs {
+    int32 count = 1;
+    string query_fetched_datetime = 2;
+    repeated UnitTestModel results = 3;
 }
 
 message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+}
+
+message UnitTestModelListRequest {
+}
+
+message UnitTestModelListResponse {
+    repeated UnitTestModel results = 1;
+    int32 count = 2;
 }
 
 message UnitTestModelRetrieveRequest {

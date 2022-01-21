@@ -44,7 +44,7 @@ message ListWithExtraArgsRequest {
     bool archived = 1;
 }
 
-message UnitTestModelListExtraArgs {
+message ListWithExtraArgsResponse {
     int32 count = 1;
     string query_fetched_datetime = 2;
     repeated UnitTestModel results = 3;

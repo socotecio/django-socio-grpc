@@ -152,7 +152,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             ] = messages_fields
         elif issubclass(message, BaseSerializer):
             serializer_instance = message()
-            self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+            self.register_serializer_as_message_if_not_exist(app_name, serializer_instance, message_name=f"{function_name}{message_name_suffix}")
         else:
             raise Exception(f"{message_name_suffix} message for function {function_name} in app {app_name} is not a list or a serializer")
     
@@ -254,21 +254,22 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         return serializer_instance
 
-    def register_serializer_as_message_if_not_exist(self, app_name, serializer_instance):
+    def register_serializer_as_message_if_not_exist(self, app_name, serializer_instance, message_name=None):
         """
         Register a message if not already exsting in the registered_messages of an app_name
         This message need to be in a correct format that will be used by generators to transform it into generators
         """
-        serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
-        if serializer_name in self.registered_app[app_name]["registered_messages"]:
+        if message_name is None:
+            message_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        if message_name in self.registered_app[app_name]["registered_messages"]:
             return 
 
-        self.registered_app[app_name]["registered_messages"][serializer_name] = []
+        self.registered_app[app_name]["registered_messages"][message_name] = []
 
         for field_name, field_type in serializer_instance.get_fields().items():
             field_grpc_generator_format = (field_name, self.get_proto_type(app_name, field_type))
 
-            self.registered_app[app_name]["registered_messages"][serializer_name].append(field_grpc_generator_format)
+            self.registered_app[app_name]["registered_messages"][message_name].append(field_grpc_generator_format)
 
 
     def get_proto_type(self, app_name, field_type):

@@ -10,21 +10,16 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
-from fakeapp.serializers import UnitTestModelSerializer
+from fakeapp.services.unittestmodel_service import AsyncUnitTestModelService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
-
-
-class UnitTestService(generics.AsyncModelService, mixins.AsyncStreamModelMixin):
-    queryset = UnitTestModel.objects.all()
-    serializer_class = UnitTestModelSerializer
 
 
 class TestAsyncModelService(TestCase):
     def setUp(self):
         os.environ["GRPC_ASYNC"] = "True"
         self.fake_grpc = FakeGRPC(
-            add_UnitTestModelControllerServicer_to_server, UnitTestService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server, AsyncUnitTestModelService.as_servicer()
         )
 
         self.create_instances()

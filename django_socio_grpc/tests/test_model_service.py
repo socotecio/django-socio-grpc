@@ -7,20 +7,16 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
-from fakeapp.serializers import UnitTestModelSerializer
+from fakeapp.services.unittestmodel_service import UnitTestModelService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
-
-class UnitTestService(generics.ModelService, mixins.StreamModelMixin):
-    queryset = UnitTestModel.objects.all()
-    serializer_class = UnitTestModelSerializer
 
 
 class TestModelService(TestCase):
     def setUp(self):
         self.fake_grpc = FakeGRPC(
-            add_UnitTestModelControllerServicer_to_server, UnitTestService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )
 
         self.create_instances()

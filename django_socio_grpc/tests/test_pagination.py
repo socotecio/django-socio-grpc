@@ -1,7 +1,6 @@
 import json
 
 from django.test import TestCase
-from rest_framework.pagination import PageNumberPagination
 
 from django_socio_grpc import generics, mixins
 from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
@@ -11,6 +10,8 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 )
 from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelSerializer
+from fakeapp.services.unittestmodel_service import UnitTestModelService
+from rest_framework.pagination import PageNumberPagination
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
@@ -20,12 +21,10 @@ class StandardResultsSetPagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
 
-
-class UnitTestService(generics.ModelService, mixins.StreamModelMixin):
+class UnitTestModelServiceWithDifferentPagination(UnitTestModelService):
     queryset = UnitTestModel.objects.all().order_by("id")
     serializer_class = UnitTestModelSerializer
     pagination_class = StandardResultsSetPagination
-
 
 class TestPagination(TestCase):
     def setUp(self):
@@ -34,7 +33,7 @@ class TestPagination(TestCase):
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
             UnitTestModel(title=title, text=text).save()
         self.fake_grpc = FakeGRPC(
-            add_UnitTestModelControllerServicer_to_server, UnitTestService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server, UnitTestModelServiceWithDifferentPagination.as_servicer()
         )
 
     def tearDown(self):

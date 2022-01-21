@@ -1,26 +1,16 @@
 import json
 
 from django.test import TestCase
-from django_filters.rest_framework import DjangoFilterBackend
 
-from django_socio_grpc import generics, mixins
 from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
-from fakeapp.serializers import UnitTestModelSerializer
+from fakeapp.services.unittestmodel_service import UnitTestModelService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
-
-
-class UnitTestService(generics.ModelService, mixins.StreamModelMixin):
-    queryset = UnitTestModel.objects.all()
-    serializer_class = UnitTestModelSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["title", "text"]
-
 
 class TestFiltering(TestCase):
     def setUp(self):
@@ -29,7 +19,7 @@ class TestFiltering(TestCase):
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
             UnitTestModel(title=title, text=text).save()
         self.fake_grpc = FakeGRPC(
-            add_UnitTestModelControllerServicer_to_server, UnitTestService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )
 
     def tearDown(self):

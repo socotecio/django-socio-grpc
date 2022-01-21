@@ -7,8 +7,9 @@ from django.db import models
 
 from rest_framework.relations import ManyRelatedField, RelatedField
 from rest_framework.serializers import BaseSerializer, ListSerializer
-from rest_framework.fields import ListField
+from rest_framework.fields import ListField, DictField, SerializerMethodField
 from django_socio_grpc.utils import model_meta
+from typing import List, Dict, Tuple
 
 from django_socio_grpc.proto_serializers import ModelProtoSerializer, BaseProtoSerializer, ListProtoSerializer
 
@@ -62,7 +63,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         models.PositiveSmallIntegerField.__name__: "int32",
         models.PositiveIntegerField.__name__: "int32",
         models.FloatField.__name__: "float",
-        models.DecimalField.__name__: "string",
+        models.DecimalField.__name__: "double",
         # Boolean
         models.BooleanField.__name__: "bool",
         models.NullBooleanField.__name__: "bool",
@@ -283,18 +284,17 @@ class RegistrySingleton(metaclass=SingletonMeta):
         self.registered_app[app_name]["registered_messages"][message_name] = []
 
         for field_name, field_type in serializer_instance.get_fields().items():
-            field_grpc_generator_format = (field_name, self.get_proto_type(app_name, field_type))
+            field_grpc_generator_format = (field_name, self.get_proto_type(app_name, field_type, field_name, serializer_instance))
 
             self.registered_app[app_name]["registered_messages"][message_name].append(field_grpc_generator_format)
         
         return message_name
 
 
-    def get_proto_type(self, app_name, field_type):
+    def get_proto_type(self, app_name, field_type, field_name, serializer_instance):
         """
-        Return a proto_type  to use in the proto file from a field_name and a model.
-
-        this method is the magic method that tranform custom attribute like __repeated-link-- to correct proto buff file
+        Return a proto_type  to use in the proto file from a field type. 
+        For SerializerMethodField we also need field_name and serializer_instance
         """
 
         # If field type is a str that mean we use a custom field
@@ -302,6 +302,21 @@ class RegistrySingleton(metaclass=SingletonMeta):
             return field_type
 
         proto_type = self.type_mapping.get(field_type.__class__.__name__, "string")
+
+        # if  field_name == "default_method_field":
+
+        #     print(f"class is : {field_type.__class__}")
+        #     print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}")
+        #     print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}")
+        #     print(
+        #         f"is subclas of ManyRelatedField: {issubclass(field_type.__class__, ManyRelatedField)}"
+        #     )
+        #     print(f"is subclas of RelatedField: {issubclass(field_type.__class__, RelatedField)}")
+        #     print(f"is subclas of ListSerializer: {issubclass(field_type.__class__, ListSerializer)}")
+        #     print(f"is subclas of ListField: {issubclass(field_type.__class__, ListField)}")
+        #     print(f"is subclas of DictField: {issubclass(field_type.__class__, DictField)}")
+        #     print(f"is subclas of BaseSerializer: {issubclass(field_type.__class__, BaseSerializer)}")
+        #     print(f"is subclas of SerializerMethodField: {issubclass(field_type.__class__, SerializerMethodField)}")
         
         # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have  
         if issubclass(field_type.__class__, ListProtoSerializer):
@@ -332,21 +347,48 @@ class RegistrySingleton(metaclass=SingletonMeta):
             child_type = self.type_mapping.get(field_type.child.__class__.__name__, "string")
             proto_type = f"repeated {child_type}"
 
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the DictField that mean it's a Struct
+        elif issubclass(field_type.__class__, DictField):
+            proto_type = "google.protobuf.Struct"
+
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
         elif issubclass(field_type.__class__, BaseSerializer):
             proto_type = "google.protobuf.Struct"
 
-        # self.print(f"class is : {field_type.__class__}", 4)
-        # self.print(f"is subclas of BaseSerializer: {issubclass(field_type.__class__, BaseSerializer)}", 4)
-        # self.print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}", 4)
-        # self.print(f"is subclas of ModelProtoSerializer: {issubclass(field_type.__class__, ModelProtoSerializer)}", 4)
-        # self.print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}", 4)
-        # self.print(f"is subclas of RelatedField: {issubclass(field_type.__class__, RelatedField)}", 4)
-        # self.print(
-        #     f"is subclas of ManyRelatedField: {issubclass(field_type.__class__, ManyRelatedField)}", 4
-        # )
+        
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
+        elif issubclass(field_type.__class__, SerializerMethodField):
+            print(field_type)
+            proto_type = self.get_proto_type_from_inspect(field_type, field_name, serializer_instance)
 
         return proto_type
+
+    def get_proto_type_from_inspect(self, field_type, field_name, serializer_instance):
+        method_name = field_type.method_name
+        if method_name is None:
+            method_name = f'get_{field_name}'
+        method = getattr(serializer_instance, method_name, None)
+        if method is None:
+            # TODO - AM - 21/01/2022 - What todo here ? raise an excpetion or let DRF handle this kind of problems ?
+            return "string"
+
+        python_type_to_proto_type= {
+            int: "int32",
+            str: "string",
+            bool: "bool",
+            list: "repeated string",
+            float: "repeated float",
+            dict: "google.protobuf.Struct",
+            List: "repeated string",
+            Dict: "google.protobuf.Struct",
+            List[int]: "repeated int32",
+            List[str]: "repeated string",
+            List[bool]: "repeated bool",
+            List[Tuple]: "repeated google.protobuf.Struct",
+            List[Dict]: "repeated google.protobuf.Struct"
+        }
+
+        return python_type_to_proto_type[method.__annotations__["return"]]
 
 
     def get_pk_from_related_field(self, related_field):

@@ -1,5 +1,6 @@
 import fakeapp.grpc.fakeapp_pb2 as grpc_model
 from django_socio_grpc import proto_serializers
+from typing import List, Dict
 
 from .models import UnitTestModel, ForeignModel, RelatedFieldModel, ManyManyModel, SpecialFieldsModel, ImportStructEvenInArrayModel
 
@@ -75,12 +76,17 @@ class ImportStructEvenInArrayModelSerializer(proto_serializers.ModelProtoSeriali
 
 class CustomRetrieveResponseSpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
 
-    custom_from_decorator = serializers.SerializerMethodField()
+    default_method_field = serializers.SerializerMethodField()
 
-    def get_custom_from_decorator(self, obj) -> int:
+    custom_method_field = serializers.SerializerMethodField(method_name="custom_method")
+
+    def get_default_method_field(self, obj) -> int:
         return 3
+
+    def custom_method(self, obj) -> List[Dict]:
+        return [{"test": "test"}]
 
     class Meta:
         model = SpecialFieldsModel
         proto_class = grpc_model.RelatedFieldModel
-        fields = ["uuid", "custom_from_decorator"]
+        fields = ["uuid", "default_method_field", "custom_method_field"]

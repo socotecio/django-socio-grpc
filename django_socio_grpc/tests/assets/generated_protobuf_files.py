@@ -129,7 +129,8 @@ message SpecialFieldsModelRetrieveRequest {
 
 message CustomRetrieveResponseSpecialFieldsModel {
     string uuid = 1;
-    string custom_from_decorator = 2;
+    int32 default_method_field = 2;
+    repeated google.protobuf.Struct custom_method_field = 3;
 }
 
 message UnitTestModelListRequest {
@@ -424,7 +425,8 @@ message SpecialFieldsModelRetrieveRequest {
 
 message CustomRetrieveResponseSpecialFieldsModel {
     string uuid = 1;
-    string custom_from_decorator = 2;
+    int32 default_method_field = 2;
+    repeated google.protobuf.Struct custom_method_field = 3;
 }
 
 message SpecialFieldsModelListRequest {

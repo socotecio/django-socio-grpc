@@ -38,7 +38,7 @@ class TestAsyncModelService(TestCase):
 
     def test_async_create(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
-        request = fakeapp_pb2.UnitTestModel(title="fake", text="text")
+        request = fakeapp_pb2.UnitTestModelRequest(title="fake", text="text")
         response = grpc_stub.Create(request=request)
 
         self.assertNotEqual(response.id, None)
@@ -65,7 +65,9 @@ class TestAsyncModelService(TestCase):
     def test_async_update(self):
         unit_id = UnitTestModel.objects.first().id
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
-        request = fakeapp_pb2.UnitTestModel(id=unit_id, title="newTitle", text="newText")
+        request = fakeapp_pb2.UnitTestModelRequest(
+            id=unit_id, title="newTitle", text="newText"
+        )
         response = grpc_stub.Update(request=request)
 
         self.assertEqual(response.title, "newTitle")

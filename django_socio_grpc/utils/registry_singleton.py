@@ -2,7 +2,13 @@ from collections import OrderedDict
 from typing import Dict, List, Tuple
 
 from django.db import models
-from rest_framework.fields import DictField, ListField, SerializerMethodField
+from rest_framework.fields import (
+    DictField,
+    HiddenField,
+    ListField,
+    ReadOnlyField,
+    SerializerMethodField,
+)
 from rest_framework.relations import ManyRelatedField, RelatedField
 from rest_framework.serializers import BaseSerializer, ListSerializer
 
@@ -111,18 +117,40 @@ class RegistrySingleton(metaclass=SingletonMeta):
     #
     ############################################################################
 
-    def register_serializer_as_message_if_not_exist(self, app_name, serializer_instance):
+    def register_serializer_as_message_if_not_exist(
+        self, app_name, serializer_instance, is_request=True
+    ):
         """
         Register a message if not already exsting in the registered_messages of an app_name
         This message need to be in a correct format that will be used by generators to transform it into generators
         """
-        message_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        message_name = self.get_message_name_from_field_or_serializer_instance(
+            serializer_instance, is_request
+        )
+
+        # print("icicic", message_name)
+
         if message_name in self.registered_app[app_name]["registered_messages"]:
             return message_name
 
         self.registered_app[app_name]["registered_messages"][message_name] = []
 
         for field_name, field_type in serializer_instance.get_fields().items():
+
+            if field_name == "id":
+                print(field_name, field_type, serializer_instance)
+
+            # INFO - AM - 21/01/2022 - HiddenField are not used in api so not showed in protobuf file
+            if issubclass(field_type.__class__, HiddenField):
+                continue
+
+            # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we need to filter read only or write only field depend of if is requets message or not
+            if grpc_settings.SEPARATE_READ_WRITE_MODEL:
+                if is_request and self.field_type_is_read_only(field_type):
+                    continue
+                if not is_request and self.field_type_is_write_only(field_type):
+                    continue
+
             field_grpc_generator_format = (
                 field_name,
                 self.get_proto_type(app_name, field_type, field_name, serializer_instance),
@@ -132,6 +160,24 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 field_grpc_generator_format
             )
 
+        return message_name
+
+    def field_type_is_read_only(self, field_type):
+        # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have
+        if issubclass(field_type.__class__, ReadOnlyField):
+            return True
+        return field_type.read_only is True
+
+    def field_type_is_write_only(self, field_type):
+        return field_type.write_only is True
+
+    def get_message_name_from_field_or_serializer_instance(
+        self, class_or_field_isntance, is_request
+    ):
+        # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we have two different message for the same serializer
+        message_name = class_or_field_isntance.__class__.__name__.replace("Serializer", "")
+        if grpc_settings.SEPARATE_READ_WRITE_MODEL:
+            message_name = f"{message_name}{'Request' if is_request else 'Response'}"
         return message_name
 
     def get_proto_type(self, app_name, field_type, field_name, serializer_instance):
@@ -162,17 +208,21 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have
         if issubclass(field_type.__class__, ListProtoSerializer):
-            proto_type = (
-                f"repeated {field_type.child.__class__.__name__.replace('Serializer', '')}"
-            )
+            proto_type = f"repeated {self.get_message_name_from_field_or_serializer_instance(field_type.child, is_request=False)}"
             # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
-            self.register_serializer_as_message_if_not_exist(app_name, field_type.child)
+            self.register_serializer_as_message_if_not_exist(
+                app_name, field_type.child, is_request=False
+            )
 
         # INFO - AM - 07/01/2022 - else if the field type inherit from proto serializer that mean that it is generated as a message in the proto file
         elif issubclass(field_type.__class__, BaseProtoSerializer):
-            proto_type = field_type.__class__.__name__.replace("Serializer", "")
+            proto_type = self.get_message_name_from_field_or_serializer_instance(
+                field_type, is_request=False
+            )
             # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
-            self.register_serializer_as_message_if_not_exist(app_name, field_type)
+            self.register_serializer_as_message_if_not_exist(
+                app_name, field_type, is_request=False
+            )
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the ManyRelatedField that mean the type is the type of the pk of the child_relation (see relations.py of drf)
         elif issubclass(field_type.__class__, ManyRelatedField):
@@ -358,10 +408,13 @@ class RegistrySingleton(metaclass=SingletonMeta):
         )
 
         if method in KnowMethods.get_methods_no_custom_messages():
-            message_name = self.register_serializer_as_message_if_not_exist(
-                app_name, serializer_instance
+            request_message_name = self.register_serializer_as_message_if_not_exist(
+                app_name, serializer_instance, is_request=True
             )
-            return message_name, message_name
+            response_message_name = self.register_serializer_as_message_if_not_exist(
+                app_name, serializer_instance, is_request=False
+            )
+            return request_message_name, response_message_name
 
         elif method == KnowMethods.LIST:
 
@@ -408,6 +461,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         Method that register a defaut know "list" method in the app proto message
         """
         serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+
+        child_response_message_name = self.register_serializer_as_message_if_not_exist(
+            app_name, serializer_instance, is_request=False
+        )
+
         pagination = service_instance.pagination_class
         if pagination is None:
             pagination = grpc_settings.DEFAULT_PAGINATION_CLASS is not None
@@ -421,7 +479,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             if message_list_attr:
                 response_field_name = message_list_attr
 
-        response_fields = [(response_field_name, f"repeated {serializer_name}")]
+        response_fields = [(response_field_name, f"repeated {child_response_message_name}")]
         if pagination:
             response_fields += [("count", "int32")]
 
@@ -432,8 +490,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
         self.registered_app[app_name]["registered_messages"][
             response_message_name
         ] = response_fields
-
-        self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
 
         return request_message_name, response_message_name
 
@@ -455,7 +511,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         ]
 
         response_message_name = self.register_serializer_as_message_if_not_exist(
-            app_name, serializer_instance
+            app_name, serializer_instance, is_request=False
         )
 
         return request_message_name, response_message_name
@@ -490,7 +546,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         self.registered_app[app_name]["registered_messages"][request_message_name] = []
 
         response_message_name = self.register_serializer_as_message_if_not_exist(
-            app_name, serializer_instance
+            app_name, serializer_instance, is_request=False
         )
 
         return request_message_name, response_message_name
@@ -548,10 +604,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
         service_instance = service_class()
         service_name = service_instance.get_service_name()
         request_message_name = self.register_message_for_custom_action(
-            app_name, service_name, function_name, request, "Request"
+            app_name, service_name, function_name, request, is_request=True
         )
         response_message_name = self.register_message_for_custom_action(
-            app_name, service_name, function_name, response, "Response"
+            app_name, service_name, function_name, response, is_request=False
         )
         self.register_method_for_custom_action(
             app_name,
@@ -582,13 +638,15 @@ class RegistrySingleton(metaclass=SingletonMeta):
         }
 
     def register_message_for_custom_action(
-        self, app_name, service_name, function_name, message, message_name_suffix
+        self, app_name, service_name, function_name, message, is_request
     ):
         if isinstance(message, list):
 
             messages_fields = [(item["name"], item["type"]) for item in message]
 
-            message_name = f"{service_name}{function_name}{message_name_suffix}"
+            message_name = (
+                f"{service_name}{function_name}{'Request' if is_request else 'Response'}"
+            )
             self.registered_app[app_name]["registered_messages"][
                 message_name
             ] = messages_fields
@@ -596,11 +654,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         elif issubclass(message, BaseSerializer):
             serializer_instance = message()
             return self.register_serializer_as_message_if_not_exist(
-                app_name, serializer_instance
+                app_name, serializer_instance, is_request=is_request
             )
         else:
             raise Exception(
-                f"{message_name_suffix} message for function {function_name} in app {app_name} is not a list or a serializer"
+                f"{'Request' if is_request else 'Response'} message for function {function_name} in app {app_name} is not a list or a serializer"
             )
 
     def get_app_name_from_service_class(self, service_class):

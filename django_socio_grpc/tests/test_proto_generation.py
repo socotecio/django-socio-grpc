@@ -13,7 +13,8 @@ from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 from .assets.generated_protobuf_files import (
-    ALL_APP_GENERATED,
+    ALL_APP_GENERATED_NO_SEPARATE,
+    ALL_APP_GENERATED_SEPARATE,
     CUSTOM_APP_MODEL_GENERATED,
     MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED,
     MODEL_WITH_M2M_GENERATED,
@@ -56,6 +57,14 @@ def overide_grpc_framework(name_of_function):
     }
 
 
+def overide_grpc_framework_no_separate():
+    return {
+        "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+        "ROOT_HANDLERS_HOOK": "fakeapp.urls.grpc_handlers",
+        "SEPARATE_READ_WRITE_MODEL": False,
+    }
+
+
 @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
 class TestProtoGeneration(TestCase):
     def setUp(self):
@@ -64,21 +73,6 @@ class TestProtoGeneration(TestCase):
         RegistrySingleton.clean_all()
 
         return super().setUp()
-
-    # @mock.patch(
-    #     "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-    #     mock.MagicMock(return_value=False),
-    # )
-    # def test_check_option(self):
-    #     self.maxDiff = None
-    #     args = []
-    #     opts = {"generate_python": False, "check": True}
-    #     with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED)) as m:
-    #         call_command("generateproto", *args, **opts)
-
-    #     # this is done to avoid error on different absolute path
-    #     assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-    #     assert m.mock_calls[0].args[1] == "r+"
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
@@ -219,7 +213,7 @@ class TestProtoGeneration(TestCase):
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
-    def test_generate_all_models(self):
+    def test_generate_all_models_separate_read_write(self):
         reload(unitestmodel_service)
         reload(syncunitestmodel_service)
         reload(special_fields_model_service)
@@ -237,4 +231,29 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, ALL_APP_GENERATED)
+        self.assertEqual(called_with_data, ALL_APP_GENERATED_SEPARATE)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework_no_separate())
+    def test_generate_all_models_no_separate(self):
+        reload(unitestmodel_service)
+        reload(syncunitestmodel_service)
+        reload(special_fields_model_service)
+        self.maxDiff = None
+
+        args = []
+        opts = {"generate_python": False}
+        with patch("builtins.open", mock_open()) as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "w+"
+
+        handle = m()
+
+        called_with_data = handle.write.call_args[0][0]
+        self.assertEqual(called_with_data, ALL_APP_GENERATED_NO_SEPARATE)

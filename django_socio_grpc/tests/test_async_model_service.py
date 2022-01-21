@@ -2,8 +2,10 @@ import os
 
 from asgiref.sync import async_to_sync
 from django.test import TestCase
+from freezegun import freeze_time
+from django.utils import timezone
+from datetime import datetime
 
-from django_socio_grpc import generics, mixins
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
@@ -86,3 +88,14 @@ class TestAsyncModelService(TestCase):
         response_list = [response for response in responses]
 
         self.assertEqual(len(response_list), 10)
+
+    def test_async_list_custom_action(self):
+
+        with freeze_time(datetime(2022, 1, 21, tzinfo=timezone.utc)):
+            grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+            request = fakeapp_pb2.ListWithExtraArgsRequest(archived=False)
+            response = grpc_stub.ListWithExtraArgs(request=request)
+
+            self.assertEqual(len(response.results), 10)
+
+            self.assertEqual(response.query_fetched_datetime, "2022-01-21T00:00:00Z")

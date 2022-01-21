@@ -35,8 +35,8 @@ class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
     query_fetched_datetime = serializers.DateTimeField()
     results = UnitTestModelSerializer(many=True)
 
-    # class Meta:
-        # proto_class = grpc_model.UnitTestModel
+    class Meta:
+        proto_class = grpc_model.ListWithExtraArgsResponse
         
 
 class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):

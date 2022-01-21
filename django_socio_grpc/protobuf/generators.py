@@ -1,13 +1,10 @@
 import io
+import json
 import logging
 import os
 
-from django.apps import apps
 import protoparser
-import json
-
-from django_socio_grpc.exceptions import ProtobufGenerationException
-
+from django.apps import apps
 
 MAX_SORT_NUMBER = 9999
 
@@ -15,7 +12,6 @@ logger = logging.getLogger("django_socio_grpc")
 
 
 class RegistryToProtoGenerator:
-
     def __init__(self, registry_instance, project_name, verbose=0, only_messages=None):
         self.registry_instance = registry_instance
         self.project_name = project_name
@@ -23,13 +19,12 @@ class RegistryToProtoGenerator:
         self.only_messages = only_messages if only_messages is not None else []
         self.current_message = ""
 
-
         # TODO for debug remove this after
         # self.verbose = 4
         # self.only_messages = ["SpecialFieldsModel"]
 
     def print(self, message, verbose_level=0):
-        # INFO - AM - 07/01/2022 - This is used to debug only one message. This is manual code. 
+        # INFO - AM - 07/01/2022 - This is used to debug only one message. This is manual code.
         if self.only_messages and self.current_message not in self.only_messages:
             return
         if verbose_level <= self.verbose:
@@ -41,15 +36,15 @@ class RegistryToProtoGenerator:
             self.print("\n\n--------------------------------\n\n", 1)
             self.print(f"GENERATE APP {app_name}", 1)
 
-            self.current_existing_proto_data = self.parse_existing_proto_file(self.get_proto_path_for_app_name(app_name))
+            self.current_existing_proto_data = self.parse_existing_proto_file(
+                self.get_proto_path_for_app_name(app_name)
+            )
             proto_by_app[app_name] = self.get_proto(app_name, registered_items)
 
         return proto_by_app
 
     def get_proto_path_for_app_name(self, app_name):
-        return os.path.join(
-            apps.get_app_config(app_name).path, "grpc", f"{app_name}.proto"
-        )
+        return os.path.join(apps.get_app_config(app_name).path, "grpc", f"{app_name}.proto")
 
     def get_proto(self, app_name, registered_items):
         self._writer = _CodeWriter()
@@ -150,7 +145,9 @@ class RegistryToProtoGenerator:
         if grpc_message_name not in self.current_existing_proto_data.get("messages", {}):
             return MAX_SORT_NUMBER
 
-        for parsed_field in self.current_existing_proto_data["messages"][grpc_message_name]["fields"]:
+        for parsed_field in self.current_existing_proto_data["messages"][grpc_message_name][
+            "fields"
+        ]:
             if parsed_field["name"] == field_name:
                 return parsed_field["number"]
 
@@ -159,12 +156,9 @@ class RegistryToProtoGenerator:
     def order_message_by_existing_number(self, grpc_message_name, grpc_message_fields):
         # INFO - AM - 14/01/2022 - grpc_message_fields is a list of tuple. Tuple of two element first is field_name second is field prototype
         grpc_message_fields.sort(
-            key=lambda field: self.find_existing_number_for_field(
-                grpc_message_name, field[0]
-            )
+            key=lambda field: self.find_existing_number_for_field(grpc_message_name, field[0])
         )
         return grpc_message_fields
-    
 
     def check_if_existing_proto_file(self, existing_proto_path):
         """

@@ -12,6 +12,7 @@ from fakeapp.services.unit_test_model_service import UnitTestModelService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
+
 class TestFiltering(TestCase):
     def setUp(self):
         for idx in range(10):

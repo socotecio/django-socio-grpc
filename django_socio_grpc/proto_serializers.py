@@ -77,7 +77,9 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
         List of protobuf messages -> List of dicts of python primitive datatypes.
         """
 
-        assert hasattr(self.child, "Meta"), f'Class {self.__class__.__name__} missing "Meta" attribute'
+        assert hasattr(
+            self.child, "Meta"
+        ), f'Class {self.__class__.__name__} missing "Meta" attribute'
 
         message_list_attr = getattr(self.child.Meta, "message_list_attr", None)
         if not message_list_attr and self.message_list_attr:
@@ -103,9 +105,13 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
         """
         List of protobuf messages <- List of dicts of python primitive datatypes.
         """
-        
-        assert hasattr(self.child, "Meta"), f'Class {self.__class__.__name__} missing "Meta" attribute'
-        assert hasattr(self.child.Meta, "proto_class_list"), f'Class {self.__class__.__name__} missing "Meta.proto_class_list" attribute'
+
+        assert hasattr(
+            self.child, "Meta"
+        ), f'Class {self.__class__.__name__} missing "Meta" attribute'
+        assert hasattr(
+            self.child.Meta, "proto_class_list"
+        ), f'Class {self.__class__.__name__} missing "Meta.proto_class_list" attribute'
 
         if getattr(self.child, "stream", False):
             return [self.child.data_to_message(item) for item in data]

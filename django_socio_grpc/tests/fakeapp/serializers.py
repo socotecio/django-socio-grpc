@@ -1,10 +1,19 @@
-import fakeapp.grpc.fakeapp_pb2 as grpc_model
-from django_socio_grpc import proto_serializers
-from typing import List, Dict
-
-from .models import UnitTestModel, ForeignModel, RelatedFieldModel, ManyManyModel, SpecialFieldsModel, ImportStructEvenInArrayModel
+from typing import Dict, List
 
 from rest_framework import serializers
+
+import fakeapp.grpc.fakeapp_pb2 as grpc_model
+from django_socio_grpc import proto_serializers
+
+from .models import (
+    ForeignModel,
+    ImportStructEvenInArrayModel,
+    ManyManyModel,
+    RelatedFieldModel,
+    SpecialFieldsModel,
+    UnitTestModel,
+)
+
 
 class ForeignModelRetrieveRequestCustomSerializer(proto_serializers.ProtoSerializer):
 
@@ -12,7 +21,7 @@ class ForeignModelRetrieveRequestCustomSerializer(proto_serializers.ProtoSeriali
 
     class Meta:
         model = ForeignModel
-        # proto_class = grpc_model.ForeignModel
+        proto_class = grpc_model.ForeignModel
         fields = ["name"]
 
 
@@ -31,6 +40,7 @@ class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
         proto_class_list = grpc_model.UnitTestModelListResponse
         fields = "__all__"
 
+
 class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
     count = serializers.IntegerField()
     query_fetched_datetime = serializers.DateTimeField()
@@ -38,7 +48,7 @@ class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
 
     class Meta:
         proto_class = grpc_model.UnitTestModelListExtraArgs
-        
+
 
 class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
@@ -61,6 +71,7 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
         message_list_attr = "list_custom_field_name"
         fields = "__all__"
 
+
 class SpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = SpecialFieldsModel
@@ -68,13 +79,17 @@ class SpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
         proto_class_list = grpc_model.SpecialFieldsModelListResponse
         fields = "__all__"
 
+
 class ImportStructEvenInArrayModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = ImportStructEvenInArrayModel
         proto_class = grpc_model.ImportStructEvenInArrayModel
         fields = "__all__"
 
-class CustomRetrieveResponseSpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
+
+class CustomRetrieveResponseSpecialFieldsModelSerializer(
+    proto_serializers.ModelProtoSerializer
+):
 
     default_method_field = serializers.SerializerMethodField()
 

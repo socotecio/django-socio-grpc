@@ -1,10 +1,10 @@
 import os
+from datetime import datetime
 
 from asgiref.sync import async_to_sync
 from django.test import TestCase
-from freezegun import freeze_time
 from django.utils import timezone
-from datetime import datetime
+from freezegun import freeze_time
 
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (

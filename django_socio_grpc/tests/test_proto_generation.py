@@ -1,48 +1,53 @@
 import os
+from importlib import reload
 from unittest.mock import mock_open, patch
 
 import mock
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
-from django.test import override_settings
-from importlib import reload
+import fakeapp.services.special_fields_model_service as special_fields_model_service
+import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
+import fakeapp.services.unit_test_model_service as unitestmodel_service
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 from .assets.generated_protobuf_files import (
     ALL_APP_GENERATED,
     CUSTOM_APP_MODEL_GENERATED,
+    MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED,
     MODEL_WITH_M2M_GENERATED,
     MODEL_WITH_STRUCT_IMORT_IN_ARRAY,
     SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER,
     SIMPLE_APP_MODEL_OLD_ORDER,
     SIMPLE_MODEL_GENERATED,
-    MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED
 )
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
-from django_socio_grpc.utils.registry_singleton import RegistrySingleton
-import fakeapp.services.unit_test_model_service as unitestmodel_service
-import fakeapp.services.special_fields_model_service as special_fields_model_service
-import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
+
 
 def relatedfieldmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
     app_registry.register("RelatedFieldModelService")
 
+
 def unittestmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
     app_registry.register("UnitTestModelService")
+
 
 def specialfieldmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
     app_registry.register("SpecialFieldsModelService")
 
+
 def foreignmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
     app_registry.register("ForeignModelService")
 
+
 def importstructeveninarraymodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
     app_registry.register("ImportStructEvenInArrayModelService")
+
 
 def overide_grpc_framework(name_of_function):
     return {
@@ -51,10 +56,8 @@ def overide_grpc_framework(name_of_function):
     }
 
 
-
 @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
 class TestProtoGeneration(TestCase):
-
     def setUp(self):
         # INFO - AM - 14/01/2022 - This is necessary as RegistrySingleton is a singleton and each test reload django settings
         # Tryed with reload to do the same as for decorator but without success. Maybe just not reloading the good module. It is not a priority as this work as expected and only for tests
@@ -98,7 +101,6 @@ class TestProtoGeneration(TestCase):
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, MODEL_WITH_M2M_GENERATED)
-
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
@@ -169,7 +171,9 @@ class TestProtoGeneration(TestCase):
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
-    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("importstructeveninarraymodel_handler_hook"))
+    @override_settings(
+        GRPC_FRAMEWORK=overide_grpc_framework("importstructeveninarraymodel_handler_hook")
+    )
     def test_generate_one_app_one_model_import_struct_in_array(self):
         self.maxDiff = None
         args = []
@@ -210,7 +214,6 @@ class TestProtoGeneration(TestCase):
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER)
-
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",

@@ -2,6 +2,7 @@ import os
 
 from django.test import TestCase
 from google.protobuf import json_format
+
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
@@ -30,8 +31,11 @@ class TestAsyncModelService(TestCase):
 
         self.assertEqual(response.user_name, "test")
         user_data_dict = json_format.MessageToDict(response.user_data)
-        self.assertEqual(user_data_dict, {
-            "email": "fake_email@email.com",
-            "birth_date": "25/01/1996",
-            "slogan": "Do it better"
-        })
+        self.assertEqual(
+            user_data_dict,
+            {
+                "email": "fake_email@email.com",
+                "birth_date": "25/01/1996",
+                "slogan": "Do it better",
+            },
+        )

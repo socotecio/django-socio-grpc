@@ -1,6 +1,9 @@
-from django.test import TestCase
+from datetime import datetime
 
-from django_socio_grpc import generics, mixins
+from django.test import TestCase
+from django.utils import timezone
+from freezegun import freeze_time
+
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
@@ -8,18 +11,15 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 )
 from fakeapp.models import UnitTestModel
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
-from freezegun import freeze_time
-from django.utils import timezone
-from datetime import datetime
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
-
 
 
 class TestSyncModelService(TestCase):
     def setUp(self):
         self.fake_grpc = FakeGRPC(
-            add_UnitTestModelControllerServicer_to_server, SyncUnitTestModelService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server,
+            SyncUnitTestModelService.as_servicer(),
         )
 
         self.create_instances()

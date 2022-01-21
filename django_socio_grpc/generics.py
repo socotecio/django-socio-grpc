@@ -34,7 +34,7 @@ class GenericService(services.Service):
         if self.service_name:
             return self.service_name
         else:
-            return self.__class__.__name__.replace('Service', '')
+            return self.__class__.__name__.replace("Service", "")
 
     def get_queryset(self):
         """

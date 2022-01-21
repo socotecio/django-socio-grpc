@@ -77,4 +77,3 @@ class TestAppHandlerRegistry(TestCase):
         # stop fake server
         ###############
         fake_server.stop(grace=None)
-

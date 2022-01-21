@@ -1,11 +1,21 @@
-from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 import logging
+
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 
 logger = logging.getLogger("django_socio_grpc")
 
 
 class _grpc_action:
-    def __init__(self, function, request=None, response=None, request_stream=False, response_stream=False, *args, **kwargs):
+    def __init__(
+        self,
+        function,
+        request=None,
+        response=None,
+        request_stream=False,
+        response_stream=False,
+        *args,
+        **kwargs,
+    ):
         self.request = request
         self.response = response
         self.request_stream = request_stream
@@ -15,7 +25,14 @@ class _grpc_action:
     def __set_name__(self, owner, name):
         try:
             service_registry = RegistrySingleton()
-            service_registry.register_custom_action(owner, name, self.request, self.response, self.request_stream, self.response_stream)
+            service_registry.register_custom_action(
+                owner,
+                name,
+                self.request,
+                self.response,
+                self.request_stream,
+                self.response_stream,
+            )
         except Exception as e:
             logger.exception(f"Error while registering grpc_action {owner} - {name}: {e}")
         setattr(owner, name, self.function)

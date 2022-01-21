@@ -1063,3 +1063,64 @@ class ImportStructEvenInArrayModelController(object):
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ImportStructEvenInArrayModel.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+class BasicControllerStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.FetchDataForuser = channel.unary_unary(
+                '/fakeproject.fakeapp.BasicController/FetchDataForuser',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchDataForuserRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicService.FromString,
+                )
+
+
+class BasicControllerServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def FetchDataForuser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_BasicControllerServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'FetchDataForuser': grpc.unary_unary_rpc_method_handler(
+                    servicer.FetchDataForuser,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchDataForuserRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicService.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'fakeproject.fakeapp.BasicController', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class BasicController(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def FetchDataForuser(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/FetchDataForuser',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchDataForuserRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicService.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

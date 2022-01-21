@@ -8,8 +8,6 @@ TODO
 GENERATION NOUVELLE GENERATION
 ====
 
-- Tester decorateur sur methods dans les methodes connues
 - tester un generic service sans model
-- permettre un comportement specific pour les serializer qui overide to_representation ou to_internal avec des valeurs différentes de leurs fields
 - refacto servicer_register to split the file into multiple files
 - faire un test avec un controllerName overridé

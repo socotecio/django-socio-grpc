@@ -6,9 +6,10 @@ urlpatterns = []
 
 def grpc_handlers(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("UnitTestModel")
-    app_registry.register("SyncUnitTestModel")
-    app_registry.register("ForeignModel")
-    app_registry.register("RelatedFieldModel")
-    app_registry.register("SpecialFieldsModel")
-    app_registry.register("ImportStructEvenInArrayModel")
+    app_registry.register("UnitTestModelService")
+    app_registry.register("SyncUnitTestModelService")
+    app_registry.register("ForeignModelService")
+    app_registry.register("RelatedFieldModelService")
+    app_registry.register("SpecialFieldsModelService")
+    app_registry.register("ImportStructEvenInArrayModelService")
+    app_registry.register("BasicService")

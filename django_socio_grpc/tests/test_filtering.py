@@ -8,7 +8,7 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
-from fakeapp.services.unittestmodel_service import UnitTestModelService
+from django_socio_grpc.tests.fakeapp.services.unit_test_model_service import UnitTestModelService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 

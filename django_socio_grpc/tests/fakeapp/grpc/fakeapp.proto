@@ -50,6 +50,10 @@ service ImportStructEvenInArrayModelController {
     rpc Create(ImportStructEvenInArrayModel) returns (ImportStructEvenInArrayModel) {}
 }
 
+service BasicController {
+    rpc FetchDataForuser(BasicFetchDataForuserRequest) returns (BasicService) {}
+}
+
 message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
 }
@@ -167,5 +171,14 @@ message SpecialFieldsModelDestroyRequest {
 message ImportStructEvenInArrayModel {
     string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
+}
+
+message BasicFetchDataForuserRequest {
+    bool user_name = 1;
+}
+
+message BasicService {
+    string user_name = 1;
+    google.protobuf.Struct data_for_user = 2;
 }
 

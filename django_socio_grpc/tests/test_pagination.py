@@ -10,7 +10,7 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 )
 from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelSerializer
-from fakeapp.services.unittestmodel_service import UnitTestModelService
+from django_socio_grpc.tests.fakeapp.services.unit_test_model_service import UnitTestModelService
 from rest_framework.pagination import PageNumberPagination
 
 from .grpc_test_utils.fake_grpc import FakeGRPC

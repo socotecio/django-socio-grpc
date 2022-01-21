@@ -90,3 +90,13 @@ class CustomRetrieveResponseSpecialFieldsModelSerializer(proto_serializers.Model
         model = SpecialFieldsModel
         proto_class = grpc_model.RelatedFieldModel
         fields = ["uuid", "default_method_field", "custom_method_field"]
+
+
+class BasicServiceSerializer(proto_serializers.ProtoSerializer):
+
+    user_name = serializers.CharField()
+    data_for_user = serializers.DictField()
+
+    class Meta:
+        proto_class = grpc_model.RelatedFieldModel
+        fields = ["user_name", "data_for_user"]

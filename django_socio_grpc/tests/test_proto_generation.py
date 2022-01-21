@@ -19,9 +19,9 @@ from .assets.generated_protobuf_files import (
     MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED
 )
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry, RegistrySingleton
-import fakeapp.services.unittestmodel_service as unitestmodel_service
-import fakeapp.services.specialfieldsmodel_service as specialfieldsmodel_service
-import fakeapp.services.syncunittestmodel_service as syncunitestmodel_service
+import django_socio_grpc.tests.fakeapp.services.unit_test_model_service as unitestmodel_service
+import django_socio_grpc.tests.fakeapp.services.special_fields_model_service as special_fields_model_service
+import django_socio_grpc.tests.fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
 
 def relatedfieldmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
@@ -127,7 +127,7 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("specialfieldmodel_handler_hook"))
     def test_generate_one_app_one_model_with_override_know_method(self):
-        reload(specialfieldsmodel_service)
+        reload(special_fields_model_service)
         self.maxDiff = None
         args = []
         opts = {"generate_python": False}
@@ -218,7 +218,7 @@ class TestProtoGeneration(TestCase):
     def test_generate_all_models(self):
         reload(unitestmodel_service)
         reload(syncunitestmodel_service)
-        reload(specialfieldsmodel_service)
+        reload(special_fields_model_service)
         self.maxDiff = None
 
         args = []

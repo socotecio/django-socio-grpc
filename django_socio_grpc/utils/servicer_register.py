@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from importlib import import_module
+import logging
 
 from django_socio_grpc.mixins import get_all_default_grpc_methods
 from django_socio_grpc.settings import grpc_settings
@@ -10,9 +11,12 @@ from rest_framework.serializers import BaseSerializer, ListSerializer
 from rest_framework.fields import ListField, DictField, SerializerMethodField
 from django_socio_grpc.utils import model_meta
 from typing import List, Dict, Tuple
+import re
 
-from django_socio_grpc.proto_serializers import ModelProtoSerializer, BaseProtoSerializer, ListProtoSerializer
 
+from django_socio_grpc.proto_serializers import BaseProtoSerializer, ListProtoSerializer
+
+logger = logging.getLogger("django_socio_grpc")
 
 class SingletonMeta(type):
     _instances = {}
@@ -120,8 +124,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
         )
 
     def register_custom_action(self, service_class, function_name, request=None, response=None, request_stream=False, response_stream=False):
-
-        print("register_custom_action", service_class, function_name)
         app_name = self.get_app_name_from_service_class(service_class)
         # INFO - AM - 14/01/2022 - Initialize the app in the project to be generated as a specific proto file
         if app_name not in self.registered_app:
@@ -358,7 +360,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
         
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
         elif issubclass(field_type.__class__, SerializerMethodField):
-            print(field_type)
             proto_type = self.get_proto_type_from_inspect(field_type, field_name, serializer_instance)
 
         return proto_type
@@ -507,17 +508,50 @@ class AppHandlerRegistry:
         self.service_folder = service_folder
         self.grpc_folder = grpc_folder
 
-    def register(self, service_name):
+    def get_service_file_path(self, service_name):
+        service_file_path = ""
         if self.service_folder:
-            model_service_path = (
-                f"{self.app_name}.{self.service_folder}.{service_name.lower()}_service"
+            service_name = self.camel_to_snake(service_name)
+            service_file_path = (
+                f"{self.app_name}.{self.service_folder}.{service_name}"
             )
         else:
-            model_service_path = f"{self.app_name}.services"
-        service_class = getattr(
-            import_module(model_service_path),
-            f"{service_name}Service",
-        )
+            service_file_path = f"{self.app_name}.services"
+        
+        return service_file_path
+
+    def camel_to_snake(self, name):
+        name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+    def register(self, service_name, service_file_path=None):
+
+        is_manual_service_path = service_file_path is not None
+
+        try: 
+            # INFO - AM - 21/01/2022 - Old way of doing where we was generating from model so we was just added Service at the end. Please do not use this feature anymore
+            # We need to check old way first because instance of model existing in service module so it's import model instead of service...
+
+            if service_file_path is not is_manual_service_path:
+                service_file_path = self.get_service_file_path(service_name)
+
+            service_class = getattr(
+                import_module(service_file_path),
+                service_name,
+            )
+        except ModuleNotFoundError:
+            logger.warning(f"Service {service_name} not found. Since new version you need to pass the explicit name of the service. The feature that was adding Service at the end of the name will be removed in version 1.0.0")
+            
+            service_name = f"{service_name}Service"
+
+            if service_file_path is not is_manual_service_path:
+                service_file_path = self.get_service_file_path(service_name)
+
+            service_class = getattr(
+                import_module(service_file_path),
+                service_name,
+            )
+
 
         if self.server is None:
             service_registry = RegistrySingleton()

@@ -3,6 +3,6 @@ from fakeapp.models import RelatedFieldModel
 from fakeapp.serializers import RelatedFieldModelSerializer
 
 
-class RelatedFieldModelService(generics.ModelService):
+class RelatedFieldModelService(generics.AsyncModelService):
     queryset = RelatedFieldModel.objects.all().order_by("uuid")
     serializer_class = RelatedFieldModelSerializer

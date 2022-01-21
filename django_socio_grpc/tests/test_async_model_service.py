@@ -12,7 +12,7 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
-from fakeapp.services.unittestmodel_service import AsyncUnitTestModelService
+from fakeapp.services.unittestmodel_service import UnitTestModelService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
@@ -21,7 +21,7 @@ class TestAsyncModelService(TestCase):
     def setUp(self):
         os.environ["GRPC_ASYNC"] = "True"
         self.fake_grpc = FakeGRPC(
-            add_UnitTestModelControllerServicer_to_server, AsyncUnitTestModelService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )
 
         self.create_instances()

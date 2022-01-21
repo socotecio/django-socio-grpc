@@ -3,7 +3,7 @@ from fakeapp.models import ForeignModel
 from fakeapp.serializers import ForeignModelSerializer, ForeignModelRetrieveRequestCustomSerializer
 
 
-class ForeignModelService(generics.GenericService, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+class ForeignModelService(generics.GenericService, mixins.AsyncListModelMixin, mixins.AsyncRetrieveModelMixin):
     queryset = ForeignModel.objects.all().order_by("uuid")
     serializer_class = ForeignModelSerializer
     lookup_field = "name"

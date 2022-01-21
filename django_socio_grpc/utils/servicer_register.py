@@ -40,6 +40,10 @@ class KnowMethods:
     def get_methods_no_custom_messages(cls):
         return [cls.CREATE, cls.UPDATE, cls.PARTIAL_UPDATE]
 
+    @classmethod
+    def get_methods_no_stream(cls):
+        return [cls.LIST, cls.CREATE, cls.RETRIEVE, cls.UPDATE, cls.PARTIAL_UPDATE, cls.DESTROY]
+
 
 class RegistrySingleton(metaclass=SingletonMeta):
     """
@@ -127,18 +131,18 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         service_instance = service_class()
         service_name = service_instance.get_service_name()
-        self.register_method_for_custom_action(app_name, service_name, function_name, request, response, request_stream, response_stream)
-        self.register_message_for_custom_action(app_name, function_name, request, "Request")
-        self.register_message_for_custom_action(app_name, function_name, response, "Response")
+        request_message_name = self.register_message_for_custom_action(app_name, function_name, request, "Request")
+        response_message_name = self.register_message_for_custom_action(app_name, function_name, response, "Response")
+        self.register_method_for_custom_action(app_name, service_name, function_name, request_message_name, response_message_name, request_stream, response_stream)
 
-    def register_method_for_custom_action(self, app_name, service_name, function_name, request, response, request_stream, response_stream):
+    def register_method_for_custom_action(self, app_name, service_name, function_name, request_message_name, response_message_name, request_stream, response_stream):
         controller_name = f"{service_name}Controller"
         self.registered_app[app_name]["registered_controllers"][
             controller_name
         ] = {
             function_name: {
-                "request": {"is_stream": request_stream, "message": f"{function_name}Request"},
-                "response": {"is_stream": response_stream, "message": f"{function_name}Response"},
+                "request": {"is_stream": request_stream, "message": request_message_name},
+                "response": {"is_stream": response_stream, "message": response_message_name},
             },
         }
 
@@ -147,12 +151,14 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
             messages_fields = [(item["name"], item["type"]) for item in message]
 
+            message_name = f"{function_name}{message_name_suffix}"
             self.registered_app[app_name]["registered_messages"][
-                f"{function_name}{message_name_suffix}"
+                message_name
             ] = messages_fields
+            return message_name
         elif issubclass(message, BaseSerializer):
             serializer_instance = message()
-            self.register_serializer_as_message_if_not_exist(app_name, serializer_instance, message_name=f"{function_name}{message_name_suffix}")
+            return self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
         else:
             raise Exception(f"{message_name_suffix} message for function {function_name} in app {app_name} is not a list or a serializer")
     
@@ -180,27 +186,37 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if controller_name not in self.registered_app[app_name]["registered_controllers"]:
             self.registered_app[app_name]["registered_controllers"][controller_name] = {}
 
-        # INFO - AM - 07/01/2022 - we get the controller (the service methods already registered) to add the new method to it that all
-        controller_object = self.registered_app[app_name]["registered_controllers"][
-            controller_name
-        ]
-
         for method in KnowMethods.get_as_list():
             if not getattr(service_instance, method, None):
                 continue
 
             # If we already have registered this method for this controlleur (with a decorator) we do not use the default behavior
-            if method in controller_object:
+            if method in self.registered_app[app_name]["registered_controllers"][controller_name]:
                 continue
-            
-            # INFO - AM - 07/01/2022 - this is just the register of the methods with all the data necessary for the generation function in generators.py
-            # default_grpc_methods[method] is a dictionnary see get_all_default_grpc_methods for more informations
-            controller_object[method] = default_grpc_methods[method]
 
-            self.register_default_message_from_method(app_name, method, service_instance)
+            request_message_name, response_message_name = self.register_default_message_from_method(app_name, method, service_instance)
+
+            self.register_default_method(app_name, controller_name, method, request_message_name, response_message_name)
+
 
         # print(self.registered_app[app_name]["registered_controllers"])
         # print(self.registered_app[app_name]["registered_messages"])
+
+    def register_default_method(self, app_name, controller_name, method, request_message_name, response_message_name):
+        if method in KnowMethods.get_methods_no_stream():
+            self.registered_app[app_name]["registered_controllers"][controller_name][method] = {
+                "request": {"is_stream": False, "message": request_message_name},
+                "response": {"is_stream": False, "message": response_message_name},
+            }
+
+        elif method == KnowMethods.STREAM:
+            self.registered_app[app_name]["registered_controllers"][controller_name][method] = {
+                "request": {"is_stream": False, "message": request_message_name},
+                "response": {"is_stream": True, "message": response_message_name},
+            }
+
+        else:
+            raise Exception(f"You are registering a service with the method {method} but this methods does not have a decorator and is not in our default supported methods: {KnowMethods.get_as_list()}")
 
     def register_default_message_from_method(self, app_name, method, service_instance):
         """
@@ -213,26 +229,27 @@ class RegistrySingleton(metaclass=SingletonMeta):
         serializer_instance = self.get_serializer_instance_with_method(service_instance, method)
 
         if method in KnowMethods.get_methods_no_custom_messages():
-            self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+            message_name = self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+            return message_name, message_name
 
         elif method == KnowMethods.LIST:
 
-            self.register_list_serializer_as_message(
+            return self.register_list_serializer_as_message(
                 app_name, service_instance, serializer_instance
             )
 
         elif method == KnowMethods.RETRIEVE:
-            self.register_retrieve_serializer_as_message(
+            return self.register_retrieve_serializer_as_message(
                 app_name, service_instance, serializer_instance
             )
         
         elif method == KnowMethods.DESTROY:
-            self.register_destroy_serializer_as_message(
+            return self.register_destroy_serializer_as_message(
                 app_name, service_instance, serializer_instance
             )
 
         elif method == KnowMethods.STREAM:
-            self.register_stream_serializer_as_message(
+            return self.register_stream_serializer_as_message(
                 app_name, serializer_instance
             )
 
@@ -254,15 +271,14 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         return serializer_instance
 
-    def register_serializer_as_message_if_not_exist(self, app_name, serializer_instance, message_name=None):
+    def register_serializer_as_message_if_not_exist(self, app_name, serializer_instance):
         """
         Register a message if not already exsting in the registered_messages of an app_name
         This message need to be in a correct format that will be used by generators to transform it into generators
         """
-        if message_name is None:
-            message_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        message_name = serializer_instance.__class__.__name__.replace("Serializer", "")
         if message_name in self.registered_app[app_name]["registered_messages"]:
-            return 
+            return message_name
 
         self.registered_app[app_name]["registered_messages"][message_name] = []
 
@@ -270,6 +286,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
             field_grpc_generator_format = (field_name, self.get_proto_type(app_name, field_type))
 
             self.registered_app[app_name]["registered_messages"][message_name].append(field_grpc_generator_format)
+        
+        return message_name
 
 
     def get_proto_type(self, app_name, field_type):
@@ -359,14 +377,19 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if pagination:
             response_fields += [("count", "int32")]
 
+        request_message_name = f"{serializer_name}ListRequest"
+        response_message_name = f"{serializer_name}ListResponse"
+
         self.registered_app[app_name]["registered_messages"][
-            f"{serializer_name}ListRequest"
+            request_message_name
         ] = []
         self.registered_app[app_name]["registered_messages"][
-            f"{serializer_name}ListResponse"
+            response_message_name
         ] = response_fields
 
         self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+
+        return request_message_name, response_message_name
 
     def register_retrieve_serializer_as_message(
         self, app_name, service_instance, serializer_instance, retrieve_field_name=None
@@ -375,11 +398,14 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
 
+        request_message_name = f"{serializer_name}RetrieveRequest"
         self.registered_app[app_name]["registered_messages"][
-            f"{serializer_name}RetrieveRequest"
+            request_message_name
         ] = [retrieve_field]
 
-        self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+        response_message_name = self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+
+        return request_message_name, response_message_name
 
     def register_destroy_serializer_as_message(
         self, app_name, service_instance, serializer_instance, destroy_field_name=None
@@ -389,18 +415,26 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
 
+        request_message_name = f"{serializer_name}DestroyRequest"
         self.registered_app[app_name]["registered_messages"][
-            f"{serializer_name}DestroyRequest"
+            request_message_name
         ] = [destroy_field]
+
+        return request_message_name, "google.protobuf.Empty"
 
     def register_stream_serializer_as_message(
         self, app_name, serializer_instance
     ):
         serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
 
+        request_message_name = f"{serializer_name}StreamRequest"
         self.registered_app[app_name]["registered_messages"][
-            f"{serializer_name}StreamRequest"
+            request_message_name
         ] = []
+
+        response_message_name = self.register_serializer_as_message_if_not_exist(app_name, serializer_instance)
+
+        return request_message_name, response_message_name
 
     def get_lookup_field_from_serializer(self, serializer_instance, service_instance, field_name=None):
         """

@@ -7,7 +7,7 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
-from fakeapp.services.unittestmodel_service import UnitTestModelService
+from fakeapp.services.syncunittestmodel_service import UnitTestModelService
 from freezegun import freeze_time
 from django.utils import timezone
 from datetime import datetime
@@ -16,7 +16,7 @@ from .grpc_test_utils.fake_grpc import FakeGRPC
 
 
 
-class TestModelService(TestCase):
+class TestSyncModelService(TestCase):
     def setUp(self):
         self.fake_grpc = FakeGRPC(
             add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()

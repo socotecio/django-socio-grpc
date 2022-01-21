@@ -10,6 +10,7 @@ class _grpc_action:
         self.function = function
 
     def __set_name__(self, owner, name):
+        print("alala ", owner)
         service_registry = RegistrySingleton()
         service_registry.register_custom_action(owner, name, self.request, self.response, self.request_stream, self.response_stream)
         setattr(owner, name, self.function)

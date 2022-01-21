@@ -166,6 +166,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             raise Exception(f"{message_name_suffix} message for function {function_name} in app {app_name} is not a list or a serializer")
     
     def get_app_name_from_service_class(self, service_class):
+        print("icicci ", service_class.__module__)
         return service_class.__module__.split('.')[0]
 
     def set_controller_and_messages(
@@ -561,6 +562,7 @@ class AppHandlerRegistry:
         pb2_grpc = import_module(
             f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
         )
-        add_server = getattr(pb2_grpc, f"add_{service_name}ControllerServicer_to_server")
+        controller_name = service_name.replace("Service", "")
+        add_server = getattr(pb2_grpc, f"add_{controller_name}ControllerServicer_to_server")
 
         add_server(service_class.as_servicer(), self.server)

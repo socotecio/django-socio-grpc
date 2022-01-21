@@ -51,7 +51,7 @@ service ImportStructEvenInArrayModelController {
 }
 
 service BasicController {
-    rpc FetchDataForuser(BasicFetchDataForuserRequest) returns (BasicService) {}
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
 }
 
 message UnitTestModelListWithExtraArgsRequest {
@@ -173,12 +173,12 @@ message ImportStructEvenInArrayModel {
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
-message BasicFetchDataForuserRequest {
-    bool user_name = 1;
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
 }
 
-message BasicService {
+message BasicServiceResponse {
     string user_name = 1;
-    google.protobuf.Struct data_for_user = 2;
+    google.protobuf.Struct user_data = 2;
 }
 

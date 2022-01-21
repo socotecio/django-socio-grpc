@@ -16,7 +16,7 @@ class TestAppHandlerRegistry(TestCase):
             UnitTestModel(title=title, text=text).save()
         pass
 
-    def test_AppHandlerRegistry(self):
+    def test_AppHandlerRegistry_old_way(self):
 
         ################
         #  Setup fake server but with the registry handler
@@ -46,3 +46,35 @@ class TestAppHandlerRegistry(TestCase):
         # stop fake server
         ###############
         fake_server.stop(grace=None)
+
+    def test_AppHandlerRegistry(self):
+
+        ################
+        #  Setup fake server but with the registry handler
+        ################
+        grpc_addr = FakeGRPC.get_grpc_addr()
+        fake_server = FakeServer()
+
+        fake_server.add_insecure_port(grpc_addr)
+        fake_server.start()
+
+        fake_channel = FakeChannel(fake_server)
+
+        fakeapp_handler_registry = AppHandlerRegistry(app_name="fakeapp", server=fake_server)
+        fakeapp_handler_registry.register("UnitTestModelService")
+
+        ###############
+        # Test that the service is correctly registered
+        ###############
+        grpc_stub = UnitTestModelControllerStub(fake_channel)
+
+        request = UnitTestModelListRequest()
+        response = grpc_stub.List(request=request)
+
+        self.assertEqual(len(response.results), 10)
+
+        ###############
+        # stop fake server
+        ###############
+        fake_server.stop(grace=None)
+

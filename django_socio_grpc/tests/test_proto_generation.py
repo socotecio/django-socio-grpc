@@ -19,29 +19,29 @@ from .assets.generated_protobuf_files import (
     MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED
 )
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry, RegistrySingleton
-import django_socio_grpc.tests.fakeapp.services.unit_test_model_service as unitestmodel_service
-import django_socio_grpc.tests.fakeapp.services.special_fields_model_service as special_fields_model_service
-import django_socio_grpc.tests.fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
+import fakeapp.services.unit_test_model_service as unitestmodel_service
+import fakeapp.services.special_fields_model_service as special_fields_model_service
+import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
 
 def relatedfieldmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("RelatedFieldModel")
+    app_registry.register("RelatedFieldModelService")
 
 def unittestmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("UnitTestModel")
+    app_registry.register("UnitTestModelService")
 
 def specialfieldmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("SpecialFieldsModel")
+    app_registry.register("SpecialFieldsModelService")
 
 def foreignmodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("ForeignModel")
+    app_registry.register("ForeignModelService")
 
 def importstructeveninarraymodel_handler_hook(server):
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("ImportStructEvenInArrayModel")
+    app_registry.register("ImportStructEvenInArrayModelService")
 
 def overide_grpc_framework(name_of_function):
     return {

@@ -28,7 +28,7 @@ class ModelProtoGenerator:
         models.PositiveSmallIntegerField.__name__: "int32",
         models.PositiveIntegerField.__name__: "int32",
         models.FloatField.__name__: "float",
-        models.DecimalField.__name__: "string",
+        models.DecimalField.__name__: "double",
         # Boolean
         models.BooleanField.__name__: "bool",
         models.NullBooleanField.__name__: "bool",

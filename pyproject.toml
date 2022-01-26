@@ -24,6 +24,7 @@ django-filter = "^2.4.0"
 psycopg2-binary = "^2.8.6"
 pytest-django = "^4.2.0"
 mkdocs = "^1.2.2"
+freezegun = "^1.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -50,6 +51,7 @@ line_length = 95
 multi_line_output = 3
 use_parentheses = true
 known_third_party = ['mock']
+skip_glob = ["**/migrations/*","**/grpc/*"]
 
 [tool.poetry.scripts]
 tests = "test_utils.load_tests:launch"

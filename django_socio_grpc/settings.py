@@ -15,6 +15,8 @@ GRPC_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ['path.to.AuthenticationClass'],
 
     'DEFAULT_PERMISSION_CLASSES': ['path.to.DefaultPermissionClass'],
+
+    'SEPARATE_READ_WRITE_MODEL': True,
 }
 
 This module provides the `grpc_setting` object, that is used to access
@@ -44,6 +46,8 @@ DEFAULTS = {
     "GRPC_CHANNEL_PORT": 50051,
     # Default logging action
     "LOGGING_ACTION": None,
+    # Separate request and response message for model to activate read_only, write_only property of serilizer
+    "SEPARATE_READ_WRITE_MODEL": True,
 }
 
 
@@ -120,7 +124,6 @@ class GRPCSettings:
     def __getattr__(self, attr):
         if attr not in self.defaults:
             raise AttributeError("Invalid gRPC setting: '%s'" % attr)
-
         try:
             # Check if present in user settings
             val = self.user_settings[attr]

@@ -1,10 +1,12 @@
 TODO
 ====
 
-- relationships
-- error handling
 - add BulkCreate\BulkDestroy\BulkUpdate with stream-unary mode  ?
-- authentication
-- logging
 - add testcases for project
-- filter support  ?
+
+
+GENERATION NOUVELLE GENERATION
+====
+
+- faire un test avec un controllerName overridé
+- voir les readonly - writeonly

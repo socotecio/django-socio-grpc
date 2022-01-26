@@ -1,119 +1,89 @@
 import os
+from importlib import reload
 from unittest.mock import mock_open, patch
 
 import mock
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
-from django_socio_grpc.exceptions import ProtobufGenerationException
+import fakeapp.services.special_fields_model_service as special_fields_model_service
+import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
+import fakeapp.services.unit_test_model_service as unitestmodel_service
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 from .assets.generated_protobuf_files import (
-    ALL_APP_GENERATED,
-    APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER,
-    APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER,
+    ALL_APP_GENERATED_NO_SEPARATE,
+    ALL_APP_GENERATED_SEPARATE,
     CUSTOM_APP_MODEL_GENERATED,
+    MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED,
     MODEL_WITH_M2M_GENERATED,
     MODEL_WITH_STRUCT_IMORT_IN_ARRAY,
-    SIMPLE_APP_MODEL_GENERATED,
     SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER,
-    SIMPLE_APP_MODEL_NO_GENERATION,
     SIMPLE_APP_MODEL_OLD_ORDER,
     SIMPLE_MODEL_GENERATED,
 )
 
 
+def relatedfieldmodel_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("RelatedFieldModelService")
+
+
+def unittestmodel_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("UnitTestModelService")
+
+
+def specialfieldmodel_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("SpecialFieldsModelService")
+
+
+def foreignmodel_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("ForeignModelService")
+
+
+def importstructeveninarraymodel_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("ImportStructEvenInArrayModelService")
+
+
+def overide_grpc_framework(name_of_function):
+    return {
+        "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+        "ROOT_HANDLERS_HOOK": f"django_socio_grpc.tests.test_proto_generation.{name_of_function}",
+    }
+
+
+def overide_grpc_framework_no_separate():
+    return {
+        "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+        "ROOT_HANDLERS_HOOK": "fakeapp.urls.grpc_handlers",
+        "SEPARATE_READ_WRITE_MODEL": False,
+    }
+
+
 @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
 class TestProtoGeneration(TestCase):
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
-    def test_generate_one_model(self):
-        self.maxDiff = None
-        args = []
-        opts = {
-            "model": "unittestmodel",
-            "file": "proto/unittestmodel.proto",
-            "generate_python": False,
-        }
-        with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
+    def setUp(self):
+        # INFO - AM - 14/01/2022 - This is necessary as RegistrySingleton is a singleton and each test reload django settings
+        # Tryed with reload to do the same as for decorator but without success. Maybe just not reloading the good module. It is not a priority as this work as expected and only for tests
+        RegistrySingleton.clean_all()
 
-        m.assert_called_once_with("proto/unittestmodel.proto", "w+")
-        handle = m()
-
-        called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, SIMPLE_MODEL_GENERATED)
+        return super().setUp()
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
-    def test_check_option(self):
-        self.maxDiff = None
-        args = []
-        opts = {"app": "fakeapp", "generate_python": False, "check": True}
-        with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED)) as m:
-            call_command("generateproto", *args, **opts)
-
-        # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
-
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
-    def test_raise_when_no_app_and_no_model_options(self):
-        args = []
-        opts = {}
-        with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-            call_command("generateproto", *args, **opts)
-
-        self.assertEqual(
-            str(fake_generation_error.exception),
-            "Error on protobuf generation on model None on app None: You need to specify at least one app or one model",
-        )
-
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
-    def test_raise_when_app_not_found(self):
-        args = []
-        opts = {"app": "app_not_existing"}
-        with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-            call_command("generateproto", *args, **opts)
-
-        self.assertEqual(
-            str(fake_generation_error.exception),
-            "Error on protobuf generation on model None on app app_not_existing: Invalid Django app",
-        )
-
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
-    def test_raise_when_model_not_found(self):
-        args = []
-        opts = {"model": "model_not_existing"}
-        with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
-            call_command("generateproto", *args, **opts)
-
-        self.assertEqual(
-            str(fake_generation_error.exception),
-            "Error on protobuf generation on model model_not_existing on app None: Invalid Django model",
-        )
-
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("relatedfieldmodel_handler_hook"))
     def test_generate_message_with_repeated_for_m2m(self):
         self.maxDiff = None
 
         args = []
-        opts = {"app": "fakeapp", "model": "RelatedFieldModel", "generate_python": False}
+        opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
             call_command("generateproto", *args, **opts)
 
@@ -127,33 +97,15 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, MODEL_WITH_M2M_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
-    def test_generate_one_app_one_model_no_message_no_methods(self):
-        self.maxDiff = None
-
-        args = []
-        opts = {"app": "fakeapp", "model": "NotDisplayedModel", "generate_python": False}
-        with patch("builtins.open", mock_open()) as m:
-            call_command("generateproto", *args, **opts)
-
-        # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
-        handle = m()
-
-        called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, SIMPLE_APP_MODEL_NO_GENERATION)
-
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
-    def test_generate_one_app_one_model(self):
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("unittestmodel_handler_hook"))
+    def test_generate_one_app_one_model_with_custom_action(self):
+        reload(unitestmodel_service)
         self.maxDiff = None
         args = []
-        opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
+        opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
             call_command("generateproto", *args, **opts)
 
@@ -164,17 +116,18 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED)
+        self.assertEqual(called_with_data, SIMPLE_MODEL_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
-    def test_generate_one_app_all_models(self):
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("specialfieldmodel_handler_hook"))
+    def test_generate_one_app_one_model_with_override_know_method(self):
+        reload(special_fields_model_service)
         self.maxDiff = None
-
         args = []
-        opts = {"app": "fakeapp", "generate_python": False}
+        opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
             call_command("generateproto", *args, **opts)
 
@@ -185,16 +138,17 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, ALL_APP_GENERATED)
+        self.assertEqual(called_with_data, MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("foreignmodel_handler_hook"))
     def test_generate_one_app_one_model_customized(self):
         self.maxDiff = None
         args = []
-        opts = {"app": "fakeapp", "model": "ForeignModel", "generate_python": False}
+        opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
             call_command("generateproto", *args, **opts)
 
@@ -208,17 +162,16 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, CUSTOM_APP_MODEL_GENERATED)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
+    )
+    @override_settings(
+        GRPC_FRAMEWORK=overide_grpc_framework("importstructeveninarraymodel_handler_hook")
     )
     def test_generate_one_app_one_model_import_struct_in_array(self):
         self.maxDiff = None
         args = []
-        opts = {
-            "app": "fakeapp",
-            "model": "ImportStructEvenInArrayModel",
-            "generate_python": False,
-        }
+        opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
             call_command("generateproto", *args, **opts)
 
@@ -232,9 +185,10 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, MODEL_WITH_STRUCT_IMORT_IN_ARRAY)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=True),
     )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("unittestmodel_handler_hook"))
     def test_order_proto_field_if_existing(self):
         """
         This test make the like the old unittestmodel have only id and title field.
@@ -242,7 +196,7 @@ class TestProtoGeneration(TestCase):
         """
         self.maxDiff = None
         args = []
-        opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
+        opts = {"generate_python": False}
         with patch("builtins.open", mock_open(read_data=SIMPLE_APP_MODEL_OLD_ORDER)) as m:
             call_command("generateproto", *args, **opts)
 
@@ -256,27 +210,50 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.ModelProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=True),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
     )
-    def test_order_proto_field_if_existing_with_custom_field(self):
-        """
-        This test make the like the old RelatedFieldModel on the RelatedFieldModelListResponse message have only uuid and custom_field_name field.
-        So when regeneration with all the new field custom_field_name should keep is second position and the other go at the end
-        """
+    def test_generate_all_models_separate_read_write(self):
+        reload(unitestmodel_service)
+        reload(syncunitestmodel_service)
+        reload(special_fields_model_service)
         self.maxDiff = None
+
         args = []
-        opts = {"app": "fakeapp", "model": "relatedfieldmodel", "generate_python": False}
-        with patch(
-            "builtins.open", mock_open(read_data=APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER)
-        ) as m:
+        opts = {"generate_python": False}
+        with patch("builtins.open", mock_open()) as m:
             call_command("generateproto", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r"
+        assert m.mock_calls[0].args[1] == "w+"
 
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER)
+        self.assertEqual(called_with_data, ALL_APP_GENERATED_SEPARATE)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework_no_separate())
+    def test_generate_all_models_no_separate(self):
+        reload(unitestmodel_service)
+        reload(syncunitestmodel_service)
+        reload(special_fields_model_service)
+        self.maxDiff = None
+
+        args = []
+        opts = {"generate_python": False}
+        with patch("builtins.open", mock_open()) as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "w+"
+
+        handle = m()
+
+        called_with_data = handle.write.call_args[0][0]
+        self.assertEqual(called_with_data, ALL_APP_GENERATED_NO_SEPARATE)

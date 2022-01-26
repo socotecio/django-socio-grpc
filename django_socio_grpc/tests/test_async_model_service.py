@@ -1,30 +1,27 @@
 import os
+from datetime import datetime
 
 from asgiref.sync import async_to_sync
 from django.test import TestCase
+from django.utils import timezone
+from freezegun import freeze_time
 
-from django_socio_grpc import generics, mixins
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
-from fakeapp.serializers import UnitTestModelSerializer
+from fakeapp.services.unit_test_model_service import UnitTestModelService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
-
-
-class UnitTestService(generics.AsyncModelService, mixins.AsyncStreamModelMixin):
-    queryset = UnitTestModel.objects.all()
-    serializer_class = UnitTestModelSerializer
 
 
 class TestAsyncModelService(TestCase):
     def setUp(self):
         os.environ["GRPC_ASYNC"] = "True"
         self.fake_grpc = FakeGRPC(
-            add_UnitTestModelControllerServicer_to_server, UnitTestService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )
 
         self.create_instances()
@@ -41,7 +38,7 @@ class TestAsyncModelService(TestCase):
 
     def test_async_create(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
-        request = fakeapp_pb2.UnitTestModel(title="fake", text="text")
+        request = fakeapp_pb2.UnitTestModelRequest(title="fake", text="text")
         response = grpc_stub.Create(request=request)
 
         self.assertNotEqual(response.id, None)
@@ -68,7 +65,9 @@ class TestAsyncModelService(TestCase):
     def test_async_update(self):
         unit_id = UnitTestModel.objects.first().id
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
-        request = fakeapp_pb2.UnitTestModel(id=unit_id, title="newTitle", text="newText")
+        request = fakeapp_pb2.UnitTestModelRequest(
+            id=unit_id, title="newTitle", text="newText"
+        )
         response = grpc_stub.Update(request=request)
 
         self.assertEqual(response.title, "newTitle")
@@ -91,3 +90,14 @@ class TestAsyncModelService(TestCase):
         response_list = [response for response in responses]
 
         self.assertEqual(len(response_list), 10)
+
+    def test_async_list_custom_action(self):
+
+        with freeze_time(datetime(2022, 1, 21, tzinfo=timezone.utc)):
+            grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+            request = fakeapp_pb2.UnitTestModelListWithExtraArgsRequest(archived=False)
+            response = grpc_stub.ListWithExtraArgs(request=request)
+
+            self.assertEqual(len(response.results), 10)
+
+            self.assertEqual(response.query_fetched_datetime, "2022-01-21T00:00:00Z")

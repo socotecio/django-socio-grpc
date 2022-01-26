@@ -128,6 +128,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance, is_request
         )
 
+        pk_name = None
+        if getattr(serializer_instance.Meta, "model", None):
+            pk_name = model_meta.get_model_pk(serializer_instance.Meta.model).name
+
         if message_name in self.registered_app[app_name]["registered_messages"]:
             return message_name
 
@@ -140,7 +144,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 continue
 
             # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we need to filter read only or write only field depend of if is requets message or not
-            if grpc_settings.SEPARATE_READ_WRITE_MODEL:
+            # INFO - AM - 21/01/2022 - By defautl in DRF Pk are read_only. But in grpc we want them to be in the message
+            if grpc_settings.SEPARATE_READ_WRITE_MODEL and field_name != pk_name:
                 if is_request and self.field_type_is_read_only(field_type):
                     continue
                 if not is_request and self.field_type_is_write_only(field_type):

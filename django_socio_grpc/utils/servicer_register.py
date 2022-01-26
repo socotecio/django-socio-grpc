@@ -45,7 +45,7 @@ class AppHandlerRegistry:
             )
         except ModuleNotFoundError:
             logger.warning(
-                f"Service {service_name} not found. Since new version you need to pass the explicit name of the service. The feature that was adding Service at the end of the name will be removed in version 1.0.0"
+                f"WARNING: Service {service_name} not found. Since new version you need to pass the explicit name of the service. The feature that was adding Service at the end of the name will be removed in version 1.0.0"
             )
 
             service_name = f"{service_name}Service"

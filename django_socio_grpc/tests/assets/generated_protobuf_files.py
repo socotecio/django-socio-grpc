@@ -207,7 +207,8 @@ service ImportStructEvenInArrayModelController {
 }
 
 message ImportStructEvenInArrayModelRequest {
-    repeated google.protobuf.Struct this_is_crazy = 1;
+    string uuid = 1;
+    repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
 message ImportStructEvenInArrayModelResponse {
@@ -734,7 +735,8 @@ message SpecialFieldsModelDestroyRequest {
 }
 
 message ImportStructEvenInArrayModelRequest {
-    repeated google.protobuf.Struct this_is_crazy = 1;
+    string uuid = 1;
+    repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
 message ImportStructEvenInArrayModelResponse {

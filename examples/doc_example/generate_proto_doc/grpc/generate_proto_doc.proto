@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package doc_example.generate_proto_doc;
+
+import "google/protobuf/empty.proto";
+
+service SomethingController {
+    rpc List(SomethingProtoListRequest) returns (SomethingProtoListResponse) {}
+    rpc Create(SomethingProtoRequest) returns (SomethingProtoResponse) {}
+    rpc Retrieve(SomethingProtoRetrieveRequest) returns (SomethingProtoResponse) {}
+    rpc Update(SomethingProtoRequest) returns (SomethingProtoResponse) {}
+    rpc Destroy(SomethingProtoDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message SomethingProtoResponse {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+
+message SomethingProtoListRequest {
+}
+
+message SomethingProtoListResponse {
+    repeated SomethingProtoResponse results = 1;
+}
+
+message SomethingProtoRequest {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+
+message SomethingProtoRetrieveRequest {
+    string uuid = 1;
+}
+
+message SomethingProtoDestroyRequest {
+    string uuid = 1;
+}
+

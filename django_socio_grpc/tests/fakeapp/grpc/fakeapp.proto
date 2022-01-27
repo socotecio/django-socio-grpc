@@ -52,6 +52,7 @@ service ImportStructEvenInArrayModelController {
 
 service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 message UnitTestModelListWithExtraArgsRequest {
@@ -79,9 +80,9 @@ message UnitTestModelListResponse {
 }
 
 message UnitTestModelRequest {
-    string title = 1;
-    string text = 2;
-    int32 id = 3;
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -144,10 +145,10 @@ message RelatedFieldModelListResponse {
 }
 
 message RelatedFieldModelRequest {
-    string custom_field_name = 1;
-    string foreign = 2;
-    repeated string many_many = 3;
-    string uuid = 4;
+    string uuid = 1;
+    string custom_field_name = 2;
+    string foreign = 3;
+    repeated string many_many = 4;
 }
 
 message RelatedFieldModelRetrieveRequest {
@@ -183,9 +184,9 @@ message SpecialFieldsModelListResponse {
 }
 
 message SpecialFieldsModelRequest {
-    google.protobuf.Struct meta_datas = 1;
-    repeated int32 list_datas = 2;
-    string uuid = 3;
+    string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
+    repeated int32 list_datas = 3;
 }
 
 message SpecialFieldsModelDestroyRequest {
@@ -193,7 +194,8 @@ message SpecialFieldsModelDestroyRequest {
 }
 
 message ImportStructEvenInArrayModelRequest {
-    repeated google.protobuf.Struct this_is_crazy = 1;
+    string uuid = 1;
+    repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
 message ImportStructEvenInArrayModelResponse {

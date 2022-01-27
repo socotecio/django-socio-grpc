@@ -9,8 +9,9 @@ from rest_framework.fields import (
     ReadOnlyField,
     SerializerMethodField,
 )
-from rest_framework.relations import ManyRelatedField, RelatedField
+from rest_framework.relations import ManyRelatedField, RelatedField, SlugRelatedField
 from rest_framework.serializers import BaseSerializer, ListSerializer
+from rest_framework.utils.model_meta import get_field_info
 
 from django_socio_grpc.proto_serializers import BaseProtoSerializer, ListProtoSerializer
 from django_socio_grpc.settings import grpc_settings
@@ -197,6 +198,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         #     print(f"class is : {field_type.__class__}")
         #     print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}")
         #     print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}")
+        #     print(f"is subclas of SlugRelatedField: {issubclass(field_type.__class__, SlugRelatedField)}")
         #     print(
         #         f"is subclas of ManyRelatedField: {issubclass(field_type.__class__, ManyRelatedField)}"
         #     )
@@ -223,6 +225,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
             # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
             self.register_serializer_as_message_if_not_exist(
                 app_name, field_type, is_request=False
+            )
+
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the SlugRelatedField that mean the type is the type name attribute in the foreign model
+        elif issubclass(field_type.__class__, SlugRelatedField):
+            proto_type = self.get_pk_from_slug_related_field(
+                field_type, field_name, serializer_instance
             )
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the ManyRelatedField that mean the type is the type of the pk of the child_relation (see relations.py of drf)
@@ -301,12 +309,72 @@ class RegistrySingleton(metaclass=SingletonMeta):
         it can be specified by the pk_field or the queryset of the relatedfield
         """
         if related_field.pk_field:
-            return related_field.pk_field
+            type_name = related_field.pk_field.__class__.__name__
         else:
             type_name = model_meta.get_model_pk(
                 related_field.queryset.model
             ).__class__.__name__
-            return self.type_mapping.get(type_name, "related_not_found")
+        return self.type_mapping.get(type_name, "related_not_found")
+
+    def get_pk_from_slug_related_field(
+        self, slug_related_field, field_name, serializer_instance
+    ):
+        """
+        When we have SlugRelatedField (relation by a field) we need to find the type of the field used in the relation by its name.
+        it is specified by slug_field
+        """
+
+        if not hasattr(serializer_instance.Meta, "model"):
+            print(
+                f"GENERATION ERROR: No Model in serializer {serializer_instance.__class__.__name__} Meta but using a SlugRelatedField"
+            )
+            return "string"
+
+        # INFO - AM - 27/01/2022 - get_field_info is drf utils methods to get all the informations about the fields and the relations of a model
+        # See: https://github.com/encode/django-rest-framework/blob/master/rest_framework/utils/model_meta.py
+        (
+            pk,
+            fields,
+            forward_relations,
+            reverse_relations,
+            fields_and_pk,
+            relationships,
+        ) = get_field_info(serializer_instance.Meta.model)
+
+        # INFO - AM - 27/01/2022 - the field name need to match with an existing relation ship to have a correct SlugRelatedField
+        if field_name not in relationships:
+            print(
+                f"GENERATION ERROR: slug_related field name {field_name} not found in relationships of {serializer_instance.Meta.model}"
+            )
+            return "string"
+
+        (
+            model_field,
+            related_model,
+            to_many,
+            to_field,
+            has_through_model,
+            reverse,
+        ) = relationships[field_name]
+
+        # INFO - AM - 27/01/2022 - A SlugRelatedFiel has a required slug_field attribute that is the name of the attibute in the related model we want to find the proto type
+        slug_defered_attribute = getattr(related_model, slug_related_field.slug_field, None)
+        if slug_defered_attribute is None:
+            print(
+                f"GENERATION ERROR: Related_Model_{str(related_model)}_as_no_field_{slug_related_field.slug_field}"
+            )
+            return "string"
+
+        # INFO - AM - 27/01/2022 - As there is reverse relationship django return a slug_defered_attribute that has a field attribute that is the field that we want to find the prototype
+        slug_field_class_name = slug_defered_attribute.field.__class__.__name__
+
+        proto_type = self.type_mapping.get(slug_field_class_name, "slug_field type not found")
+
+        # INFO - AM - 27/01/2022 - If to_many args is true that mean we have a repeated proto type
+        if to_many:
+            proto_type = f"repeated {proto_type}"
+
+        return proto_type
 
     ############################################################################
     #

@@ -63,10 +63,18 @@ class AppHandlerRegistry:
             service_registry.register_service(self.app_name, service_class)
             return
 
-        pb2_grpc = import_module(
-            f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
-        )
-        controller_name = service_name.replace("Service", "")
-        add_server = getattr(pb2_grpc, f"add_{controller_name}ControllerServicer_to_server")
+        try:
 
-        add_server(service_class.as_servicer(), self.server)
+            pb2_grpc = import_module(
+                f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
+            )
+            controller_name = service_name.replace("Service", "")
+            add_server = getattr(
+                pb2_grpc, f"add_{controller_name}ControllerServicer_to_server"
+            )
+
+            add_server(service_class.as_servicer(), self.server)
+        except ModuleNotFoundError:
+            logger.error(
+                f"PB2 module {self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc not found. Please generate proto before launching server"
+            )

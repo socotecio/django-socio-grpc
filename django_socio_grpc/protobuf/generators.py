@@ -15,7 +15,7 @@ class RegistryToProtoGenerator:
     def __init__(self, registry_instance, project_name, verbose=0, only_messages=None):
         self.registry_instance = registry_instance
         self.project_name = project_name
-        self.verbose = verbose
+        self.verbose = verbose if verbose is not None else 0
         self.only_messages = only_messages if only_messages is not None else []
         self.current_message = ""
 

@@ -38,6 +38,12 @@ class Command(BaseCommand):
             action="store_true",
             help="Return an error if the file generated is different from the file existent",
         )
+        parser.add_argument(
+            "--custom-verbose",
+            "-cv",
+            type=int,
+            help="Number from 1 to 4 indicating the verbose level of the generation",
+        )
 
     def handle(self, *args, **options):
 
@@ -62,7 +68,9 @@ class Command(BaseCommand):
         # --- Proto Generation Process               ---
         # ----------------------------------------------
         generator = RegistryToProtoGenerator(
-            registry_instance=registry_instance, project_name=self.project_name
+            registry_instance=registry_instance,
+            project_name=self.project_name,
+            verbose=options["custom_verbose"],
         )
 
         # ------------------------------------------------------------
@@ -81,7 +89,14 @@ class Command(BaseCommand):
                 self.check_or_write(auto_file_path, proto, app_name)
                 path_used_for_generation = auto_file_path
 
+            if not protos_by_app.keys():
+                raise ProtobufGenerationException(
+                    detail="No Service registered. You should use ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry."
+                )
+
             if self.generate_python:
+                if not settings.BASE_DIR:
+                    raise ProtobufGenerationException(detail="No BASE_DIR in settings")
                 os.system(
                     f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {path_used_for_generation}"
                 )

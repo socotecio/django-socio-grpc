@@ -15,7 +15,7 @@ from .models import (
 )
 
 
-class ForeignModelRetrieveCustomSerializer(proto_serializers.ProtoSerializer):
+class ForeignModelRetrieveCustomProtoSerializer(proto_serializers.ProtoSerializer):
 
     name = serializers.CharField()
     custom = serializers.SerializerMethodField()
@@ -38,9 +38,6 @@ class ForeignModelSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
-
-    id = serializers.IntegerField(read_only=False)
-
     class Meta:
         model = UnitTestModel
         proto_class = grpc_model.UnitTestModelResponse

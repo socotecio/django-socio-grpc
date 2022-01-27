@@ -172,11 +172,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
         return field_type.write_only is True
 
     def get_message_name_from_field_or_serializer_instance(
-        self, class_or_field_isntance, is_request
+        self, class_or_field_instance, is_request=None, append_type=True
     ):
         # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we have two different message for the same serializer
-        message_name = class_or_field_isntance.__class__.__name__.replace("Serializer", "")
-        if grpc_settings.SEPARATE_READ_WRITE_MODEL:
+        class_name = class_or_field_instance.__class__.__name__
+        message_name = class_name.replace("ProtoSerializer", "").replace("Serializer", "")
+        if grpc_settings.SEPARATE_READ_WRITE_MODEL and append_type:
             message_name = f"{message_name}{'Request' if is_request else 'Response'}"
         return message_name
 
@@ -460,7 +461,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
         """
         Method that register a defaut know "list" method in the app proto message
         """
-        serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        serializer_name = self.get_message_name_from_field_or_serializer_instance(
+            serializer_instance, append_type=False
+        )
 
         child_response_message_name = self.register_serializer_as_message_if_not_exist(
             app_name, serializer_instance, is_request=False
@@ -503,7 +506,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance, service_instance, retrieve_field_name
         )
 
-        serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        serializer_name = self.get_message_name_from_field_or_serializer_instance(
+            serializer_instance, append_type=False
+        )
 
         request_message_name = f"{serializer_name}RetrieveRequest"
         self.registered_app[app_name]["registered_messages"][request_message_name] = [
@@ -527,7 +532,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance, service_instance, destroy_field_name
         )
 
-        serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        serializer_name = self.get_message_name_from_field_or_serializer_instance(
+            serializer_instance, append_type=False
+        )
 
         request_message_name = f"{serializer_name}DestroyRequest"
         self.registered_app[app_name]["registered_messages"][request_message_name] = [
@@ -540,7 +547,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
         """
         Method that register a defaut know "stream" method in the app proto message
         """
-        serializer_name = serializer_instance.__class__.__name__.replace("Serializer", "")
+        serializer_name = self.get_message_name_from_field_or_serializer_instance(
+            serializer_instance, append_type=False
+        )
 
         request_message_name = f"{serializer_name}StreamRequest"
         self.registered_app[app_name]["registered_messages"][request_message_name] = []

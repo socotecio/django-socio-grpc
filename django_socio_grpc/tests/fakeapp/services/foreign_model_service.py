@@ -1,6 +1,9 @@
 from django_socio_grpc import generics, mixins
 from fakeapp.models import ForeignModel
-from fakeapp.serializers import ForeignModelRetrieveCustomSerializer, ForeignModelSerializer
+from fakeapp.serializers import (
+    ForeignModelRetrieveCustomProtoSerializer,
+    ForeignModelSerializer,
+)
 
 
 class ForeignModelService(
@@ -12,5 +15,5 @@ class ForeignModelService(
 
     def get_serializer_class(self):
         if self.action == "retrieve":
-            return ForeignModelRetrieveCustomSerializer
+            return ForeignModelRetrieveCustomProtoSerializer
         return super().get_serializer_class()

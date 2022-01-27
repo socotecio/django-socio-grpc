@@ -365,6 +365,29 @@ message SpecialFieldsModelDestroyRequest {
 
 """
 
+NO_MODEL_GENERATED = """syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+service BasicController {
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
+
+message BasicServiceResponse {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+}
+
+"""
+
 
 ALL_APP_GENERATED_NO_SEPARATE = """syntax = "proto3";
 
@@ -399,6 +422,11 @@ service SpecialFieldsModelController {
     rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+service BasicController {
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicService) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 service ForeignModelController {
@@ -446,6 +474,16 @@ message CustomRetrieveResponseSpecialFieldsModel {
     string uuid = 1;
     int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
+
+message BasicService {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
 }
 
 message UnitTestModelListRequest {
@@ -579,6 +617,11 @@ service SpecialFieldsModelController {
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
+service BasicController {
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
     rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
@@ -624,6 +667,15 @@ message CustomRetrieveResponseSpecialFieldsModelResponse {
     string uuid = 1;
     int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
+
+message BasicServiceResponse {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
 }
 
 message UnitTestModelListRequest {

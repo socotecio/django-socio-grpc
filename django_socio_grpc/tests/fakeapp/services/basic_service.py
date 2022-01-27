@@ -22,3 +22,10 @@ class BasicService(generics.GenericService):
             {"user_name": request.user_name, "user_data": user_data}
         )
         return serializer.message
+
+    @grpc_action(
+        request=[],
+        response="google.protobuf.Empty",
+    )
+    async def TestEmptyMethod(self, request, context):
+        print("TestEmptyMethod")

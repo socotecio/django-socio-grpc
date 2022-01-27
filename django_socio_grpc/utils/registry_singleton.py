@@ -602,6 +602,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         request_stream=False,
         response_stream=False,
     ):
+
         app_name = self.get_app_name_from_service_class(service_class)
         # INFO - AM - 14/01/2022 - Initialize the app in the project to be generated as a specific proto file
         if app_name not in self.registered_app:
@@ -639,17 +640,23 @@ class RegistrySingleton(metaclass=SingletonMeta):
         response_stream,
     ):
         controller_name = f"{service_name}Controller"
-        self.registered_app[app_name]["registered_controllers"][controller_name] = {
-            function_name: {
-                "request": {"is_stream": request_stream, "message": request_message_name},
-                "response": {"is_stream": response_stream, "message": response_message_name},
-            },
+        if controller_name not in self.registered_app[app_name]["registered_controllers"]:
+            self.registered_app[app_name]["registered_controllers"][
+                controller_name
+            ] = OrderedDict()
+        self.registered_app[app_name]["registered_controllers"][controller_name][
+            function_name
+        ] = {
+            "request": {"is_stream": request_stream, "message": request_message_name},
+            "response": {"is_stream": response_stream, "message": response_message_name},
         }
 
     def register_message_for_custom_action(
         self, app_name, service_name, function_name, message, is_request
     ):
         if isinstance(message, list):
+            if len(message) == 0:
+                return "google.protobuf.Empty"
 
             messages_fields = [(item["name"], item["type"]) for item in message]
 
@@ -660,6 +667,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 message_name
             ] = messages_fields
             return message_name
+
+        elif isinstance(message, str):
+            # TODO - AM - 27/01/2022 - Maybe check for authorized string like google.protobuf.empty to avoid developer making syntax mistake
+            return message
         elif issubclass(message, BaseSerializer):
             serializer_instance = message()
             return self.register_serializer_as_message_if_not_exist(

@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n2django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto\x12\x13\x66\x61keproject.fakeapp\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"9\n%UnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\"\x90\x01\n\"UnitTestModelListExtraArgsResponse\x12\r\n\x05\x63ount\x18\x01 \x01(\x05\x12\x1e\n\x16query_fetched_datetime\x18\x02 \x01(\t\x12;\n\x07results\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\"@\n\x15UnitTestModelResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"\x1a\n\x18UnitTestModelListRequest\"g\n\x19UnitTestModelListResponse\x12;\n\x07results\x18\x01 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"?\n\x14UnitTestModelRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"*\n\x1cUnitTestModelRetrieveRequest\x12\n\n\x02id\x18\x01 \x01(\x05\")\n\x1bUnitTestModelDestroyRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x1aUnitTestModelStreamRequest\"=\n)SyncUnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\"2\n\x14\x46oreignModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x19\n\x17\x46oreignModelListRequest\"e\n\x18\x46oreignModelListResponse\x12:\n\x07results\x18\x01 \x03(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"9\n)ForeignModelRetrieveCustomRetrieveRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"B\n\"ForeignModelRetrieveCustomResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x63ustom\x18\x02 \x01(\t\"\xeb\x01\n\x19RelatedFieldModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12>\n\x0b\x66oreign_obj\x18\x02 \x01(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\x41\n\rmany_many_obj\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.ManyManyModelResponse\x12\x19\n\x11\x63ustom_field_name\x18\x04 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x05 \x01(\t\x12\x11\n\tmany_many\x18\x06 \x03(\t\"3\n\x15ManyManyModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x1e\n\x1cRelatedFieldModelListRequest\"~\n\x1dRelatedFieldModelListResponse\x12N\n\x16list_custom_field_name\x18\x01 \x03(\x0b\x32..fakeproject.fakeapp.RelatedFieldModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"g\n\x18RelatedFieldModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x19\n\x11\x63ustom_field_name\x18\x02 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x03 \x01(\t\x12\x11\n\tmany_many\x18\x04 \x03(\t\"0\n RelatedFieldModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"/\n\x1fRelatedFieldModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"1\n!SpecialFieldsModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"\x94\x01\n0CustomRetrieveResponseSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x65\x66\x61ult_method_field\x18\x02 \x01(\x05\x12\x34\n\x13\x63ustom_method_field\x18\x03 \x03(\x0b\x32\x17.google.protobuf.Struct\"k\n\x1aSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"\x1f\n\x1dSpecialFieldsModelListRequest\"q\n\x1eSpecialFieldsModelListResponse\x12@\n\x07results\x18\x01 \x03(\x0b\x32/.fakeproject.fakeapp.SpecialFieldsModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"j\n\x19SpecialFieldsModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"0\n SpecialFieldsModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"c\n#ImportStructEvenInArrayModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"d\n$ImportStructEvenInArrayModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"1\n\x1c\x42\x61sicFetchDataForUserRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\"U\n\x14\x42\x61sicServiceResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\x12*\n\tuser_data\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct2\x84\x06\n\x17UnitTestModelController\x12\x8a\x01\n\x11ListWithExtraArgs\x12:.fakeproject.fakeapp.UnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x32\x8c\x06\n\x1bSyncUnitTestModelController\x12\x8e\x01\n\x11ListWithExtraArgs\x12>.fakeproject.fakeapp.SyncUnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x32\x87\x02\n\x16\x46oreignModelController\x12\x65\n\x04List\x12,.fakeproject.fakeapp.ForeignModelListRequest\x1a-.fakeproject.fakeapp.ForeignModelListResponse\"\x00\x12\x85\x01\n\x08Retrieve\x12>.fakeproject.fakeapp.ForeignModelRetrieveCustomRetrieveRequest\x1a\x37.fakeproject.fakeapp.ForeignModelRetrieveCustomResponse\"\x00\x32\xb4\x04\n\x1bRelatedFieldModelController\x12o\n\x04List\x12\x31.fakeproject.fakeapp.RelatedFieldModelListRequest\x1a\x32.fakeproject.fakeapp.RelatedFieldModelListResponse\"\x00\x12i\n\x06\x43reate\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12s\n\x08Retrieve\x12\x35.fakeproject.fakeapp.RelatedFieldModelRetrieveRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12i\n\x06Update\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12Y\n\x07\x44\x65stroy\x12\x34.fakeproject.fakeapp.RelatedFieldModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\xd5\x04\n\x1cSpecialFieldsModelController\x12\x8b\x01\n\x08Retrieve\x12\x36.fakeproject.fakeapp.SpecialFieldsModelRetrieveRequest\x1a\x45.fakeproject.fakeapp.CustomRetrieveResponseSpecialFieldsModelResponse\"\x00\x12q\n\x04List\x12\x32.fakeproject.fakeapp.SpecialFieldsModelListRequest\x1a\x33.fakeproject.fakeapp.SpecialFieldsModelListResponse\"\x00\x12k\n\x06\x43reate\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x12k\n\x06Update\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x12Z\n\x07\x44\x65stroy\x12\x35.fakeproject.fakeapp.SpecialFieldsModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\xa9\x01\n&ImportStructEvenInArrayModelController\x12\x7f\n\x06\x43reate\x12\x38.fakeproject.fakeapp.ImportStructEvenInArrayModelRequest\x1a\x39.fakeproject.fakeapp.ImportStructEvenInArrayModelResponse\"\x00\x32\xca\x01\n\x0f\x42\x61sicController\x12r\n\x10\x46\x65tchDataForUser\x12\x31.fakeproject.fakeapp.BasicFetchDataForUserRequest\x1a).fakeproject.fakeapp.BasicServiceResponse\"\x00\x12\x43\n\x0fTestEmptyMethod\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n2django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto\x12\x13\x66\x61keproject.fakeapp\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"9\n%UnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\"\x90\x01\n\"UnitTestModelListExtraArgsResponse\x12\r\n\x05\x63ount\x18\x01 \x01(\x05\x12\x1e\n\x16query_fetched_datetime\x18\x02 \x01(\t\x12;\n\x07results\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\"@\n\x15UnitTestModelResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"\x1a\n\x18UnitTestModelListRequest\"g\n\x19UnitTestModelListResponse\x12;\n\x07results\x18\x01 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"?\n\x14UnitTestModelRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"*\n\x1cUnitTestModelRetrieveRequest\x12\n\n\x02id\x18\x01 \x01(\x05\")\n\x1bUnitTestModelDestroyRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x1aUnitTestModelStreamRequest\"=\n)SyncUnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\"2\n\x14\x46oreignModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x19\n\x17\x46oreignModelListRequest\"e\n\x18\x46oreignModelListResponse\x12:\n\x07results\x18\x01 \x03(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"9\n)ForeignModelRetrieveCustomRetrieveRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"B\n\"ForeignModelRetrieveCustomResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x63ustom\x18\x02 \x01(\t\"\xa5\x02\n\x19RelatedFieldModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12>\n\x0b\x66oreign_obj\x18\x02 \x01(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\x41\n\rmany_many_obj\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.ManyManyModelResponse\x12\x19\n\x11\x63ustom_field_name\x18\x04 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x05 \x01(\t\x12\x11\n\tmany_many\x18\x06 \x03(\t\x12\x17\n\x0fslug_test_model\x18\x07 \x01(\x05\x12\x1f\n\x17slug_reverse_test_model\x18\x08 \x03(\x08\"3\n\x15ManyManyModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x1e\n\x1cRelatedFieldModelListRequest\"~\n\x1dRelatedFieldModelListResponse\x12N\n\x16list_custom_field_name\x18\x01 \x03(\x0b\x32..fakeproject.fakeapp.RelatedFieldModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"g\n\x18RelatedFieldModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x19\n\x11\x63ustom_field_name\x18\x02 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x03 \x01(\t\x12\x11\n\tmany_many\x18\x04 \x03(\t\"0\n RelatedFieldModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"/\n\x1fRelatedFieldModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"1\n!SpecialFieldsModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"\x94\x01\n0CustomRetrieveResponseSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x65\x66\x61ult_method_field\x18\x02 \x01(\x05\x12\x34\n\x13\x63ustom_method_field\x18\x03 \x03(\x0b\x32\x17.google.protobuf.Struct\"k\n\x1aSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"\x1f\n\x1dSpecialFieldsModelListRequest\"q\n\x1eSpecialFieldsModelListResponse\x12@\n\x07results\x18\x01 \x03(\x0b\x32/.fakeproject.fakeapp.SpecialFieldsModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"j\n\x19SpecialFieldsModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"0\n SpecialFieldsModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"c\n#ImportStructEvenInArrayModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"d\n$ImportStructEvenInArrayModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"1\n\x1c\x42\x61sicFetchDataForUserRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\"U\n\x14\x42\x61sicServiceResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\x12*\n\tuser_data\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct2\x84\x06\n\x17UnitTestModelController\x12\x8a\x01\n\x11ListWithExtraArgs\x12:.fakeproject.fakeapp.UnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x32\x8c\x06\n\x1bSyncUnitTestModelController\x12\x8e\x01\n\x11ListWithExtraArgs\x12>.fakeproject.fakeapp.SyncUnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x32\x87\x02\n\x16\x46oreignModelController\x12\x65\n\x04List\x12,.fakeproject.fakeapp.ForeignModelListRequest\x1a-.fakeproject.fakeapp.ForeignModelListResponse\"\x00\x12\x85\x01\n\x08Retrieve\x12>.fakeproject.fakeapp.ForeignModelRetrieveCustomRetrieveRequest\x1a\x37.fakeproject.fakeapp.ForeignModelRetrieveCustomResponse\"\x00\x32\xb4\x04\n\x1bRelatedFieldModelController\x12o\n\x04List\x12\x31.fakeproject.fakeapp.RelatedFieldModelListRequest\x1a\x32.fakeproject.fakeapp.RelatedFieldModelListResponse\"\x00\x12i\n\x06\x43reate\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12s\n\x08Retrieve\x12\x35.fakeproject.fakeapp.RelatedFieldModelRetrieveRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12i\n\x06Update\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12Y\n\x07\x44\x65stroy\x12\x34.fakeproject.fakeapp.RelatedFieldModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\xd5\x04\n\x1cSpecialFieldsModelController\x12\x8b\x01\n\x08Retrieve\x12\x36.fakeproject.fakeapp.SpecialFieldsModelRetrieveRequest\x1a\x45.fakeproject.fakeapp.CustomRetrieveResponseSpecialFieldsModelResponse\"\x00\x12q\n\x04List\x12\x32.fakeproject.fakeapp.SpecialFieldsModelListRequest\x1a\x33.fakeproject.fakeapp.SpecialFieldsModelListResponse\"\x00\x12k\n\x06\x43reate\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x12k\n\x06Update\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x12Z\n\x07\x44\x65stroy\x12\x35.fakeproject.fakeapp.SpecialFieldsModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x32\xa9\x01\n&ImportStructEvenInArrayModelController\x12\x7f\n\x06\x43reate\x12\x38.fakeproject.fakeapp.ImportStructEvenInArrayModelRequest\x1a\x39.fakeproject.fakeapp.ImportStructEvenInArrayModelResponse\"\x00\x32\xca\x01\n\x0f\x42\x61sicController\x12r\n\x10\x46\x65tchDataForUser\x12\x31.fakeproject.fakeapp.BasicFetchDataForUserRequest\x1a).fakeproject.fakeapp.BasicServiceResponse\"\x00\x12\x43\n\x0fTestEmptyMethod\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,google_dot_protobuf_dot_struct__pb2.DESCRIPTOR,])
 
@@ -607,6 +607,20 @@ _RELATEDFIELDMODELRESPONSE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='slug_test_model', full_name='fakeproject.fakeapp.RelatedFieldModelResponse.slug_test_model', index=6,
+      number=7, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='slug_reverse_test_model', full_name='fakeproject.fakeapp.RelatedFieldModelResponse.slug_reverse_test_model', index=7,
+      number=8, type=8, cpp_type=7, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -620,7 +634,7 @@ _RELATEDFIELDMODELRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1094,
-  serialized_end=1329,
+  serialized_end=1387,
 )
 
 
@@ -658,8 +672,8 @@ _MANYMANYMODELRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1331,
-  serialized_end=1382,
+  serialized_start=1389,
+  serialized_end=1440,
 )
 
 
@@ -683,8 +697,8 @@ _RELATEDFIELDMODELLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1384,
-  serialized_end=1414,
+  serialized_start=1442,
+  serialized_end=1472,
 )
 
 
@@ -722,8 +736,8 @@ _RELATEDFIELDMODELLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1416,
-  serialized_end=1542,
+  serialized_start=1474,
+  serialized_end=1600,
 )
 
 
@@ -775,8 +789,8 @@ _RELATEDFIELDMODELREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1544,
-  serialized_end=1647,
+  serialized_start=1602,
+  serialized_end=1705,
 )
 
 
@@ -807,8 +821,8 @@ _RELATEDFIELDMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1649,
-  serialized_end=1697,
+  serialized_start=1707,
+  serialized_end=1755,
 )
 
 
@@ -839,8 +853,8 @@ _RELATEDFIELDMODELDESTROYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1699,
-  serialized_end=1746,
+  serialized_start=1757,
+  serialized_end=1804,
 )
 
 
@@ -871,8 +885,8 @@ _SPECIALFIELDSMODELRETRIEVEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1748,
-  serialized_end=1797,
+  serialized_start=1806,
+  serialized_end=1855,
 )
 
 
@@ -917,8 +931,8 @@ _CUSTOMRETRIEVERESPONSESPECIALFIELDSMODELRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1800,
-  serialized_end=1948,
+  serialized_start=1858,
+  serialized_end=2006,
 )
 
 
@@ -963,8 +977,8 @@ _SPECIALFIELDSMODELRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1950,
-  serialized_end=2057,
+  serialized_start=2008,
+  serialized_end=2115,
 )
 
 
@@ -988,8 +1002,8 @@ _SPECIALFIELDSMODELLISTREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2059,
-  serialized_end=2090,
+  serialized_start=2117,
+  serialized_end=2148,
 )
 
 
@@ -1027,8 +1041,8 @@ _SPECIALFIELDSMODELLISTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2092,
-  serialized_end=2205,
+  serialized_start=2150,
+  serialized_end=2263,
 )
 
 
@@ -1073,8 +1087,8 @@ _SPECIALFIELDSMODELREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2207,
-  serialized_end=2313,
+  serialized_start=2265,
+  serialized_end=2371,
 )
 
 
@@ -1105,8 +1119,8 @@ _SPECIALFIELDSMODELDESTROYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2315,
-  serialized_end=2363,
+  serialized_start=2373,
+  serialized_end=2421,
 )
 
 
@@ -1144,8 +1158,8 @@ _IMPORTSTRUCTEVENINARRAYMODELREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2365,
-  serialized_end=2464,
+  serialized_start=2423,
+  serialized_end=2522,
 )
 
 
@@ -1183,8 +1197,8 @@ _IMPORTSTRUCTEVENINARRAYMODELRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2466,
-  serialized_end=2566,
+  serialized_start=2524,
+  serialized_end=2624,
 )
 
 
@@ -1215,8 +1229,8 @@ _BASICFETCHDATAFORUSERREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2568,
-  serialized_end=2617,
+  serialized_start=2626,
+  serialized_end=2675,
 )
 
 
@@ -1254,8 +1268,8 @@ _BASICSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2619,
-  serialized_end=2704,
+  serialized_start=2677,
+  serialized_end=2762,
 )
 
 _UNITTESTMODELLISTEXTRAARGSRESPONSE.fields_by_name['results'].message_type = _UNITTESTMODELRESPONSE
@@ -1546,8 +1560,8 @@ _UNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=2707,
-  serialized_end=3479,
+  serialized_start=2765,
+  serialized_end=3537,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListWithExtraArgs',
@@ -1632,8 +1646,8 @@ _SYNCUNITTESTMODELCONTROLLER = _descriptor.ServiceDescriptor(
   index=1,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=3482,
-  serialized_end=4262,
+  serialized_start=3540,
+  serialized_end=4320,
   methods=[
   _descriptor.MethodDescriptor(
     name='ListWithExtraArgs',
@@ -1718,8 +1732,8 @@ _FOREIGNMODELCONTROLLER = _descriptor.ServiceDescriptor(
   index=2,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=4265,
-  serialized_end=4528,
+  serialized_start=4323,
+  serialized_end=4586,
   methods=[
   _descriptor.MethodDescriptor(
     name='List',
@@ -1754,8 +1768,8 @@ _RELATEDFIELDMODELCONTROLLER = _descriptor.ServiceDescriptor(
   index=3,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=4531,
-  serialized_end=5095,
+  serialized_start=4589,
+  serialized_end=5153,
   methods=[
   _descriptor.MethodDescriptor(
     name='List',
@@ -1820,8 +1834,8 @@ _SPECIALFIELDSMODELCONTROLLER = _descriptor.ServiceDescriptor(
   index=4,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=5098,
-  serialized_end=5695,
+  serialized_start=5156,
+  serialized_end=5753,
   methods=[
   _descriptor.MethodDescriptor(
     name='Retrieve',
@@ -1886,8 +1900,8 @@ _IMPORTSTRUCTEVENINARRAYMODELCONTROLLER = _descriptor.ServiceDescriptor(
   index=5,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=5698,
-  serialized_end=5867,
+  serialized_start=5756,
+  serialized_end=5925,
   methods=[
   _descriptor.MethodDescriptor(
     name='Create',
@@ -1912,8 +1926,8 @@ _BASICCONTROLLER = _descriptor.ServiceDescriptor(
   index=6,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=5870,
-  serialized_end=6072,
+  serialized_start=5928,
+  serialized_end=6130,
   methods=[
   _descriptor.MethodDescriptor(
     name='FetchDataForUser',

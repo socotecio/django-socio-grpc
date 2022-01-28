@@ -1,6 +1,8 @@
 # Proto Generation
 
-## Command 
+To be able to generate proto you need to register your service first. To do so please refer to [https://socotecio.github.io/django-socio-grpc//server_and_service_register/#service-registration](https://socotecio.github.io/django-socio-grpc//server_and_service_register/#service-registration)
+
+## Command
 
 To automatically generate proto and python files use the generateproto command:
 

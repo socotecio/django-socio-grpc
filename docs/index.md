@@ -30,6 +30,7 @@ python manage.py migrate
 ```
 
 ### Django settings
+
 Add django_socio_grpc to INSTALLED_APPS, settings module is in tutorial/settings.py:
 
 ```python
@@ -51,12 +52,6 @@ class Question(models.Model):
     pub_date = models.DateTimeField('date published')
 ```
 
-### Generate the protofile and the client associated to the model
-
-```bash
-python manage.py generateproto --app quickstart
-```
-
 ### Define a Serializer
 
 ```python
@@ -69,8 +64,6 @@ from .models import Question
 class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = Question
-        proto_class = quickstart_pb2.Question
-        proto_class_list = quickstart_pb2.QuestionListResponse
         fields = ["id", "question_text", "pub_date"]
 
 ```
@@ -95,11 +88,35 @@ class QuestionService(generics.AsyncModelService):
 ```python
 # quickstart/handlers.py
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from quickstart.services import QuestionService
 
 
 def grpc_handlers(server):
     app_registry = AppHandlerRegistry("quickstart", server)
-    app_registry.register("Question")
+    app_registry.register(QuestionService)
+```
+
+### Generate the protofile and the client associated to the model
+
+```bash
+python manage.py generateproto
+```
+
+### Assign the newly generated class to the serializer
+
+```python
+# quickstart/serializers.py
+from django_socio_grpc import proto_serializers
+import quickstart.grpc.quickstart_pb2 as quickstart_pb2
+from .models import Question
+
+
+class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = Question
+        proto_class = quickstart_pb2.QuestionResponse # Modification here
+        proto_class_list = quickstart_pb2.QuestionListResponse # Modification here
+        fields = ["id", "question_text", "pub_date"]
 ```
 
 ### Launch the server

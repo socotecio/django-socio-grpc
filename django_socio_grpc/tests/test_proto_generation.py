@@ -29,8 +29,9 @@ from .assets.generated_protobuf_files import (
 
 
 def relatedfieldmodel_handler_hook(server):
+    from fakeapp.services.related_field_model_service import RelatedFieldModelService
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("RelatedFieldModelService")
+    app_registry.register(RelatedFieldModelService)
 
 
 def unittestmodel_handler_hook(server):

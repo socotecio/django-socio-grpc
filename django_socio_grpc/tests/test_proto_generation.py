@@ -82,6 +82,25 @@ class TestProtoGeneration(TestCase):
         return super().setUp()
 
     @mock.patch(
+        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    def test_check_option(self):
+        reload(unitestmodel_service)
+        reload(syncunitestmodel_service)
+        reload(special_fields_model_service)
+        reload(basic_service)
+        self.maxDiff = None
+        args = []
+        opts = {"check": True, "generate_python": False}
+        with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED_SEPARATE)) as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "r"
+
+    @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )

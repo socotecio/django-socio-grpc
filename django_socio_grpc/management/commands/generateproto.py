@@ -111,10 +111,13 @@ class Command(BaseCommand):
                 app_name=app_name,
                 detail="Check fail ! You doesn't have a proto file to compare to",
             )
-        with open(file_path, "w+") as f:
-            if self.check:
-                self.check_proto_generation(f.read(), proto, app_name)
-            else:
+
+        if self.check:
+            with open(file_path, "r") as f:
+                content = f.read()
+                self.check_proto_generation(content, proto, app_name)
+        else:
+            with open(file_path, "w+") as f:
                 f.write(proto)
 
     def check_proto_generation(self, original_file, new_proto_content, app_name):

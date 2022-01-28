@@ -1,12 +1,8 @@
 TODO
 ====
 
+- Finish doc
 - add BulkCreate\BulkDestroy\BulkUpdate with stream-unary mode  ?
-- add testcases for project
-
-
-GENERATION NOUVELLE GENERATION
-====
-
-- faire un test avec un controllerName overridé
-- voir les readonly - writeonly
+- add example for streaming file
+- add example for grpc-web
+- 

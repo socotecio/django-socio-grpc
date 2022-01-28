@@ -27,16 +27,6 @@ By default each model generate the default viewset as proto file. It allow by de
 For example if we have a service and serializer like this:
 
 ```python
-# Service
-from django_socio_grpc import generics
-from ..models import Something
-from ..serializers import SomethingProtoSerializer
-
-
-class SomethingService(generics.AsyncModelService):
-    queryset = Something.objects.all()
-    serializer_class = SomethingProtoSerializer
-
 # Serializer
 from django_socio_grpc import proto_serializers
 from .models import Something
@@ -46,6 +36,16 @@ class SomethingProtoSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = Something
         fields = ["uuid", "start_date", "rate"]
+
+# Service
+from django_socio_grpc import generics
+from ..models import Something
+from ..serializers import SomethingProtoSerializer
+
+
+class SomethingService(generics.AsyncModelService):
+    queryset = Something.objects.all()
+    serializer_class = SomethingProtoSerializer
 
 ```
 
@@ -58,37 +58,37 @@ package doc_example.generate_proto_doc;
 import "google/protobuf/empty.proto";
 
 service SomethingController {
-    rpc List(SomethingProtoListRequest) returns (SomethingProtoListResponse) {}
-    rpc Create(SomethingProtoRequest) returns (SomethingProtoResponse) {}
-    rpc Retrieve(SomethingProtoRetrieveRequest) returns (SomethingProtoResponse) {}
-    rpc Update(SomethingProtoRequest) returns (SomethingProtoResponse) {}
-    rpc Destroy(SomethingProtoDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(SomethingListRequest) returns (SomethingListResponse) {}
+    rpc Create(SomethingRequest) returns (SomethingResponse) {}
+    rpc Retrieve(SomethingRetrieveRequest) returns (SomethingResponse) {}
+    rpc Update(SomethingRequest) returns (SomethingResponse) {}
+    rpc Destroy(SomethingDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
-message SomethingProtoResponse {
+message SomethingResponse {
     string uuid = 1;
     string start_date = 2;
     string rate = 3;
 }
 
-message SomethingProtoListRequest {
+message SomethingListRequest {
 }
 
-message SomethingProtoListResponse {
-    repeated SomethingProtoResponse results = 1;
+message SomethingListResponse {
+    repeated SomethingResponse results = 1;
 }
 
-message SomethingProtoRequest {
+message SomethingRequest {
     string uuid = 1;
     string start_date = 2;
     string rate = 3;
 }
 
-message SomethingProtoRetrieveRequest {
+message SomethingRetrieveRequest {
     string uuid = 1;
 }
 
-message SomethingProtoDestroyRequest {
+message SomethingDestroyRequest {
     string uuid = 1;
 }
 ```
@@ -100,12 +100,169 @@ To see more complex usage without reading the doc please look at the code used f
 
 ## Adding Custom method (Decorator)
 
+You can add custome method (one not listed in mixins file: List, Create, Update, PartialUpdate, Retrieve, Delete, Stream) with the decorator grpc_action
+
+This decorator signature is:
+```python
+def grpc_action(request=None, response=None, request_stream=False, response_stream=False)
+```
+
+request and response are the variable used to define the field in the request/response proto message.
+
+It can be a string, a list of dict or a serializer.
+
+1. String format
+
+Inject directly the string as message. Usefull if you want to use a already declared custom message or some specific type like `google.protobuf.Empty`.
+
+
+2. List of dict format
+
+Transform the dict inside the list into proto field. Usefull if you have only 1 or 2 field and doesn't want to create a serializer
+Dict format is:
+
+```python
+{
+    "name": "field_name",
+    "type": "existing_protobuf_type"
+}
+```
+
+3. Serializer
+
+Use a Serializer class to create the proto message in the same way that it work for know method.
+
+
+Example:
+
+```python
+class BasicService(generics.GenericService):
+    @grpc_action(
+        request=[{"name": "user_name", "type": "string"}],
+        response=BasicServiceSerializer,
+    )
+    async def FetchDataForUser(self, request, context):
+        pass
+
+    @grpc_action(
+        request=[],
+        response="google.protobuf.Empty",
+    )
+    async def TestEmptyMethod(self, request, context):
+        pass
+```
+
+Generate:
+
+```proto
+service BasicController {
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
+
+message BasicServiceResponse {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+}
+```
+
+
 ## Force message for know method
+
+You can use `grpc_action` decorator on know method to override default message.
+
+```python
+class SomethingService(generics.AsyncModelService):
+    queryset = SpecialFieldsModel.objects.all().order_by("uuid")
+    serializer_class = SpecialFieldsModelSerializer
+
+    @grpc_action(
+        request=[{"name": "uuid", "type": "string"}],
+        response=[{"name": "anything", "type": "string"}],
+    )
+    async def Retrieve(self, request, context):
+        pass
+```
+
+Generate:
+
+```proto
+
+import "google/protobuf/empty.proto";
+
+service SomethingController {
+    rpc List(SomethingListRequest) returns (SomethingListResponse) {}
+    rpc Create(SomethingRequest) returns (SomethingResponse) {}
+    rpc Retrieve(SomethingRetrieveRequest) returns (SomethingResponse) {}
+    rpc Update(SomethingRequest) returns (SomethingResponse) {}
+    rpc Destroy(SomethingDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+message SomethingResponse {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+
+message SomethingListRequest {
+}
+
+message SomethingListResponse {
+    repeated SomethingResponse results = 1;
+}
+
+message SomethingRequest {
+    string uuid = 1;
+    string start_date = 2;
+    string rate = 3;
+}
+
+message SomethingRetrieveRequest {
+    string uuid = 1;
+}
+
+message SomethingDestroyRequest {
+    string uuid = 1;
+}
+```
 
 
 ## Read Only and write only props
 ## Nested serilializer
 ## Special case of methodeSerializerField
+## Special case of SlugRelatedField
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 It is possible to adapt the proto generation depending of your need. To customize your proto generation you need to override `grpc_messages` and `grpc_methods` attributes of the Meta class of the model:

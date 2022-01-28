@@ -67,3 +67,25 @@ def grpc_handlers(server):
     app_registry = AppHandlerRegistry("my_app_name", server)
     app_registry.register("MyService")
 ```
+
+## To go deeper
+
+Under the hood AppHandlerRegistry register method will use the name of the app and the name of the service to import the correct method from the pb2_grpc file generated automatically by the generateproto command.
+
+This helper is also the entrypoint for the registration of the service for the proto generation. So even if you can use Django Socio gRPC without it the automatic registration and so the automatic proto generation will not work.
+
+Code snippet to explain how we use the function from the pb2_grpc file
+
+```python
+pb2_grpc = import_module(
+    f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
+)
+service_instance = service_class()
+
+controller_name = service_instance.get_service_name()
+add_server = getattr(
+    pb2_grpc, f"add_{controller_name}ControllerServicer_to_server"
+)
+
+add_server(service_class.as_servicer(), self.server)
+```

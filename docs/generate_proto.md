@@ -1,6 +1,6 @@
 # Proto Generation
 
-To be able to generate proto you need to register your service first. To do so please refer to [https://socotecio.github.io/django-socio-grpc//server_and_service_register/#service-registration](https://socotecio.github.io/django-socio-grpc//server_and_service_register/#service-registration)
+To be able to generate proto you need to register your service first. To do so please refer to [https://socotecio.github.io/django-socio-grpc/server_and_service_register/#service-registration](https://socotecio.github.io/django-socio-grpc/server_and_service_register/#service-registration)
 
 ## Command
 
@@ -121,62 +121,62 @@ request and response are the variable used to define the field in the request/re
 
 It can be a string, a list of dict or a serializer.
 
-1. String format
+1.String format
 
-    Inject directly the string as message. Usefull if you want to use a already declared custom message or some specific type like `google.protobuf.Empty`.
+Inject directly the string as message. Usefull if you want to use a already declared custom message or some specific type like `google.protobuf.Empty`.
 
-2. List of dict format
+2.List of dict format
 
-    Transform the dict inside the list into proto field. Usefull if you have only 1 or 2 field and doesn't want to create a serializer
-    Dict format is:
+Transform the dict inside the list into proto field. Usefull if you have only 1 or 2 field and doesn't want to create a serializer
+Dict format is:
 
-    ```python
-    {
-        "name": "field_name",
-        "type": "existing_protobuf_type"
-    }
-    ```
+```python
+{
+    "name": "field_name",
+    "type": "existing_protobuf_type"
+}
+```
 
-3. Serializer
+3.Serializer
 
-    Use a Serializer class to create the proto message in the same way that it work for know method.
+Use a Serializer class to create the proto message in the same way that it work for know method.
 
-    Example:
+Example:
 
-    ```python
-    class BasicServiceSerializer(proto_serializers.ProtoSerializer):
+```python
+class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
-    user_name = serializers.CharField()
-    user_data = serializers.DictField()
+user_name = serializers.CharField()
+user_data = serializers.DictField()
 
-    class Meta:
-        fields = ["user_name", "user_data"]
+class Meta:
+    fields = ["user_name", "user_data"]
 
-    class BasicService(generics.GenericService):
-        @grpc_action(
-            request=[{"name": "user_name", "type": "string"}],
-            response=BasicServiceSerializer,
-        )
-        async def FetchDataForUser(self, request, context):
-            pass
-    ```
+class BasicService(generics.GenericService):
+    @grpc_action(
+        request=[{"name": "user_name", "type": "string"}],
+        response=BasicServiceSerializer,
+    )
+    async def FetchDataForUser(self, request, context):
+        pass
+```
 
-    Generate:
+Generate:
 
-    ```proto
-    service BasicController {
-        rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
-    }
+```proto
+service BasicController {
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
+}
 
-    message BasicFetchDataForUserRequest {
-        string user_name = 1;
-    }
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
 
-    message BasicServiceResponse {
-        string user_name = 1;
-        google.protobuf.Struct user_data = 2;
-    }
-    ```
+message BasicServiceResponse {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+}
+```
 
 
 ## Force message for know method

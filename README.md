@@ -57,5 +57,5 @@ docker-compose exec django-socio-grpc mkdocs serve -a localhost:6001
 Deploy Documentation:
 
 ```bash
-mkdocs gh-deploy -t readthedocs -m "[ci skip] auto commit with MKDocs"
+mkdocs gh-deploy -m "[ci skip] auto commit with MKDocs"
 ```

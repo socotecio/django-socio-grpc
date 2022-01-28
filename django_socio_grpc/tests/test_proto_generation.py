@@ -62,6 +62,16 @@ def empty_handler_hook(server):
     pass
 
 
+def error_app_unkown_handler_hook(server):
+    app_registry = AppHandlerRegistry("notexisting", server)
+    app_registry.register("UnknowService")
+
+
+def error_service_unkown_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register("UnknowService")
+
+
 def overide_grpc_framework(name_of_function):
     return {
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -119,6 +129,40 @@ class TestProtoGeneration(TestCase):
         self.assertEqual(
             str(fake_generation_error.exception),
             "Error on protobuf generation on model None on app None: No Service registered. You should use ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry.",
+        )
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("error_app_unkown_handler_hook"))
+    def test_raise_when_app_not_exising(self):
+        args = []
+        opts = {"generate_python": False}
+        with self.assertRaises(ModuleNotFoundError) as fake_generation_error:
+            call_command("generateproto", *args, **opts)
+
+        self.assertEqual(
+            str(fake_generation_error.exception),
+            "No module named 'notexisting'",
+        )
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    @override_settings(
+        GRPC_FRAMEWORK=overide_grpc_framework("error_service_unkown_handler_hook")
+    )
+    def test_raise_when_service_not_existing(self):
+        args = []
+        opts = {"generate_python": False}
+        with self.assertRaises(ModuleNotFoundError) as fake_generation_error:
+            call_command("generateproto", *args, **opts)
+
+        self.assertEqual(
+            str(fake_generation_error.exception),
+            "No module named 'fakeapp.services.unknow_service_service'",
         )
 
     @mock.patch(

@@ -64,6 +64,15 @@ class ManyManyModel(models.Model):
     name = models.CharField(max_length=100)
 
 
+class SlugTestModel(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    special_number = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        grpc_messages = {}
+        grpc_methods = {}
+
+
 class RelatedFieldModel(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     foreign = models.ForeignKey(
@@ -74,6 +83,14 @@ class RelatedFieldModel(models.Model):
         related_name="related",
     )
     many_many = models.ManyToManyField(ManyManyModel, blank=True, related_name="relateds")
+
+    slug_test_model = models.ForeignKey(
+        SlugTestModel,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="related",
+    )
 
     class Meta:
         ###############################################################
@@ -138,4 +155,20 @@ class ImportStructEvenInArrayModel(models.Model):
 
     class Meta:
         grpc_messages = {"ImportStructEvenInArrayModel": "__all__"}
+        grpc_methods = {}
+
+
+class SlugReverseTestModel(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    is_active = models.BooleanField(default=False)
+    related_field = models.ForeignKey(
+        RelatedFieldModel,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="slug_reverse_test_model",
+    )
+
+    class Meta:
+        grpc_messages = {}
         grpc_methods = {}

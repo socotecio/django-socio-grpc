@@ -65,6 +65,11 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
     foreign_obj = ForeignModelSerializer(read_only=True)
     many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
 
+    slug_test_model = serializers.SlugRelatedField(slug_field="special_number", read_only=True)
+    slug_reverse_test_model = serializers.SlugRelatedField(
+        slug_field="is_active", read_only=True
+    )
+
     custom_field_name = serializers.CharField()
 
     class Meta:

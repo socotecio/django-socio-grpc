@@ -11,3 +11,4 @@ nav:
     - Logging: logging.md
     - Settings: settings.md
     - Testing: testing.md
+theme: readthedocs

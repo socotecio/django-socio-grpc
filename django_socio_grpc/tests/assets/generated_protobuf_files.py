@@ -377,6 +377,7 @@ import "google/protobuf/struct.proto";
 service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
 }
 
 message BasicFetchDataForUserRequest {
@@ -386,6 +387,11 @@ message BasicFetchDataForUserRequest {
 message BasicServiceResponse {
     string user_name = 1;
     google.protobuf.Struct user_data = 2;
+}
+
+message BasicGetMultipleListResponse {
+    repeated BasicServiceResponse results = 1;
+    int32 count = 2;
 }
 
 """
@@ -429,6 +435,7 @@ service SpecialFieldsModelController {
 service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicService) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
 }
 
 service ForeignModelController {
@@ -486,6 +493,11 @@ message BasicService {
     string user_name = 1;
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
+}
+
+message BasicGetMultipleListResponse {
+    repeated BasicService results = 1;
+    int32 count = 2;
 }
 
 message UnitTestModelListRequest {
@@ -624,6 +636,7 @@ service SpecialFieldsModelController {
 service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
 }
 
 service ForeignModelController {
@@ -680,6 +693,11 @@ message BasicFetchDataForUserRequest {
 message BasicServiceResponse {
     string user_name = 1;
     google.protobuf.Struct user_data = 2;
+}
+
+message BasicGetMultipleListResponse {
+    repeated BasicServiceResponse results = 1;
+    int32 count = 2;
 }
 
 message UnitTestModelListRequest {

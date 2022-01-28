@@ -123,4 +123,5 @@ class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
     class Meta:
         proto_class = grpc_model.BasicServiceResponse
+        proto_class_list = grpc_model.BasicGetMultipleListResponse
         fields = ["user_name", "user_data"]

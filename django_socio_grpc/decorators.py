@@ -61,11 +61,14 @@ def grpc_action(
     """
     Easily register a grpc action into the registry to generate it into the proto file.
 
-    :param request: Format of the request. Can be a list of dict, a proto serilizer class or a string. See doc for more information. 
-    :param response: Format of the response. Can be a list of dict, a proto serilizer class or a string. See doc for more information. 
+    :param request: Format of the request. Can be a list of dict, a proto serilizer class or a string. See doc for more information.
+    :param response: Format of the response. Can be a list of dict, a proto serilizer class or a string. See doc for more information.
     :param request_stream: If true the request message is marqued as stream. Default to false
     :param response_stream: If true the response message is marqued as stream. Default to false
+    :param use_request_list: If true the response message is encapsuled in a list message. Default to false
+    :param use_response_list: If true the response message is encapsuled in a list message. Default to false
     """
+
     def wrapper(function):
         return _grpc_action(
             function,

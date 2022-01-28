@@ -18,6 +18,8 @@ from django_socio_grpc.proto_serializers import BaseProtoSerializer, ListProtoSe
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 
+DEFAULT_LIST_FIELD_NAME = "results"
+
 
 class RegisterServiceException(Exception):
     pass
@@ -381,6 +383,46 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         return proto_type
 
+    def register_list_response_message_of_serializer(
+        self,
+        app_name,
+        service_instance,
+        base_name,
+        list_response_field_name,
+        child_response_message_name,
+    ):
+
+        pagination = service_instance.pagination_class
+        if pagination is None:
+            pagination = grpc_settings.DEFAULT_PAGINATION_CLASS is not None
+
+        response_fields = [
+            (list_response_field_name, f"repeated {child_response_message_name}")
+        ]
+        if pagination:
+            response_fields += [("count", "int32")]
+
+        response_message_name = f"{base_name}ListResponse"
+
+        self.registered_app[app_name]["registered_messages"][
+            response_message_name
+        ] = response_fields
+
+        return response_message_name
+
+    def get_list_response_field_name_from_serializer_instance(self, serializer_instance):
+
+        list_response_field_name = DEFAULT_LIST_FIELD_NAME
+
+        # INFO - AM - 14/01/2022 - We let the possibility to the user to customize the name of the attr where the list items are set by message_list_attr attr in meta class. If not present we use the default results
+        serializer_meta = getattr(serializer_instance, "Meta", None)
+        if serializer_meta:
+            message_list_attr = getattr(serializer_meta, "message_list_attr", None)
+            if message_list_attr:
+                list_response_field_name = message_list_attr
+
+        return list_response_field_name
+
     ############################################################################
     #
     # Default Registration (from know method with no decorator)
@@ -537,35 +579,24 @@ class RegistrySingleton(metaclass=SingletonMeta):
         serializer_name = self.get_message_name_from_field_or_serializer_instance(
             serializer_instance, append_type=False
         )
-
         child_response_message_name = self.register_serializer_as_message_if_not_exist(
             app_name, serializer_instance, is_request=False
         )
 
-        pagination = service_instance.pagination_class
-        if pagination is None:
-            pagination = grpc_settings.DEFAULT_PAGINATION_CLASS is not None
-
-        response_field_name = "results"
-
-        # INFO - AM - 14/01/2022 - We let the possibility to the user to customize the name of the attr where the list items are set by message_list_attr attr in meta class. If not present we use the default results
-        serializer_meta = getattr(serializer_instance, "Meta", None)
-        if serializer_meta:
-            message_list_attr = getattr(serializer_meta, "message_list_attr", None)
-            if message_list_attr:
-                response_field_name = message_list_attr
-
-        response_fields = [(response_field_name, f"repeated {child_response_message_name}")]
-        if pagination:
-            response_fields += [("count", "int32")]
+        list_response_field_name = self.get_list_response_field_name_from_serializer_instance(
+            serializer_instance
+        )
 
         request_message_name = f"{serializer_name}ListRequest"
-        response_message_name = f"{serializer_name}ListResponse"
-
         self.registered_app[app_name]["registered_messages"][request_message_name] = []
-        self.registered_app[app_name]["registered_messages"][
-            response_message_name
-        ] = response_fields
+
+        response_message_name = self.register_list_response_message_of_serializer(
+            app_name,
+            service_instance,
+            base_name=serializer_name,
+            list_response_field_name=list_response_field_name,
+            child_response_message_name=child_response_message_name,
+        )
 
         return request_message_name, response_message_name
 
@@ -674,6 +705,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
         response=None,
         request_stream=False,
         response_stream=False,
+        use_request_list=False,
+        use_response_list=False,
     ):
         app_name = self.get_app_name_from_service_class(service_class)
         # INFO - AM - 14/01/2022 - Initialize the app in the project to be generated as a specific proto file
@@ -685,12 +718,37 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         service_instance = service_class()
         service_name = service_instance.get_service_name()
-        request_message_name = self.register_message_for_custom_action(
+
+        (
+            request_message_name,
+            list_response_field_name,
+        ) = self.register_message_for_custom_action(
             app_name, service_name, function_name, request, is_request=True
         )
-        response_message_name = self.register_message_for_custom_action(
+        if use_request_list:
+            request_message_name = self.register_list_response_message_of_serializer(
+                app_name,
+                service_instance,
+                base_name=f"{service_name}{function_name}",
+                list_response_field_name=list_response_field_name,
+                child_response_message_name=request_message_name,
+            )
+
+        (
+            response_message_name,
+            list_response_field_name,
+        ) = self.register_message_for_custom_action(
             app_name, service_name, function_name, response, is_request=False
         )
+        if use_response_list:
+            response_message_name = self.register_list_response_message_of_serializer(
+                app_name,
+                service_instance,
+                base_name=f"{service_name}{function_name}",
+                list_response_field_name=list_response_field_name,
+                child_response_message_name=response_message_name,
+            )
+
         self.register_method_for_custom_action(
             app_name,
             service_name,
@@ -728,7 +786,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
     ):
         if isinstance(message, list):
             if len(message) == 0:
-                return "google.protobuf.Empty"
+                return "google.protobuf.Empty", DEFAULT_LIST_FIELD_NAME
 
             messages_fields = [(item["name"], item["type"]) for item in message]
 
@@ -738,15 +796,21 @@ class RegistrySingleton(metaclass=SingletonMeta):
             self.registered_app[app_name]["registered_messages"][
                 message_name
             ] = messages_fields
-            return message_name
+            return message_name, DEFAULT_LIST_FIELD_NAME
 
         elif isinstance(message, str):
             # TODO - AM - 27/01/2022 - Maybe check for authorized string like google.protobuf.empty to avoid developer making syntax mistake
-            return message
+            return message, DEFAULT_LIST_FIELD_NAME
         elif inspect.isclass(message) and issubclass(message, BaseSerializer):
             serializer_instance = message()
-            return self.register_serializer_as_message_if_not_exist(
-                app_name, serializer_instance, is_request=is_request
+            list_response_field_name = (
+                self.get_list_response_field_name_from_serializer_instance(serializer_instance)
+            )
+            return (
+                self.register_serializer_as_message_if_not_exist(
+                    app_name, serializer_instance, is_request=is_request
+                ),
+                list_response_field_name,
             )
         else:
             raise RegisterServiceException(

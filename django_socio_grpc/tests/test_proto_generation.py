@@ -10,6 +10,7 @@ import fakeapp.services.basic_service as basic_service
 import fakeapp.services.special_fields_model_service as special_fields_model_service
 import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
 import fakeapp.services.unit_test_model_service as unitestmodel_service
+from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
@@ -57,6 +58,10 @@ def basicservice_handler_hook(server):
     app_registry.register("BasicService")
 
 
+def empty_handler_hook(server):
+    pass
+
+
 def overide_grpc_framework(name_of_function):
     return {
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -82,7 +87,7 @@ class TestProtoGeneration(TestCase):
         return super().setUp()
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_check_option(self):
@@ -99,6 +104,22 @@ class TestProtoGeneration(TestCase):
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
         assert m.mock_calls[0].args[1] == "r"
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("empty_handler_hook"))
+    def test_raise_when_no_service_registered(self):
+        args = []
+        opts = {"generate_python": False}
+        with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
+            call_command("generateproto", *args, **opts)
+
+        self.assertEqual(
+            str(fake_generation_error.exception),
+            "Error on protobuf generation on model None on app None: No Service registered. You should use ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry.",
+        )
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",

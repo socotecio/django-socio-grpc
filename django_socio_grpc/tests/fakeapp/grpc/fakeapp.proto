@@ -129,6 +129,8 @@ message RelatedFieldModelResponse {
     string custom_field_name = 4;
     string foreign = 5;
     repeated string many_many = 6;
+    int32 slug_test_model = 7;
+    repeated bool slug_reverse_test_model = 8;
 }
 
 message ManyManyModelResponse {

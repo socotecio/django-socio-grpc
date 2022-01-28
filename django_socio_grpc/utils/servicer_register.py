@@ -28,8 +28,7 @@ class AppHandlerRegistry:
         name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
         return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
 
-    def register(self, service_name, service_file_path=None):
-
+    def get_service_class_from_service_name(self, service_name, service_file_path=None):
         is_manual_service_path = service_file_path is not None
 
         try:
@@ -58,6 +57,22 @@ class AppHandlerRegistry:
                 service_name,
             )
 
+        return service_class
+
+    def register(self, service, service_file_path=None):
+        """
+        Register a service to the grpc server
+
+        :param service: Service class to register. This can also be the name of the service and we will gonna import it
+        :param: service_file_path: If you pass the service name but he path is not possibly find manually
+        """
+
+        service_class = service
+        if isinstance(service_class, str):
+            service_class = self.get_service_class_from_service_name(
+                service_class, service_file_path
+            )
+
         if self.server is None:
             service_registry = RegistrySingleton()
             service_registry.register_service(self.app_name, service_class)
@@ -68,7 +83,9 @@ class AppHandlerRegistry:
             pb2_grpc = import_module(
                 f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
             )
-            controller_name = service_name.replace("Service", "")
+            service_instance = service_class()
+
+            controller_name = service_instance.get_service_name()
             add_server = getattr(
                 pb2_grpc, f"add_{controller_name}ControllerServicer_to_server"
             )

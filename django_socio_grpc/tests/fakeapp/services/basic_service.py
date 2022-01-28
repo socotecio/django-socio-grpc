@@ -29,3 +29,10 @@ class BasicService(generics.GenericService):
     )
     async def TestEmptyMethod(self, request, context):
         print("TestEmptyMethod")
+
+    @grpc_action(
+        request={"name": "test", "type": "string"},
+        response="google.protobuf.Empty",
+    )
+    async def TestError(self, request, context):
+        print("TestError")

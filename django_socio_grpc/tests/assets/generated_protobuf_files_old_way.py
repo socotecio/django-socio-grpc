@@ -199,6 +199,7 @@ message ManyManyModelDestroyRequest {
 message RelatedFieldModel {
     string uuid = 1;
     string foreign = 2;
+    string slug_test_model = 3;
 }
 
 message RelatedFieldModelListRequest {
@@ -294,6 +295,7 @@ service RelatedFieldModelController {
 message RelatedFieldModel {
     string uuid = 1;
     string foreign = 2;
+    string slug_test_model = 3;
 }
 
 message RelatedFieldModelListRequest {
@@ -467,6 +469,7 @@ service RelatedFieldModelController {
 message RelatedFieldModel {
     string uuid = 1;
     string foreign = 2;
+    string slug_test_model = 3;
 }
 
 message RelatedFieldModelListRequest {

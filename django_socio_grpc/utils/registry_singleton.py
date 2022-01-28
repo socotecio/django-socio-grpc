@@ -1,3 +1,4 @@
+import inspect
 from collections import OrderedDict
 from typing import Dict, List, Tuple
 
@@ -16,6 +17,10 @@ from rest_framework.utils.model_meta import get_field_info
 from django_socio_grpc.proto_serializers import BaseProtoSerializer, ListProtoSerializer
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
+
+
+class RegisterServiceException(Exception):
+    pass
 
 
 class SingletonMeta(type):
@@ -281,7 +286,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             return "string"
 
         if "return" not in method.__annotations__:
-            raise Exception(
+            raise RegisterServiceException(
                 f"You are trying to register the serializer {serializer_instance.__class__.__name__} with a SerializerMethodField on the field {field_name}. But the method associated does'nt have a return annotations. Please look at the example: https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L83. And the python doc: https://docs.python.org/3.8/library/typing.html"
             )
 
@@ -460,7 +465,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             }
 
         else:
-            raise Exception(
+            raise RegisterServiceException(
                 f"You are registering a service with the method {method} but this methods does not have a decorator and is not in our default supported methods: {KnowMethods.get_as_list()}"
             )
 
@@ -505,7 +510,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             return self.register_stream_serializer_as_message(app_name, serializer_instance)
 
         else:
-            raise Exception(
+            raise RegisterServiceException(
                 f"You are registering a service with the method {method} but this methods does not have a decorator and is not in our default supported methods: {KnowMethods.get_as_list()}"
             )
 
@@ -644,7 +649,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # TODO - AM - 07/01/2022 - Check if the fied name in the existing field
         if field_name not in serializer_instance.fields:
-            raise Exception(
+            raise RegisterServiceException(
                 f"Trying to build a Retrieve or Destroy request with retrieve field named: {field_name} but this field is not existing in the serializer: {serializer_instance.__class__.__name__}"
             )
 
@@ -670,7 +675,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
         request_stream=False,
         response_stream=False,
     ):
-
         app_name = self.get_app_name_from_service_class(service_class)
         # INFO - AM - 14/01/2022 - Initialize the app in the project to be generated as a specific proto file
         if app_name not in self.registered_app:
@@ -739,14 +743,14 @@ class RegistrySingleton(metaclass=SingletonMeta):
         elif isinstance(message, str):
             # TODO - AM - 27/01/2022 - Maybe check for authorized string like google.protobuf.empty to avoid developer making syntax mistake
             return message
-        elif issubclass(message, BaseSerializer):
+        elif inspect.isclass(message) and issubclass(message, BaseSerializer):
             serializer_instance = message()
             return self.register_serializer_as_message_if_not_exist(
                 app_name, serializer_instance, is_request=is_request
             )
         else:
-            raise Exception(
-                f"{'Request' if is_request else 'Response'} message for function {function_name} in app {app_name} is not a list or a serializer"
+            raise RegisterServiceException(
+                f"{'Request' if is_request else 'Response'} message for function {function_name} in app {app_name} is not a list, a serializer or a string"
             )
 
     def get_app_name_from_service_class(self, service_class):

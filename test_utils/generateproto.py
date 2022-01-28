@@ -6,5 +6,5 @@ from boot_django import boot_django
 boot_django()
 
 args = []
-opts = {"check": True}
+opts = {}
 call_command("generateproto", *args, **opts)

@@ -83,23 +83,23 @@ class Command(BaseCommand):
             self.stdout.write(protos_by_app)
         # if no filepath specified we create it in a grpc directory in the app
         else:
+
+            if not protos_by_app.keys():
+                raise ProtobufGenerationException(
+                    detail="No Service registered. You should use ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry."
+                )
             for app_name, proto in protos_by_app.items():
                 auto_file_path = generator.get_proto_path_for_app_name(app_name)
                 self.create_directory_if_not_exist(auto_file_path)
                 self.check_or_write(auto_file_path, proto, app_name)
                 path_used_for_generation = auto_file_path
 
-            if not protos_by_app.keys():
-                raise ProtobufGenerationException(
-                    detail="No Service registered. You should use ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry."
-                )
-
-            if self.generate_python:
-                if not settings.BASE_DIR:
-                    raise ProtobufGenerationException(detail="No BASE_DIR in settings")
-                os.system(
-                    f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {path_used_for_generation}"
-                )
+                if self.generate_python:
+                    if not settings.BASE_DIR:
+                        raise ProtobufGenerationException(detail="No BASE_DIR in settings")
+                    os.system(
+                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {path_used_for_generation}"
+                    )
 
     def check_or_write(self, file_path, proto, app_name):
         """

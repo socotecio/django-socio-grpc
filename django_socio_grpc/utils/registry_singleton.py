@@ -78,8 +78,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
     """
 
     type_mapping = {
-        # Special
-        models.JSONField.__name__: "google.protobuf.Struct",
         # Numeric
         models.AutoField.__name__: "int32",
         models.SmallIntegerField.__name__: "int32",
@@ -109,6 +107,20 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # Default
         models.Field.__name__: "string",
     }
+
+    # JSONField and PositiveBigIntegerField not available on Django 2.2
+    try:
+        # Special
+        type_mapping[models.JSONField.__name__] = "google.protobuf.Struct"
+    except AttributeError:
+        from django.contrib.postgres.fields import JSONField
+
+        type_mapping[JSONField.__name__] = "google.protobuf.Struct"
+
+    try:
+        type_mapping[models.PositiveBigIntegerField.__name__] = "int64"
+    except AttributeError:
+        pass
 
     _instances = {}
 

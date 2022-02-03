@@ -220,7 +220,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         proto_type = self.type_mapping.get(field_type.__class__.__name__, "string")
 
-        # if  field_name == "default_method_field":
+        # if  field_name == "slug_many_many":
         #     print(f"class is : {field_type.__class__}")
         #     print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}")
         #     print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}")
@@ -261,9 +261,13 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the ManyRelatedField that mean the type is the type of the pk of the child_relation (see relations.py of drf)
         elif issubclass(field_type.__class__, ManyRelatedField):
-            proto_type = (
-                f"repeated {self.get_pk_from_related_field(field_type.child_relation)}"
+            child_proto_type = self.get_proto_type(
+                app_name, field_type.child_relation, field_name, serializer_instance
             )
+            # INFO - AM - 03/02/2022 - if the returned child_proto_type returned is repeated (this can happen with slud related field in a many many relationships) we remove it because we only need one repeated
+            if child_proto_type.startswith("repeated "):
+                child_proto_type = child_proto_type[9:]
+            proto_type = f"repeated {child_proto_type}"
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the RelatedField that mean the type is the type of the pk of the foreign model
         elif issubclass(field_type.__class__, RelatedField):

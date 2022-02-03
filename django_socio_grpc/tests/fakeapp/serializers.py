@@ -69,6 +69,7 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
     slug_reverse_test_model = serializers.SlugRelatedField(
         slug_field="is_active", read_only=True
     )
+    slug_many_many = serializers.SlugRelatedField(slug_field="name", read_only=True, many=True)
 
     custom_field_name = serializers.CharField()
 

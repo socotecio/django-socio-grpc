@@ -55,15 +55,18 @@ class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
 
 
 class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
+
+    test_write_only_on_nested = serializers.CharField(write_only=True)
+
     class Meta:
         model = ManyManyModel
         proto_class = fakeapp_pb2.ManyManyModelResponse
-        fields = "__all__"
+        fields = ["uuid", "name", "test_write_only_on_nested"]
 
 
 class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
     foreign_obj = ForeignModelSerializer(read_only=True)
-    many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
+    many_many_obj = ManyManyModelSerializer(many=True)
 
     slug_test_model = serializers.SlugRelatedField(slug_field="special_number", read_only=True)
     slug_reverse_test_model = serializers.SlugRelatedField(

@@ -184,9 +184,16 @@ message RelatedFieldModelListResponse {
 
 message RelatedFieldModelRequest {
     string uuid = 1;
-    string custom_field_name = 2;
-    string foreign = 3;
-    repeated string many_many = 4;
+    repeated ManyManyModelRequest many_many_obj = 2;
+    string custom_field_name = 3;
+    string foreign = 4;
+    repeated string many_many = 5;
+}
+
+message ManyManyModelRequest {
+    string uuid = 1;
+    string name = 2;
+    string test_write_only_on_nested = 3;
 }
 
 message RelatedFieldModelRetrieveRequest {
@@ -564,6 +571,7 @@ message RelatedFieldModel {
 message ManyManyModel {
     string uuid = 1;
     string name = 2;
+    string test_write_only_on_nested = 3;
 }
 
 message RelatedFieldModelListRequest {
@@ -793,9 +801,16 @@ message RelatedFieldModelListResponse {
 
 message RelatedFieldModelRequest {
     string uuid = 1;
-    string custom_field_name = 2;
-    string foreign = 3;
-    repeated string many_many = 4;
+    repeated ManyManyModelRequest many_many_obj = 2;
+    string custom_field_name = 3;
+    string foreign = 4;
+    repeated string many_many = 5;
+}
+
+message ManyManyModelRequest {
+    string uuid = 1;
+    string name = 2;
+    string test_write_only_on_nested = 3;
 }
 
 message RelatedFieldModelRetrieveRequest {

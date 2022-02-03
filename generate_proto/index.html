@@ -7,11 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
+  
   <link rel="shortcut icon" href="../img/favicon.ico">
   <title>Generate Proto - Django Socio gRPC Documentation</title>
-  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../css/theme.css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
   
   <script>
     // Current page data
@@ -22,9 +25,8 @@
   
   <script src="../js/jquery-2.1.1.min.js" defer></script>
   <script src="../js/modernizr-2.8.3.min.js" defer></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
-  
 </head>
 
 <body class="wy-body-for-nav" role="document">
@@ -33,105 +35,93 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
         <a href=".." class="icon icon-home"> Django Socio gRPC Documentation</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-	<ul class="current">
-	  
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="..">Home</a>
-	    </li>
-          
-            <li class="toctree-l1 current">
-		
-    <a class="current" href="./">Generate Proto</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l2"><a href="#proto-generation">Proto Generation</a></li>
-    
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Generate Proto</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#command">Command</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#settings-configuration">Settings configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#default-generation">Default generation</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-custom-method-decorator">Adding Custom method (Decorator)</a>
         <ul>
-        
-            <li><a class="toctree-l3" href="#command">Command</a></li>
-        
-            <li><a class="toctree-l3" href="#settings-configuration">Settings configuration</a></li>
-        
-            <li><a class="toctree-l3" href="#default-generation">Default generation</a></li>
-        
-            <li><a class="toctree-l3" href="#adding-custom-method-decorator">Adding Custom method (Decorator)</a></li>
-        
-            <li><a class="toctree-l3" href="#force-message-for-know-method">Force message for know method</a></li>
-        
-            <li><a class="toctree-l3" href="#read-only-and-write-only-props">Read Only and write only props</a></li>
-        
-            <li><a class="toctree-l3" href="#nested-serializer">Nested serializer</a></li>
-        
-            <li><a class="toctree-l3" href="#special-case-of-methodserializerfield">Special case of MethodSerializerField</a></li>
-        
-            <li><a class="toctree-l3" href="#customizing-the-name-of-the-field-in-the-listresponse">Customizing the name of the field in the ListResponse</a></li>
-        
+    <li class="toctree-l3"><a class="reference internal" href="#request-and-response-arg">Request and Response arg</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#request_name-and-response_name-arg">request_name and response_name arg</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#request_stream-and-response_stream-arg">request_stream and response_stream arg</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#use_request_list-and-use_response_list-arg">use_request_list and use_response_list arg</a>
+    </li>
         </ul>
-    
-
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#force-message-for-know-method">Force message for know method</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#read-only-and-write-only-props">Read Only and write only props</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nested-serializer">Nested serializer</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#special-case-of-methodserializerfield">Special case of MethodSerializerField</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#customizing-the-name-of-the-field-in-the-listresponse">Customizing the name of the field in the ListResponse</a>
+    </li>
     </ul>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../generic_service/">Generic Service</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../model_service/">Model Service</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../proto_serializer/">Proto Serializer</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../sync_vs_async/">Sync vs Async</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../server_and_service_register/">Server and service register</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../permissions_and_authentication/">Permissions and Authentication</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../logging/">Logging</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../settings/">Settings</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../testing/">Testing</a>
-	    </li>
-          
-        </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../generic_service/">Generic Service</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../model_service/">Model Service</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../proto_serializer/">Proto Serializer</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../sync_vs_async/">Sync vs Async</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../server_and_service_register/">Server and service register</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../permissions_and_authentication/">Permissions and Authentication</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../settings/">Settings</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../testing/">Testing</a>
+                    </li>
+                </ul>
       </div>
-      &nbsp;
+    </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -156,8 +146,10 @@
       
     </li>
   </ul>
+  
   <hr/>
 </div>
+
           <div role="main">
             <div class="section">
               
@@ -165,9 +157,8 @@
 <p>To be able to generate proto you need to register your service first. To do so please refer to <a href="https://socotecio.github.io/django-socio-grpc/server_and_service_register/#service-registration">https://socotecio.github.io/django-socio-grpc/server_and_service_register/#service-registration</a></p>
 <h2 id="command">Command</h2>
 <p>To automatically generate proto and python files use the generateproto command:</p>
-<pre><code class="bash">python manage.py generateproto
+<pre><code class="language-bash">python manage.py generateproto
 </code></pre>
-
 <p>Options Available:</p>
 <table>
 <thead>
@@ -227,7 +218,7 @@
 <h2 id="default-generation">Default generation</h2>
 <p>By default each service registered inheriting from know mixins will generate the default method and message in proto file. </p>
 <p>For example if we have a service that inherit from AsyncModelService and serializer like this:</p>
-<pre><code class="python"># Serializer
+<pre><code class="language-python"># Serializer
 from django_socio_grpc import proto_serializers
 from .models import Something
 
@@ -248,9 +239,8 @@ class SomethingService(generics.AsyncModelService):
     serializer_class = SomethingProtoSerializer
 
 </code></pre>
-
 <p>this will generate a proto like:</p>
-<pre><code class="proto">syntax = &quot;proto3&quot;;
+<pre><code class="language-proto">syntax = &quot;proto3&quot;;
 
 package doc_example.generate_proto_doc;
 
@@ -291,16 +281,15 @@ message SomethingDestroyRequest {
     string uuid = 1;
 }
 </code></pre>
-
 <p>To see more complex usage without reading the doc please look at the code used for the unit tests:</p>
 <p><a href="https://github.com/socotecio/django-socio-grpc/tree/master/django_socio_grpc/tests/fakeapp/services">See services example used for test here</a>
 <a href="https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/serializers.py">See serializers example used for test here</a></p>
 <h2 id="adding-custom-method-decorator">Adding Custom method (Decorator)</h2>
 <p>You can add custome method (one not listed in mixins file: List, Create, Update, PartialUpdate, Retrieve, Delete, Stream) with the decorator grpc_action</p>
 <p>This decorator signature is:</p>
-<pre><code class="python">def grpc_action(request=None, response=None, request_stream=False, response_stream=False, use_request_list=False, use_response_list=False)
+<pre><code class="language-python">def grpc_action(request=None, response=None, request_name=None, response_name=None, request_stream=False, response_stream=False, use_request_list=False, use_response_list=False)
 </code></pre>
-
+<h3 id="request-and-response-arg">Request and Response arg</h3>
 <p>request and response are the variable used to define the field in the request/response proto message.</p>
 <p>It can be a string, a list of dict or a serializer.</p>
 <p>1.String format</p>
@@ -308,16 +297,15 @@ message SomethingDestroyRequest {
 <p>2.List of dict format</p>
 <p>Transform the dict inside the list into proto field. Usefull if you have only 1 or 2 field and doesn't want to create a serializer
 Dict format is:</p>
-<pre><code class="python">{
+<pre><code class="language-python">{
     &quot;name&quot;: &quot;field_name&quot;,
     &quot;type&quot;: &quot;existing_protobuf_type&quot;
 }
 </code></pre>
-
 <p>3.Serializer</p>
 <p>Use a Serializer class to create the proto message in the same way that it work for know method.</p>
 <p>Example:</p>
-<pre><code class="python">class BasicServiceSerializer(proto_serializers.ProtoSerializer):
+<pre><code class="language-python">class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
 user_name = serializers.CharField()
 user_data = serializers.DictField()
@@ -333,9 +321,8 @@ class BasicService(generics.GenericService):
     async def FetchDataForUser(self, request, context):
         pass
 </code></pre>
-
 <p>Generate:</p>
-<pre><code class="proto">service BasicController {
+<pre><code class="language-proto">service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
 }
 
@@ -348,10 +335,16 @@ message BasicServiceResponse {
     google.protobuf.Struct user_data = 2;
 }
 </code></pre>
-
+<h3 id="request_name-and-response_name-arg">request_name and response_name arg</h3>
+<p>Used to force a name for the message used. </p>
+<h3 id="request_stream-and-response_stream-arg">request_stream and response_stream arg</h3>
+<p>Used to mark the request or the response as a stream in the protobuf file</p>
+<h3 id="use_request_list-and-use_response_list-arg">use_request_list and use_response_list arg</h3>
+<p>Used to encapsulate the message inside a List message.</p>
+<p>You need to use it if you return a serializer message with many=True at initialisation</p>
 <h2 id="force-message-for-know-method">Force message for know method</h2>
 <p>You can use <code>grpc_action</code> decorator on know method to override default message.</p>
-<pre><code class="python">class SomethingService(generics.AsyncModelService):
+<pre><code class="language-python">class SomethingService(generics.AsyncModelService):
     queryset = SpecialFieldsModel.objects.all().order_by(&quot;uuid&quot;)
     serializer_class = SpecialFieldsModelSerializer
 
@@ -362,9 +355,8 @@ message BasicServiceResponse {
     async def Retrieve(self, request, context):
         pass
 </code></pre>
-
 <p>Generate:</p>
-<pre><code class="proto">
+<pre><code class="language-proto">
 import &quot;google/protobuf/empty.proto&quot;;
 
 service SomethingController {
@@ -385,12 +377,11 @@ message SomethingRetrieveResponse {
 
 ...
 </code></pre>
-
 <h2 id="read-only-and-write-only-props">Read Only and write only props</h2>
 <p>If the settings <code>SEPARATE_READ_WRITE_MODEL</code> is true. Django Socio gRPC will automatically use read_only and write_only field kwargs to generate field only in request or response message.
 This is also true for django field with specific value (editable=False or similar)</p>
 <p>Example:</p>
-<pre><code class="python">class BasicServiceSerializer(proto_serializers.ProtoSerializer):
+<pre><code class="language-python">class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
     user_name = serializers.CharField(read_only=True)
     email = serializers.CharField()
@@ -399,9 +390,8 @@ This is also true for django field with specific value (editable=False or simila
     class Meta:
         fields = [&quot;user_name&quot;, &quot;email&quot;, &quot;password&quot;]
 </code></pre>
-
 <p>Generate a message like:</p>
-<pre><code class="proto">message BasicServiceRequest {
+<pre><code class="language-proto">message BasicServiceRequest {
     string user_name = 1;
     string password = 2;
 }
@@ -411,10 +401,9 @@ message BasicServiceResponse {
     string email = 2;
 }
 </code></pre>
-
 <h2 id="nested-serializer">Nested serializer</h2>
 <p>Django Socio gRPC support nested serializer without no extra work. Just try it.</p>
-<pre><code class="python">class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
+<pre><code class="language-python">class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
     foreign_obj = ForeignModelSerializer(read_only=True)
     many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
 
@@ -422,18 +411,16 @@ message BasicServiceResponse {
         model = RelatedFieldModel
         fields = [&quot;uuid&quot;, &quot;foreign_obj&quot;, &quot;many_many_obj&quot;]
 </code></pre>
-
-<pre><code class="proto">message RelatedFieldModelResponse {
+<pre><code class="language-proto">message RelatedFieldModelResponse {
     string uuid = 1;
     ForeignModelResponse foreign_obj = 2;
     repeated ManyManyModelResponse many_many_obj = 3;
 }
 </code></pre>
-
 <h2 id="special-case-of-methodserializerfield">Special case of MethodSerializerField</h2>
 <p>DRF MethodSerializerField class is a field type that return the result of a method. So there is no possibility to automatically find the type of this field.
 To contourn this problem Django Socio gRPC introduce function introspection where we are looking for return annotation in the method to find the prototype</p>
-<pre><code class="python">from typing import List, Disct
+<pre><code class="language-python">from typing import List, Disct
 
 class ExampleSerializer(
     proto_serializers.ProtoSerializer
@@ -451,16 +438,14 @@ class ExampleSerializer(
     class Meta:
         fields = [&quot;default_method_field&quot;, &quot;custom_method_field&quot;]
 </code></pre>
-
-<pre><code class="proto">message ExampleResponse {
+<pre><code class="language-proto">message ExampleResponse {
     int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 </code></pre>
-
 <h2 id="customizing-the-name-of-the-field-in-the-listresponse">Customizing the name of the field in the ListResponse</h2>
 <p>By default the name of the field used for list response is <code>results</code>. You can override it in the meta of your serializer:</p>
-<pre><code class="python">class ExampleSerializer(proto_serializers.ProtoSerializer):
+<pre><code class="language-python">class ExampleSerializer(proto_serializers.ProtoSerializer):
 
     uuid = serializers.CharField()
     name = serializers.CharField()
@@ -470,8 +455,7 @@ class ExampleSerializer(
         fields = [&quot;uuid&quot;, &quot;name&quot;]
 
 </code></pre>
-
-<pre><code class="proto">message ExampleResponse {
+<pre><code class="language-proto">message ExampleResponse {
     string uuid = 1;
     string name = 2;
 }
@@ -503,7 +487,7 @@ message ExampleListResponse {
     
   </div>
 
-  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
       
         </div>
@@ -513,20 +497,26 @@ message ExampleListResponse {
 
   </div>
 
-  <div class="rst-versions" role="note" style="cursor: pointer">
-    <span class="rst-current-version" data-toggle="rst-current-version">
-      
-      
-        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
-      
-      
-        <span style="margin-left: 15px"><a href="../generic_service/" style="color: #fcfcfc">Next &raquo;</a></span>
-      
-    </span>
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../generic_service/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
 </div>
     <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
     <script src="../js/theme.js" defer></script>
       <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
 
 </body>
 </html>

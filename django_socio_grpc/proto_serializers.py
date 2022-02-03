@@ -2,6 +2,7 @@ from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
 from google.protobuf.pyext._message import RepeatedCompositeContainer
 from rest_framework.exceptions import ValidationError
+from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (
     LIST_SERIALIZER_KWARGS,
     BaseSerializer,
@@ -153,3 +154,23 @@ class BinaryField(Field):
         # INFO - AM - 03/02/2022 - For now as we do not know what to do because we miss some use cas we just return the value and let the user to whatever he want
         # Some idea is to pass extra kwargs to convert bytes into string. We can use base64 or unicode(value)
         return value
+
+
+class SlugRelatedConvertedField(SlugRelatedField):
+    """
+    A read-write field that represents the target of the relationship
+    by a unique 'slug' attribute. And support a type converter to be sure that the field is in the correct protobuf type
+    """
+
+    def __init__(self, convert_type=None, **kwargs):
+        assert (
+            callable(convert_type) is True
+        ), "The `convert_type` argument need to be callable."
+        self.convert_type = convert_type
+        super().__init__(**kwargs)
+
+    def to_representation(self, obj):
+        slug_value = getattr(obj, self.slug_field)
+        if self.convert_type:
+            return self.convert_type(slug_value)
+        return slug_value

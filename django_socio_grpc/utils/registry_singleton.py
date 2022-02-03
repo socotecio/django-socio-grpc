@@ -214,8 +214,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
         For SerializerMethodField we also need field_name and serializer_instance
         """
 
-        print(field_name, field_type, field_type.__class__.__name__)
-
         # If field type is a str that mean we use a custom field
         if isinstance(field_type, str):
             return field_type

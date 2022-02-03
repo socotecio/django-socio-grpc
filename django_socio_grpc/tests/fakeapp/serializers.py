@@ -125,4 +125,4 @@ class BasicServiceSerializer(proto_serializers.ProtoSerializer):
     class Meta:
         proto_class = fakeapp_pb2.BasicServiceResponse
         proto_class_list = fakeapp_pb2.BasicGetMultipleListResponse
-        fields = ["user_name", "user_data"]
+        fields = ["user_name", "user_data", "user_password", "bytes_example"]

@@ -140,6 +140,7 @@ class SpecialFieldsModel(models.Model):
         default=list,
         blank=True,
     )
+    binary = models.BinaryField(default=None)
 
 
 class ImportStructEvenInArrayModel(models.Model):

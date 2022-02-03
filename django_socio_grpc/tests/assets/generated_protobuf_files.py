@@ -345,6 +345,7 @@ message SpecialFieldsModelResponse {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
+    bytes binary = 4;
 }
 
 message SpecialFieldsModelListRequest {
@@ -388,6 +389,7 @@ message BasicFetchDataForUserRequest {
 message BasicServiceResponse {
     string user_name = 1;
     google.protobuf.Struct user_data = 2;
+    bytes bytes_example = 3;
 }
 
 message BasicGetMultipleListResponse {
@@ -581,6 +583,7 @@ message SpecialFieldsModel {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
+    string binary = 4;
 }
 
 message SpecialFieldsModelListRequest {
@@ -712,6 +715,7 @@ message BasicFetchDataForUserRequest {
 message BasicServiceResponse {
     string user_name = 1;
     google.protobuf.Struct user_data = 2;
+    bytes bytes_example = 3;
 }
 
 message BasicGetMultipleListResponse {
@@ -802,6 +806,7 @@ message SpecialFieldsModelResponse {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
+    bytes binary = 4;
 }
 
 message SpecialFieldsModelListRequest {

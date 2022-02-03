@@ -225,6 +225,7 @@ message SpecialFieldsModel {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
+    bytes binary = 4;
 }
 
 message SpecialFieldsModelListRequest {

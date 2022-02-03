@@ -177,7 +177,13 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
             field_grpc_generator_format = (
                 field_name,
-                self.get_proto_type(app_name, field_type, field_name, serializer_instance),
+                self.get_proto_type(
+                    app_name,
+                    field_type,
+                    field_name,
+                    serializer_instance,
+                    is_request=is_request,
+                ),
             )
 
             self.registered_app[app_name]["registered_messages"][message_name].append(
@@ -208,7 +214,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
             message_name = f"{message_name}{'Request' if is_request else 'Response'}"
         return message_name
 
-    def get_proto_type(self, app_name, field_type, field_name, serializer_instance):
+    def get_proto_type(
+        self, app_name, field_type, field_name, serializer_instance, is_request=None
+    ):
         """
         Return a proto_type  to use in the proto file from a field type.
         For SerializerMethodField we also need field_name and serializer_instance
@@ -237,20 +245,20 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have
         if issubclass(field_type.__class__, ListProtoSerializer):
-            proto_type = f"repeated {self.get_message_name_from_field_or_serializer_instance(field_type.child, is_request=False)}"
+            proto_type = f"repeated {self.get_message_name_from_field_or_serializer_instance(field_type.child, is_request=is_request)}"
             # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
             self.register_serializer_as_message_if_not_exist(
-                app_name, field_type.child, is_request=False
+                app_name, field_type.child, is_request=is_request
             )
 
         # INFO - AM - 07/01/2022 - else if the field type inherit from proto serializer that mean that it is generated as a message in the proto file
         elif issubclass(field_type.__class__, BaseProtoSerializer):
             proto_type = self.get_message_name_from_field_or_serializer_instance(
-                field_type, is_request=False
+                field_type, is_request=is_request
             )
             # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
             self.register_serializer_as_message_if_not_exist(
-                app_name, field_type, is_request=False
+                app_name, field_type, is_request=is_request
             )
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the SlugRelatedField that mean the type is the type name attribute in the foreign model
@@ -262,7 +270,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the ManyRelatedField that mean the type is the type of the pk of the child_relation (see relations.py of drf)
         elif issubclass(field_type.__class__, ManyRelatedField):
             child_proto_type = self.get_proto_type(
-                app_name, field_type.child_relation, field_name, serializer_instance
+                app_name,
+                field_type.child_relation,
+                field_name,
+                serializer_instance,
+                is_request=is_request,
             )
             # INFO - AM - 03/02/2022 - if the returned child_proto_type returned is repeated (this can happen with slud related field in a many many relationships) we remove it because we only need one repeated
             if child_proto_type.startswith("repeated "):

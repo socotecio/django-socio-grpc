@@ -782,8 +782,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
             message_name=request_name,
         )
         if use_request_list:
-            if response_name:
-                base_name = rreplace(response_name, "Request", "", 1)
+            if function_name == KnowMethods.LIST:
+                base_name = service_name
             else:
                 base_name = f"{service_name}{function_name}"
             request_message_name = self.register_list_response_message_of_serializer(
@@ -807,8 +807,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
             message_name=response_name,
         )
         if use_response_list:
-            if response_name:
-                base_name = rreplace(response_name, "Response", "", 1)
+            if function_name == KnowMethods.LIST:
+                base_name = service_name
             else:
                 base_name = f"{service_name}{function_name}"
             response_message_name = self.register_list_response_message_of_serializer(
@@ -817,6 +817,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 base_name=base_name,
                 list_response_field_name=list_response_field_name,
                 child_response_message_name=response_message_name,
+                message_name=response_name,
             )
         # INFO - AM - 03/02/3022 - If user specified a response name we use it instead of the automatically generated one
         if response_name:
@@ -862,7 +863,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 return "google.protobuf.Empty", DEFAULT_LIST_FIELD_NAME
 
             messages_fields = [(item["name"], item["type"]) for item in message]
-
             if message_name is None:
                 message_name = (
                     f"{service_name}{function_name}{'Request' if is_request else 'Response'}"
@@ -880,10 +880,13 @@ class RegistrySingleton(metaclass=SingletonMeta):
             list_response_field_name = (
                 self.get_list_response_field_name_from_serializer_instance(serializer_instance)
             )
+            message_name_auto = self.register_serializer_as_message_if_not_exist(
+                app_name, serializer_instance, is_request=is_request
+            )
+            if message_name is None:
+                message_name = message_name_auto
             return (
-                self.register_serializer_as_message_if_not_exist(
-                    app_name, serializer_instance, is_request=is_request
-                ),
+                message_name,
                 list_response_field_name,
             )
         else:

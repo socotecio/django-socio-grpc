@@ -210,6 +210,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
             message_name = rreplace(class_name, "ProtoSerializer", "", 1)
         elif "Serializer" in class_name:
             message_name = rreplace(class_name, "Serializer", "", 1)
+        else:
+            message_name = class_name
+
         if grpc_settings.SEPARATE_READ_WRITE_MODEL and append_type:
             message_name = f"{message_name}{'Request' if is_request else 'Response'}"
         return message_name

@@ -46,8 +46,10 @@ def specialfieldmodel_handler_hook(server):
 
 
 def foreignmodel_handler_hook(server):
+    from fakeapp.services.foreign_model_service import ForeignModelService
+
     app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("ForeignModelService")
+    app_registry.register(ForeignModelService)
 
 
 def importstructeveninarraymodel_handler_hook(server):
@@ -84,7 +86,7 @@ def overide_grpc_framework(name_of_function):
 def overide_grpc_framework_no_separate():
     return {
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-        "ROOT_HANDLERS_HOOK": "fakeapp.urls.grpc_handlers",
+        "ROOT_HANDLERS_HOOK": "fakeapp.handlers.grpc_handlers",
         "SEPARATE_READ_WRITE_MODEL": False,
     }
 

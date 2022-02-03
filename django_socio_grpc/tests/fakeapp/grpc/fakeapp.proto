@@ -5,8 +5,23 @@ package fakeproject.fakeapp;
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
-service UnitTestModelController {
-    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+service BasicController {
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
+    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
+}
+
+service SpecialFieldsModelController {
+    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
+    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc Create(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
+    rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
+    rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
+service SyncUnitTestModelController {
+    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
@@ -15,8 +30,8 @@ service UnitTestModelController {
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
 }
 
-service SyncUnitTestModelController {
-    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+service UnitTestModelController {
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
@@ -38,25 +53,43 @@ service RelatedFieldModelController {
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
-service SpecialFieldsModelController {
-    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
-    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
-    rpc Create(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
-    rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
-    rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
-}
-
 service ImportStructEvenInArrayModelController {
     rpc Create(ImportStructEvenInArrayModelRequest) returns (ImportStructEvenInArrayModelResponse) {}
 }
 
-service BasicController {
-    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
-    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
 }
 
-message UnitTestModelListWithExtraArgsRequest {
+message BasicServiceResponse {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+}
+
+message BasicGetMultipleListResponse {
+    repeated BasicServiceResponse results = 1;
+    int32 count = 2;
+}
+
+message CustomNameForRequest {
+    string user_name = 1;
+}
+
+message CustomNameForResponse {
+    string user_name = 1;
+}
+
+message SpecialFieldsModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message CustomRetrieveResponseSpecialFieldsModelResponse {
+    string uuid = 1;
+    int32 default_method_field = 2;
+    repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message SyncUnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
 }
 
@@ -70,6 +103,10 @@ message UnitTestModelResponse {
     int32 id = 1;
     string title = 2;
     string text = 3;
+}
+
+message UnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
 }
 
 message UnitTestModelListRequest {
@@ -95,10 +132,6 @@ message UnitTestModelDestroyRequest {
 }
 
 message UnitTestModelStreamRequest {
-}
-
-message SyncUnitTestModelListWithExtraArgsRequest {
-    bool archived = 1;
 }
 
 message ForeignModelResponse {
@@ -162,16 +195,6 @@ message RelatedFieldModelDestroyRequest {
     string uuid = 1;
 }
 
-message SpecialFieldsModelRetrieveRequest {
-    string uuid = 1;
-}
-
-message CustomRetrieveResponseSpecialFieldsModelResponse {
-    string uuid = 1;
-    int32 default_method_field = 2;
-    repeated google.protobuf.Struct custom_method_field = 3;
-}
-
 message SpecialFieldsModelResponse {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
@@ -204,19 +227,5 @@ message ImportStructEvenInArrayModelRequest {
 message ImportStructEvenInArrayModelResponse {
     string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
-}
-
-message BasicFetchDataForUserRequest {
-    string user_name = 1;
-}
-
-message BasicServiceResponse {
-    string user_name = 1;
-    google.protobuf.Struct user_data = 2;
-}
-
-message BasicGetMultipleListResponse {
-    repeated BasicServiceResponse results = 1;
-    int32 count = 2;
 }
 

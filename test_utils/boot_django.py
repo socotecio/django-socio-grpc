@@ -22,7 +22,7 @@ def boot_django():
         DEBUG=True,
         GRPC_FRAMEWORK={
             "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-            "ROOT_HANDLERS_HOOK": "fakeapp.urls.grpc_handlers",
+            "ROOT_HANDLERS_HOOK": "fakeapp.handlers.grpc_handlers",
         },
         DATABASES={
             "default": {

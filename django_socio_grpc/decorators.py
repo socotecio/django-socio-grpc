@@ -11,6 +11,8 @@ class _grpc_action:
         function,
         request=None,
         response=None,
+        request_name=None,
+        response_name=None,
         request_stream=False,
         response_stream=False,
         use_request_list=False,
@@ -20,6 +22,8 @@ class _grpc_action:
     ):
         self.request = request
         self.response = response
+        self.request_name = request_name
+        self.response_name = response_name
         self.request_stream = request_stream
         self.response_stream = response_stream
         self.use_request_list = use_request_list
@@ -34,6 +38,8 @@ class _grpc_action:
                 function_name=name,
                 request=self.request,
                 response=self.response,
+                request_name=self.request_name,
+                response_name=self.response_name,
                 request_stream=self.request_stream,
                 response_stream=self.response_stream,
                 use_request_list=self.use_request_list,
@@ -53,6 +59,8 @@ class _grpc_action:
 def grpc_action(
     request=None,
     response=None,
+    request_name=None,
+    response_name=None,
     request_stream=False,
     response_stream=False,
     use_request_list=False,
@@ -63,6 +71,8 @@ def grpc_action(
 
     :param request: Format of the request. Can be a list of dict, a proto serilizer class or a string. See doc for more information.
     :param response: Format of the response. Can be a list of dict, a proto serilizer class or a string. See doc for more information.
+    :param request_name: Name of the request. By default it's generated according to service name and function name.
+    :param response_name: Name of the response. By default it's generated according to service name and function name.
     :param request_stream: If true the request message is marqued as stream. Default to false
     :param response_stream: If true the response message is marqued as stream. Default to false
     :param use_request_list: If true the response message is encapsuled in a list message. Default to false
@@ -74,6 +84,8 @@ def grpc_action(
             function,
             request,
             response,
+            request_name,
+            response_name,
             request_stream,
             response_stream,
             use_request_list,

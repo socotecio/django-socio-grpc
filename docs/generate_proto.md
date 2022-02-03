@@ -114,8 +114,10 @@ You can add custome method (one not listed in mixins file: List, Create, Update,
 
 This decorator signature is:
 ```python
-def grpc_action(request=None, response=None, request_stream=False, response_stream=False, use_request_list=False, use_response_list=False)
+def grpc_action(request=None, response=None, request_name=None, response_name=None, request_stream=False, response_stream=False, use_request_list=False, use_response_list=False)
 ```
+
+### Request and Response arg
 
 request and response are the variable used to define the field in the request/response proto message.
 
@@ -178,6 +180,21 @@ message BasicServiceResponse {
 }
 ```
 
+
+### request_name and response_name arg
+
+Used to force a name for the message used. 
+
+
+### request_stream and response_stream arg
+
+Used to mark the request or the response as a stream in the protobuf file
+
+### use_request_list and use_response_list arg
+
+Used to encapsulate the message inside a List message.
+
+You need to use it if you return a serializer message with many=True at initialisation
 
 ## Force message for know method
 

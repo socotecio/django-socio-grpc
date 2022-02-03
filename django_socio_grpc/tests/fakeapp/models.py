@@ -91,6 +91,9 @@ class RelatedFieldModel(models.Model):
         on_delete=models.CASCADE,
         related_name="related",
     )
+    slug_many_many = models.ManyToManyField(
+        ManyManyModel, blank=True, related_name="relateds_slugs"
+    )
 
     class Meta:
         ###############################################################

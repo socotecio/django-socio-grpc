@@ -158,9 +158,10 @@ message RelatedFieldModelResponse {
     repeated ManyManyModelResponse many_many_obj = 3;
     int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
-    string custom_field_name = 6;
-    string foreign = 7;
-    repeated string many_many = 8;
+    repeated string slug_many_many = 6;
+    string custom_field_name = 7;
+    string foreign = 8;
+    repeated string many_many = 9;
 }
 
 message ForeignModelResponse {
@@ -554,9 +555,10 @@ message RelatedFieldModel {
     repeated ManyManyModel many_many_obj = 3;
     int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
-    string custom_field_name = 6;
-    string foreign = 7;
-    repeated string many_many = 8;
+    repeated string slug_many_many = 6;
+    string custom_field_name = 7;
+    string foreign = 8;
+    repeated string many_many = 9;
 }
 
 message ManyManyModel {
@@ -770,9 +772,10 @@ message RelatedFieldModelResponse {
     repeated ManyManyModelResponse many_many_obj = 3;
     int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
-    string custom_field_name = 6;
-    string foreign = 7;
-    repeated string many_many = 8;
+    repeated string slug_many_many = 6;
+    string custom_field_name = 7;
+    string foreign = 8;
+    repeated string many_many = 9;
 }
 
 message ManyManyModelResponse {

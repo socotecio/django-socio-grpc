@@ -46,6 +46,8 @@ class ModelProtoGeneratorOldWay:
         models.UUIDField.__name__: "string",
         models.GenericIPAddressField.__name__: "string",
         models.FilePathField.__name__: "string",
+        # Other
+        models.BinaryField.__name__: "bytes",
         # Default
         models.Field.__name__: "string",
     }

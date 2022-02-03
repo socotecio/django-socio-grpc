@@ -120,8 +120,9 @@ class BasicServiceSerializer(proto_serializers.ProtoSerializer):
     user_name = serializers.CharField()
     user_data = serializers.DictField()
     user_password = serializers.CharField(write_only=True)
+    bytes_example = proto_serializers.BinaryField()
 
     class Meta:
         proto_class = fakeapp_pb2.BasicServiceResponse
         proto_class_list = fakeapp_pb2.BasicGetMultipleListResponse
-        fields = ["user_name", "user_data"]
+        fields = ["user_name", "user_data", "user_password", "bytes_example"]

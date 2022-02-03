@@ -1,13 +1,17 @@
+from django.core.validators import MaxLengthValidator
+from django.utils.translation import gettext as _
 from google.protobuf.pyext._message import RepeatedCompositeContainer
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (
     LIST_SERIALIZER_KWARGS,
     BaseSerializer,
+    Field,
     ListSerializer,
     ModelSerializer,
     Serializer,
 )
 from rest_framework.settings import api_settings
+from rest_framework.utils.formatting import lazy_format
 
 from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
 
@@ -123,3 +127,29 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
 
 class ModelProtoSerializer(ProtoSerializer, ModelSerializer):
     pass
+
+
+class BinaryField(Field):
+
+    default_error_messages = {
+        "max_length": _("Ensure this field has no more than {max_length} characters."),
+    }
+
+    def __init__(self, **kwargs):
+        self.max_length = kwargs.pop("max_length", None)
+        super().__init__(**kwargs)
+        if self.max_length is not None:
+            message = lazy_format(
+                self.error_messages["max_length"], max_length=self.max_length
+            )
+            self.validators.append(MaxLengthValidator(self.max_length, message=message))
+
+    def to_internal_value(self, data):
+        # INFO - AM - 03/02/2022 - For now as we do not know what to do because we miss some use cas we just return the data and let the user to whatever he want
+        # Some idea is to pass extra kwargs to convert string into bytes. We can use base64 or directly bytes(value)
+        return data
+
+    def to_representation(self, value):
+        # INFO - AM - 03/02/2022 - For now as we do not know what to do because we miss some use cas we just return the value and let the user to whatever he want
+        # Some idea is to pass extra kwargs to convert bytes into string. We can use base64 or unicode(value)
+        return value

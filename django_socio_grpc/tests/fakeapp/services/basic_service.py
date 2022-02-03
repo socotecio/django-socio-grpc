@@ -19,7 +19,7 @@ class BasicService(generics.GenericService):
         }
 
         serializer = BasicServiceSerializer(
-            {"user_name": request.user_name, "user_data": user_data}
+            {"user_name": request.user_name, "user_data": user_data, "bytes_example": b"test"}
         )
         return serializer.message
 
@@ -43,6 +43,7 @@ class BasicService(generics.GenericService):
                     "birth_date": "25/01/1996",
                     "slogan": "Do it better",
                 },
+                "bytes_example": b"test",
             },
             {
                 "user_name": "fake2",
@@ -51,6 +52,7 @@ class BasicService(generics.GenericService):
                     "birth_date": "25/01/1996",
                     "slogan": "Do it better2",
                 },
+                "bytes_example": b"test",
             },
         ]
 

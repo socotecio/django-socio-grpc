@@ -7,6 +7,7 @@ from rest_framework.fields import (
     DictField,
     HiddenField,
     ListField,
+    ModelField,
     ReadOnlyField,
     SerializerMethodField,
 )
@@ -105,6 +106,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
         models.UUIDField.__name__: "string",
         models.GenericIPAddressField.__name__: "string",
         models.FilePathField.__name__: "string",
+        # Other
+        models.BinaryField.__name__: "bytes",
         # Default
         models.Field.__name__: "string",
     }
@@ -271,6 +274,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
             proto_type = "repeated google.protobuf.Struct"
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repaeated of the child attr proto type
+        elif issubclass(field_type.__class__, ModelField):
+            proto_type = self.type_mapping.get(
+                field_type.model_field.__class__.__name__, "string"
+            )
+
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repaeated of the child attr proto type
         elif issubclass(field_type.__class__, ListField):
             child_type = self.type_mapping.get(field_type.child.__class__.__name__, "string")
             proto_type = f"repeated {child_type}"
@@ -315,6 +324,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             list: "repeated string",
             float: "repeated float",
             dict: "google.protobuf.Struct",
+            bytes: "bytes",
             List: "repeated string",
             Dict: "google.protobuf.Struct",
             List[int]: "repeated int32",

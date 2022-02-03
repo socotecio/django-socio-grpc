@@ -56,3 +56,12 @@ class BasicService(generics.GenericService):
 
         serializer = BasicServiceSerializer(user_datas, many=True)
         return serializer.message
+
+    @grpc_action(
+        request=[{"name": "user_name", "type": "string"}],
+        response=[{"name": "user_name", "type": "string"}],
+        request_name="CustomNameForRequest",
+        response_name="CustomNameForResponse",
+    )
+    async def MyMethod(self, request, context):
+        pass

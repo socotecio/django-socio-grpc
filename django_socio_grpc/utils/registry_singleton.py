@@ -17,6 +17,7 @@ from rest_framework.utils.model_meta import get_field_info
 from django_socio_grpc.proto_serializers import BaseProtoSerializer, ListProtoSerializer
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
+from django_socio_grpc.utils.tools import rreplace
 
 DEFAULT_LIST_FIELD_NAME = "results"
 
@@ -196,7 +197,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
     ):
         # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we have two different message for the same serializer
         class_name = class_or_field_instance.__class__.__name__
-        message_name = class_name.replace("ProtoSerializer", "").replace("Serializer", "")
+        if "ProtoSerializer" in class_name:
+            message_name = rreplace(class_name, "ProtoSerializer", "", 1)
+        elif "Serializer" in class_name:
+            message_name = rreplace(class_name, "Serializer", "", 1)
         if grpc_settings.SEPARATE_READ_WRITE_MODEL and append_type:
             message_name = f"{message_name}{'Request' if is_request else 'Response'}"
         return message_name
@@ -402,6 +406,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         base_name,
         list_response_field_name,
         child_response_message_name,
+        message_name=None,
     ):
 
         pagination = service_instance.pagination_class
@@ -414,7 +419,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if pagination:
             response_fields += [("count", "int32")]
 
-        response_message_name = f"{base_name}ListResponse"
+        if message_name:
+            response_message_name = message_name
+        else:
+            response_message_name = f"{base_name}ListResponse"
 
         self.registered_app[app_name]["registered_messages"][
             response_message_name
@@ -715,6 +723,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
         function_name,
         request=None,
         response=None,
+        request_name=None,
+        response_name=None,
         request_stream=False,
         response_stream=False,
         use_request_list=False,
@@ -735,31 +745,53 @@ class RegistrySingleton(metaclass=SingletonMeta):
             request_message_name,
             list_response_field_name,
         ) = self.register_message_for_custom_action(
-            app_name, service_name, function_name, request, is_request=True
+            app_name,
+            service_name,
+            function_name,
+            request,
+            is_request=True,
+            message_name=request_name,
         )
         if use_request_list:
+            if response_name:
+                base_name = rreplace(response_name, "Request", "", 1)
+            else:
+                base_name = f"{service_name}{function_name}"
             request_message_name = self.register_list_response_message_of_serializer(
                 app_name,
                 service_instance,
-                base_name=f"{service_name}{function_name}",
+                base_name=base_name,
                 list_response_field_name=list_response_field_name,
                 child_response_message_name=request_message_name,
+                message_name=request_name,
             )
 
         (
             response_message_name,
             list_response_field_name,
         ) = self.register_message_for_custom_action(
-            app_name, service_name, function_name, response, is_request=False
+            app_name,
+            service_name,
+            function_name,
+            response,
+            is_request=False,
+            message_name=response_name,
         )
         if use_response_list:
+            if response_name:
+                base_name = rreplace(response_name, "Response", "", 1)
+            else:
+                base_name = f"{service_name}{function_name}"
             response_message_name = self.register_list_response_message_of_serializer(
                 app_name,
                 service_instance,
-                base_name=f"{service_name}{function_name}",
+                base_name=base_name,
                 list_response_field_name=list_response_field_name,
                 child_response_message_name=response_message_name,
             )
+        # INFO - AM - 03/02/3022 - If user specified a response name we use it instead of the automatically generated one
+        if response_name:
+            response_message_name = response_name
 
         self.register_method_for_custom_action(
             app_name,
@@ -794,7 +826,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         }
 
     def register_message_for_custom_action(
-        self, app_name, service_name, function_name, message, is_request
+        self, app_name, service_name, function_name, message, is_request, message_name=None
     ):
         if isinstance(message, list):
             if len(message) == 0:
@@ -802,9 +834,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
             messages_fields = [(item["name"], item["type"]) for item in message]
 
-            message_name = (
-                f"{service_name}{function_name}{'Request' if is_request else 'Response'}"
-            )
+            if message_name is None:
+                message_name = (
+                    f"{service_name}{function_name}{'Request' if is_request else 'Response'}"
+                )
             self.registered_app[app_name]["registered_messages"][
                 message_name
             ] = messages_fields

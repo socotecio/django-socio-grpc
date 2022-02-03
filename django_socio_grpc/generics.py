@@ -7,6 +7,7 @@ from django_socio_grpc import mixins, services
 from django_socio_grpc.exceptions import NotFound
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
+from django_socio_grpc.utils.tools import rreplace
 
 
 class GenericService(services.Service):
@@ -34,7 +35,7 @@ class GenericService(services.Service):
         if self.service_name:
             return self.service_name
         else:
-            return self.__class__.__name__.replace("Service", "")
+            return rreplace(self.__class__.__name__, "Service", "", 1)
 
     def get_queryset(self):
         """

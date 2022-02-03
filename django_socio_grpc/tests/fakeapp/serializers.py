@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from rest_framework import serializers
 
-import fakeapp.grpc.fakeapp_pb2 as grpc_model
+import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from django_socio_grpc import proto_serializers
 
 from .models import (
@@ -25,23 +25,23 @@ class ForeignModelRetrieveCustomProtoSerializer(proto_serializers.ProtoSerialize
 
     class Meta:
         model = ForeignModel
-        proto_class = grpc_model.ForeignModelRetrieveCustomResponse
+        proto_class = fakeapp_pb2.ForeignModelRetrieveCustomResponse
         fields = ["uuid", "name"]
 
 
 class ForeignModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = ForeignModel
-        proto_class = grpc_model.ForeignModelResponse
-        proto_class_list = grpc_model.ForeignModelListResponse
+        proto_class = fakeapp_pb2.ForeignModelResponse
+        proto_class_list = fakeapp_pb2.ForeignModelListResponse
         fields = "__all__"
 
 
 class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = UnitTestModel
-        proto_class = grpc_model.UnitTestModelResponse
-        proto_class_list = grpc_model.UnitTestModelListResponse
+        proto_class = fakeapp_pb2.UnitTestModelResponse
+        proto_class_list = fakeapp_pb2.UnitTestModelListResponse
         fields = "__all__"
 
 
@@ -51,13 +51,13 @@ class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
     results = UnitTestModelSerializer(many=True)
 
     class Meta:
-        proto_class = grpc_model.UnitTestModelListExtraArgsResponse
+        proto_class = fakeapp_pb2.UnitTestModelListExtraArgsResponse
 
 
 class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = ManyManyModel
-        proto_class = grpc_model.ManyManyModelResponse
+        proto_class = fakeapp_pb2.ManyManyModelResponse
         fields = "__all__"
 
 
@@ -74,8 +74,8 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
 
     class Meta:
         model = RelatedFieldModel
-        proto_class = grpc_model.RelatedFieldModelResponse
-        proto_class_list = grpc_model.RelatedFieldModelListResponse
+        proto_class = fakeapp_pb2.RelatedFieldModelResponse
+        proto_class_list = fakeapp_pb2.RelatedFieldModelListResponse
         message_list_attr = "list_custom_field_name"
         fields = "__all__"
 
@@ -83,15 +83,15 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
 class SpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = SpecialFieldsModel
-        proto_class = grpc_model.SpecialFieldsModelResponse
-        proto_class_list = grpc_model.SpecialFieldsModelListResponse
+        proto_class = fakeapp_pb2.SpecialFieldsModelResponse
+        proto_class_list = fakeapp_pb2.SpecialFieldsModelListResponse
         fields = "__all__"
 
 
 class ImportStructEvenInArrayModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = ImportStructEvenInArrayModel
-        proto_class = grpc_model.ImportStructEvenInArrayModelResponse
+        proto_class = fakeapp_pb2.ImportStructEvenInArrayModelResponse
         fields = "__all__"
 
 
@@ -111,7 +111,7 @@ class CustomRetrieveResponseSpecialFieldsModelSerializer(
 
     class Meta:
         model = SpecialFieldsModel
-        proto_class = grpc_model.RelatedFieldModelResponse
+        proto_class = fakeapp_pb2.RelatedFieldModelResponse
         fields = ["uuid", "default_method_field", "custom_method_field"]
 
 
@@ -122,6 +122,6 @@ class BasicServiceSerializer(proto_serializers.ProtoSerializer):
     user_password = serializers.CharField(write_only=True)
 
     class Meta:
-        proto_class = grpc_model.BasicServiceResponse
-        proto_class_list = grpc_model.BasicGetMultipleListResponse
+        proto_class = fakeapp_pb2.BasicServiceResponse
+        proto_class_list = fakeapp_pb2.BasicGetMultipleListResponse
         fields = ["user_name", "user_data"]

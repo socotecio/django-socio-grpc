@@ -21,6 +21,8 @@ from django_socio_grpc.utils import model_meta
 from django_socio_grpc.utils.tools import rreplace
 
 DEFAULT_LIST_FIELD_NAME = "results"
+REQUEST_SUFFIX = "Request"
+RESPONSE_SUFFIX = "Response"
 
 
 class RegisterServiceException(Exception):
@@ -214,7 +216,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             message_name = class_name
 
         if grpc_settings.SEPARATE_READ_WRITE_MODEL and append_type:
-            message_name = f"{message_name}{'Request' if is_request else 'Response'}"
+            message_name = f"{message_name}{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX}"
         return message_name
 
     def get_proto_type(
@@ -428,7 +430,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         return proto_type
 
-    def register_list_response_message_of_serializer(
+    def register_list_message_of_serializer(
         self,
         app_name,
         service_instance,
@@ -436,6 +438,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         list_response_field_name,
         child_response_message_name,
         message_name=None,
+        is_request=False,
     ):
 
         pagination = service_instance.pagination_class
@@ -448,10 +451,22 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if pagination:
             response_fields += [("count", "int32")]
 
+        # INFO - AM - 04/02/2022 - For list message with a custom name we need to add List Before Response or Request end of world if seperate settings is true
         if message_name:
-            response_message_name = message_name
+            if grpc_settings.SEPARATE_READ_WRITE_MODEL:
+                suffix_len = 0
+                if is_request and message_name.endswith(REQUEST_SUFFIX):
+                    suffix_len = len(REQUEST_SUFFIX)
+                elif not is_request and message_name.endswith(RESPONSE_SUFFIX):
+                    suffix_len = len(RESPONSE_SUFFIX)
+
+                response_message_name = (
+                    message_name[suffix_len:] + "List" + message_name[:suffix_len]
+                )
+            else:
+                response_message_name = f"{message_name}List"
         else:
-            response_message_name = f"{base_name}ListResponse"
+            response_message_name = f"{base_name}List{RESPONSE_SUFFIX}"
 
         self.registered_app[app_name]["registered_messages"][
             response_message_name
@@ -636,15 +651,16 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance
         )
 
-        request_message_name = f"{serializer_name}ListRequest"
+        request_message_name = f"{serializer_name}List{REQUEST_SUFFIX}"
         self.registered_app[app_name]["registered_messages"][request_message_name] = []
 
-        response_message_name = self.register_list_response_message_of_serializer(
+        response_message_name = self.register_list_message_of_serializer(
             app_name,
             service_instance,
             base_name=serializer_name,
             list_response_field_name=list_response_field_name,
             child_response_message_name=child_response_message_name,
+            is_request=False,
         )
 
         return request_message_name, response_message_name
@@ -663,7 +679,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance, append_type=False
         )
 
-        request_message_name = f"{serializer_name}RetrieveRequest"
+        request_message_name = f"{serializer_name}Retrieve{REQUEST_SUFFIX}"
         self.registered_app[app_name]["registered_messages"][request_message_name] = [
             retrieve_field
         ]
@@ -689,7 +705,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance, append_type=False
         )
 
-        request_message_name = f"{serializer_name}DestroyRequest"
+        request_message_name = f"{serializer_name}Destroy{REQUEST_SUFFIX}"
         self.registered_app[app_name]["registered_messages"][request_message_name] = [
             destroy_field
         ]
@@ -704,7 +720,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             serializer_instance, append_type=False
         )
 
-        request_message_name = f"{serializer_name}StreamRequest"
+        request_message_name = f"{serializer_name}Stream{REQUEST_SUFFIX}"
         self.registered_app[app_name]["registered_messages"][request_message_name] = []
 
         response_message_name = self.register_serializer_as_message_if_not_exist(
@@ -786,13 +802,14 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 base_name = service_name
             else:
                 base_name = f"{service_name}{function_name}"
-            request_message_name = self.register_list_response_message_of_serializer(
+            request_message_name = self.register_list_message_of_serializer(
                 app_name,
                 service_instance,
                 base_name=base_name,
                 list_response_field_name=list_response_field_name,
                 child_response_message_name=request_message_name,
                 message_name=request_name,
+                is_request=True,
             )
 
         (
@@ -811,13 +828,14 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 base_name = service_name
             else:
                 base_name = f"{service_name}{function_name}"
-            response_message_name = self.register_list_response_message_of_serializer(
+            response_message_name = self.register_list_message_of_serializer(
                 app_name,
                 service_instance,
                 base_name=base_name,
                 list_response_field_name=list_response_field_name,
                 child_response_message_name=response_message_name,
                 message_name=response_name,
+                is_request=False,
             )
         # INFO - AM - 03/02/3022 - If user specified a response name we use it instead of the automatically generated one
         if response_name:
@@ -864,9 +882,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
             messages_fields = [(item["name"], item["type"]) for item in message]
             if message_name is None:
-                message_name = (
-                    f"{service_name}{function_name}{'Request' if is_request else 'Response'}"
-                )
+                message_name = f"{service_name}{function_name}{REQUEST_SUFFIX if is_request else {RESPONSE_SUFFIX}}"
             self.registered_app[app_name]["registered_messages"][
                 message_name
             ] = messages_fields
@@ -891,7 +907,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             )
         else:
             raise RegisterServiceException(
-                f"{'Request' if is_request else 'Response'} message for function {function_name} in app {app_name} is not a list, a serializer or a string"
+                f"{REQUEST_SUFFIX if is_request else {RESPONSE_SUFFIX}} message for function {function_name} in app {app_name} is not a list, a serializer or a string"
             )
 
     def get_app_name_from_service_class(self, service_class):

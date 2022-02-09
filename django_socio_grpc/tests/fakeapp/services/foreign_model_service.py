@@ -14,6 +14,6 @@ class ForeignModelService(
     lookup_field = "name"
 
     def get_serializer_class(self):
-        if self.action == "retrieve":
+        if self.action == "Retrieve":
             return ForeignModelRetrieveCustomProtoSerializer
         return super().get_serializer_class()

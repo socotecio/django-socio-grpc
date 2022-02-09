@@ -625,7 +625,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         Assign to the service instance the current action to be able to anticipate case where a service has different serializer class returned
         then call get_serializer_class and return an instance of it for generating message by instrospecting
         """
-        service_instance.action = method.lower()
+        service_instance.action = method
         SerializerClass = service_instance.get_serializer_class()
 
         serializer_instance = SerializerClass()

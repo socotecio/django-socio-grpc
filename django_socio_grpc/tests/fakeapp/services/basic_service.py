@@ -67,3 +67,23 @@ class BasicService(generics.GenericService):
     )
     async def MyMethod(self, request, context):
         pass
+
+    @grpc_action(
+        request=[{"name": "user_name", "type": "string"}],
+        response=[{"name": "user_name", "type": "string"}],
+        request_name="CustomMixParamForRequest",
+        use_request_list=True,
+        use_response_list=True,
+    )
+    async def MixParam(self, request, context):
+        pass
+
+    @grpc_action(
+        request=BasicServiceSerializer,
+        response="google.protobuf.Struct",
+        request_name="BasicParamWithSerializerRequest",
+        use_request_list=True,
+        use_response_list=True,
+    )
+    async def MixParamWithSerializer(self, request, context):
+        pass

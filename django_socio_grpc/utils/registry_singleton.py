@@ -144,15 +144,16 @@ class RegistrySingleton(metaclass=SingletonMeta):
     ############################################################################
 
     def register_serializer_as_message_if_not_exist(
-        self, app_name, serializer_instance, is_request=True
+        self, app_name, serializer_instance, message_name=None, is_request=True
     ):
         """
         Register a message if not already exsting in the registered_messages of an app_name
         This message need to be in a correct format that will be used by generators to transform it into generators
         """
-        message_name = self.get_message_name_from_field_or_serializer_instance(
-            serializer_instance, is_request
-        )
+        if message_name is None:
+            message_name = self.get_message_name_from_field_or_serializer_instance(
+                serializer_instance, is_request
+            )
 
         pk_name = None
         if getattr(serializer_instance.Meta, "model", None):
@@ -461,7 +462,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
                     suffix_len = len(RESPONSE_SUFFIX)
 
                 response_message_name = (
-                    message_name[suffix_len:] + "List" + message_name[:suffix_len]
+                    message_name[:-suffix_len] + "List" + message_name[-suffix_len:]
                 )
             else:
                 response_message_name = f"{message_name}List"
@@ -798,10 +799,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
             message_name=request_name,
         )
         if use_request_list:
-            if function_name == KnowMethods.LIST:
-                base_name = service_name
-            else:
-                base_name = f"{service_name}{function_name}"
+            base_name = self.get_base_name_for_list_message(
+                service_name, function_name, message_name=request_message_name, is_request=True
+            )
             request_message_name = self.register_list_message_of_serializer(
                 app_name,
                 service_instance,
@@ -824,10 +824,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
             message_name=response_name,
         )
         if use_response_list:
-            if function_name == KnowMethods.LIST:
-                base_name = service_name
-            else:
-                base_name = f"{service_name}{function_name}"
+            base_name = self.get_base_name_for_list_message(
+                service_name,
+                function_name,
+                message_name=response_message_name,
+                is_request=False,
+            )
             response_message_name = self.register_list_message_of_serializer(
                 app_name,
                 service_instance,
@@ -882,7 +884,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
             messages_fields = [(item["name"], item["type"]) for item in message]
             if message_name is None:
-                message_name = f"{service_name}{function_name}{REQUEST_SUFFIX if is_request else {RESPONSE_SUFFIX}}"
+                message_name = f"{service_name}{function_name}{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX}"
             self.registered_app[app_name]["registered_messages"][
                 message_name
             ] = messages_fields
@@ -896,19 +898,38 @@ class RegistrySingleton(metaclass=SingletonMeta):
             list_response_field_name = (
                 self.get_list_response_field_name_from_serializer_instance(serializer_instance)
             )
-            message_name_auto = self.register_serializer_as_message_if_not_exist(
-                app_name, serializer_instance, is_request=is_request
+            message_name = self.register_serializer_as_message_if_not_exist(
+                app_name, serializer_instance, message_name, is_request=is_request
             )
-            if message_name is None:
-                message_name = message_name_auto
             return (
                 message_name,
                 list_response_field_name,
             )
         else:
             raise RegisterServiceException(
-                f"{REQUEST_SUFFIX if is_request else {RESPONSE_SUFFIX}} message for function {function_name} in app {app_name} is not a list, a serializer or a string"
+                f"{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX} message for function {function_name} in app {app_name} is not a list, a serializer or a string"
             )
+
+    def get_base_name_for_list_message(
+        self, service_name, function_name, message_name, is_request=True
+    ):
+        suffix = REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX
+        list_suffix = f"List{suffix}"
+        # INFO - AM - 09/02/2022 - If special protobuf message we have to determine the name for the message
+        if self.is_special_protobuf_message(message_name):
+            if function_name == KnowMethods.LIST:
+                base_name = service_name
+            else:
+                base_name = f"{service_name}{function_name}"
+        # INFO - AM - 09/02/2022 - Avoid duplicate List on message name on list method
+        elif function_name == KnowMethods.LIST and list_suffix in message_name:
+            base_name = rreplace(message_name, list_suffix, "", 1)
+        else:
+            base_name = rreplace(message_name, suffix, "", 1)
+        return base_name
 
     def get_app_name_from_service_class(self, service_class):
         return service_class.__module__.split(".")[0]
+
+    def is_special_protobuf_message(self, message_name):
+        return message_name.startswith("google.protobuf")

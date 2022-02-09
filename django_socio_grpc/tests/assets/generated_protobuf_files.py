@@ -386,8 +386,10 @@ import "google/protobuf/struct.proto";
 service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
+    rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
+    rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
 }
 
 message BasicFetchDataForUserRequest {
@@ -400,7 +402,7 @@ message BasicServiceResponse {
     bytes bytes_example = 3;
 }
 
-message BasicGetMultipleListResponse {
+message BasicServiceListResponse {
     repeated BasicServiceResponse results = 1;
     int32 count = 2;
 }
@@ -411,6 +413,41 @@ message CustomNameForRequest {
 
 message CustomNameForResponse {
     string user_name = 1;
+}
+
+message CustomMixParamForRequest {
+    string user_name = 1;
+}
+
+message CustomMixParamForListRequest {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamResponse {
+    string user_name = 1;
+}
+
+message BasicMixParamListResponse {
+    repeated BasicMixParamResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerRequest {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+}
+
+message BasicParamWithSerializerListRequest {
+    repeated BasicParamWithSerializerRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamWithSerializerListResponse {
+    repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
 }
 
 """
@@ -454,8 +491,10 @@ service SpecialFieldsModelController {
 service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicService) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
+    rpc MixParam(CustomMixParamForRequestList) returns (BasicMixParamListResponse) {}
+    rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerListResponse) {}
 }
 
 service ForeignModelController {
@@ -516,7 +555,7 @@ message BasicService {
     bytes bytes_example = 4;
 }
 
-message BasicGetMultipleListResponse {
+message BasicServiceListResponse {
     repeated BasicService results = 1;
     int32 count = 2;
 }
@@ -527,6 +566,41 @@ message CustomNameForRequest {
 
 message CustomNameForResponse {
     string user_name = 1;
+}
+
+message CustomMixParamForRequest {
+    string user_name = 1;
+}
+
+message CustomMixParamForRequestList {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamResponse {
+    string user_name = 1;
+}
+
+message BasicMixParamListResponse {
+    repeated BasicMixParamResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerRequest {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+}
+
+message BasicParamWithSerializerRequestList {
+    repeated BasicParamWithSerializerRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamWithSerializerListResponse {
+    repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
 }
 
 message ForeignModel {
@@ -668,8 +742,10 @@ service SpecialFieldsModelController {
 service BasicController {
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-    rpc GetMultiple(google.protobuf.Empty) returns (BasicGetMultipleListResponse) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
+    rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
+    rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
 }
 
 service ForeignModelController {
@@ -729,7 +805,7 @@ message BasicServiceResponse {
     bytes bytes_example = 3;
 }
 
-message BasicGetMultipleListResponse {
+message BasicServiceListResponse {
     repeated BasicServiceResponse results = 1;
     int32 count = 2;
 }
@@ -740,6 +816,41 @@ message CustomNameForRequest {
 
 message CustomNameForResponse {
     string user_name = 1;
+}
+
+message CustomMixParamForRequest {
+    string user_name = 1;
+}
+
+message CustomMixParamForListRequest {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamResponse {
+    string user_name = 1;
+}
+
+message BasicMixParamListResponse {
+    repeated BasicMixParamResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerRequest {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+}
+
+message BasicParamWithSerializerListRequest {
+    repeated BasicParamWithSerializerRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamWithSerializerListResponse {
+    repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
 }
 
 message ForeignModelResponse {

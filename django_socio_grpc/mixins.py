@@ -2,6 +2,7 @@ from asgiref.sync import sync_to_async
 from google.protobuf import empty_pb2
 
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.utils.constants import DEFAULT_LIST_FIELD_NAME
 
 
 ############################################################
@@ -73,7 +74,7 @@ class ListModelMixin:
 
     @staticmethod
     def get_default_message(
-        model_name, fields=None, pagination=None, response_field_name="results"
+        model_name, fields=None, pagination=None, response_field_name=DEFAULT_LIST_FIELD_NAME
     ):
         if fields is None:
             fields = []

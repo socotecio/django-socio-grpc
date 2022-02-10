@@ -20,9 +20,12 @@ from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 from django_socio_grpc.utils.tools import rreplace
 
-DEFAULT_LIST_FIELD_NAME = "results"
-REQUEST_SUFFIX = "Request"
-RESPONSE_SUFFIX = "Response"
+from .constants import (
+    DEFAULT_LIST_FIELD_NAME,
+    LIST_ATTR_MESSAGE_NAME,
+    REQUEST_SUFFIX,
+    RESPONSE_SUFFIX,
+)
 
 
 class RegisterServiceException(Exception):
@@ -482,7 +485,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # INFO - AM - 14/01/2022 - We let the possibility to the user to customize the name of the attr where the list items are set by message_list_attr attr in meta class. If not present we use the default results
         serializer_meta = getattr(serializer_instance, "Meta", None)
         if serializer_meta:
-            message_list_attr = getattr(serializer_meta, "message_list_attr", None)
+            message_list_attr = getattr(serializer_meta, LIST_ATTR_MESSAGE_NAME, None)
             if message_list_attr:
                 list_response_field_name = message_list_attr
 

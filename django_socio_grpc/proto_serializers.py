@@ -15,15 +15,16 @@ from rest_framework.settings import api_settings
 from rest_framework.utils.formatting import lazy_format
 
 from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
+from django_socio_grpc.utils.constants import DEFAULT_LIST_FIELD_NAME, LIST_ATTR_MESSAGE_NAME
 
-LIST_PROTO_SERIALIZER_KWARGS = (*LIST_SERIALIZER_KWARGS, "message_list_attr", "message")
+LIST_PROTO_SERIALIZER_KWARGS = (*LIST_SERIALIZER_KWARGS, LIST_ATTR_MESSAGE_NAME, "message")
 
 
 class BaseProtoSerializer(BaseSerializer):
     def __init__(self, *args, **kwargs):
         message = kwargs.pop("message", None)
         self.stream = kwargs.pop("stream", None)
-        self.message_list_attr = kwargs.pop("message_list_attr", None)
+        self.message_list_attr = kwargs.pop(LIST_ATTR_MESSAGE_NAME, None)
         if message is not None:
             self.initial_message = message
             kwargs["data"] = self.message_to_data(message)
@@ -86,7 +87,7 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             self.child, "Meta"
         ), f'Class {self.__class__.__name__} missing "Meta" attribute'
 
-        message_list_attr = getattr(self.child.Meta, "message_list_attr", None)
+        message_list_attr = getattr(self.child.Meta, LIST_ATTR_MESSAGE_NAME, None)
         if not message_list_attr and self.message_list_attr:
             message_list_attr = self.message_list_attr
 
@@ -122,7 +123,12 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             return [self.child.data_to_message(item) for item in data]
         else:
             response = self.child.Meta.proto_class_list()
-            response.results.extend([self.child.data_to_message(item) for item in data])
+            response_result_attr = getattr(
+                self.child.Meta, LIST_ATTR_MESSAGE_NAME, DEFAULT_LIST_FIELD_NAME
+            )
+            getattr(response, response_result_attr).extend(
+                [self.child.data_to_message(item) for item in data]
+            )
             return response
 
 

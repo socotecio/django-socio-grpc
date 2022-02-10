@@ -25,8 +25,8 @@ class SocioProxyHttpRequest:
         self.META = {
             self.MAP_HEADERS.get(key.upper()): value for key, value in self.headers.items()
         }
+
         # INFO - A.D.B - 04/01/2021 - Not implemented for now
-        self.GET = {}
         self.POST = {}
         self.COOKIES = {}
         self.FILES = {}
@@ -36,6 +36,10 @@ class SocioProxyHttpRequest:
 
         # Computed params
         self.query_params = self.get_query_params(grpc_request_metadata)
+        # INFO - AM - 10/02/2021 - Only implementing GET because it's easier as we have metadata here. For post we will have to pass the request and transform it to python dict.
+        # It's possible but it will be slow the all thing so we hava to param this behavior with settings.
+        # So we are waiting for the need to implement it
+        self.GET = self.query_params
 
     def convert_metadata_to_dict(self, invocation_metadata):
         grpc_request_metadata = {}

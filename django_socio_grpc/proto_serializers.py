@@ -72,6 +72,11 @@ class BaseProtoSerializer(BaseSerializer):
         list_serializer_class = getattr(meta, "list_serializer_class", ListProtoSerializer)
         return list_serializer_class(*args, **list_kwargs)
 
+    def to_proto_message(self):
+        raise NotImplementedError(
+            "If you want to use BaseProtoSerializer instead of ProtoSerializer you need to implement 'to_proto_message' method as there is no fields to introspect from. Please read the documentation"
+        )
+
 
 class ProtoSerializer(BaseProtoSerializer, Serializer):
     pass

@@ -15,7 +15,11 @@ from rest_framework.relations import ManyRelatedField, RelatedField, SlugRelated
 from rest_framework.serializers import BaseSerializer, ListSerializer
 from rest_framework.utils.model_meta import get_field_info
 
-from django_socio_grpc.proto_serializers import BaseProtoSerializer, ListProtoSerializer
+from django_socio_grpc.proto_serializers import (
+    BaseProtoSerializer,
+    ListProtoSerializer,
+    ProtoSerializer,
+)
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 from django_socio_grpc.utils.tools import rreplace
@@ -167,34 +171,42 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         self.registered_app[app_name]["registered_messages"][message_name] = []
 
-        for field_name, field_type in serializer_instance.get_fields().items():
+        if issubclass(serializer_instance.__class__, ProtoSerializer):
+            for field_name, field_type in serializer_instance.get_fields().items():
 
-            # INFO - AM - 21/01/2022 - HiddenField are not used in api so not showed in protobuf file
-            if issubclass(field_type.__class__, HiddenField):
-                continue
-
-            # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we need to filter read only or write only field depend of if is requets message or not
-            # INFO - AM - 21/01/2022 - By defautl in DRF Pk are read_only. But in grpc we want them to be in the message
-            if grpc_settings.SEPARATE_READ_WRITE_MODEL and field_name != pk_name:
-                if is_request and self.field_type_is_read_only(field_type):
-                    continue
-                if not is_request and self.field_type_is_write_only(field_type):
+                # INFO - AM - 21/01/2022 - HiddenField are not used in api so not showed in protobuf file
+                if issubclass(field_type.__class__, HiddenField):
                     continue
 
-            field_grpc_generator_format = (
-                field_name,
-                self.get_proto_type(
-                    app_name,
-                    field_type,
+                # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we need to filter read only or write only field depend of if is requets message or not
+                # INFO - AM - 21/01/2022 - By defautl in DRF Pk are read_only. But in grpc we want them to be in the message
+                if grpc_settings.SEPARATE_READ_WRITE_MODEL and field_name != pk_name:
+                    if is_request and self.field_type_is_read_only(field_type):
+                        continue
+                    if not is_request and self.field_type_is_write_only(field_type):
+                        continue
+
+                field_grpc_generator_format = (
                     field_name,
-                    serializer_instance,
-                    is_request=is_request,
-                ),
-            )
+                    self.get_proto_type(
+                        app_name,
+                        field_type,
+                        field_name,
+                        serializer_instance,
+                        is_request=is_request,
+                    ),
+                )
 
-            self.registered_app[app_name]["registered_messages"][message_name].append(
-                field_grpc_generator_format
-            )
+                self.registered_app[app_name]["registered_messages"][message_name].append(
+                    field_grpc_generator_format
+                )
+        # INFO - AM - 07/01/2022 - else if the field type inherit from base proto serializer and not protoserializer get_fields method is not implemented so we need a custom action here
+        else:
+            message = serializer_instance.to_proto_message()
+            messages_fields = [(item["name"], item["type"]) for item in message]
+            self.registered_app[app_name]["registered_messages"][
+                message_name
+            ] = messages_fields
 
         return message_name
 
@@ -479,7 +491,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
             else:
                 response_message_name = f"{message_name}List"
         else:
-            response_message_name = f"{base_name}List{RESPONSE_SUFFIX}"
+            if base_name.endswith("List"):
+                response_message_name = f"{base_name}{RESPONSE_SUFFIX}"
+            else:
+                response_message_name = f"{base_name}List{RESPONSE_SUFFIX}"
 
         self.registered_app[app_name]["registered_messages"][
             response_message_name
@@ -665,6 +680,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         )
 
         request_message_name = f"{serializer_name}List{REQUEST_SUFFIX}"
+        if serializer_name.endswith("List"):
+            request_message_name = f"{serializer_name}{REQUEST_SUFFIX}"
+        else:
+            request_message_name = f"{serializer_name}List{REQUEST_SUFFIX}"
+
         self.registered_app[app_name]["registered_messages"][request_message_name] = []
 
         response_message_name = self.register_list_message_of_serializer(

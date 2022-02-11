@@ -400,6 +400,7 @@ message BasicServiceResponse {
     string user_name = 1;
     google.protobuf.Struct user_data = 2;
     bytes bytes_example = 3;
+    repeated google.protobuf.Struct list_of_dict = 4;
 }
 
 message BasicServiceListResponse {
@@ -438,6 +439,7 @@ message BasicParamWithSerializerRequest {
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
 }
 
 message BasicParamWithSerializerListRequest {
@@ -553,6 +555,7 @@ message BasicService {
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
 }
 
 message BasicServiceListResponse {
@@ -591,6 +594,7 @@ message BasicParamWithSerializerRequest {
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
 }
 
 message BasicParamWithSerializerRequestList {
@@ -803,6 +807,7 @@ message BasicServiceResponse {
     string user_name = 1;
     google.protobuf.Struct user_data = 2;
     bytes bytes_example = 3;
+    repeated google.protobuf.Struct list_of_dict = 4;
 }
 
 message BasicServiceListResponse {
@@ -841,6 +846,7 @@ message BasicParamWithSerializerRequest {
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
 }
 
 message BasicParamWithSerializerListRequest {

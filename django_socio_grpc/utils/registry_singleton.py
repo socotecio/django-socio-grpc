@@ -306,8 +306,17 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repaeated of the child attr proto type
         elif issubclass(field_type.__class__, ListField):
-            child_type = self.type_mapping.get(field_type.child.__class__.__name__, "string")
-            proto_type = f"repeated {child_type}"
+            child_proto_type = self.get_proto_type(
+                app_name,
+                field_type.child,
+                field_name,
+                serializer_instance,
+                is_request=is_request,
+            )
+            # INFO - AM - 03/02/2022 - if the returned child_proto_type returned is repeated (this can happen with slud related field in a many many relationships) we remove it because we only need one repeated
+            if child_proto_type.startswith("repeated "):
+                child_proto_type = child_proto_type[9:]
+            proto_type = f"repeated {child_proto_type}"
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the DictField that mean it's a Struct
         elif issubclass(field_type.__class__, DictField):

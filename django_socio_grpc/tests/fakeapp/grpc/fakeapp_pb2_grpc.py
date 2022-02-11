@@ -28,12 +28,22 @@ class BasicControllerStub(object):
         self.GetMultiple = channel.unary_unary(
                 '/fakeproject.fakeapp.BasicController/GetMultiple',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicGetMultipleListResponse.FromString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceListResponse.FromString,
                 )
         self.MyMethod = channel.unary_unary(
                 '/fakeproject.fakeapp.BasicController/MyMethod',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForResponse.FromString,
+                )
+        self.MixParam = channel.unary_unary(
+                '/fakeproject.fakeapp.BasicController/MixParam',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomMixParamForListRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamListResponse.FromString,
+                )
+        self.MixParamWithSerializer = channel.unary_unary(
+                '/fakeproject.fakeapp.BasicController/MixParamWithSerializer',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.FromString,
                 )
 
 
@@ -64,6 +74,18 @@ class BasicControllerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def MixParam(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def MixParamWithSerializer(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BasicControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -80,12 +102,22 @@ def add_BasicControllerServicer_to_server(servicer, server):
             'GetMultiple': grpc.unary_unary_rpc_method_handler(
                     servicer.GetMultiple,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicGetMultipleListResponse.SerializeToString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceListResponse.SerializeToString,
             ),
             'MyMethod': grpc.unary_unary_rpc_method_handler(
                     servicer.MyMethod,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForResponse.SerializeToString,
+            ),
+            'MixParam': grpc.unary_unary_rpc_method_handler(
+                    servicer.MixParam,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomMixParamForListRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamListResponse.SerializeToString,
+            ),
+            'MixParamWithSerializer': grpc.unary_unary_rpc_method_handler(
+                    servicer.MixParamWithSerializer,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -144,7 +176,7 @@ class BasicController(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/GetMultiple',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicGetMultipleListResponse.FromString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceListResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -162,6 +194,40 @@ class BasicController(object):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/MyMethod',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def MixParam(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/MixParam',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomMixParamForListRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamListResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def MixParamWithSerializer(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/MixParamWithSerializer',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

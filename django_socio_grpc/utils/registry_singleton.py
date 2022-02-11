@@ -491,10 +491,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             else:
                 response_message_name = f"{message_name}List"
         else:
-            if base_name.endswith("List"):
-                response_message_name = f"{base_name}{RESPONSE_SUFFIX}"
-            else:
-                response_message_name = f"{base_name}List{RESPONSE_SUFFIX}"
+            response_message_name = f"{base_name}List{RESPONSE_SUFFIX}"
 
         self.registered_app[app_name]["registered_messages"][
             response_message_name
@@ -680,10 +677,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
         )
 
         request_message_name = f"{serializer_name}List{REQUEST_SUFFIX}"
-        if serializer_name.endswith("List"):
-            request_message_name = f"{serializer_name}{REQUEST_SUFFIX}"
-        else:
-            request_message_name = f"{serializer_name}List{REQUEST_SUFFIX}"
 
         self.registered_app[app_name]["registered_messages"][request_message_name] = []
 

@@ -1,6 +1,6 @@
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
-from fakeapp.serializers import BasicServiceSerializer
+from fakeapp.serializers import BaseProtoExampleSerializer, BasicServiceSerializer
 
 
 class BasicService(generics.GenericService):
@@ -93,4 +93,12 @@ class BasicService(generics.GenericService):
         use_response_list=True,
     )
     async def MixParamWithSerializer(self, request, context):
+        pass
+
+    @grpc_action(
+        request=BaseProtoExampleSerializer,
+        response=BaseProtoExampleSerializer,
+        use_response_list=True,
+    )
+    async def TestBaseProtoSerializer(self, request, context):
         pass

@@ -292,6 +292,38 @@ message RelatedFieldModelResponse {
 }
 ```
 
+## Special case of BaseProtoSerializer
+
+As BaseProtoSerializer doesn't have fields but only to_representation and to_internal_value we can't automatically instropect code to find the correct proto type.
+
+To address this issue you have to manually declare the name and protobuf type of the BaseProtoSerializer in a `to_proto_message` method.
+
+This `to_proto_message` need to return a list of dict in the same format that `grpc_action` request or response as list input.
+
+```python
+class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
+    def to_representation(self, el):
+        return {
+            "uuid": str(el.uuid),
+            "number_of_elements": el.number_of_elements,
+            "is_archived": el.is_archived,
+        }
+
+    def to_proto_message(self):
+        return [
+            {"name": "uuid", "type": "string"},
+            {"name": "number_of_elements", "type": "int32"},
+            {"name": "is_archived", "type": "bool"},
+        ]
+```
+
+```proto
+message BaseProtoExampleResponse {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+```
 
 ## Special case of MethodSerializerField
 

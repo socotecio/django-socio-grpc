@@ -390,6 +390,7 @@ service BasicController {
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
 }
 
 message BasicFetchDataForUserRequest {
@@ -452,6 +453,23 @@ message BasicMixParamWithSerializerListResponse {
     int32 count = 2;
 }
 
+message BaseProtoExampleRequest {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+
+message BaseProtoExampleResponse {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+
+message BaseProtoExampleListResponse {
+    repeated BaseProtoExampleResponse results = 1;
+    int32 count = 2;
+}
+
 """
 
 
@@ -497,6 +515,7 @@ service BasicController {
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc MixParam(CustomMixParamForRequestList) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleListResponse) {}
 }
 
 service ForeignModelController {
@@ -604,6 +623,17 @@ message BasicParamWithSerializerRequestList {
 
 message BasicMixParamWithSerializerListResponse {
     repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
+}
+
+message BaseProtoExample {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+
+message BaseProtoExampleListResponse {
+    repeated BaseProtoExample results = 1;
     int32 count = 2;
 }
 
@@ -750,6 +780,7 @@ service BasicController {
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
 }
 
 service ForeignModelController {
@@ -856,6 +887,23 @@ message BasicParamWithSerializerListRequest {
 
 message BasicMixParamWithSerializerListResponse {
     repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
+}
+
+message BaseProtoExampleRequest {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+
+message BaseProtoExampleResponse {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+
+message BaseProtoExampleListResponse {
+    repeated BaseProtoExampleResponse results = 1;
     int32 count = 2;
 }
 

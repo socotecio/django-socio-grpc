@@ -131,3 +131,24 @@ class BasicServiceSerializer(proto_serializers.ProtoSerializer):
         proto_class = fakeapp_pb2.BasicServiceResponse
         proto_class_list = fakeapp_pb2.BasicServiceListResponse
         fields = ["user_name", "user_data", "user_password", "bytes_example", "list_of_dict"]
+
+
+class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
+    def to_representation(self, el):
+        return {
+            "uuid": str(el.uuid),
+            "number_of_elements": el.number_of_elements,
+            "is_archived": el.is_archived,
+        }
+
+    def to_proto_message(self):
+        return [
+            {"name": "uuid", "type": "string"},
+            {"name": "number_of_elements", "type": "int32"},
+            {"name": "is_archived", "type": "bool"},
+        ]
+
+    class Meta:
+        pass
+        proto_class = fakeapp_pb2.BaseProtoExampleResponse
+        proto_class_list = fakeapp_pb2.BaseProtoExampleListResponse

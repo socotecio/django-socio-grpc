@@ -45,6 +45,11 @@ class BasicControllerStub(object):
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.FromString,
                 )
+        self.TestBaseProtoSerializer = channel.unary_unary(
+                '/fakeproject.fakeapp.BasicController/TestBaseProtoSerializer',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleListResponse.FromString,
+                )
 
 
 class BasicControllerServicer(object):
@@ -86,6 +91,12 @@ class BasicControllerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def TestBaseProtoSerializer(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BasicControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -118,6 +129,11 @@ def add_BasicControllerServicer_to_server(servicer, server):
                     servicer.MixParamWithSerializer,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.SerializeToString,
+            ),
+            'TestBaseProtoSerializer': grpc.unary_unary_rpc_method_handler(
+                    servicer.TestBaseProtoSerializer,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleListResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -228,6 +244,23 @@ class BasicController(object):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/MixParamWithSerializer',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def TestBaseProtoSerializer(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/TestBaseProtoSerializer',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleListResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

@@ -9,22 +9,17 @@ import grpc
 from asgiref.sync import async_to_sync, sync_to_async
 from grpc._cython.cygrpc import _Metadatum
 
-from grpc import aio
-
 
 class FakeServer(object):
     def __init__(self):
-        self.rpc_method_handlers = {}
+        self.handlers = {}
 
     def add_generic_rpc_handlers(self, generic_rpc_handlers):
         from grpc._server import _validate_generic_rpc_handlers
 
         _validate_generic_rpc_handlers(generic_rpc_handlers)
 
-        self.rpc_method_handlers.update(generic_rpc_handlers[0]._method_handlers)
-
-    def _find_method_handler(self, method_full_rpc_name):
-        return self.rpc_method_handlers[method_full_rpc_name]
+        self.handlers.update(generic_rpc_handlers[0]._method_handlers)
 
     def start(self):
         pass
@@ -50,34 +45,28 @@ class FakeRpcError(RuntimeError, grpc.RpcError):
     def details(self):
         return self._details
 
-class FakeStreamLogic:
+
+class FakeContext(object):
     def __init__(self):
         self.stream_pipe = []
         self._invocation_metadata = []
-        self.last_index_called = 0
-
-    def write(self, data):
-        self.stream_pipe.append(data)
-
-    def read(self):
-        new_index = self.last_index_called + 1
-        if new_index > len(self.stream_pipe):
-            return aio.EOF
-        return self.stream_pipe[new_index]
-        # for data in self.stream_pipe:
-        #     yield data
-
-
-class FakeContext(FakeStreamLogic):
-    def __init__(self):
-        self._invocation_metadata = []
-        super().__init__()
+        self.last_index_called = -1
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
 
     def invocation_metadata(self):
         return self._invocation_metadata
+
+    def write(self, data):
+        self.stream_pipe.append(data)
+
+    def read(self):
+        new_index = self.last_index_called + 1
+        self.last_index_called = new_index
+        if new_index >= len(self.stream_pipe):
+            return grpc.aio.EOF
+        return self.stream_pipe[new_index]
 
 
 class FakeAsyncContext(FakeContext):
@@ -104,60 +93,6 @@ def get_brand_new_default_event_loop():
     return _loop
 
 
-class FakeCall(FakeStreamLogic):
-    def __init__(self, real_method, request, context ,*args, **kwargs):
-        super().__init__()
-        real_method(request, context)
-
-
-
-class _MultiCallable:
-    def __init__(self, channel, method_full_rpc_name, call_type=None, *args, **kwargs):
-        print(f"__init__ _MultiCallable : {call_type} - {method_full_rpc_name}")
-        assert call_type is not None, "Error in FakeChannel implementation"
-        self._call_type = call_type 
-        self._handler = channel.server._find_method_handler(method_full_rpc_name)
-        super().__init__()
-    
-    def __call__(self, request=None, timeout=None, metadata=None, *args, **kwargs):
-        print("__call__")
-        real_method = getattr(self._handler, self._call_type)
-        self.context = FakeContext()
-
-        if asyncio.iscoroutinefunction(real_method):
-            real_method = async_to_sync(real_method)
-            self.context = FakeAsyncContext()
-
-        if metadata:
-            self.context._invocation_metadata.extend(
-                (_Metadatum(k, v) for k, v in metadata)
-            )
-
-        return real_method(request, self.context)
-
-    def with_call(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def future(self, *args, **kwargs):
-        raise NotImplementedError
-
-
-class UnaryUnaryMultiCallable(_MultiCallable, grpc.UnaryUnaryMultiCallable):
-    pass
-
-
-class UnaryStreamMultiCallable(_MultiCallable, grpc.UnaryStreamMultiCallable):
-    pass
-
-
-class StreamUnaryMultiCallable(_MultiCallable, grpc.StreamUnaryMultiCallable):
-    pass
-
-
-class StreamStreamMultiCallable(_MultiCallable, grpc.StreamStreamMultiCallable):
-    pass
-
-
 class FakeChannel:
     def __init__(self, fake_server):
         self.server = fake_server
@@ -169,34 +104,38 @@ class FakeChannel:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    # def unary_unary(self, *args, **kwargs):
-    #     return self.fake_method("unary_unary", *args, **kwargs)
+    def fake_method(self, method_name, uri, *args, **kwargs):
+        handler = self.server.handlers[uri]
+        real_method = getattr(handler, method_name)
 
-    # def unary_stream(self, *args, **kwargs):
-    #     return self.fake_method("unary_stream", *args, **kwargs)
+        def fake_handler(request=None, metadata=None):
+            nonlocal real_method
+            self.context = FakeContext()
 
-    # def stream_unary(self, *args, **kwargs):
-    #     return self.fake_method("stream_unary", *args, **kwargs)
+            if asyncio.iscoroutinefunction(real_method):
+                real_method = async_to_sync(real_method)
+                self.context = FakeAsyncContext()
 
-    # def stream_stream(self, *args, **kwargs):
-    #     return self.fake_method("stream_stream", *args, **kwargs)
+            if metadata:
+                self.context._invocation_metadata.extend(
+                    (_Metadatum(k, v) for k, v in metadata)
+                )
 
+            return real_method(request, self.context)
 
-    def unary_unary(self, method, *args, **kwargs):
-        print("unary_unary")
-        return UnaryUnaryMultiCallable(self, method, call_type="unary_unary", *args, **kwargs)
+        return fake_handler
 
-    def unary_stream(self, method, *args, **kwargs):
-        print("unary_stream")
-        return UnaryStreamMultiCallable(self, method, call_type="unary_stream", *args, **kwargs)
+    def unary_unary(self, *args, **kwargs):
+        return self.fake_method("unary_unary", *args, **kwargs)
 
-    def stream_unary(self, method, *args, **kwargs):
-        print("stream_unary")
-        return StreamUnaryMultiCallable(self, method, call_type="stream_unary", *args, **kwargs)
+    def unary_stream(self, *args, **kwargs):
+        return self.fake_method("unary_stream", *args, **kwargs)
 
-    def stream_stream(self, method, *args, **kwargs):
-        print("stream_stream")
-        return StreamStreamMultiCallable(self, method, call_type="stream_stream", *args, **kwargs)
+    def stream_unary(self, *args, **kwargs):
+        return self.fake_method("stream_unary", *args, **kwargs)
+
+    def stream_stream(self, *args, **kwargs):
+        return self.fake_method("stream_stream", *args, **kwargs)
 
 
 class FakeGRPC:
@@ -229,3 +168,77 @@ class FakeGRPC:
 
     def get_fake_stub(self, grpc_stub_cls):
         return grpc_stub_cls(self.grpc_channel)
+
+
+class FakeAioCall(grpc.aio.Call):
+    def __init__(self, context=None, call_type=None, real_method=None, metadata=None):
+        self._call_type = call_type
+        self._context = context
+        self._real_method = real_method
+
+        if metadata:
+            self._grpc_channel.context._invocation_metadata.extend(
+                (_Metadatum(k, v) for k, v in metadata)
+            )
+
+    def __call__(self, request=None):
+        self._request = request
+        # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
+        self.method_awaitable = self._real_method(request=self._request, context=self._context)
+        return self
+
+    def __await__(self):
+        response = self.method_awaitable.__await__()
+        return response
+
+    def write(self, data):
+        async_to_sync(self._context.write)(data)
+
+    def read(self):
+        return async_to_sync(self._context.read)()
+
+    def add_done_callback(*args, **kwargs):
+        pass
+
+    def cancel(*args, **kwargs):
+        pass
+
+    def cancelled(*args, **kwargs):
+        pass
+
+    def code(*args, **kwargs):
+        pass
+
+    def details(*args, **kwargs):
+        pass
+
+    def done(*args, **kwargs):
+        pass
+
+    def initial_metadata(*args, **kwargs):
+        pass
+
+    def time_remaining(*args, **kwargs):
+        pass
+
+    def trailing_metadata(*args, **kwargs):
+        pass
+
+    def wait_for_connection(*args, **kwargs):
+        pass
+
+
+class FakeAIOChannel(FakeChannel):
+    def fake_method(self, method_name, uri, *args, **kwargs):
+        handler = self.server.handlers[uri]
+        real_method = getattr(handler, method_name)
+        self.context = FakeAsyncContext()
+
+        return FakeAioCall(
+            context=self.context, call_type=method_name, real_method=real_method
+        )
+
+
+class FakeAIOGRPC(FakeGRPC):
+    def get_fake_channel(self):
+        return FakeAIOChannel(self.grpc_server)

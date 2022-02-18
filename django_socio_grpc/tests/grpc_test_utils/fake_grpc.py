@@ -50,6 +50,7 @@ class FakeContext(object):
     def __init__(self):
         self.stream_pipe = []
         self._invocation_metadata = []
+        self.last_index_called = -1
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
@@ -61,8 +62,11 @@ class FakeContext(object):
         self.stream_pipe.append(data)
 
     def read(self):
-        for data in self.stream_pipe:
-            yield data
+        new_index = self.last_index_called + 1
+        self.last_index_called = new_index
+        if new_index >= len(self.stream_pipe):
+            return grpc.aio.EOF
+        return self.stream_pipe[new_index]
 
 
 class FakeAsyncContext(FakeContext):
@@ -104,7 +108,7 @@ class FakeChannel:
         handler = self.server.handlers[uri]
         real_method = getattr(handler, method_name)
 
-        def fake_handler(request, metadata=None):
+        def fake_handler(request=None, metadata=None):
             nonlocal real_method
             self.context = FakeContext()
 
@@ -164,3 +168,77 @@ class FakeGRPC:
 
     def get_fake_stub(self, grpc_stub_cls):
         return grpc_stub_cls(self.grpc_channel)
+
+
+class FakeAioCall(grpc.aio.Call):
+    def __init__(self, context=None, call_type=None, real_method=None, metadata=None):
+        self._call_type = call_type
+        self._context = context
+        self._real_method = real_method
+
+        if metadata:
+            self._grpc_channel.context._invocation_metadata.extend(
+                (_Metadatum(k, v) for k, v in metadata)
+            )
+
+    def __call__(self, request=None):
+        self._request = request
+        # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
+        self.method_awaitable = self._real_method(request=self._request, context=self._context)
+        return self
+
+    def __await__(self):
+        response = self.method_awaitable.__await__()
+        return response
+
+    def write(self, data):
+        async_to_sync(self._context.write)(data)
+
+    def read(self):
+        return async_to_sync(self._context.read)()
+
+    def add_done_callback(*args, **kwargs):
+        pass
+
+    def cancel(*args, **kwargs):
+        pass
+
+    def cancelled(*args, **kwargs):
+        pass
+
+    def code(*args, **kwargs):
+        pass
+
+    def details(*args, **kwargs):
+        pass
+
+    def done(*args, **kwargs):
+        pass
+
+    def initial_metadata(*args, **kwargs):
+        pass
+
+    def time_remaining(*args, **kwargs):
+        pass
+
+    def trailing_metadata(*args, **kwargs):
+        pass
+
+    def wait_for_connection(*args, **kwargs):
+        pass
+
+
+class FakeAIOChannel(FakeChannel):
+    def fake_method(self, method_name, uri, *args, **kwargs):
+        handler = self.server.handlers[uri]
+        real_method = getattr(handler, method_name)
+        self.context = FakeAsyncContext()
+
+        return FakeAioCall(
+            context=self.context, call_type=method_name, real_method=real_method
+        )
+
+
+class FakeAIOGRPC(FakeGRPC):
+    def get_fake_channel(self):
+        return FakeAIOChannel(self.grpc_server)

@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+import grpc
 from asgiref.sync import async_to_sync
 from django.test import TestCase
 from django.utils import timezone
@@ -14,13 +15,13 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.models import UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 
-from .grpc_test_utils.fake_grpc import FakeGRPC
+from .grpc_test_utils.fake_grpc import FakeAIOGRPC
 
 
 class TestAsyncModelService(TestCase):
     def setUp(self):
         os.environ["GRPC_ASYNC"] = "True"
-        self.fake_grpc = FakeGRPC(
+        self.fake_grpc = FakeAIOGRPC(
             add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )
 
@@ -39,7 +40,7 @@ class TestAsyncModelService(TestCase):
     def test_async_create(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = fakeapp_pb2.UnitTestModelRequest(title="fake", text="text")
-        response = grpc_stub.Create(request=request)
+        response = async_to_sync(grpc_stub.Create)(request=request)
 
         self.assertNotEqual(response.id, None)
         self.assertEqual(response.title, "fake")
@@ -49,7 +50,7 @@ class TestAsyncModelService(TestCase):
     def test_async_list(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = fakeapp_pb2.UnitTestModelListRequest()
-        response = grpc_stub.List(request=request)
+        response = async_to_sync(grpc_stub.List)(request=request)
 
         self.assertEqual(len(response.results), 10)
 
@@ -57,7 +58,7 @@ class TestAsyncModelService(TestCase):
         unit_id = UnitTestModel.objects.first().id
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=unit_id)
-        response = grpc_stub.Retrieve(request=request)
+        response = async_to_sync(grpc_stub.Retrieve)(request=request)
 
         self.assertEqual(response.title, "z")
         self.assertEqual(response.text, "abc")
@@ -68,7 +69,7 @@ class TestAsyncModelService(TestCase):
         request = fakeapp_pb2.UnitTestModelRequest(
             id=unit_id, title="newTitle", text="newText"
         )
-        response = grpc_stub.Update(request=request)
+        response = async_to_sync(grpc_stub.Update)(request=request)
 
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, "newText")
@@ -77,17 +78,23 @@ class TestAsyncModelService(TestCase):
         unit_id = UnitTestModel.objects.first().id
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = fakeapp_pb2.UnitTestModelDestroyRequest(id=unit_id)
-        grpc_stub.Destroy(request=request)
+        async_to_sync(grpc_stub.Destroy)(request=request)
 
         self.assertFalse(UnitTestModel.objects.filter(id=unit_id).exists())
 
     def test_async_stream(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = fakeapp_pb2.UnitTestModelStreamRequest()
-        grpc_stub.Stream(request=request)
+        stream = grpc_stub.Stream(request=request)
 
-        responses = async_to_sync(self.fake_grpc.grpc_channel.context.read)()
-        response_list = [response for response in responses]
+        async_to_sync(stream)()
+
+        response_list = []
+        while True:
+            result = stream.read()
+            if result == grpc.aio.EOF:
+                break
+            response_list.append(result)
 
         self.assertEqual(len(response_list), 10)
 
@@ -96,7 +103,7 @@ class TestAsyncModelService(TestCase):
         with freeze_time(datetime(2022, 1, 21, tzinfo=timezone.utc)):
             grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
             request = fakeapp_pb2.UnitTestModelListWithExtraArgsRequest(archived=False)
-            response = grpc_stub.ListWithExtraArgs(request=request)
+            response = async_to_sync(grpc_stub.ListWithExtraArgs)(request=request)
 
             self.assertEqual(len(response.results), 10)
 

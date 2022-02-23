@@ -500,17 +500,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         return response_message_name
 
     def get_list_response_field_name_from_serializer_instance(self, serializer_instance):
-
-        list_response_field_name = DEFAULT_LIST_FIELD_NAME
-
         # INFO - AM - 14/01/2022 - We let the possibility to the user to customize the name of the attr where the list items are set by message_list_attr attr in meta class. If not present we use the default results
         serializer_meta = getattr(serializer_instance, "Meta", None)
-        if serializer_meta:
-            message_list_attr = getattr(serializer_meta, LIST_ATTR_MESSAGE_NAME, None)
-            if message_list_attr:
-                list_response_field_name = message_list_attr
-
-        return list_response_field_name
+        if not serializer_meta:
+            return DEFAULT_LIST_FIELD_NAME
+        return getattr(serializer_meta, LIST_ATTR_MESSAGE_NAME, DEFAULT_LIST_FIELD_NAME)
 
     ############################################################################
     #

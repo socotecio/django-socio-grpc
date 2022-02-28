@@ -864,9 +864,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 message_name=response_name,
                 is_request=False,
             )
-        # INFO - AM - 03/02/3022 - If user specified a response name we use it instead of the automatically generated one
-        if response_name:
-            response_message_name = response_name
 
         self.register_method_for_custom_action(
             app_name,

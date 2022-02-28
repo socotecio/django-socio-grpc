@@ -152,3 +152,14 @@ class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
         pass
         proto_class = fakeapp_pb2.BaseProtoExampleResponse
         proto_class_list = fakeapp_pb2.BaseProtoExampleListResponse
+
+class BasicListProtoSerializer(proto_serializers.ListProtoSerializer):
+    pass
+
+class BasicProtoListChildSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = UnitTestModel
+        proto_class = fakeapp_pb2.BasicProtoListChildResponse
+        proto_class_list = fakeapp_pb2.BasicProtoListChildListResponse
+        list_serializer_class = BasicListProtoSerializer
+        fields = "__all__"

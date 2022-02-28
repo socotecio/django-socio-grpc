@@ -13,6 +13,7 @@ service BasicController {
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
+    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
 }
 
 service SpecialFieldsModelController {
@@ -135,6 +136,23 @@ message BaseProtoExampleResponse {
 message BaseProtoExampleListResponse {
     repeated BaseProtoExampleResponse results = 1;
     int32 count = 2;
+}
+
+message BasicProtoListChildRequest {
+    string title = 1;
+    string text = 2;
+    int32 id = 3;
+}
+
+message BasicProtoListChildListResponse {
+    repeated BasicProtoListChildResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicProtoListChildResponse {
+    string title = 1;
+    string text = 2;
+    int32 id = 3;
 }
 
 message SpecialFieldsModelRetrieveRequest {

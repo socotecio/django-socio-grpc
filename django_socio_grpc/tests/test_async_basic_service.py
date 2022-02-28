@@ -2,7 +2,7 @@ import os
 
 from django.test import TestCase
 from google.protobuf import json_format
-
+from google.protobuf import empty_pb2
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
@@ -11,7 +11,6 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.services.basic_service import BasicService
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
-
 
 class TestAsyncModelService(TestCase):
     def setUp(self):
@@ -39,3 +38,12 @@ class TestAsyncModelService(TestCase):
                 "slogan": "Do it better",
             },
         )
+    def test_basic_service_attr_name_on_inheritance(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(BasicControllerStub)
+        bob = fakeapp_pb2.BasicProtoListChildResponse( title="Bob", text="Is Cool")
+        alice = fakeapp_pb2.BasicProtoListChildResponse(title="Alice", text="Is Nice")
+        request = fakeapp_pb2.BasicProtoListChildListResponse()
+        request.results.append(bob)
+        request.results.append(alice)
+        response = grpc_stub.BasicList(request )
+        self.assertEqual(len(response.results), 2)

@@ -77,6 +77,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#nested-serializer">Nested serializer</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#special-case-of-baseprotoserializer">Special case of BaseProtoSerializer</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#special-case-of-methodserializerfield">Special case of MethodSerializerField</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#customizing-the-name-of-the-field-in-the-listresponse">Customizing the name of the field in the ListResponse</a>
@@ -415,6 +417,31 @@ message BasicServiceResponse {
     string uuid = 1;
     ForeignModelResponse foreign_obj = 2;
     repeated ManyManyModelResponse many_many_obj = 3;
+}
+</code></pre>
+<h2 id="special-case-of-baseprotoserializer">Special case of BaseProtoSerializer</h2>
+<p>As BaseProtoSerializer doesn't have fields but only to_representation and to_internal_value we can't automatically instropect code to find the correct proto type.</p>
+<p>To address this issue you have to manually declare the name and protobuf type of the BaseProtoSerializer in a <code>to_proto_message</code> method.</p>
+<p>This <code>to_proto_message</code> need to return a list of dict in the same format that <code>grpc_action</code> request or response as list input.</p>
+<pre><code class="language-python">class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
+    def to_representation(self, el):
+        return {
+            &quot;uuid&quot;: str(el.uuid),
+            &quot;number_of_elements&quot;: el.number_of_elements,
+            &quot;is_archived&quot;: el.is_archived,
+        }
+
+    def to_proto_message(self):
+        return [
+            {&quot;name&quot;: &quot;uuid&quot;, &quot;type&quot;: &quot;string&quot;},
+            {&quot;name&quot;: &quot;number_of_elements&quot;, &quot;type&quot;: &quot;int32&quot;},
+            {&quot;name&quot;: &quot;is_archived&quot;, &quot;type&quot;: &quot;bool&quot;},
+        ]
+</code></pre>
+<pre><code class="language-proto">message BaseProtoExampleResponse {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
 }
 </code></pre>
 <h2 id="special-case-of-methodserializerfield">Special case of MethodSerializerField</h2>

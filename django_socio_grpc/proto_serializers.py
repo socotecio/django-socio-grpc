@@ -24,7 +24,7 @@ class BaseProtoSerializer(BaseSerializer):
     def __init__(self, *args, **kwargs):
         message = kwargs.pop("message", None)
         self.stream = kwargs.pop("stream", None)
-        self.message_list_attr = kwargs.pop(LIST_ATTR_MESSAGE_NAME, None)
+        self.message_list_attr = kwargs.pop(LIST_ATTR_MESSAGE_NAME, DEFAULT_LIST_FIELD_NAME)
         if message is not None:
             self.initial_message = message
             kwargs["data"] = self.message_to_data(message)
@@ -92,12 +92,15 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             self.child, "Meta"
         ), f'Class {self.__class__.__name__} missing "Meta" attribute'
 
-        message_list_attr = getattr(self.child.Meta, LIST_ATTR_MESSAGE_NAME, None)
-        if not message_list_attr and self.message_list_attr:
+        message_list_attr = getattr(
+            self.child.Meta, LIST_ATTR_MESSAGE_NAME, DEFAULT_LIST_FIELD_NAME
+        )
+        # INFO A.Rx. 23/02/2022: allow keeping instance 'message_list_attr' if Meta's is default
+        if (
+            message_list_attr == DEFAULT_LIST_FIELD_NAME
+            and self.message_list_attr != DEFAULT_LIST_FIELD_NAME
+        ):
             message_list_attr = self.message_list_attr
-
-        if message_list_attr is None:
-            raise TypeError("message_list_attr is NoneType")
 
         repeated_message = getattr(message, message_list_attr, "")
         if not isinstance(repeated_message, RepeatedCompositeContainer):

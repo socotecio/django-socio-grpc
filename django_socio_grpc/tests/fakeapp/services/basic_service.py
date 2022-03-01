@@ -1,6 +1,10 @@
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
-from fakeapp.serializers import BaseProtoExampleSerializer, BasicServiceSerializer
+from fakeapp.serializers import (
+    BaseProtoExampleSerializer,
+    BasicProtoListChildSerializer,
+    BasicServiceSerializer,
+)
 
 
 class BasicService(generics.GenericService):
@@ -102,3 +106,14 @@ class BasicService(generics.GenericService):
     )
     async def TestBaseProtoSerializer(self, request, context):
         pass
+
+    @grpc_action(
+        request=BasicProtoListChildSerializer,
+        response=BasicProtoListChildSerializer,
+        use_response_list=True,
+        use_request_list=True,
+    )
+    async def BasicList(self, request, context):
+        serializer = BasicProtoListChildSerializer(message=request, many=True)
+        serializer.is_valid(raise_exception=True)
+        return serializer.message

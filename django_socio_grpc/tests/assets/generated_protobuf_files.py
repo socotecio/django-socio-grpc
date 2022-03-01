@@ -391,6 +391,7 @@ service BasicController {
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
+    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
 }
 
 message BasicFetchDataForUserRequest {
@@ -470,6 +471,23 @@ message BaseProtoExampleListResponse {
     int32 count = 2;
 }
 
+message BasicProtoListChildRequest {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
+}
+
+message BasicProtoListChildListResponse {
+    repeated BasicProtoListChildResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicProtoListChildResponse {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
+}
+
 """
 
 
@@ -516,6 +534,7 @@ service BasicController {
     rpc MixParam(CustomMixParamForRequestList) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerListResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleListResponse) {}
+    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
 }
 
 service ForeignModelController {
@@ -634,6 +653,17 @@ message BaseProtoExample {
 
 message BaseProtoExampleListResponse {
     repeated BaseProtoExample results = 1;
+    int32 count = 2;
+}
+
+message BasicProtoListChild {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
+}
+
+message BasicProtoListChildListResponse {
+    repeated BasicProtoListChild results = 1;
     int32 count = 2;
 }
 
@@ -781,6 +811,7 @@ service BasicController {
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
+    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
 }
 
 service ForeignModelController {
@@ -905,6 +936,23 @@ message BaseProtoExampleResponse {
 message BaseProtoExampleListResponse {
     repeated BaseProtoExampleResponse results = 1;
     int32 count = 2;
+}
+
+message BasicProtoListChildRequest {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
+}
+
+message BasicProtoListChildListResponse {
+    repeated BasicProtoListChildResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicProtoListChildResponse {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
 }
 
 message ForeignModelResponse {

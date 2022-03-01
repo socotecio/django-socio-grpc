@@ -39,3 +39,13 @@ class TestAsyncModelService(TestCase):
                 "slogan": "Do it better",
             },
         )
+
+    def test_basic_service_attr_name_on_inheritance(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(BasicControllerStub)
+        bob = fakeapp_pb2.BasicProtoListChildResponse(title="Bob", text="Is Cool")
+        alice = fakeapp_pb2.BasicProtoListChildResponse(title="Alice", text="Is Nice")
+        request = fakeapp_pb2.BasicProtoListChildListResponse()
+        request.results.append(bob)
+        request.results.append(alice)
+        response = grpc_stub.BasicList(request)
+        self.assertEqual(len(response.results), 2)

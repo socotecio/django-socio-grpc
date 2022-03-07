@@ -13,6 +13,7 @@ from django_socio_grpc.log import GRPCHandler
 from django_socio_grpc.request_transformer.grpc_socio_proxy_context import (
     GRPCSocioProxyContext,
 )
+from django_socio_grpc.settings import grpc_settings
 
 logger = logging.getLogger("django_socio_grpc")
 
@@ -29,9 +30,13 @@ class ServicerProxy:
 
             async def async_handler(request, context):
                 try:
-                    logger.info(
-                        f"Receive action {action} on service {self.service_class.__name__}"
-                    )
+                    if (
+                        f"{self.service_class.__name__}.{action}"
+                        not in grpc_settings.IGNORE_LOG_FOR_ACTION
+                    ):
+                        logger.info(
+                            f"Receive action {action} on service {self.service_class.__name__}"
+                        )
                     # db connection state managed similarly to the wsgi handler
                     db.reset_queries()
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database
@@ -69,9 +74,13 @@ class ServicerProxy:
 
             def handler(request, context):
                 try:
-                    logger.info(
-                        f"Receive action {action} on service {self.service_class.__name__}"
-                    )
+                    if (
+                        f"{self.service_class.__name__}.{action}"
+                        not in grpc_settings.IGNORE_LOG_FOR_ACTION
+                    ):
+                        logger.info(
+                            f"Receive action {action} on service {self.service_class.__name__}"
+                        )
                     # db connection state managed similarly to the wsgi handler
                     db.reset_queries()
                     # INFO - AM - 30/06/2021 - Need this in production environnement to avoid SSL end of files errors when too much connection on database

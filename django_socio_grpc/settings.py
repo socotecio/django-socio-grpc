@@ -17,6 +17,8 @@ GRPC_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ['path.to.DefaultPermissionClass'],
 
     'SEPARATE_READ_WRITE_MODEL': True,
+
+    'IGNORE_LOG_FOR_ACTION': ['Service1.Action1', 'Service1.Action1'],
 }
 
 This module provides the `grpc_setting` object, that is used to access
@@ -48,6 +50,8 @@ DEFAULTS = {
     "LOGGING_ACTION": None,
     # Separate request and response message for model to activate read_only, write_only property of serilizer
     "SEPARATE_READ_WRITE_MODEL": True,
+    # List service action that we do not want to be logged (health check for example) to avoid log flooding
+    "IGNORE_LOG_FOR_ACTION": [],
 }
 
 

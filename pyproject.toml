@@ -6,8 +6,8 @@ authors = ["Adrien Montagu <adrienmontagu@gmail.com>"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = ">=3.6"
-django = ">=2.2, <4.0"
+python = ">=3.8"
+django = ">=2.2"
 djangorestframework = "*"
 grpcio = "*"
 grpcio-tools = "*"

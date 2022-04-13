@@ -2,14 +2,14 @@ import os
 from importlib import reload
 from unittest.mock import mock_open, patch
 
-import mock
-from django.core.management import call_command
-from django.test import TestCase, override_settings
-
 import fakeapp.services.basic_service as basic_service
 import fakeapp.services.special_fields_model_service as special_fields_model_service
 import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
 import fakeapp.services.unit_test_model_service as unitestmodel_service
+import mock
+from django.core.management import call_command
+from django.test import TestCase, override_settings
+
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry

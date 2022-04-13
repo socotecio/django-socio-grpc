@@ -1,8 +1,6 @@
 import json
 
 from django.test import TestCase
-from rest_framework.pagination import PageNumberPagination
-
 from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
@@ -11,6 +9,7 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelSerializer
 from fakeapp.services.unit_test_model_service import UnitTestModelService
+from rest_framework.pagination import PageNumberPagination
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 

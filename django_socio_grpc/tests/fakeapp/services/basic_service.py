@@ -1,10 +1,11 @@
-from django_socio_grpc import generics
-from django_socio_grpc.decorators import grpc_action
 from fakeapp.serializers import (
     BaseProtoExampleSerializer,
     BasicProtoListChildSerializer,
     BasicServiceSerializer,
 )
+
+from django_socio_grpc import generics
+from django_socio_grpc.decorators import grpc_action
 
 
 class BasicService(generics.GenericService):

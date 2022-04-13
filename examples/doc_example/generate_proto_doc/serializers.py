@@ -5,7 +5,6 @@ from .models import Something
 # import testgrpc.grpc.testgrpc_pb2 as testgrpc_pb2
 
 
-
 class SomethingProtoSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = Something

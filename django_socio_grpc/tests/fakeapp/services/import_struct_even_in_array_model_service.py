@@ -1,6 +1,7 @@
-from django_socio_grpc import generics, mixins
 from fakeapp.models import ImportStructEvenInArrayModel
 from fakeapp.serializers import ImportStructEvenInArrayModelSerializer
+
+from django_socio_grpc import generics, mixins
 
 
 class ImportStructEvenInArrayModelService(

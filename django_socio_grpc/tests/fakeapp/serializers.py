@@ -1,8 +1,8 @@
 from typing import Dict, List
 
+import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from rest_framework import serializers
 
-import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from django_socio_grpc import proto_serializers
 
 from .models import (

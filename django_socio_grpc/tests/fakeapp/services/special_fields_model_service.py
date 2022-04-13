@@ -1,12 +1,12 @@
 from asgiref.sync import sync_to_async
-
-from django_socio_grpc import generics
-from django_socio_grpc.decorators import grpc_action
 from fakeapp.models import SpecialFieldsModel
 from fakeapp.serializers import (
     CustomRetrieveResponseSpecialFieldsModelSerializer,
     SpecialFieldsModelSerializer,
 )
+
+from django_socio_grpc import generics
+from django_socio_grpc.decorators import grpc_action
 
 
 class SpecialFieldsModelService(generics.AsyncModelService):

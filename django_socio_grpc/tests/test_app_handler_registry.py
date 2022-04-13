@@ -1,9 +1,9 @@
 from django.test import TestCase
-
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import UnitTestModelControllerStub
 from fakeapp.models import UnitTestModel
+
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 from .grpc_test_utils.fake_grpc import FakeChannel, FakeGRPC, FakeServer
 

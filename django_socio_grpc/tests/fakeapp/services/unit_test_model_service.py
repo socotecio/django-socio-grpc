@@ -2,11 +2,11 @@ from datetime import datetime
 
 from asgiref.sync import sync_to_async
 from django_filters.rest_framework import DjangoFilterBackend
+from fakeapp.models import UnitTestModel
+from fakeapp.serializers import UnitTestModelListExtraArgsSerializer, UnitTestModelSerializer
 
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import grpc_action
-from fakeapp.models import UnitTestModel
-from fakeapp.serializers import UnitTestModelListExtraArgsSerializer, UnitTestModelSerializer
 
 
 class UnitTestModelService(generics.AsyncModelService, mixins.AsyncStreamModelMixin):

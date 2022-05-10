@@ -47,11 +47,9 @@ class GRPCHandler(logging.Handler):
 
         if old_taceback_function is not None:
             old_taceback_function(etype=etype, value=value, tb=tb)
-        formatted_exception = traceback.format_exception(etype, value, tb)
-
-        msg = "".join(formatted_exception)
-        pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)
-
+        tb = traceback.TracebackException(exc_type=etype, exc_value=value, exc_traceback=tb, capture_locals=True)
+        msg = "".join(tb.format())
+        pathname, lineno, funcName = self.extract_exc_info_from_tracebackexception(tb.stack.format())
         record = logging.makeLogRecord(
             {
                 "asctime": self.generate_asctime(),
@@ -70,28 +68,53 @@ class GRPCHandler(logging.Handler):
         str_now = now.strftime("%Y-%m-%d %H:%M:%S")
         return str_now
 
-    def extract_exc_info_from_traceback(self, formatted_exception):
-        # INFO - FB - 21/07/2021 - formatted_exception is an array where each item is a line of the traceback from the exeption and the last item is the text of the exception
-        # INFO - FB - 21/07/2021 - Getting the -2 element mean getting the line where the exception is raised
-        traceback_last_line = formatted_exception[-2]
-
-        # INFO - FB - 21/07/2021 - traceback_last_line look lie: '  File "<pathtofile>", line <linenumber>, in <function_name>\n    <text line that raise error>\n'
+    def extract_exc_info_from_tracebackexception(self, formatted_exception):
+        # INFO - AG - 10/05/2022 - formatted_exception is an array where each item is a line of the traceback from the exeption and the last item is the text of the exception
+        # INFO - AG - 10/05/2022 - Getting the -1 element mean getting the line where the exception is raised
+        traceback_last_line = formatted_exception[-1].split(",", 2)
+        # # INFO - FB - 21/07/2021 - traceback_last_line look lie: '  File "<pathtofile>", line <linenumber>, in <function_name>\n    <text line that raise error>\n'
         (
             text_path_file,
             text_line_number,
             text_function_and_line_error,
-        ) = traceback_last_line.split(",", 2)
+        ) = traceback_last_line
 
-        # INFO - FB - 21/07/2021 - transform string like:  File "<pathtofile>" to <pathtofile>
+        # # INFO - FB - 21/07/2021 - transform string like:  File "<pathtofile>" to <pathtofile>
         pathname = text_path_file.strip().split('"')[1]
 
-        # INFO - FB - 21/07/2021 - transform string like: line <linenumber> to <linenumber>
+        # # INFO - FB - 21/07/2021 - transform string like: line <linenumber> to <linenumber>
         lineno = text_line_number.replace("line", "").strip()
 
-        # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
+        # # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
         func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
 
         return (pathname, lineno, func_name)
+
+    # def extract_exc_info_from_traceback(self, formatted_exception):
+    #     # INFO - FB - 21/07/2021 - formatted_exception is an array where each item is a line of the traceback from the exeption and the last item is the text of the exception
+    #     # INFO - FB - 21/07/2021 - Getting the -2 element mean getting the line where the exception is raised
+    #     traceback_last_line = formatted_exception[-2]
+
+    #     # INFO - FB - 21/07/2021 - traceback_last_line look lie: '  File "<pathtofile>", line <linenumber>, in <function_name>\n    <text line that raise error>\n'
+    #     (
+    #         text_path_file,
+    #         text_line_number,
+    #         text_function_and_line_error,
+    #     ) = traceback_last_line.split(",", 2)
+
+    #     # INFO - FB - 21/07/2021 - transform string like:  File "<pathtofile>" to <pathtofile>
+    #     pathname = text_path_file.strip().split('"')[1]
+
+    #     # INFO - FB - 21/07/2021 - transform string like: line <linenumber> to <linenumber>
+    #     lineno = text_line_number.replace("line", "").strip()
+
+    #     # INFO - FB - 21/07/2021 - transform string like: in <function_name>\n    <text line that raise error>\n' to <function_name>
+    #     func_name = text_function_and_line_error.split("\n")[0].replace("in", "").strip()
+
+    #     return (pathname, lineno, func_name)
+
+
+
 
     def add_custom_print_exception(self):
         global old_taceback_function

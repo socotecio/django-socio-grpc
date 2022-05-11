@@ -51,7 +51,7 @@ class GRPCHandler(logging.Handler):
         formatted_exception = traceback.format_exception(etype, value, tb)
         msg = "".join(formatted_exception)
         pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)
-        # INFO - AG - 11/05/2022 - Send locals variables if exist in location where ths exception occurs else send None
+        # INFO - AG - 11/05/2022 - Send locals variables if exist in location where the exception occurs else send None
         try:
             tb = traceback.TracebackException(
                 exc_type=etype, exc_value=value, exc_traceback=tb, capture_locals=True

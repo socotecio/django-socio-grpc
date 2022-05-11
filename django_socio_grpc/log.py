@@ -1,6 +1,7 @@
 """
 logging utils
 """
+import json
 import asyncio
 import logging
 import logging.config
@@ -57,7 +58,6 @@ class GRPCHandler(logging.Handler):
             exc_type=etype, exc_value=value, exc_traceback=tb, capture_locals=True
         )
 
-
         record = logging.makeLogRecord(
             {
                 "asctime": self.generate_asctime(),
@@ -66,7 +66,7 @@ class GRPCHandler(logging.Handler):
                 "pathname": pathname,
                 "lineno": lineno,
                 "msg": msg,
-                "locals": tb.stack[-1].locals,
+                "locals": json.dumps(tb.stack[-1].locals, sort_keys=False, indent=4),
                 "funcName": funcName,
             }
         )

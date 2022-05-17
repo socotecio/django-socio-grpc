@@ -1,8 +1,8 @@
 """
 logging utils
 """
-import json
 import asyncio
+import json
 import logging
 import logging.config
 import threading
@@ -56,9 +56,9 @@ class GRPCHandler(logging.Handler):
             tb = traceback.TracebackException(
                 exc_type=etype, exc_value=value, exc_traceback=tb, capture_locals=True
             )
-        except:
+        except Exception:
             tb = None
-        # INFO - AG - 11/05/2022 - format dict of locals variables  
+        # INFO - AG - 11/05/2022 - format dict of locals variables
         locals = json.dumps(tb.stack[-1].locals, sort_keys=False, indent=4) if tb else None
         record = logging.makeLogRecord(
             {

@@ -2,6 +2,7 @@
 logging utils
 """
 import asyncio
+import json
 import logging
 import logging.config
 import threading
@@ -48,10 +49,17 @@ class GRPCHandler(logging.Handler):
         if old_taceback_function is not None:
             old_taceback_function(etype=etype, value=value, tb=tb)
         formatted_exception = traceback.format_exception(etype, value, tb)
-
         msg = "".join(formatted_exception)
         pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)
-
+        # INFO - AG - 11/05/2022 - Send locals variables if exist in location where the exception occurs else send None
+        try:
+            tb = traceback.TracebackException(
+                exc_type=etype, exc_value=value, exc_traceback=tb, capture_locals=True
+            )
+        except Exception:
+            tb = None
+        # INFO - AG - 11/05/2022 - format dict of locals variables
+        locals = json.dumps(tb.stack[-1].locals, sort_keys=False, indent=4) if tb else None
         record = logging.makeLogRecord(
             {
                 "asctime": self.generate_asctime(),
@@ -60,6 +68,7 @@ class GRPCHandler(logging.Handler):
                 "pathname": pathname,
                 "lineno": lineno,
                 "msg": msg,
+                "locals": locals,
                 "funcName": funcName,
             }
         )

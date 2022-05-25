@@ -6,11 +6,11 @@ from fakeapp.serializers import (
 
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
-from .basic_mixins import ListIds
+
+from .basic_mixins import ListIdsMixin, ListNameMixin
 
 
-class BasicService(generics.GenericService, ListIds):
-
+class BasicService(generics.GenericService, ListIdsMixin, ListNameMixin):
 
     # @grpc_action(
     #     request=[],
@@ -25,7 +25,7 @@ class BasicService(generics.GenericService, ListIds):
     #     for responde_item in self._grpc_dict_from_decorators["FetchDataForUser"]["response"]:
     #         if responde_item["name"] == "ids":
     #             responde_item["type"] = self.my_serializer
-        
+
     #     for responde_item in self._grpc_dict_from_decorators["FetchDataForUser2"]["response"]:
     #         if responde_item["name"] == "ids":
     #             responde_item["type"] = self.my_serializer

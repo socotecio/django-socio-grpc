@@ -1,6 +1,7 @@
 from asgiref.sync import sync_to_async
 from google.protobuf import empty_pb2
 
+from django_socio_grpc.grpc_action import GRPCActionMixin
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.constants import DEFAULT_LIST_FIELD_NAME
 

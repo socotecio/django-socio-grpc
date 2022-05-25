@@ -1,16 +1,14 @@
+import abc
 import logging
+from typing import Any, Dict, Optional
 
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
-
-import abc
-from typing import Any, Dict, Optional
 
 logger = logging.getLogger("django_socio_grpc")
 
 
 """
 INFO - LG - 25/05/2022
-GRPCAction registration lifecycle :
 
 >>> MyMixin(GRPCActionMixin):
 ...     @grpc_action(request=[], response=[])
@@ -20,18 +18,42 @@ GRPCAction registration lifecycle :
 ...     def MyAction(self, request, context):
 ...         pass
 ...
-...     def 
+...     def _get_grpc_action_registry(service):
+...         return {
+...             "MyAction": {request=[], request_name=service.req_name, response=[]}
+...         }
+...     
+...     def _before_registration(service):
+...         service.req_name = service.__name__
 
->>> Service(GRPCActionMixin):
+>>> MyService(MyMixin):
+...     @grpc_action(request=[], response=[])
+...     def MyServiceAction(self, request, context):
+...         pass
+...
+...     @grpc_action(request=[], response=[])
+...     def MySecondServiceAction(self, request, context):
+...         pass
+...
+...     def _before_registration(service):
+...         service.req_name = "MyReqName"
 
+GRPCAction registration lifecycle on class definition :
 
+---> MyService decorated actions are registered.
+---> MyService parents and MyService `_before_registration` methods are called.
+with MyService as the argument.
+---> MyService parents and MyService `_get_grpc_action_registry` methods are called
+with MyService as the argument and their returned dict is merged with decorated actions data
+from MyService abstract parents. This dict is then registered.
 """
 
 
 class GRPCAction:
     """
-        This class wrap a grpc method in a service to be able to register it in RegistrySingleton
+    This class wrap a grpc method in a service to be able to register it in RegistrySingleton
     """
+
     def __init__(
         self,
         function,
@@ -58,7 +80,7 @@ class GRPCAction:
 
     def __set_name__(self, owner, name):
         """
-            set name function is called automatically by python and allow us to retrieve the owner(Service) instance that we need for proto registration
+        set name function is called automatically by python and allow us to retrieve the owner(Service) instance that we need for proto registration
         """
         # INFO - LG - 25/05/2022 - For abstract GRPCActionMixins, we store the action info in the owner's
         # _decorated_grpc_action_registry attribute to register later on services
@@ -91,13 +113,12 @@ class GRPCAction:
         try:
             service_registry = RegistrySingleton()
             service_registry.register_custom_action(
-                service_class=owner,
-                function_name=name,
-                **self.get_action_params()
+                service_class=owner, function_name=name, **self.get_action_params()
             )
         except Exception as e:
             logger.exception(f"Error while registering grpc_action {owner} - {name}: {e}")
         setattr(owner, name, self.function)
+
 
 class GRPCActionMixinMeta(abc.ABCMeta):
     def before_registration(cls, service_class=None):
@@ -108,7 +129,9 @@ class GRPCActionMixinMeta(abc.ABCMeta):
                 base._before_registration(service_class)
 
     def get_grpc_action_registry(cls, service_class=None):
-        print("get_grpc_action_registry", service_class)
+        """
+        return all the _decorated_grpc_action_registry attribute of all the parent mixin
+        """
         if not service_class:
             service_class = cls
         registry = {}
@@ -116,14 +139,10 @@ class GRPCActionMixinMeta(abc.ABCMeta):
         for parent in cls._action_parents[::-1]:
             # INFO - AM - 25/05/2022 - if the parent inherit from GRPCActionMixin it will have _get_grpc_action_registry (method) and _decorated_grpc_action_registry(dict) that have dictionnary data with data like grpc_action parameter allowing to register them
             if "_get_grpc_action_registry" in parent.__dict__:
-                print("in _get_grpc_action_registry")
                 registry.update(parent._get_grpc_action_registry(service_class))
             if "_decorated_grpc_action_registry" in parent.__dict__:
-                print("in decorated")
                 registry.update(parent._decorated_grpc_action_registry)
-                print(parent._decorated_grpc_action_registry)
 
-        print(registry)
         return registry
 
     @property
@@ -139,16 +158,19 @@ class GRPCActionMixinMeta(abc.ABCMeta):
 
 
 def register_action(cls, action_name: str, name: Optional[str] = None, **kwargs):
-    print("register_action", action_name)
+    """
+    Register action take function_name of mixin and register them if they are decorated (so already a GRPCAction)
+    or transform them into a GRPCAction before registring them
+    """
 
-    # INFO - AM - 25/05/2022 - get function in service. This can be a function or a GRPCAction if used with decorator  
+    # INFO - AM - 25/05/2022 - get function in service. This can be a function or a GRPCAction if used with decorator
     action = getattr(cls, action_name)
 
     # Action is already a GRPC Action
-    if isinstance(action, GRPCAction):
-        action.register(cls, name or action.function.__name__)
-        return
-    GRPCAction(action, **kwargs).register(cls, name or action.__name__)
+    if not isinstance(action, GRPCAction):
+        action = GRPCAction(action, **kwargs)
+
+    action.register(cls, name or action.function.__name__)
 
 
 class GRPCActionMixin(metaclass=GRPCActionMixinMeta):
@@ -158,7 +180,6 @@ class GRPCActionMixin(metaclass=GRPCActionMixinMeta):
 
     _abstract = True
 
-    
     def __init_subclass__(cls, abstract=False) -> None:
         """
         INFO - AM - 25/05/2022 - __init_subclass__ allow to register the mixins actions with the child name to generate the corect proto
@@ -172,14 +193,14 @@ class GRPCActionMixin(metaclass=GRPCActionMixinMeta):
         if abstract:
             return
 
+        # INFO - AM - 25/05/2022 - register actions will get _decorated_grpc_action_registry of all Mixin that the service inherit to register t
         cls.register_actions()
 
-    # INFO - AM - 25/05/2022 - This shoul be overrided in your service or mixin if you want a specific behavior for a mixin 
+    # INFO - AM - 25/05/2022 - This shoul be overrided in your service or mixin if you want a specific behavior for a mixin
     def _before_registration(service):
-        """ Method called before gRPC actions registration
-        """
+        """Method called before gRPC actions registration"""
         pass
 
-    # INFO - LG - 25/05/2022 - Dynamic gRPC action registry. This can be overrided to adapt the 
+    # INFO - LG - 25/05/2022 - Dynamic gRPC action registry. This can be overrided to adapt the
     def _get_grpc_action_registry(service) -> Dict[str, Dict[str, Any]]:
         return {}

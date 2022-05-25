@@ -3,6 +3,7 @@ from importlib import reload
 from unittest.mock import mock_open, patch
 
 import fakeapp.services.basic_service as basic_service
+import fakeapp.services.basic_mixins as basic_mixins
 import fakeapp.services.special_fields_model_service as special_fields_model_service
 import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
 import fakeapp.services.unit_test_model_service as unitestmodel_service
@@ -377,3 +378,29 @@ class TestProtoGeneration(TestCase):
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, ALL_APP_GENERATED_NO_SEPARATE)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
+        mock.MagicMock(return_value=False),
+    )
+    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("basicservice_handler_hook"))
+    def test_generate_with_mixin(self):
+        reload(basic_service)
+        reload(basic_mixins)
+        self.maxDiff = None
+
+        args = []
+        opts = {"generate_python": False}
+        with patch("builtins.open", mock_open()) as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "w+"
+
+        handle = m()
+
+        called_with_data = handle.write.call_args[0][0]
+        print(called_with_data)
+        # self.assertEqual(called_with_data, ALL_APP_GENERATED_NO_SEPARATE)
+        assert False

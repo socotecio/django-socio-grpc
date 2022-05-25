@@ -5,8 +5,6 @@ from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 import abc
 from typing import Any, Dict, Optional
 
-from django_socio_grpc.decorators import grpc_action
-
 logger = logging.getLogger("django_socio_grpc")
 
 
@@ -61,6 +59,7 @@ class GRPCAction:
         }
 
     def register(self, owner, name):
+        print("register", owner, name)
         try:
             service_registry = RegistrySingleton()
             service_registry.register_custom_action(

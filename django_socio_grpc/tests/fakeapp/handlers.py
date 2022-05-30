@@ -8,18 +8,22 @@ from fakeapp.services.special_fields_model_service import SpecialFieldsModelServ
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from django_socio_grpc.tests.fakeapp.utils import make_grpc_handler
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = []
 
+services = (
+    BasicService,
+    ForeignModelService,
+    ImportStructEvenInArrayModelService,
+    RelatedFieldModelService,
+    SpecialFieldsModelService,
+    SyncUnitTestModelService,
+    UnitTestModelService,
+)
 
-def grpc_handlers(server):
-    app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register(BasicService)
-    app_registry.register(ForeignModelService)
-    app_registry.register(ImportStructEvenInArrayModelService)
-    app_registry.register(RelatedFieldModelService)
-    app_registry.register(SpecialFieldsModelService)
-    app_registry.register(SyncUnitTestModelService)
-    app_registry.register(UnitTestModelService)
+
+grpc_handlers = make_grpc_handler("fakeapp", *services)
+
+reloaded_grpc_handlers = make_grpc_handler("fakeapp", *services, reload_services=True)

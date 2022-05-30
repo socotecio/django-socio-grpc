@@ -14,6 +14,11 @@ class ForeignModelService(
     serializer_class = ForeignModelSerializer
     lookup_field = "name"
 
+    def _dynamic_grpc_action_registry(service):
+        registry = mixins.AsyncRetrieveModelMixin._dynamic_grpc_action_registry(service)
+        registry["Retrieve"]["response"] = ForeignModelRetrieveCustomProtoSerializer
+        return registry
+
     def get_serializer_class(self):
         if self.action == "Retrieve":
             return ForeignModelRetrieveCustomProtoSerializer

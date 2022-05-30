@@ -41,45 +41,42 @@ class SingletonMeta(type):
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
 
 
-class KnowMethods:
-    LIST = "List"
-    CREATE = "Create"
-    RETRIEVE = "Retrieve"
-    UPDATE = "Update"
-    PARTIAL_UPDATE = "PartialUpdate"
-    DESTROY = "Destroy"
-    STREAM = "Stream"
-
-    @classmethod
-    def get_as_list(cls):
-        return [
-            cls.LIST,
-            cls.CREATE,
-            cls.RETRIEVE,
-            cls.UPDATE,
-            cls.PARTIAL_UPDATE,
-            cls.DESTROY,
-            cls.STREAM,
-        ]
-
-    @classmethod
-    def get_methods_no_custom_messages(cls):
-        return [cls.CREATE, cls.UPDATE, cls.PARTIAL_UPDATE]
-
-    @classmethod
-    def get_methods_no_stream(cls):
-        return [
-            cls.LIST,
-            cls.CREATE,
-            cls.RETRIEVE,
-            cls.UPDATE,
-            cls.PARTIAL_UPDATE,
-            cls.DESTROY,
-        ]
+TYPE_MAPPING = {
+    # Numeric
+    models.AutoField.__name__: "int32",
+    models.SmallIntegerField.__name__: "int32",
+    models.IntegerField.__name__: "int32",
+    models.BigIntegerField.__name__: "int64",
+    models.PositiveSmallIntegerField.__name__: "int32",
+    models.PositiveIntegerField.__name__: "int32",
+    models.FloatField.__name__: "float",
+    models.DecimalField.__name__: "double",
+    # Boolean
+    models.BooleanField.__name__: "bool",
+    models.NullBooleanField.__name__: "bool",
+    # Date and time
+    models.DateField.__name__: "string",
+    models.TimeField.__name__: "string",
+    models.DateTimeField.__name__: "string",
+    models.DurationField.__name__: "string",
+    # String
+    models.CharField.__name__: "string",
+    models.TextField.__name__: "string",
+    models.EmailField.__name__: "string",
+    models.SlugField.__name__: "string",
+    models.URLField.__name__: "string",
+    models.UUIDField.__name__: "string",
+    models.GenericIPAddressField.__name__: "string",
+    models.FilePathField.__name__: "string",
+    # Other
+    models.BinaryField.__name__: "bytes",
+    # Default
+    models.Field.__name__: "string",
+}
 
 
 class RegistrySingleton(metaclass=SingletonMeta):
@@ -88,50 +85,17 @@ class RegistrySingleton(metaclass=SingletonMeta):
     and introspect django model and serializer to determine the proto to generate
     """
 
-    type_mapping = {
-        # Numeric
-        models.AutoField.__name__: "int32",
-        models.SmallIntegerField.__name__: "int32",
-        models.IntegerField.__name__: "int32",
-        models.BigIntegerField.__name__: "int64",
-        models.PositiveSmallIntegerField.__name__: "int32",
-        models.PositiveIntegerField.__name__: "int32",
-        models.FloatField.__name__: "float",
-        models.DecimalField.__name__: "double",
-        # Boolean
-        models.BooleanField.__name__: "bool",
-        models.NullBooleanField.__name__: "bool",
-        # Date and time
-        models.DateField.__name__: "string",
-        models.TimeField.__name__: "string",
-        models.DateTimeField.__name__: "string",
-        models.DurationField.__name__: "string",
-        # String
-        models.CharField.__name__: "string",
-        models.TextField.__name__: "string",
-        models.EmailField.__name__: "string",
-        models.SlugField.__name__: "string",
-        models.URLField.__name__: "string",
-        models.UUIDField.__name__: "string",
-        models.GenericIPAddressField.__name__: "string",
-        models.FilePathField.__name__: "string",
-        # Other
-        models.BinaryField.__name__: "bytes",
-        # Default
-        models.Field.__name__: "string",
-    }
-
     # JSONField and PositiveBigIntegerField not available on Django 2.2
     try:
         # Special
-        type_mapping[models.JSONField.__name__] = "google.protobuf.Struct"
+        TYPE_MAPPING[models.JSONField.__name__] = "google.protobuf.Struct"
     except AttributeError:
         from django.contrib.postgres.fields import JSONField
 
-        type_mapping[JSONField.__name__] = "google.protobuf.Struct"
+        TYPE_MAPPING[JSONField.__name__] = "google.protobuf.Struct"
 
     try:
-        type_mapping[models.PositiveBigIntegerField.__name__] = "int64"
+        TYPE_MAPPING[models.PositiveBigIntegerField.__name__] = "int64"
     except AttributeError:
         pass
 
@@ -158,7 +122,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         This message need to be in a correct format that will be used by generators to transform it into generators
         """
         if message_name is None:
-            message_name = self.get_message_name_from_field_or_serializer_instance(
+            message_name = get_message_name_from_field_or_serializer_instance(
                 serializer_instance, is_request
             )
 
@@ -178,8 +142,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 if issubclass(field_type.__class__, HiddenField):
                     continue
 
-                # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we need to filter read only or write only field depend of if is requets message or not
-                # INFO - AM - 21/01/2022 - By defautl in DRF Pk are read_only. But in grpc we want them to be in the message
+                # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we
+                # need to filter read only or write only field depend of if is requets message or not
+                # By defautl in DRF Pk are read_only. But in grpc we want them
+                # to be in the message
                 if grpc_settings.SEPARATE_READ_WRITE_MODEL and field_name != pk_name:
                     if is_request and self.field_type_is_read_only(field_type):
                         continue
@@ -200,7 +166,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 self.registered_app[app_name]["registered_messages"][message_name].append(
                     field_grpc_generator_format
                 )
-        # INFO - AM - 07/01/2022 - else if the field type inherit from base proto serializer and not protoserializer get_fields method is not implemented so we need a custom action here
+        # INFO - AM - 07/01/2022 - else if the field type inherit from base proto
+        # serializer and not protoserializer get_fields method is not implemented
+        # so we need a custom action here
         else:
             message = serializer_instance.to_proto_message()
             messages_fields = [(item["name"], item["type"]) for item in message]
@@ -219,22 +187,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
     def field_type_is_write_only(self, field_type):
         return field_type.write_only is True
 
-    def get_message_name_from_field_or_serializer_instance(
-        self, class_or_field_instance, is_request=None, append_type=True
-    ):
-        # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we have two different message for the same serializer
-        class_name = class_or_field_instance.__class__.__name__
-        if "ProtoSerializer" in class_name:
-            message_name = rreplace(class_name, "ProtoSerializer", "", 1)
-        elif "Serializer" in class_name:
-            message_name = rreplace(class_name, "Serializer", "", 1)
-        else:
-            message_name = class_name
-
-        if grpc_settings.SEPARATE_READ_WRITE_MODEL and append_type:
-            message_name = f"{message_name}{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX}"
-        return message_name
-
     def get_proto_type(
         self, app_name, field_type, field_name, serializer_instance, is_request=None
     ):
@@ -247,26 +199,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if isinstance(field_type, str):
             return field_type
 
-        proto_type = self.type_mapping.get(field_type.__class__.__name__, "string")
-
-        # if  field_name == "slug_many_many":
-        #     print(f"class is : {field_type.__class__}")
-        #     print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}")
-        #     print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}")
-        #     print(f"is subclas of SlugRelatedField: {issubclass(field_type.__class__, SlugRelatedField)}")
-        #     print(
-        #         f"is subclas of ManyRelatedField: {issubclass(field_type.__class__, ManyRelatedField)}"
-        #     )
-        #     print(f"is subclas of RelatedField: {issubclass(field_type.__class__, RelatedField)}")
-        #     print(f"is subclas of ListSerializer: {issubclass(field_type.__class__, ListSerializer)}")
-        #     print(f"is subclas of ListField: {issubclass(field_type.__class__, ListField)}")
-        #     print(f"is subclas of DictField: {issubclass(field_type.__class__, DictField)}")
-        #     print(f"is subclas of BaseSerializer: {issubclass(field_type.__class__, BaseSerializer)}")
-        #     print(f"is subclas of SerializerMethodField: {issubclass(field_type.__class__, SerializerMethodField)}")
+        proto_type = TYPE_MAPPING.get(field_type.__class__.__name__, "string")
 
         # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have
         if issubclass(field_type.__class__, ListProtoSerializer):
-            proto_type = f"repeated {self.get_message_name_from_field_or_serializer_instance(field_type.child, is_request=is_request)}"
+            proto_type = f"repeated {get_message_name_from_field_or_serializer_instance(field_type.child, is_request=is_request)}"
             # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
             self.register_serializer_as_message_if_not_exist(
                 app_name, field_type.child, is_request=is_request
@@ -274,7 +211,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # INFO - AM - 07/01/2022 - else if the field type inherit from proto serializer that mean that it is generated as a message in the proto file
         elif issubclass(field_type.__class__, BaseProtoSerializer):
-            proto_type = self.get_message_name_from_field_or_serializer_instance(
+            proto_type = get_message_name_from_field_or_serializer_instance(
                 field_type, is_request=is_request
             )
             # INFO - AM - 07/01/2022 - If nested serializer not used anywhere else we need to add it too
@@ -306,17 +243,15 @@ class RegistrySingleton(metaclass=SingletonMeta):
         elif issubclass(field_type.__class__, RelatedField):
             proto_type = self.get_pk_from_related_field(field_type)
 
-        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListSerializer that mean it's a repaeated Struct
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListSerializer that mean it's a repeated Struct
         elif issubclass(field_type.__class__, ListSerializer):
             proto_type = "repeated google.protobuf.Struct"
 
-        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repaeated of the child attr proto type
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repeated of the child attr proto type
         elif issubclass(field_type.__class__, ModelField):
-            proto_type = self.type_mapping.get(
-                field_type.model_field.__class__.__name__, "string"
-            )
+            proto_type = TYPE_MAPPING.get(field_type.model_field.__class__.__name__, "string")
 
-        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repaeated of the child attr proto type
+        # INFO - AM - 07/01/2022 - Else if the field type inherit from the ListField that mean it's a repeated of the child attr proto type
         elif issubclass(field_type.__class__, ListField):
             child_proto_type = self.get_proto_type(
                 app_name,
@@ -325,7 +260,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 serializer_instance,
                 is_request=is_request,
             )
-            # INFO - AM - 03/02/2022 - if the returned child_proto_type returned is repeated (this can happen with slud related field in a many many relationships) we remove it because we only need one repeated
+            # INFO - AM - 03/02/2022 - if the returned child_proto_type returned is repeated
+            # (this can happen with slud related field in a many many relationships) we remove it because we only need one repeated
             if child_proto_type.startswith("repeated "):
                 child_proto_type = child_proto_type[9:]
             proto_type = f"repeated {child_proto_type}"
@@ -340,47 +276,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
         elif issubclass(field_type.__class__, SerializerMethodField):
-            proto_type = self.get_proto_type_from_inspect(
+            proto_type = get_proto_type_from_inspect(
                 field_type, field_name, serializer_instance
             )
 
         return proto_type
-
-    def get_proto_type_from_inspect(self, field_type, field_name, serializer_instance):
-        """
-        In some cases (for now only SerializerMethodField) we need to introspect method and ask user to specify the return type to be able to find the correct proto type
-        """
-        method_name = field_type.method_name
-        if method_name is None:
-            method_name = f"get_{field_name}"
-        method = getattr(serializer_instance, method_name, None)
-        if method is None:
-            # TODO - AM - 21/01/2022 - What todo here ? raise an excpetion or let DRF handle this kind of problems ?
-            return "string"
-
-        if "return" not in method.__annotations__:
-            raise RegisterServiceException(
-                f"You are trying to register the serializer {serializer_instance.__class__.__name__} with a SerializerMethodField on the field {field_name}. But the method associated does'nt have a return annotations. Please look at the example: https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L83. And the python doc: https://docs.python.org/3.8/library/typing.html"
-            )
-
-        python_type_to_proto_type = {
-            int: "int32",
-            str: "string",
-            bool: "bool",
-            float: "float",
-            list: "repeated string",
-            dict: "google.protobuf.Struct",
-            bytes: "bytes",
-            List: "repeated string",
-            Dict: "google.protobuf.Struct",
-            List[int]: "repeated int32",
-            List[str]: "repeated string",
-            List[bool]: "repeated bool",
-            List[Tuple]: "repeated google.protobuf.Struct",
-            List[Dict]: "repeated google.protobuf.Struct",
-        }
-
-        return python_type_to_proto_type[method.__annotations__["return"]]
 
     def get_pk_from_related_field(self, related_field):
         """
@@ -393,7 +293,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             type_name = model_meta.get_model_pk(
                 related_field.queryset.model
             ).__class__.__name__
-        return self.type_mapping.get(type_name, "related_not_found")
+        return TYPE_MAPPING.get(type_name, "related_not_found")
 
     def get_pk_from_slug_related_field(
         self, slug_related_field, field_name, serializer_instance
@@ -447,7 +347,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # INFO - AM - 27/01/2022 - As there is reverse relationship django return a slug_defered_attribute that has a field attribute that is the field that we want to find the prototype
         slug_field_class_name = slug_defered_attribute.field.__class__.__name__
 
-        proto_type = self.type_mapping.get(slug_field_class_name, "slug_field type not found")
+        proto_type = TYPE_MAPPING.get(slug_field_class_name, "slug_field type not found")
 
         # INFO - AM - 27/01/2022 - If to_many args is true that mean we have a repeated proto type
         if to_many:
@@ -476,7 +376,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if pagination:
             response_fields += [("count", "int32")]
 
-        # INFO - AM - 04/02/2022 - For list message with a custom name we need to add List Before Response or Request end of world if seperate settings is true
+        # INFO - AM - 04/02/2022 - For list message with a custom name we need to add
+        # List Before Response or Request end of word if seperate settings is true
         if message_name:
             if grpc_settings.SEPARATE_READ_WRITE_MODEL:
                 suffix_len = 0
@@ -515,8 +416,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
         """ "
         For each service register in ROOT_HANDLERS_HOOK we try to register its controller and its messages
         """
-        # print("-----------------\n"*5)
-        # print("register_service", Service)
 
         service_instance = service_class()
 
@@ -544,238 +443,6 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         if controller_name not in self.registered_app[app_name]["registered_controllers"]:
             self.registered_app[app_name]["registered_controllers"][controller_name] = {}
-
-        for method in KnowMethods.get_as_list():
-            if not getattr(service_instance, method, None):
-                continue
-
-            # If we already have registered this method for this controlleur (with a decorator) we do not use the default behavior
-            if (
-                method
-                in self.registered_app[app_name]["registered_controllers"][controller_name]
-            ):
-                continue
-
-            (
-                request_message_name,
-                response_message_name,
-            ) = self.register_default_message_from_method(app_name, method, service_instance)
-
-            self.register_default_method(
-                app_name, controller_name, method, request_message_name, response_message_name
-            )
-
-    def register_default_method(
-        self, app_name, controller_name, method, request_message_name, response_message_name
-    ):
-        """
-        If we arrive in this method that mean that the developer use a generation with a default behavior
-        We are looking the method passed in argument definition in the know method to define the dictionnary used to generate the protofile
-        Basically it's just look if the method as a request or a response stream to specify it to the generation
-        """
-        if method in KnowMethods.get_methods_no_stream():
-            self.registered_app[app_name]["registered_controllers"][controller_name][
-                method
-            ] = {
-                "request": {"is_stream": False, "message": request_message_name},
-                "response": {"is_stream": False, "message": response_message_name},
-            }
-
-        elif method == KnowMethods.STREAM:
-            self.registered_app[app_name]["registered_controllers"][controller_name][
-                method
-            ] = {
-                "request": {"is_stream": False, "message": request_message_name},
-                "response": {"is_stream": True, "message": response_message_name},
-            }
-
-        else:
-            raise RegisterServiceException(
-                f"You are registering a service with the method {method} but this methods does not have a decorator and is not in our default supported methods: {KnowMethods.get_as_list()}"
-            )
-
-    def register_default_message_from_method(self, app_name, method, service_instance):
-        """
-        If we arrive in this method that mean that the developer use a generation with a default behavior
-        for each king of method we check if this is the method passed as argument and:
-            - get the serializer instance associated to the current action/method
-            - determine from the serializer and the default method the grpc messages to create
-        """
-
-        serializer_instance = self.get_serializer_instance_with_method(
-            service_instance, method
-        )
-
-        if method in KnowMethods.get_methods_no_custom_messages():
-            request_message_name = self.register_serializer_as_message_if_not_exist(
-                app_name, serializer_instance, is_request=True
-            )
-            response_message_name = self.register_serializer_as_message_if_not_exist(
-                app_name, serializer_instance, is_request=False
-            )
-            return request_message_name, response_message_name
-
-        elif method == KnowMethods.LIST:
-
-            return self.register_list_serializer_as_message(
-                app_name, service_instance, serializer_instance
-            )
-
-        elif method == KnowMethods.RETRIEVE:
-            return self.register_retrieve_serializer_as_message(
-                app_name, service_instance, serializer_instance
-            )
-
-        elif method == KnowMethods.DESTROY:
-            return self.register_destroy_serializer_as_message(
-                app_name, service_instance, serializer_instance
-            )
-
-        elif method == KnowMethods.STREAM:
-            return self.register_stream_serializer_as_message(app_name, serializer_instance)
-
-        else:
-            raise RegisterServiceException(
-                f"You are registering a service with the method {method} but this methods does not have a decorator and is not in our default supported methods: {KnowMethods.get_as_list()}"
-            )
-
-    def get_serializer_instance_with_method(self, service_instance, method):
-        """
-        Assign to the service instance the current action to be able to anticipate case where a service has different serializer class returned
-        then call get_serializer_class and return an instance of it for generating message by instrospecting
-        """
-        service_instance.action = method
-        SerializerClass = service_instance.get_serializer_class()
-
-        serializer_instance = SerializerClass()
-
-        # fields = serializer_instance.get_fields()
-
-        return serializer_instance
-
-    def register_list_serializer_as_message(
-        self, app_name, service_instance, serializer_instance
-    ):
-        """
-        Method that register a defaut know "list" method in the app proto message
-        """
-        serializer_name = self.get_message_name_from_field_or_serializer_instance(
-            serializer_instance, append_type=False
-        )
-        child_response_message_name = self.register_serializer_as_message_if_not_exist(
-            app_name, serializer_instance, is_request=False
-        )
-
-        list_response_field_name = self.get_list_response_field_name_from_serializer_instance(
-            serializer_instance
-        )
-
-        request_message_name = f"{serializer_name}List{REQUEST_SUFFIX}"
-
-        self.registered_app[app_name]["registered_messages"][request_message_name] = []
-
-        response_message_name = self.register_list_message_of_serializer(
-            app_name,
-            service_instance,
-            base_name=serializer_name,
-            list_response_field_name=list_response_field_name,
-            child_response_message_name=child_response_message_name,
-            is_request=False,
-        )
-
-        return request_message_name, response_message_name
-
-    def register_retrieve_serializer_as_message(
-        self, app_name, service_instance, serializer_instance, retrieve_field_name=None
-    ):
-        """
-        Method that register a defaut know "retrieve" method in the app proto message
-        """
-        retrieve_field = self.get_lookup_field_from_serializer(
-            serializer_instance, service_instance, retrieve_field_name
-        )
-
-        serializer_name = self.get_message_name_from_field_or_serializer_instance(
-            serializer_instance, append_type=False
-        )
-
-        request_message_name = f"{serializer_name}Retrieve{REQUEST_SUFFIX}"
-        self.registered_app[app_name]["registered_messages"][request_message_name] = [
-            retrieve_field
-        ]
-
-        response_message_name = self.register_serializer_as_message_if_not_exist(
-            app_name, serializer_instance, is_request=False
-        )
-
-        return request_message_name, response_message_name
-
-    def register_destroy_serializer_as_message(
-        self, app_name, service_instance, serializer_instance, destroy_field_name=None
-    ):
-        """
-        Method that register a defaut know "destroy" method in the app proto message
-        """
-
-        destroy_field = self.get_lookup_field_from_serializer(
-            serializer_instance, service_instance, destroy_field_name
-        )
-
-        serializer_name = self.get_message_name_from_field_or_serializer_instance(
-            serializer_instance, append_type=False
-        )
-
-        request_message_name = f"{serializer_name}Destroy{REQUEST_SUFFIX}"
-        self.registered_app[app_name]["registered_messages"][request_message_name] = [
-            destroy_field
-        ]
-
-        return request_message_name, "google.protobuf.Empty"
-
-    def register_stream_serializer_as_message(self, app_name, serializer_instance):
-        """
-        Method that register a defaut know "stream" method in the app proto message
-        """
-        serializer_name = self.get_message_name_from_field_or_serializer_instance(
-            serializer_instance, append_type=False
-        )
-
-        request_message_name = f"{serializer_name}Stream{REQUEST_SUFFIX}"
-        self.registered_app[app_name]["registered_messages"][request_message_name] = []
-
-        response_message_name = self.register_serializer_as_message_if_not_exist(
-            app_name, serializer_instance, is_request=False
-        )
-
-        return request_message_name, response_message_name
-
-    def get_lookup_field_from_serializer(
-        self, serializer_instance, service_instance, field_name=None
-    ):
-        """
-        Find the field associated to the lookup field
-        serializer_instance: instance of the serializer used in this service where the lookup field should be present
-        service_instance: the service instance itself where we can introspect for lookupfield
-        field_name: If e do not want to use the default lookup field of the service but a specific field we just have to specify this params
-
-        return: iterable: [str, <drf.serializers.Field>]
-        """
-        if field_name is None:
-            field_name = service_instance.get_lookup_request_field()
-
-        # TODO - AM - 07/01/2022 - Check if the fied name in the existing field
-        if field_name not in serializer_instance.fields:
-            raise RegisterServiceException(
-                f"Trying to build a Retrieve or Destroy request with retrieve field named: {field_name} but this field is not existing in the serializer: {serializer_instance.__class__.__name__}"
-            )
-
-        field_proto_type = self.type_mapping.get(
-            serializer_instance.fields[field_name].__class__.__name__,
-            "lookup_field_type_not_found",
-        )
-
-        # INFO - AM - 07/01/2022 - to match the format retuned by get_fields used for the generation we need to return an iterable with first element field_name and second element the proto type format
-        return [field_name, field_proto_type]
 
     ############################################################################
     #
@@ -895,7 +562,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         self, app_name, service_name, function_name, message, is_request, message_name=None
     ):
         if isinstance(message, list):
-            if len(message) == 0:
+            if len(message) == 0 and not message_name:
                 return "google.protobuf.Empty", DEFAULT_LIST_FIELD_NAME
 
             messages_fields = [(item["name"], item["type"]) for item in message]
@@ -930,16 +597,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
         self, service_name, function_name, message_name, is_request=True
     ):
         suffix = REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX
-        list_suffix = f"List{suffix}"
         # INFO - AM - 09/02/2022 - If special protobuf message we have to determine the name for the message
         if self.is_special_protobuf_message(message_name):
-            if function_name == KnowMethods.LIST:
-                base_name = service_name
-            else:
-                base_name = f"{service_name}{function_name}"
-        # INFO - AM - 09/02/2022 - Avoid duplicate List on message name on list method
-        elif function_name == KnowMethods.LIST and list_suffix in message_name:
-            base_name = rreplace(message_name, list_suffix, "", 1)
+            base_name = f"{service_name}{function_name}"
         else:
             base_name = rreplace(message_name, suffix, "", 1)
         return base_name
@@ -949,3 +609,84 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
     def is_special_protobuf_message(self, message_name):
         return message_name.startswith("google.protobuf")
+
+
+def get_message_name_from_field_or_serializer_instance(
+    class_or_field_instance, is_request=None, append_type=True
+):
+    # INFO - AM - 21/01/2022 - if SEPARATE_READ_WRITE_MODEL is true (by default yes) then we have two different message for the same serializer
+    class_name = class_or_field_instance.__class__.__name__
+    if "ProtoSerializer" in class_name:
+        message_name = rreplace(class_name, "ProtoSerializer", "", 1)
+    elif "Serializer" in class_name:
+        message_name = rreplace(class_name, "Serializer", "", 1)
+    else:
+        message_name = class_name
+
+    if grpc_settings.SEPARATE_READ_WRITE_MODEL and append_type:
+        message_name = f"{message_name}{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX}"
+    return message_name
+
+
+def get_lookup_field_from_serializer(serializer_instance, service_instance, field_name=None):
+    """
+    Find the field associated to the lookup field
+    serializer_instance: instance of the serializer used in this service where the lookup field should be present
+    service_instance: the service instance itself where we can introspect for lookupfield
+    field_name: If e do not want to use the default lookup field of the service but a specific field we just have to specify this params
+
+    return: iterable: [str, <drf.serializers.Field>]
+    """
+    if field_name is None:
+        field_name = service_instance.get_lookup_request_field()
+
+    # TODO - AM - 07/01/2022 - Check if the fied name in the existing field
+    if field_name not in serializer_instance.fields:
+        raise RegisterServiceException(
+            f"Trying to build a Retrieve or Destroy request with retrieve field named: {field_name} but this field is not existing in the serializer: {serializer_instance.__class__.__name__}"
+        )
+
+    field_proto_type = TYPE_MAPPING.get(
+        serializer_instance.fields[field_name].__class__.__name__,
+        "lookup_field_type_not_found",
+    )
+
+    # INFO - AM - 07/01/2022 - to match the format retuned by get_fields used for the generation we need to return an iterable with first element field_name and second element the proto type format
+    return [field_name, field_proto_type]
+
+
+def get_proto_type_from_inspect(field_type, field_name, serializer_instance):
+    """
+    In some cases (for now only SerializerMethodField) we need to introspect method and ask user to specify the return type to be able to find the correct proto type
+    """
+    method_name = field_type.method_name
+    if method_name is None:
+        method_name = f"get_{field_name}"
+    method = getattr(serializer_instance, method_name, None)
+    if method is None:
+        # TODO - AM - 21/01/2022 - What todo here ? raise an excpetion or let DRF handle this kind of problems ?
+        return "string"
+
+    if "return" not in method.__annotations__:
+        raise RegisterServiceException(
+            f"You are trying to register the serializer {serializer_instance.__class__.__name__} with a SerializerMethodField on the field {field_name}. But the method associated does'nt have a return annotations. Please look at the example: https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L83. And the python doc: https://docs.python.org/3.8/library/typing.html"
+        )
+
+    python_type_to_proto_type = {
+        int: "int32",
+        str: "string",
+        bool: "bool",
+        float: "float",
+        list: "repeated string",
+        dict: "google.protobuf.Struct",
+        bytes: "bytes",
+        List: "repeated string",
+        Dict: "google.protobuf.Struct",
+        List[int]: "repeated int32",
+        List[str]: "repeated string",
+        List[bool]: "repeated bool",
+        List[Tuple]: "repeated google.protobuf.Struct",
+        List[Dict]: "repeated google.protobuf.Struct",
+    }
+
+    return python_type_to_proto_type[method.__annotations__["return"]]

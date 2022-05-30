@@ -1,5 +1,7 @@
+from typing import Dict, List
+
+from django_socio_grpc.actions import AttrPlaceholder, GRPCActionMixin
 from django_socio_grpc.decorators import grpc_action
-from django_socio_grpc.grpc_action import GRPCActionMixin
 
 
 class ListIdsMixin(GRPCActionMixin, abstract=True):
@@ -9,6 +11,8 @@ class ListIdsMixin(GRPCActionMixin, abstract=True):
 
 
 class ListNameMixin(GRPCActionMixin, abstract=True):
-    @grpc_action(request=[], response=[{"name": "name", "type": "repeated string"}])
+    _list_name_response: List[Dict[str, str]]
+
+    @grpc_action(request=[], response=AttrPlaceholder("_list_name_response"))
     async def ListName(self, request, context):
         pass

@@ -1,4 +1,4 @@
-from .grpc_action import GRPCAction
+from .actions import GRPCAction
 
 
 def grpc_action(

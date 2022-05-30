@@ -18,7 +18,7 @@ from .assets.generated_protobuf_files import (
     ALL_APP_GENERATED_NO_SEPARATE,
     ALL_APP_GENERATED_SEPARATE,
     CUSTOM_APP_MODEL_GENERATED,
-    MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED,
+    MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED,
     MODEL_WITH_M2M_GENERATED,
     MODEL_WITH_STRUCT_IMORT_IN_ARRAY,
     NO_MODEL_GENERATED,
@@ -233,7 +233,7 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED)
+        self.assertEqual(called_with_data, MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED)
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",

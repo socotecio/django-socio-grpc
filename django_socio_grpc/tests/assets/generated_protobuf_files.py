@@ -14,8 +14,8 @@ service UnitTestModelController {
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
-message UnitTestModelListWithExtraArgsRequest {
-    bool archived = 1;
+message UnitTestModelDestroyRequest {
+    int32 id = 1;
 }
 
 message UnitTestModelListExtraArgsResponse {
@@ -24,12 +24,6 @@ message UnitTestModelListExtraArgsResponse {
     repeated UnitTestModelResponse results = 3;
 }
 
-message UnitTestModelResponse {
-    int32 id = 1;
-    string title = 2;
-    string text = 3;
-}
-
 message UnitTestModelListRequest {
 }
 
@@ -38,65 +32,23 @@ message UnitTestModelListResponse {
     int32 count = 2;
 }
 
+message UnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
+}
+
 message UnitTestModelRequest {
     int32 id = 1;
     string title = 2;
     string text = 3;
-}
-
-message UnitTestModelRetrieveRequest {
-    int32 id = 1;
-}
-
-message UnitTestModelDestroyRequest {
-    int32 id = 1;
-}
-
-message UnitTestModelStreamRequest {
-}
-
-"""
-
-SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER = """syntax = "proto3";
-
-package myproject.fakeapp;
-
-import "google/protobuf/empty.proto";
-
-service UnitTestModelController {
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
-    rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
-    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
 }
 
 message UnitTestModelResponse {
     int32 id = 1;
-    string text = 2;
-    string title = 3;
-}
-
-message UnitTestModelListRequest {
-}
-
-message UnitTestModelListResponse {
-    repeated UnitTestModelResponse results = 1;
-    int32 count = 2;
-}
-
-message UnitTestModelRequest {
-    int32 id = 1;
     string title = 2;
     string text = 3;
 }
 
 message UnitTestModelRetrieveRequest {
-    int32 id = 1;
-}
-
-message UnitTestModelDestroyRequest {
     int32 id = 1;
 }
 
@@ -114,11 +66,6 @@ service ForeignModelController {
     rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
 }
 
-message ForeignModelResponse {
-    string uuid = 1;
-    string name = 2;
-}
-
 message ForeignModelListRequest {
 }
 
@@ -127,13 +74,18 @@ message ForeignModelListResponse {
     int32 count = 2;
 }
 
-message ForeignModelRetrieveCustomRetrieveRequest {
-    string name = 1;
+message ForeignModelResponse {
+    string uuid = 1;
+    string name = 2;
 }
 
 message ForeignModelRetrieveCustomResponse {
     string name = 1;
     string custom = 2;
+}
+
+message ForeignModelRetrieveCustomRetrieveRequest {
+    string name = 1;
 }
 
 """
@@ -152,26 +104,24 @@ service RelatedFieldModelController {
     rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
 }
 
-message RelatedFieldModelResponse {
-    string uuid = 1;
-    ForeignModelResponse foreign_obj = 2;
-    repeated ManyManyModelResponse many_many_obj = 3;
-    int32 slug_test_model = 4;
-    repeated bool slug_reverse_test_model = 5;
-    repeated string slug_many_many = 6;
-    string custom_field_name = 7;
-    string foreign = 8;
-    repeated string many_many = 9;
-}
-
 message ForeignModelResponse {
     string uuid = 1;
     string name = 2;
 }
 
+message ManyManyModelRequest {
+    string uuid = 1;
+    string name = 2;
+    string test_write_only_on_nested = 3;
+}
+
 message ManyManyModelResponse {
     string uuid = 1;
     string name = 2;
+}
+
+message RelatedFieldModelDestroyRequest {
+    string uuid = 1;
 }
 
 message RelatedFieldModelListRequest {
@@ -190,17 +140,19 @@ message RelatedFieldModelRequest {
     repeated string many_many = 5;
 }
 
-message ManyManyModelRequest {
+message RelatedFieldModelResponse {
     string uuid = 1;
-    string name = 2;
-    string test_write_only_on_nested = 3;
+    ForeignModelResponse foreign_obj = 2;
+    repeated ManyManyModelResponse many_many_obj = 3;
+    int32 slug_test_model = 4;
+    repeated bool slug_reverse_test_model = 5;
+    repeated string slug_many_many = 6;
+    string custom_field_name = 7;
+    string foreign = 8;
+    repeated string many_many = 9;
 }
 
 message RelatedFieldModelRetrieveRequest {
-    string uuid = 1;
-}
-
-message RelatedFieldModelDestroyRequest {
     string uuid = 1;
 }
 
@@ -291,10 +243,8 @@ service UnitTestModelController {
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
-message UnitTestModelResponse {
+message UnitTestModelDestroyRequest {
     int32 id = 1;
-    string text = 2;
-    string title = 3;
 }
 
 message UnitTestModelListRequest {
@@ -311,11 +261,13 @@ message UnitTestModelRequest {
     string text = 3;
 }
 
-message UnitTestModelRetrieveRequest {
+message UnitTestModelResponse {
     int32 id = 1;
+    string text = 2;
+    string title = 3;
 }
 
-message UnitTestModelDestroyRequest {
+message UnitTestModelRetrieveRequest {
     int32 id = 1;
 }
 
@@ -324,7 +276,7 @@ message UnitTestModelStreamRequest {
 
 """
 
-MODEL_WITH_KNOWN_METHOD_OVERRIDED_GENERATED = """syntax = "proto3";
+MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED = """syntax = "proto3";
 
 package myproject.fakeapp;
 
@@ -339,21 +291,14 @@ service SpecialFieldsModelController {
     rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
 }
 
-message SpecialFieldsModelRetrieveRequest {
-    string uuid = 1;
-}
-
 message CustomRetrieveResponseSpecialFieldsModelResponse {
     string uuid = 1;
     int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 
-message SpecialFieldsModelResponse {
+message SpecialFieldsModelDestroyRequest {
     string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
-    repeated int32 list_datas = 3;
-    bytes binary = 4;
 }
 
 message SpecialFieldsModelListRequest {
@@ -370,7 +315,14 @@ message SpecialFieldsModelRequest {
     repeated int32 list_datas = 3;
 }
 
-message SpecialFieldsModelDestroyRequest {
+message SpecialFieldsModelResponse {
+    string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
+    repeated int32 list_datas = 3;
+    bytes binary = 4;
+}
+
+message SpecialFieldsModelRetrieveRequest {
     string uuid = 1;
 }
 
@@ -394,63 +346,8 @@ service BasicController {
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
-message BasicFetchDataForUserRequest {
-    string user_name = 1;
-}
-
-message BasicServiceResponse {
-    string user_name = 1;
-    google.protobuf.Struct user_data = 2;
-    bytes bytes_example = 3;
-    repeated google.protobuf.Struct list_of_dict = 4;
-}
-
-message BasicServiceListResponse {
-    repeated BasicServiceResponse results = 1;
-    int32 count = 2;
-}
-
-message CustomNameForRequest {
-    string user_name = 1;
-}
-
-message CustomNameForResponse {
-    string user_name = 1;
-}
-
-message CustomMixParamForRequest {
-    string user_name = 1;
-}
-
-message CustomMixParamForListRequest {
-    repeated CustomMixParamForRequest results = 1;
-    int32 count = 2;
-}
-
-message BasicMixParamResponse {
-    string user_name = 1;
-}
-
-message BasicMixParamListResponse {
-    repeated BasicMixParamResponse results = 1;
-    int32 count = 2;
-}
-
-message BasicParamWithSerializerRequest {
-    string user_name = 1;
-    google.protobuf.Struct user_data = 2;
-    string user_password = 3;
-    bytes bytes_example = 4;
-    repeated google.protobuf.Struct list_of_dict = 5;
-}
-
-message BasicParamWithSerializerListRequest {
-    repeated BasicParamWithSerializerRequest results = 1;
-    int32 count = 2;
-}
-
-message BasicMixParamWithSerializerListResponse {
-    repeated google.protobuf.Struct results = 1;
+message BaseProtoExampleListResponse {
+    repeated BaseProtoExampleResponse results = 1;
     int32 count = 2;
 }
 
@@ -466,8 +363,39 @@ message BaseProtoExampleResponse {
     bool is_archived = 3;
 }
 
-message BaseProtoExampleListResponse {
-    repeated BaseProtoExampleResponse results = 1;
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
+
+message BasicMixParamListResponse {
+    repeated BasicMixParamResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamResponse {
+    string user_name = 1;
+}
+
+message BasicMixParamWithSerializerListResponse {
+    repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerListRequest {
+    repeated BasicParamWithSerializerRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerRequest {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
+}
+
+message BasicProtoListChildListResponse {
+    repeated BasicProtoListChildResponse results = 1;
     int32 count = 2;
 }
 
@@ -477,15 +405,39 @@ message BasicProtoListChildRequest {
     string text = 3;
 }
 
-message BasicProtoListChildListResponse {
-    repeated BasicProtoListChildResponse results = 1;
-    int32 count = 2;
-}
-
 message BasicProtoListChildResponse {
     int32 id = 1;
     string title = 2;
     string text = 3;
+}
+
+message BasicServiceListResponse {
+    repeated BasicServiceResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicServiceResponse {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    bytes bytes_example = 3;
+    repeated google.protobuf.Struct list_of_dict = 4;
+}
+
+message CustomMixParamForListRequest {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
+}
+
+message CustomMixParamForRequest {
+    string user_name = 1;
+}
+
+message CustomNameForRequest {
+    string user_name = 1;
+}
+
+message CustomNameForResponse {
+    string user_name = 1;
 }
 
 """
@@ -554,67 +506,23 @@ service RelatedFieldModelController {
     rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
 }
 
-message UnitTestModelListWithExtraArgsRequest {
-    bool archived = 1;
-}
-
-message UnitTestModelListExtraArgs {
-    int32 count = 1;
-    string query_fetched_datetime = 2;
-    repeated UnitTestModel results = 3;
-}
-
-message UnitTestModel {
-    int32 id = 1;
-    string title = 2;
-    string text = 3;
-}
-
-message SyncUnitTestModelListWithExtraArgsRequest {
-    bool archived = 1;
-}
-
-message SpecialFieldsModelRetrieveRequest {
+message BaseProtoExample {
     string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
 }
 
-message CustomRetrieveResponseSpecialFieldsModel {
-    string uuid = 1;
-    int32 default_method_field = 2;
-    repeated google.protobuf.Struct custom_method_field = 3;
+message BaseProtoExampleListResponse {
+    repeated BaseProtoExample results = 1;
+    int32 count = 2;
 }
 
 message BasicFetchDataForUserRequest {
     string user_name = 1;
 }
 
-message BasicService {
-    string user_name = 1;
-    google.protobuf.Struct user_data = 2;
-    string user_password = 3;
-    bytes bytes_example = 4;
-    repeated google.protobuf.Struct list_of_dict = 5;
-}
-
-message BasicServiceListResponse {
-    repeated BasicService results = 1;
-    int32 count = 2;
-}
-
-message CustomNameForRequest {
-    string user_name = 1;
-}
-
-message CustomNameForResponse {
-    string user_name = 1;
-}
-
-message CustomMixParamForRequest {
-    string user_name = 1;
-}
-
-message CustomMixParamForRequestList {
-    repeated CustomMixParamForRequest results = 1;
+message BasicMixParamListResponse {
+    repeated BasicMixParamResponse results = 1;
     int32 count = 2;
 }
 
@@ -622,8 +530,8 @@ message BasicMixParamResponse {
     string user_name = 1;
 }
 
-message BasicMixParamListResponse {
-    repeated BasicMixParamResponse results = 1;
+message BasicMixParamWithSerializerListResponse {
+    repeated google.protobuf.Struct results = 1;
     int32 count = 2;
 }
 
@@ -640,22 +548,6 @@ message BasicParamWithSerializerRequestList {
     int32 count = 2;
 }
 
-message BasicMixParamWithSerializerListResponse {
-    repeated google.protobuf.Struct results = 1;
-    int32 count = 2;
-}
-
-message BaseProtoExample {
-    string uuid = 1;
-    int32 number_of_elements = 2;
-    bool is_archived = 3;
-}
-
-message BaseProtoExampleListResponse {
-    repeated BaseProtoExample results = 1;
-    int32 count = 2;
-}
-
 message BasicProtoListChild {
     int32 id = 1;
     string title = 2;
@@ -665,6 +557,42 @@ message BasicProtoListChild {
 message BasicProtoListChildListResponse {
     repeated BasicProtoListChild results = 1;
     int32 count = 2;
+}
+
+message BasicService {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
+}
+
+message BasicServiceListResponse {
+    repeated BasicService results = 1;
+    int32 count = 2;
+}
+
+message CustomMixParamForRequest {
+    string user_name = 1;
+}
+
+message CustomMixParamForRequestList {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
+}
+
+message CustomNameForRequest {
+    string user_name = 1;
+}
+
+message CustomNameForResponse {
+    string user_name = 1;
+}
+
+message CustomRetrieveResponseSpecialFieldsModel {
+    string uuid = 1;
+    int32 default_method_field = 2;
+    repeated google.protobuf.Struct custom_method_field = 3;
 }
 
 message ForeignModel {
@@ -680,18 +608,24 @@ message ForeignModelListResponse {
     int32 count = 2;
 }
 
-message ForeignModelRetrieveCustomRetrieveRequest {
-    string name = 1;
-}
-
 message ForeignModelRetrieveCustom {
     string name = 1;
     string custom = 2;
 }
 
+message ForeignModelRetrieveCustomRetrieveRequest {
+    string name = 1;
+}
+
 message ImportStructEvenInArrayModel {
     string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
+}
+
+message ManyManyModel {
+    string uuid = 1;
+    string name = 2;
+    string test_write_only_on_nested = 3;
 }
 
 message RelatedFieldModel {
@@ -706,10 +640,8 @@ message RelatedFieldModel {
     repeated string many_many = 9;
 }
 
-message ManyManyModel {
+message RelatedFieldModelDestroyRequest {
     string uuid = 1;
-    string name = 2;
-    string test_write_only_on_nested = 3;
 }
 
 message RelatedFieldModelListRequest {
@@ -724,15 +656,15 @@ message RelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }
 
-message RelatedFieldModelDestroyRequest {
-    string uuid = 1;
-}
-
 message SpecialFieldsModel {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
     bytes binary = 4;
+}
+
+message SpecialFieldsModelDestroyRequest {
+    string uuid = 1;
 }
 
 message SpecialFieldsModelListRequest {
@@ -743,8 +675,28 @@ message SpecialFieldsModelListResponse {
     int32 count = 2;
 }
 
-message SpecialFieldsModelDestroyRequest {
+message SpecialFieldsModelRetrieveRequest {
     string uuid = 1;
+}
+
+message SyncUnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
+}
+
+message UnitTestModel {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
+}
+
+message UnitTestModelDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelListExtraArgs {
+    int32 count = 1;
+    string query_fetched_datetime = 2;
+    repeated UnitTestModel results = 3;
 }
 
 message UnitTestModelListRequest {
@@ -755,11 +707,11 @@ message UnitTestModelListResponse {
     int32 count = 2;
 }
 
-message UnitTestModelRetrieveRequest {
-    int32 id = 1;
+message UnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
 }
 
-message UnitTestModelDestroyRequest {
+message UnitTestModelRetrieveRequest {
     int32 id = 1;
 }
 
@@ -831,93 +783,8 @@ service RelatedFieldModelController {
     rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
 }
 
-message UnitTestModelListWithExtraArgsRequest {
-    bool archived = 1;
-}
-
-message UnitTestModelListExtraArgsResponse {
-    int32 count = 1;
-    string query_fetched_datetime = 2;
-    repeated UnitTestModelResponse results = 3;
-}
-
-message UnitTestModelResponse {
-    int32 id = 1;
-    string title = 2;
-    string text = 3;
-}
-
-message SyncUnitTestModelListWithExtraArgsRequest {
-    bool archived = 1;
-}
-
-message SpecialFieldsModelRetrieveRequest {
-    string uuid = 1;
-}
-
-message CustomRetrieveResponseSpecialFieldsModelResponse {
-    string uuid = 1;
-    int32 default_method_field = 2;
-    repeated google.protobuf.Struct custom_method_field = 3;
-}
-
-message BasicFetchDataForUserRequest {
-    string user_name = 1;
-}
-
-message BasicServiceResponse {
-    string user_name = 1;
-    google.protobuf.Struct user_data = 2;
-    bytes bytes_example = 3;
-    repeated google.protobuf.Struct list_of_dict = 4;
-}
-
-message BasicServiceListResponse {
-    repeated BasicServiceResponse results = 1;
-    int32 count = 2;
-}
-
-message CustomNameForRequest {
-    string user_name = 1;
-}
-
-message CustomNameForResponse {
-    string user_name = 1;
-}
-
-message CustomMixParamForRequest {
-    string user_name = 1;
-}
-
-message CustomMixParamForListRequest {
-    repeated CustomMixParamForRequest results = 1;
-    int32 count = 2;
-}
-
-message BasicMixParamResponse {
-    string user_name = 1;
-}
-
-message BasicMixParamListResponse {
-    repeated BasicMixParamResponse results = 1;
-    int32 count = 2;
-}
-
-message BasicParamWithSerializerRequest {
-    string user_name = 1;
-    google.protobuf.Struct user_data = 2;
-    string user_password = 3;
-    bytes bytes_example = 4;
-    repeated google.protobuf.Struct list_of_dict = 5;
-}
-
-message BasicParamWithSerializerListRequest {
-    repeated BasicParamWithSerializerRequest results = 1;
-    int32 count = 2;
-}
-
-message BasicMixParamWithSerializerListResponse {
-    repeated google.protobuf.Struct results = 1;
+message BaseProtoExampleListResponse {
+    repeated BaseProtoExampleResponse results = 1;
     int32 count = 2;
 }
 
@@ -933,8 +800,39 @@ message BaseProtoExampleResponse {
     bool is_archived = 3;
 }
 
-message BaseProtoExampleListResponse {
-    repeated BaseProtoExampleResponse results = 1;
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
+
+message BasicMixParamListResponse {
+    repeated BasicMixParamResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamResponse {
+    string user_name = 1;
+}
+
+message BasicMixParamWithSerializerListResponse {
+    repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerListRequest {
+    repeated BasicParamWithSerializerRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerRequest {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
+}
+
+message BasicProtoListChildListResponse {
+    repeated BasicProtoListChildResponse results = 1;
     int32 count = 2;
 }
 
@@ -944,20 +842,45 @@ message BasicProtoListChildRequest {
     string text = 3;
 }
 
-message BasicProtoListChildListResponse {
-    repeated BasicProtoListChildResponse results = 1;
-    int32 count = 2;
-}
-
 message BasicProtoListChildResponse {
     int32 id = 1;
     string title = 2;
     string text = 3;
 }
 
-message ForeignModelResponse {
+message BasicServiceListResponse {
+    repeated BasicServiceResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicServiceResponse {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    bytes bytes_example = 3;
+    repeated google.protobuf.Struct list_of_dict = 4;
+}
+
+message CustomMixParamForListRequest {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
+}
+
+message CustomMixParamForRequest {
+    string user_name = 1;
+}
+
+message CustomNameForRequest {
+    string user_name = 1;
+}
+
+message CustomNameForResponse {
+    string user_name = 1;
+}
+
+message CustomRetrieveResponseSpecialFieldsModelResponse {
     string uuid = 1;
-    string name = 2;
+    int32 default_method_field = 2;
+    repeated google.protobuf.Struct custom_method_field = 3;
 }
 
 message ForeignModelListRequest {
@@ -968,13 +891,18 @@ message ForeignModelListResponse {
     int32 count = 2;
 }
 
-message ForeignModelRetrieveCustomRetrieveRequest {
-    string name = 1;
+message ForeignModelResponse {
+    string uuid = 1;
+    string name = 2;
 }
 
 message ForeignModelRetrieveCustomResponse {
     string name = 1;
     string custom = 2;
+}
+
+message ForeignModelRetrieveCustomRetrieveRequest {
+    string name = 1;
 }
 
 message ImportStructEvenInArrayModelRequest {
@@ -987,21 +915,19 @@ message ImportStructEvenInArrayModelResponse {
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
-message RelatedFieldModelResponse {
+message ManyManyModelRequest {
     string uuid = 1;
-    ForeignModelResponse foreign_obj = 2;
-    repeated ManyManyModelResponse many_many_obj = 3;
-    int32 slug_test_model = 4;
-    repeated bool slug_reverse_test_model = 5;
-    repeated string slug_many_many = 6;
-    string custom_field_name = 7;
-    string foreign = 8;
-    repeated string many_many = 9;
+    string name = 2;
+    string test_write_only_on_nested = 3;
 }
 
 message ManyManyModelResponse {
     string uuid = 1;
     string name = 2;
+}
+
+message RelatedFieldModelDestroyRequest {
+    string uuid = 1;
 }
 
 message RelatedFieldModelListRequest {
@@ -1020,25 +946,24 @@ message RelatedFieldModelRequest {
     repeated string many_many = 5;
 }
 
-message ManyManyModelRequest {
+message RelatedFieldModelResponse {
     string uuid = 1;
-    string name = 2;
-    string test_write_only_on_nested = 3;
+    ForeignModelResponse foreign_obj = 2;
+    repeated ManyManyModelResponse many_many_obj = 3;
+    int32 slug_test_model = 4;
+    repeated bool slug_reverse_test_model = 5;
+    repeated string slug_many_many = 6;
+    string custom_field_name = 7;
+    string foreign = 8;
+    repeated string many_many = 9;
 }
 
 message RelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }
 
-message RelatedFieldModelDestroyRequest {
+message SpecialFieldsModelDestroyRequest {
     string uuid = 1;
-}
-
-message SpecialFieldsModelResponse {
-    string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
-    repeated int32 list_datas = 3;
-    bytes binary = 4;
 }
 
 message SpecialFieldsModelListRequest {
@@ -1055,8 +980,29 @@ message SpecialFieldsModelRequest {
     repeated int32 list_datas = 3;
 }
 
-message SpecialFieldsModelDestroyRequest {
+message SpecialFieldsModelResponse {
     string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
+    repeated int32 list_datas = 3;
+    bytes binary = 4;
+}
+
+message SpecialFieldsModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message SyncUnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
+}
+
+message UnitTestModelDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelListExtraArgsResponse {
+    int32 count = 1;
+    string query_fetched_datetime = 2;
+    repeated UnitTestModelResponse results = 3;
 }
 
 message UnitTestModelListRequest {
@@ -1067,17 +1013,23 @@ message UnitTestModelListResponse {
     int32 count = 2;
 }
 
+message UnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
+}
+
 message UnitTestModelRequest {
     int32 id = 1;
     string title = 2;
     string text = 3;
 }
 
-message UnitTestModelRetrieveRequest {
+message UnitTestModelResponse {
     int32 id = 1;
+    string title = 2;
+    string text = 3;
 }
 
-message UnitTestModelDestroyRequest {
+message UnitTestModelRetrieveRequest {
     int32 id = 1;
 }
 

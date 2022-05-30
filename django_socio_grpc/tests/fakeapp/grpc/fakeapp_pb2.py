@@ -16,143 +16,66 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n2django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto\x12\x13\x66\x61keproject.fakeapp\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"1\n\x1c\x42\x61sicFetchDataForUserRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\"\x9b\x01\n\x14\x42\x61sicServiceResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\x12*\n\tuser_data\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x15\n\rbytes_example\x18\x03 \x01(\x0c\x12-\n\x0clist_of_dict\x18\x04 \x03(\x0b\x32\x17.google.protobuf.Struct\"e\n\x18\x42\x61sicServiceListResponse\x12:\n\x07results\x18\x01 \x03(\x0b\x32).fakeproject.fakeapp.BasicServiceResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\")\n\x14\x43ustomNameForRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\"*\n\x15\x43ustomNameForResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\"-\n\x18\x43ustomMixParamForRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\"m\n\x1c\x43ustomMixParamForListRequest\x12>\n\x07results\x18\x01 \x03(\x0b\x32-.fakeproject.fakeapp.CustomMixParamForRequest\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"*\n\x15\x42\x61sicMixParamResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\"g\n\x19\x42\x61sicMixParamListResponse\x12;\n\x07results\x18\x01 \x03(\x0b\x32*.fakeproject.fakeapp.BasicMixParamResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"\xbd\x01\n\x1f\x42\x61sicParamWithSerializerRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\x12*\n\tuser_data\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x15\n\ruser_password\x18\x03 \x01(\t\x12\x15\n\rbytes_example\x18\x04 \x01(\x0c\x12-\n\x0clist_of_dict\x18\x05 \x03(\x0b\x32\x17.google.protobuf.Struct\"{\n#BasicParamWithSerializerListRequest\x12\x45\n\x07results\x18\x01 \x03(\x0b\x32\x34.fakeproject.fakeapp.BasicParamWithSerializerRequest\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"b\n\'BasicMixParamWithSerializerListResponse\x12(\n\x07results\x18\x01 \x03(\x0b\x32\x17.google.protobuf.Struct\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"X\n\x17\x42\x61seProtoExampleRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1a\n\x12number_of_elements\x18\x02 \x01(\x05\x12\x13\n\x0bis_archived\x18\x03 \x01(\x08\"Y\n\x18\x42\x61seProtoExampleResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1a\n\x12number_of_elements\x18\x02 \x01(\x05\x12\x13\n\x0bis_archived\x18\x03 \x01(\x08\"m\n\x1c\x42\x61seProtoExampleListResponse\x12>\n\x07results\x18\x01 \x03(\x0b\x32-.fakeproject.fakeapp.BaseProtoExampleResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"E\n\x1a\x42\x61sicProtoListChildRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\x05\"s\n\x1f\x42\x61sicProtoListChildListResponse\x12\x41\n\x07results\x18\x01 \x03(\x0b\x32\x30.fakeproject.fakeapp.BasicProtoListChildResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"F\n\x1b\x42\x61sicProtoListChildResponse\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\x05\"1\n!SpecialFieldsModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"\x94\x01\n0CustomRetrieveResponseSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x65\x66\x61ult_method_field\x18\x02 \x01(\x05\x12\x34\n\x13\x63ustom_method_field\x18\x03 \x03(\x0b\x32\x17.google.protobuf.Struct\"=\n)SyncUnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\"\x90\x01\n\"UnitTestModelListExtraArgsResponse\x12\r\n\x05\x63ount\x18\x01 \x01(\x05\x12\x1e\n\x16query_fetched_datetime\x18\x02 \x01(\t\x12;\n\x07results\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\"@\n\x15UnitTestModelResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"9\n%UnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\"2\n\x14\x46oreignModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x19\n\x17\x46oreignModelListRequest\"e\n\x18\x46oreignModelListResponse\x12:\n\x07results\x18\x01 \x03(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"9\n)ForeignModelRetrieveCustomRetrieveRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"B\n\"ForeignModelRetrieveCustomResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x63ustom\x18\x02 \x01(\t\"c\n#ImportStructEvenInArrayModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"d\n$ImportStructEvenInArrayModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"\xbd\x02\n\x19RelatedFieldModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12>\n\x0b\x66oreign_obj\x18\x02 \x01(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\x41\n\rmany_many_obj\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.ManyManyModelResponse\x12\x17\n\x0fslug_test_model\x18\x04 \x01(\x05\x12\x1f\n\x17slug_reverse_test_model\x18\x05 \x03(\x08\x12\x16\n\x0eslug_many_many\x18\x06 \x03(\t\x12\x19\n\x11\x63ustom_field_name\x18\x07 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x08 \x01(\t\x12\x11\n\tmany_many\x18\t \x03(\t\"3\n\x15ManyManyModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"\x1e\n\x1cRelatedFieldModelListRequest\"~\n\x1dRelatedFieldModelListResponse\x12N\n\x16list_custom_field_name\x18\x01 \x03(\x0b\x32..fakeproject.fakeapp.RelatedFieldModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"\xa9\x01\n\x18RelatedFieldModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x19\n\x11\x63ustom_field_name\x18\x02 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x03 \x01(\t\x12\x11\n\tmany_many\x18\x04 \x03(\t\x12@\n\rmany_many_obj\x18\x05 \x03(\x0b\x32).fakeproject.fakeapp.ManyManyModelRequest\"U\n\x14ManyManyModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12!\n\x19test_write_only_on_nested\x18\x03 \x01(\t\"0\n RelatedFieldModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"/\n\x1fRelatedFieldModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"{\n\x1aSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\x12\x0e\n\x06\x62inary\x18\x04 \x01(\x0c\"\x1f\n\x1dSpecialFieldsModelListRequest\"q\n\x1eSpecialFieldsModelListResponse\x12@\n\x07results\x18\x01 \x03(\x0b\x32/.fakeproject.fakeapp.SpecialFieldsModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"j\n\x19SpecialFieldsModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"0\n SpecialFieldsModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"\x1a\n\x18UnitTestModelListRequest\"g\n\x19UnitTestModelListResponse\x12;\n\x07results\x18\x01 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"?\n\x14UnitTestModelRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"*\n\x1cUnitTestModelRetrieveRequest\x12\n\n\x02id\x18\x01 \x01(\x05\")\n\x1bUnitTestModelDestroyRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x1aUnitTestModelStreamRequest2\x86\x07\n\x0f\x42\x61sicController\x12y\n\tBasicList\x12\x34.fakeproject.fakeapp.BasicProtoListChildListResponse\x1a\x34.fakeproject.fakeapp.BasicProtoListChildListResponse\"\x00\x12r\n\x10\x46\x65tchDataForUser\x12\x31.fakeproject.fakeapp.BasicFetchDataForUserRequest\x1a).fakeproject.fakeapp.BasicServiceResponse\"\x00\x12V\n\x0bGetMultiple\x12\x16.google.protobuf.Empty\x1a-.fakeproject.fakeapp.BasicServiceListResponse\"\x00\x12o\n\x08MixParam\x12\x31.fakeproject.fakeapp.CustomMixParamForListRequest\x1a..fakeproject.fakeapp.BasicMixParamListResponse\"\x00\x12\x92\x01\n\x16MixParamWithSerializer\x12\x38.fakeproject.fakeapp.BasicParamWithSerializerListRequest\x1a<.fakeproject.fakeapp.BasicMixParamWithSerializerListResponse\"\x00\x12\x63\n\x08MyMethod\x12).fakeproject.fakeapp.CustomNameForRequest\x1a*.fakeproject.fakeapp.CustomNameForResponse\"\x00\x12|\n\x17TestBaseProtoSerializer\x12,.fakeproject.fakeapp.BaseProtoExampleRequest\x1a\x31.fakeproject.fakeapp.BaseProtoExampleListResponse\"\x00\x12\x43\n\x0fTestEmptyMethod\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x32\xd5\x04\n\x1cSpecialFieldsModelController\x12k\n\x06\x43reate\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x12Z\n\x07\x44\x65stroy\x12\x35.fakeproject.fakeapp.SpecialFieldsModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12q\n\x04List\x12\x32.fakeproject.fakeapp.SpecialFieldsModelListRequest\x1a\x33.fakeproject.fakeapp.SpecialFieldsModelListResponse\"\x00\x12\x8b\x01\n\x08Retrieve\x12\x36.fakeproject.fakeapp.SpecialFieldsModelRetrieveRequest\x1a\x45.fakeproject.fakeapp.CustomRetrieveResponseSpecialFieldsModelResponse\"\x00\x12k\n\x06Update\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x32\x8c\x06\n\x1bSyncUnitTestModelController\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x8e\x01\n\x11ListWithExtraArgs\x12>.fakeproject.fakeapp.SyncUnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x32\x84\x06\n\x17UnitTestModelController\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x8a\x01\n\x11ListWithExtraArgs\x12:.fakeproject.fakeapp.UnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x32\x87\x02\n\x16\x46oreignModelController\x12\x65\n\x04List\x12,.fakeproject.fakeapp.ForeignModelListRequest\x1a-.fakeproject.fakeapp.ForeignModelListResponse\"\x00\x12\x85\x01\n\x08Retrieve\x12>.fakeproject.fakeapp.ForeignModelRetrieveCustomRetrieveRequest\x1a\x37.fakeproject.fakeapp.ForeignModelRetrieveCustomResponse\"\x00\x32\xa9\x01\n&ImportStructEvenInArrayModelController\x12\x7f\n\x06\x43reate\x12\x38.fakeproject.fakeapp.ImportStructEvenInArrayModelRequest\x1a\x39.fakeproject.fakeapp.ImportStructEvenInArrayModelResponse\"\x00\x32\xb4\x04\n\x1bRelatedFieldModelController\x12i\n\x06\x43reate\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12Y\n\x07\x44\x65stroy\x12\x34.fakeproject.fakeapp.RelatedFieldModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12o\n\x04List\x12\x31.fakeproject.fakeapp.RelatedFieldModelListRequest\x1a\x32.fakeproject.fakeapp.RelatedFieldModelListResponse\"\x00\x12s\n\x08Retrieve\x12\x35.fakeproject.fakeapp.RelatedFieldModelRetrieveRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12i\n\x06Update\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n2django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto\x12\x13\x66\x61keproject.fakeapp\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\"m\n\x1c\x42\x61seProtoExampleListResponse\x12>\n\x07results\x18\x01 \x03(\x0b\x32-.fakeproject.fakeapp.BaseProtoExampleResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"X\n\x17\x42\x61seProtoExampleRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1a\n\x12number_of_elements\x18\x02 \x01(\x05\x12\x13\n\x0bis_archived\x18\x03 \x01(\x08\"Y\n\x18\x42\x61seProtoExampleResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1a\n\x12number_of_elements\x18\x02 \x01(\x05\x12\x13\n\x0bis_archived\x18\x03 \x01(\x08\"1\n\x1c\x42\x61sicFetchDataForUserRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\"g\n\x19\x42\x61sicMixParamListResponse\x12;\n\x07results\x18\x01 \x03(\x0b\x32*.fakeproject.fakeapp.BasicMixParamResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"*\n\x15\x42\x61sicMixParamResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\"b\n\'BasicMixParamWithSerializerListResponse\x12(\n\x07results\x18\x01 \x03(\x0b\x32\x17.google.protobuf.Struct\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"{\n#BasicParamWithSerializerListRequest\x12\x45\n\x07results\x18\x01 \x03(\x0b\x32\x34.fakeproject.fakeapp.BasicParamWithSerializerRequest\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"\xbd\x01\n\x1f\x42\x61sicParamWithSerializerRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\x12*\n\tuser_data\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x15\n\ruser_password\x18\x03 \x01(\t\x12\x15\n\rbytes_example\x18\x04 \x01(\x0c\x12-\n\x0clist_of_dict\x18\x05 \x03(\x0b\x32\x17.google.protobuf.Struct\"s\n\x1f\x42\x61sicProtoListChildListResponse\x12\x41\n\x07results\x18\x01 \x03(\x0b\x32\x30.fakeproject.fakeapp.BasicProtoListChildResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"E\n\x1a\x42\x61sicProtoListChildRequest\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\x05\"F\n\x1b\x42\x61sicProtoListChildResponse\x12\r\n\x05title\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\x05\"e\n\x18\x42\x61sicServiceListResponse\x12:\n\x07results\x18\x01 \x03(\x0b\x32).fakeproject.fakeapp.BasicServiceResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"\x9b\x01\n\x14\x42\x61sicServiceResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\x12*\n\tuser_data\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x15\n\rbytes_example\x18\x03 \x01(\x0c\x12-\n\x0clist_of_dict\x18\x04 \x03(\x0b\x32\x17.google.protobuf.Struct\"m\n\x1c\x43ustomMixParamForListRequest\x12>\n\x07results\x18\x01 \x03(\x0b\x32-.fakeproject.fakeapp.CustomMixParamForRequest\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"-\n\x18\x43ustomMixParamForRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\")\n\x14\x43ustomNameForRequest\x12\x11\n\tuser_name\x18\x01 \x01(\t\"*\n\x15\x43ustomNameForResponse\x12\x11\n\tuser_name\x18\x01 \x01(\t\"\x94\x01\n0CustomRetrieveResponseSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x1c\n\x14\x64\x65\x66\x61ult_method_field\x18\x02 \x01(\x05\x12\x34\n\x13\x63ustom_method_field\x18\x03 \x03(\x0b\x32\x17.google.protobuf.Struct\"\x19\n\x17\x46oreignModelListRequest\"e\n\x18\x46oreignModelListResponse\x12:\n\x07results\x18\x01 \x03(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"2\n\x14\x46oreignModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"B\n\"ForeignModelRetrieveCustomResponse\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0e\n\x06\x63ustom\x18\x02 \x01(\t\"9\n)ForeignModelRetrieveCustomRetrieveRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\"c\n#ImportStructEvenInArrayModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"d\n$ImportStructEvenInArrayModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12.\n\rthis_is_crazy\x18\x02 \x03(\x0b\x32\x17.google.protobuf.Struct\"U\n\x14ManyManyModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\x12!\n\x19test_write_only_on_nested\x18\x03 \x01(\t\"3\n\x15ManyManyModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x0c\n\x04name\x18\x02 \x01(\t\"/\n\x1fRelatedFieldModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"\x1e\n\x1cRelatedFieldModelListRequest\"~\n\x1dRelatedFieldModelListResponse\x12N\n\x16list_custom_field_name\x18\x01 \x03(\x0b\x32..fakeproject.fakeapp.RelatedFieldModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"\xa9\x01\n\x18RelatedFieldModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12\x19\n\x11\x63ustom_field_name\x18\x02 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x03 \x01(\t\x12\x11\n\tmany_many\x18\x04 \x03(\t\x12@\n\rmany_many_obj\x18\x05 \x03(\x0b\x32).fakeproject.fakeapp.ManyManyModelRequest\"\xbd\x02\n\x19RelatedFieldModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12>\n\x0b\x66oreign_obj\x18\x02 \x01(\x0b\x32).fakeproject.fakeapp.ForeignModelResponse\x12\x41\n\rmany_many_obj\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.ManyManyModelResponse\x12\x17\n\x0fslug_test_model\x18\x04 \x01(\x05\x12\x1f\n\x17slug_reverse_test_model\x18\x05 \x03(\x08\x12\x16\n\x0eslug_many_many\x18\x06 \x03(\t\x12\x19\n\x11\x63ustom_field_name\x18\x07 \x01(\t\x12\x0f\n\x07\x66oreign\x18\x08 \x01(\t\x12\x11\n\tmany_many\x18\t \x03(\t\"0\n RelatedFieldModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"0\n SpecialFieldsModelDestroyRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"\x1f\n\x1dSpecialFieldsModelListRequest\"q\n\x1eSpecialFieldsModelListResponse\x12@\n\x07results\x18\x01 \x03(\x0b\x32/.fakeproject.fakeapp.SpecialFieldsModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"j\n\x19SpecialFieldsModelRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\"{\n\x1aSpecialFieldsModelResponse\x12\x0c\n\x04uuid\x18\x01 \x01(\t\x12+\n\nmeta_datas\x18\x02 \x01(\x0b\x32\x17.google.protobuf.Struct\x12\x12\n\nlist_datas\x18\x03 \x03(\x05\x12\x0e\n\x06\x62inary\x18\x04 \x01(\x0c\"1\n!SpecialFieldsModelRetrieveRequest\x12\x0c\n\x04uuid\x18\x01 \x01(\t\"=\n)SyncUnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\")\n\x1bUnitTestModelDestroyRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x90\x01\n\"UnitTestModelListExtraArgsResponse\x12\r\n\x05\x63ount\x18\x01 \x01(\x05\x12\x1e\n\x16query_fetched_datetime\x18\x02 \x01(\t\x12;\n\x07results\x18\x03 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\"\x1a\n\x18UnitTestModelListRequest\"g\n\x19UnitTestModelListResponse\x12;\n\x07results\x18\x01 \x03(\x0b\x32*.fakeproject.fakeapp.UnitTestModelResponse\x12\r\n\x05\x63ount\x18\x02 \x01(\x05\"9\n%UnitTestModelListWithExtraArgsRequest\x12\x10\n\x08\x61rchived\x18\x01 \x01(\x08\"?\n\x14UnitTestModelRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"@\n\x15UnitTestModelResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\"*\n\x1cUnitTestModelRetrieveRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x1aUnitTestModelStreamRequest2\x86\x07\n\x0f\x42\x61sicController\x12y\n\tBasicList\x12\x34.fakeproject.fakeapp.BasicProtoListChildListResponse\x1a\x34.fakeproject.fakeapp.BasicProtoListChildListResponse\"\x00\x12r\n\x10\x46\x65tchDataForUser\x12\x31.fakeproject.fakeapp.BasicFetchDataForUserRequest\x1a).fakeproject.fakeapp.BasicServiceResponse\"\x00\x12V\n\x0bGetMultiple\x12\x16.google.protobuf.Empty\x1a-.fakeproject.fakeapp.BasicServiceListResponse\"\x00\x12o\n\x08MixParam\x12\x31.fakeproject.fakeapp.CustomMixParamForListRequest\x1a..fakeproject.fakeapp.BasicMixParamListResponse\"\x00\x12\x92\x01\n\x16MixParamWithSerializer\x12\x38.fakeproject.fakeapp.BasicParamWithSerializerListRequest\x1a<.fakeproject.fakeapp.BasicMixParamWithSerializerListResponse\"\x00\x12\x63\n\x08MyMethod\x12).fakeproject.fakeapp.CustomNameForRequest\x1a*.fakeproject.fakeapp.CustomNameForResponse\"\x00\x12|\n\x17TestBaseProtoSerializer\x12,.fakeproject.fakeapp.BaseProtoExampleRequest\x1a\x31.fakeproject.fakeapp.BaseProtoExampleListResponse\"\x00\x12\x43\n\x0fTestEmptyMethod\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x32\xd5\x04\n\x1cSpecialFieldsModelController\x12k\n\x06\x43reate\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x12Z\n\x07\x44\x65stroy\x12\x35.fakeproject.fakeapp.SpecialFieldsModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12q\n\x04List\x12\x32.fakeproject.fakeapp.SpecialFieldsModelListRequest\x1a\x33.fakeproject.fakeapp.SpecialFieldsModelListResponse\"\x00\x12\x8b\x01\n\x08Retrieve\x12\x36.fakeproject.fakeapp.SpecialFieldsModelRetrieveRequest\x1a\x45.fakeproject.fakeapp.CustomRetrieveResponseSpecialFieldsModelResponse\"\x00\x12k\n\x06Update\x12..fakeproject.fakeapp.SpecialFieldsModelRequest\x1a/.fakeproject.fakeapp.SpecialFieldsModelResponse\"\x00\x32\x8c\x06\n\x1bSyncUnitTestModelController\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x8e\x01\n\x11ListWithExtraArgs\x12>.fakeproject.fakeapp.SyncUnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x32\x84\x06\n\x17UnitTestModelController\x12\x61\n\x06\x43reate\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12U\n\x07\x44\x65stroy\x12\x30.fakeproject.fakeapp.UnitTestModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12g\n\x04List\x12-.fakeproject.fakeapp.UnitTestModelListRequest\x1a..fakeproject.fakeapp.UnitTestModelListResponse\"\x00\x12\x8a\x01\n\x11ListWithExtraArgs\x12:.fakeproject.fakeapp.UnitTestModelListWithExtraArgsRequest\x1a\x37.fakeproject.fakeapp.UnitTestModelListExtraArgsResponse\"\x00\x12k\n\x08Retrieve\x12\x31.fakeproject.fakeapp.UnitTestModelRetrieveRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x12i\n\x06Stream\x12/.fakeproject.fakeapp.UnitTestModelStreamRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x30\x01\x12\x61\n\x06Update\x12).fakeproject.fakeapp.UnitTestModelRequest\x1a*.fakeproject.fakeapp.UnitTestModelResponse\"\x00\x32\x87\x02\n\x16\x46oreignModelController\x12\x65\n\x04List\x12,.fakeproject.fakeapp.ForeignModelListRequest\x1a-.fakeproject.fakeapp.ForeignModelListResponse\"\x00\x12\x85\x01\n\x08Retrieve\x12>.fakeproject.fakeapp.ForeignModelRetrieveCustomRetrieveRequest\x1a\x37.fakeproject.fakeapp.ForeignModelRetrieveCustomResponse\"\x00\x32\xa9\x01\n&ImportStructEvenInArrayModelController\x12\x7f\n\x06\x43reate\x12\x38.fakeproject.fakeapp.ImportStructEvenInArrayModelRequest\x1a\x39.fakeproject.fakeapp.ImportStructEvenInArrayModelResponse\"\x00\x32\xb4\x04\n\x1bRelatedFieldModelController\x12i\n\x06\x43reate\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12Y\n\x07\x44\x65stroy\x12\x34.fakeproject.fakeapp.RelatedFieldModelDestroyRequest\x1a\x16.google.protobuf.Empty\"\x00\x12o\n\x04List\x12\x31.fakeproject.fakeapp.RelatedFieldModelListRequest\x1a\x32.fakeproject.fakeapp.RelatedFieldModelListResponse\"\x00\x12s\n\x08Retrieve\x12\x35.fakeproject.fakeapp.RelatedFieldModelRetrieveRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x12i\n\x06Update\x12-.fakeproject.fakeapp.RelatedFieldModelRequest\x1a..fakeproject.fakeapp.RelatedFieldModelResponse\"\x00\x62\x06proto3')
 
 
 
-_BASICFETCHDATAFORUSERREQUEST = DESCRIPTOR.message_types_by_name['BasicFetchDataForUserRequest']
-_BASICSERVICERESPONSE = DESCRIPTOR.message_types_by_name['BasicServiceResponse']
-_BASICSERVICELISTRESPONSE = DESCRIPTOR.message_types_by_name['BasicServiceListResponse']
-_CUSTOMNAMEFORREQUEST = DESCRIPTOR.message_types_by_name['CustomNameForRequest']
-_CUSTOMNAMEFORRESPONSE = DESCRIPTOR.message_types_by_name['CustomNameForResponse']
-_CUSTOMMIXPARAMFORREQUEST = DESCRIPTOR.message_types_by_name['CustomMixParamForRequest']
-_CUSTOMMIXPARAMFORLISTREQUEST = DESCRIPTOR.message_types_by_name['CustomMixParamForListRequest']
-_BASICMIXPARAMRESPONSE = DESCRIPTOR.message_types_by_name['BasicMixParamResponse']
-_BASICMIXPARAMLISTRESPONSE = DESCRIPTOR.message_types_by_name['BasicMixParamListResponse']
-_BASICPARAMWITHSERIALIZERREQUEST = DESCRIPTOR.message_types_by_name['BasicParamWithSerializerRequest']
-_BASICPARAMWITHSERIALIZERLISTREQUEST = DESCRIPTOR.message_types_by_name['BasicParamWithSerializerListRequest']
-_BASICMIXPARAMWITHSERIALIZERLISTRESPONSE = DESCRIPTOR.message_types_by_name['BasicMixParamWithSerializerListResponse']
+_BASEPROTOEXAMPLELISTRESPONSE = DESCRIPTOR.message_types_by_name['BaseProtoExampleListResponse']
 _BASEPROTOEXAMPLEREQUEST = DESCRIPTOR.message_types_by_name['BaseProtoExampleRequest']
 _BASEPROTOEXAMPLERESPONSE = DESCRIPTOR.message_types_by_name['BaseProtoExampleResponse']
-_BASEPROTOEXAMPLELISTRESPONSE = DESCRIPTOR.message_types_by_name['BaseProtoExampleListResponse']
-_BASICPROTOLISTCHILDREQUEST = DESCRIPTOR.message_types_by_name['BasicProtoListChildRequest']
+_BASICFETCHDATAFORUSERREQUEST = DESCRIPTOR.message_types_by_name['BasicFetchDataForUserRequest']
+_BASICMIXPARAMLISTRESPONSE = DESCRIPTOR.message_types_by_name['BasicMixParamListResponse']
+_BASICMIXPARAMRESPONSE = DESCRIPTOR.message_types_by_name['BasicMixParamResponse']
+_BASICMIXPARAMWITHSERIALIZERLISTRESPONSE = DESCRIPTOR.message_types_by_name['BasicMixParamWithSerializerListResponse']
+_BASICPARAMWITHSERIALIZERLISTREQUEST = DESCRIPTOR.message_types_by_name['BasicParamWithSerializerListRequest']
+_BASICPARAMWITHSERIALIZERREQUEST = DESCRIPTOR.message_types_by_name['BasicParamWithSerializerRequest']
 _BASICPROTOLISTCHILDLISTRESPONSE = DESCRIPTOR.message_types_by_name['BasicProtoListChildListResponse']
+_BASICPROTOLISTCHILDREQUEST = DESCRIPTOR.message_types_by_name['BasicProtoListChildRequest']
 _BASICPROTOLISTCHILDRESPONSE = DESCRIPTOR.message_types_by_name['BasicProtoListChildResponse']
-_SPECIALFIELDSMODELRETRIEVEREQUEST = DESCRIPTOR.message_types_by_name['SpecialFieldsModelRetrieveRequest']
+_BASICSERVICELISTRESPONSE = DESCRIPTOR.message_types_by_name['BasicServiceListResponse']
+_BASICSERVICERESPONSE = DESCRIPTOR.message_types_by_name['BasicServiceResponse']
+_CUSTOMMIXPARAMFORLISTREQUEST = DESCRIPTOR.message_types_by_name['CustomMixParamForListRequest']
+_CUSTOMMIXPARAMFORREQUEST = DESCRIPTOR.message_types_by_name['CustomMixParamForRequest']
+_CUSTOMNAMEFORREQUEST = DESCRIPTOR.message_types_by_name['CustomNameForRequest']
+_CUSTOMNAMEFORRESPONSE = DESCRIPTOR.message_types_by_name['CustomNameForResponse']
 _CUSTOMRETRIEVERESPONSESPECIALFIELDSMODELRESPONSE = DESCRIPTOR.message_types_by_name['CustomRetrieveResponseSpecialFieldsModelResponse']
-_SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST = DESCRIPTOR.message_types_by_name['SyncUnitTestModelListWithExtraArgsRequest']
-_UNITTESTMODELLISTEXTRAARGSRESPONSE = DESCRIPTOR.message_types_by_name['UnitTestModelListExtraArgsResponse']
-_UNITTESTMODELRESPONSE = DESCRIPTOR.message_types_by_name['UnitTestModelResponse']
-_UNITTESTMODELLISTWITHEXTRAARGSREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelListWithExtraArgsRequest']
-_FOREIGNMODELRESPONSE = DESCRIPTOR.message_types_by_name['ForeignModelResponse']
 _FOREIGNMODELLISTREQUEST = DESCRIPTOR.message_types_by_name['ForeignModelListRequest']
 _FOREIGNMODELLISTRESPONSE = DESCRIPTOR.message_types_by_name['ForeignModelListResponse']
-_FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST = DESCRIPTOR.message_types_by_name['ForeignModelRetrieveCustomRetrieveRequest']
+_FOREIGNMODELRESPONSE = DESCRIPTOR.message_types_by_name['ForeignModelResponse']
 _FOREIGNMODELRETRIEVECUSTOMRESPONSE = DESCRIPTOR.message_types_by_name['ForeignModelRetrieveCustomResponse']
+_FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST = DESCRIPTOR.message_types_by_name['ForeignModelRetrieveCustomRetrieveRequest']
 _IMPORTSTRUCTEVENINARRAYMODELREQUEST = DESCRIPTOR.message_types_by_name['ImportStructEvenInArrayModelRequest']
 _IMPORTSTRUCTEVENINARRAYMODELRESPONSE = DESCRIPTOR.message_types_by_name['ImportStructEvenInArrayModelResponse']
-_RELATEDFIELDMODELRESPONSE = DESCRIPTOR.message_types_by_name['RelatedFieldModelResponse']
+_MANYMANYMODELREQUEST = DESCRIPTOR.message_types_by_name['ManyManyModelRequest']
 _MANYMANYMODELRESPONSE = DESCRIPTOR.message_types_by_name['ManyManyModelResponse']
+_RELATEDFIELDMODELDESTROYREQUEST = DESCRIPTOR.message_types_by_name['RelatedFieldModelDestroyRequest']
 _RELATEDFIELDMODELLISTREQUEST = DESCRIPTOR.message_types_by_name['RelatedFieldModelListRequest']
 _RELATEDFIELDMODELLISTRESPONSE = DESCRIPTOR.message_types_by_name['RelatedFieldModelListResponse']
 _RELATEDFIELDMODELREQUEST = DESCRIPTOR.message_types_by_name['RelatedFieldModelRequest']
-_MANYMANYMODELREQUEST = DESCRIPTOR.message_types_by_name['ManyManyModelRequest']
+_RELATEDFIELDMODELRESPONSE = DESCRIPTOR.message_types_by_name['RelatedFieldModelResponse']
 _RELATEDFIELDMODELRETRIEVEREQUEST = DESCRIPTOR.message_types_by_name['RelatedFieldModelRetrieveRequest']
-_RELATEDFIELDMODELDESTROYREQUEST = DESCRIPTOR.message_types_by_name['RelatedFieldModelDestroyRequest']
-_SPECIALFIELDSMODELRESPONSE = DESCRIPTOR.message_types_by_name['SpecialFieldsModelResponse']
+_SPECIALFIELDSMODELDESTROYREQUEST = DESCRIPTOR.message_types_by_name['SpecialFieldsModelDestroyRequest']
 _SPECIALFIELDSMODELLISTREQUEST = DESCRIPTOR.message_types_by_name['SpecialFieldsModelListRequest']
 _SPECIALFIELDSMODELLISTRESPONSE = DESCRIPTOR.message_types_by_name['SpecialFieldsModelListResponse']
 _SPECIALFIELDSMODELREQUEST = DESCRIPTOR.message_types_by_name['SpecialFieldsModelRequest']
-_SPECIALFIELDSMODELDESTROYREQUEST = DESCRIPTOR.message_types_by_name['SpecialFieldsModelDestroyRequest']
+_SPECIALFIELDSMODELRESPONSE = DESCRIPTOR.message_types_by_name['SpecialFieldsModelResponse']
+_SPECIALFIELDSMODELRETRIEVEREQUEST = DESCRIPTOR.message_types_by_name['SpecialFieldsModelRetrieveRequest']
+_SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST = DESCRIPTOR.message_types_by_name['SyncUnitTestModelListWithExtraArgsRequest']
+_UNITTESTMODELDESTROYREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelDestroyRequest']
+_UNITTESTMODELLISTEXTRAARGSRESPONSE = DESCRIPTOR.message_types_by_name['UnitTestModelListExtraArgsResponse']
 _UNITTESTMODELLISTREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelListRequest']
 _UNITTESTMODELLISTRESPONSE = DESCRIPTOR.message_types_by_name['UnitTestModelListResponse']
+_UNITTESTMODELLISTWITHEXTRAARGSREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelListWithExtraArgsRequest']
 _UNITTESTMODELREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelRequest']
+_UNITTESTMODELRESPONSE = DESCRIPTOR.message_types_by_name['UnitTestModelResponse']
 _UNITTESTMODELRETRIEVEREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelRetrieveRequest']
-_UNITTESTMODELDESTROYREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelDestroyRequest']
 _UNITTESTMODELSTREAMREQUEST = DESCRIPTOR.message_types_by_name['UnitTestModelStreamRequest']
-BasicFetchDataForUserRequest = _reflection.GeneratedProtocolMessageType('BasicFetchDataForUserRequest', (_message.Message,), {
-  'DESCRIPTOR' : _BASICFETCHDATAFORUSERREQUEST,
+BaseProtoExampleListResponse = _reflection.GeneratedProtocolMessageType('BaseProtoExampleListResponse', (_message.Message,), {
+  'DESCRIPTOR' : _BASEPROTOEXAMPLELISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicFetchDataForUserRequest)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BaseProtoExampleListResponse)
   })
-_sym_db.RegisterMessage(BasicFetchDataForUserRequest)
-
-BasicServiceResponse = _reflection.GeneratedProtocolMessageType('BasicServiceResponse', (_message.Message,), {
-  'DESCRIPTOR' : _BASICSERVICERESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicServiceResponse)
-  })
-_sym_db.RegisterMessage(BasicServiceResponse)
-
-BasicServiceListResponse = _reflection.GeneratedProtocolMessageType('BasicServiceListResponse', (_message.Message,), {
-  'DESCRIPTOR' : _BASICSERVICELISTRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicServiceListResponse)
-  })
-_sym_db.RegisterMessage(BasicServiceListResponse)
-
-CustomNameForRequest = _reflection.GeneratedProtocolMessageType('CustomNameForRequest', (_message.Message,), {
-  'DESCRIPTOR' : _CUSTOMNAMEFORREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomNameForRequest)
-  })
-_sym_db.RegisterMessage(CustomNameForRequest)
-
-CustomNameForResponse = _reflection.GeneratedProtocolMessageType('CustomNameForResponse', (_message.Message,), {
-  'DESCRIPTOR' : _CUSTOMNAMEFORRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomNameForResponse)
-  })
-_sym_db.RegisterMessage(CustomNameForResponse)
-
-CustomMixParamForRequest = _reflection.GeneratedProtocolMessageType('CustomMixParamForRequest', (_message.Message,), {
-  'DESCRIPTOR' : _CUSTOMMIXPARAMFORREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomMixParamForRequest)
-  })
-_sym_db.RegisterMessage(CustomMixParamForRequest)
-
-CustomMixParamForListRequest = _reflection.GeneratedProtocolMessageType('CustomMixParamForListRequest', (_message.Message,), {
-  'DESCRIPTOR' : _CUSTOMMIXPARAMFORLISTREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomMixParamForListRequest)
-  })
-_sym_db.RegisterMessage(CustomMixParamForListRequest)
-
-BasicMixParamResponse = _reflection.GeneratedProtocolMessageType('BasicMixParamResponse', (_message.Message,), {
-  'DESCRIPTOR' : _BASICMIXPARAMRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicMixParamResponse)
-  })
-_sym_db.RegisterMessage(BasicMixParamResponse)
-
-BasicMixParamListResponse = _reflection.GeneratedProtocolMessageType('BasicMixParamListResponse', (_message.Message,), {
-  'DESCRIPTOR' : _BASICMIXPARAMLISTRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicMixParamListResponse)
-  })
-_sym_db.RegisterMessage(BasicMixParamListResponse)
-
-BasicParamWithSerializerRequest = _reflection.GeneratedProtocolMessageType('BasicParamWithSerializerRequest', (_message.Message,), {
-  'DESCRIPTOR' : _BASICPARAMWITHSERIALIZERREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicParamWithSerializerRequest)
-  })
-_sym_db.RegisterMessage(BasicParamWithSerializerRequest)
-
-BasicParamWithSerializerListRequest = _reflection.GeneratedProtocolMessageType('BasicParamWithSerializerListRequest', (_message.Message,), {
-  'DESCRIPTOR' : _BASICPARAMWITHSERIALIZERLISTREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicParamWithSerializerListRequest)
-  })
-_sym_db.RegisterMessage(BasicParamWithSerializerListRequest)
-
-BasicMixParamWithSerializerListResponse = _reflection.GeneratedProtocolMessageType('BasicMixParamWithSerializerListResponse', (_message.Message,), {
-  'DESCRIPTOR' : _BASICMIXPARAMWITHSERIALIZERLISTRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicMixParamWithSerializerListResponse)
-  })
-_sym_db.RegisterMessage(BasicMixParamWithSerializerListResponse)
+_sym_db.RegisterMessage(BaseProtoExampleListResponse)
 
 BaseProtoExampleRequest = _reflection.GeneratedProtocolMessageType('BaseProtoExampleRequest', (_message.Message,), {
   'DESCRIPTOR' : _BASEPROTOEXAMPLEREQUEST,
@@ -168,19 +91,47 @@ BaseProtoExampleResponse = _reflection.GeneratedProtocolMessageType('BaseProtoEx
   })
 _sym_db.RegisterMessage(BaseProtoExampleResponse)
 
-BaseProtoExampleListResponse = _reflection.GeneratedProtocolMessageType('BaseProtoExampleListResponse', (_message.Message,), {
-  'DESCRIPTOR' : _BASEPROTOEXAMPLELISTRESPONSE,
+BasicFetchDataForUserRequest = _reflection.GeneratedProtocolMessageType('BasicFetchDataForUserRequest', (_message.Message,), {
+  'DESCRIPTOR' : _BASICFETCHDATAFORUSERREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BaseProtoExampleListResponse)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicFetchDataForUserRequest)
   })
-_sym_db.RegisterMessage(BaseProtoExampleListResponse)
+_sym_db.RegisterMessage(BasicFetchDataForUserRequest)
 
-BasicProtoListChildRequest = _reflection.GeneratedProtocolMessageType('BasicProtoListChildRequest', (_message.Message,), {
-  'DESCRIPTOR' : _BASICPROTOLISTCHILDREQUEST,
+BasicMixParamListResponse = _reflection.GeneratedProtocolMessageType('BasicMixParamListResponse', (_message.Message,), {
+  'DESCRIPTOR' : _BASICMIXPARAMLISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicProtoListChildRequest)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicMixParamListResponse)
   })
-_sym_db.RegisterMessage(BasicProtoListChildRequest)
+_sym_db.RegisterMessage(BasicMixParamListResponse)
+
+BasicMixParamResponse = _reflection.GeneratedProtocolMessageType('BasicMixParamResponse', (_message.Message,), {
+  'DESCRIPTOR' : _BASICMIXPARAMRESPONSE,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicMixParamResponse)
+  })
+_sym_db.RegisterMessage(BasicMixParamResponse)
+
+BasicMixParamWithSerializerListResponse = _reflection.GeneratedProtocolMessageType('BasicMixParamWithSerializerListResponse', (_message.Message,), {
+  'DESCRIPTOR' : _BASICMIXPARAMWITHSERIALIZERLISTRESPONSE,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicMixParamWithSerializerListResponse)
+  })
+_sym_db.RegisterMessage(BasicMixParamWithSerializerListResponse)
+
+BasicParamWithSerializerListRequest = _reflection.GeneratedProtocolMessageType('BasicParamWithSerializerListRequest', (_message.Message,), {
+  'DESCRIPTOR' : _BASICPARAMWITHSERIALIZERLISTREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicParamWithSerializerListRequest)
+  })
+_sym_db.RegisterMessage(BasicParamWithSerializerListRequest)
+
+BasicParamWithSerializerRequest = _reflection.GeneratedProtocolMessageType('BasicParamWithSerializerRequest', (_message.Message,), {
+  'DESCRIPTOR' : _BASICPARAMWITHSERIALIZERREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicParamWithSerializerRequest)
+  })
+_sym_db.RegisterMessage(BasicParamWithSerializerRequest)
 
 BasicProtoListChildListResponse = _reflection.GeneratedProtocolMessageType('BasicProtoListChildListResponse', (_message.Message,), {
   'DESCRIPTOR' : _BASICPROTOLISTCHILDLISTRESPONSE,
@@ -189,6 +140,13 @@ BasicProtoListChildListResponse = _reflection.GeneratedProtocolMessageType('Basi
   })
 _sym_db.RegisterMessage(BasicProtoListChildListResponse)
 
+BasicProtoListChildRequest = _reflection.GeneratedProtocolMessageType('BasicProtoListChildRequest', (_message.Message,), {
+  'DESCRIPTOR' : _BASICPROTOLISTCHILDREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicProtoListChildRequest)
+  })
+_sym_db.RegisterMessage(BasicProtoListChildRequest)
+
 BasicProtoListChildResponse = _reflection.GeneratedProtocolMessageType('BasicProtoListChildResponse', (_message.Message,), {
   'DESCRIPTOR' : _BASICPROTOLISTCHILDRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
@@ -196,12 +154,47 @@ BasicProtoListChildResponse = _reflection.GeneratedProtocolMessageType('BasicPro
   })
 _sym_db.RegisterMessage(BasicProtoListChildResponse)
 
-SpecialFieldsModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelRetrieveRequest', (_message.Message,), {
-  'DESCRIPTOR' : _SPECIALFIELDSMODELRETRIEVEREQUEST,
+BasicServiceListResponse = _reflection.GeneratedProtocolMessageType('BasicServiceListResponse', (_message.Message,), {
+  'DESCRIPTOR' : _BASICSERVICELISTRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SpecialFieldsModelRetrieveRequest)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicServiceListResponse)
   })
-_sym_db.RegisterMessage(SpecialFieldsModelRetrieveRequest)
+_sym_db.RegisterMessage(BasicServiceListResponse)
+
+BasicServiceResponse = _reflection.GeneratedProtocolMessageType('BasicServiceResponse', (_message.Message,), {
+  'DESCRIPTOR' : _BASICSERVICERESPONSE,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.BasicServiceResponse)
+  })
+_sym_db.RegisterMessage(BasicServiceResponse)
+
+CustomMixParamForListRequest = _reflection.GeneratedProtocolMessageType('CustomMixParamForListRequest', (_message.Message,), {
+  'DESCRIPTOR' : _CUSTOMMIXPARAMFORLISTREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomMixParamForListRequest)
+  })
+_sym_db.RegisterMessage(CustomMixParamForListRequest)
+
+CustomMixParamForRequest = _reflection.GeneratedProtocolMessageType('CustomMixParamForRequest', (_message.Message,), {
+  'DESCRIPTOR' : _CUSTOMMIXPARAMFORREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomMixParamForRequest)
+  })
+_sym_db.RegisterMessage(CustomMixParamForRequest)
+
+CustomNameForRequest = _reflection.GeneratedProtocolMessageType('CustomNameForRequest', (_message.Message,), {
+  'DESCRIPTOR' : _CUSTOMNAMEFORREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomNameForRequest)
+  })
+_sym_db.RegisterMessage(CustomNameForRequest)
+
+CustomNameForResponse = _reflection.GeneratedProtocolMessageType('CustomNameForResponse', (_message.Message,), {
+  'DESCRIPTOR' : _CUSTOMNAMEFORRESPONSE,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomNameForResponse)
+  })
+_sym_db.RegisterMessage(CustomNameForResponse)
 
 CustomRetrieveResponseSpecialFieldsModelResponse = _reflection.GeneratedProtocolMessageType('CustomRetrieveResponseSpecialFieldsModelResponse', (_message.Message,), {
   'DESCRIPTOR' : _CUSTOMRETRIEVERESPONSESPECIALFIELDSMODELRESPONSE,
@@ -209,41 +202,6 @@ CustomRetrieveResponseSpecialFieldsModelResponse = _reflection.GeneratedProtocol
   # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.CustomRetrieveResponseSpecialFieldsModelResponse)
   })
 _sym_db.RegisterMessage(CustomRetrieveResponseSpecialFieldsModelResponse)
-
-SyncUnitTestModelListWithExtraArgsRequest = _reflection.GeneratedProtocolMessageType('SyncUnitTestModelListWithExtraArgsRequest', (_message.Message,), {
-  'DESCRIPTOR' : _SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SyncUnitTestModelListWithExtraArgsRequest)
-  })
-_sym_db.RegisterMessage(SyncUnitTestModelListWithExtraArgsRequest)
-
-UnitTestModelListExtraArgsResponse = _reflection.GeneratedProtocolMessageType('UnitTestModelListExtraArgsResponse', (_message.Message,), {
-  'DESCRIPTOR' : _UNITTESTMODELLISTEXTRAARGSRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelListExtraArgsResponse)
-  })
-_sym_db.RegisterMessage(UnitTestModelListExtraArgsResponse)
-
-UnitTestModelResponse = _reflection.GeneratedProtocolMessageType('UnitTestModelResponse', (_message.Message,), {
-  'DESCRIPTOR' : _UNITTESTMODELRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelResponse)
-  })
-_sym_db.RegisterMessage(UnitTestModelResponse)
-
-UnitTestModelListWithExtraArgsRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelListWithExtraArgsRequest', (_message.Message,), {
-  'DESCRIPTOR' : _UNITTESTMODELLISTWITHEXTRAARGSREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelListWithExtraArgsRequest)
-  })
-_sym_db.RegisterMessage(UnitTestModelListWithExtraArgsRequest)
-
-ForeignModelResponse = _reflection.GeneratedProtocolMessageType('ForeignModelResponse', (_message.Message,), {
-  'DESCRIPTOR' : _FOREIGNMODELRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ForeignModelResponse)
-  })
-_sym_db.RegisterMessage(ForeignModelResponse)
 
 ForeignModelListRequest = _reflection.GeneratedProtocolMessageType('ForeignModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _FOREIGNMODELLISTREQUEST,
@@ -259,12 +217,12 @@ ForeignModelListResponse = _reflection.GeneratedProtocolMessageType('ForeignMode
   })
 _sym_db.RegisterMessage(ForeignModelListResponse)
 
-ForeignModelRetrieveCustomRetrieveRequest = _reflection.GeneratedProtocolMessageType('ForeignModelRetrieveCustomRetrieveRequest', (_message.Message,), {
-  'DESCRIPTOR' : _FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST,
+ForeignModelResponse = _reflection.GeneratedProtocolMessageType('ForeignModelResponse', (_message.Message,), {
+  'DESCRIPTOR' : _FOREIGNMODELRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ForeignModelRetrieveCustomRetrieveRequest)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ForeignModelResponse)
   })
-_sym_db.RegisterMessage(ForeignModelRetrieveCustomRetrieveRequest)
+_sym_db.RegisterMessage(ForeignModelResponse)
 
 ForeignModelRetrieveCustomResponse = _reflection.GeneratedProtocolMessageType('ForeignModelRetrieveCustomResponse', (_message.Message,), {
   'DESCRIPTOR' : _FOREIGNMODELRETRIEVECUSTOMRESPONSE,
@@ -272,6 +230,13 @@ ForeignModelRetrieveCustomResponse = _reflection.GeneratedProtocolMessageType('F
   # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ForeignModelRetrieveCustomResponse)
   })
 _sym_db.RegisterMessage(ForeignModelRetrieveCustomResponse)
+
+ForeignModelRetrieveCustomRetrieveRequest = _reflection.GeneratedProtocolMessageType('ForeignModelRetrieveCustomRetrieveRequest', (_message.Message,), {
+  'DESCRIPTOR' : _FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ForeignModelRetrieveCustomRetrieveRequest)
+  })
+_sym_db.RegisterMessage(ForeignModelRetrieveCustomRetrieveRequest)
 
 ImportStructEvenInArrayModelRequest = _reflection.GeneratedProtocolMessageType('ImportStructEvenInArrayModelRequest', (_message.Message,), {
   'DESCRIPTOR' : _IMPORTSTRUCTEVENINARRAYMODELREQUEST,
@@ -287,12 +252,12 @@ ImportStructEvenInArrayModelResponse = _reflection.GeneratedProtocolMessageType(
   })
 _sym_db.RegisterMessage(ImportStructEvenInArrayModelResponse)
 
-RelatedFieldModelResponse = _reflection.GeneratedProtocolMessageType('RelatedFieldModelResponse', (_message.Message,), {
-  'DESCRIPTOR' : _RELATEDFIELDMODELRESPONSE,
+ManyManyModelRequest = _reflection.GeneratedProtocolMessageType('ManyManyModelRequest', (_message.Message,), {
+  'DESCRIPTOR' : _MANYMANYMODELREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.RelatedFieldModelResponse)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ManyManyModelRequest)
   })
-_sym_db.RegisterMessage(RelatedFieldModelResponse)
+_sym_db.RegisterMessage(ManyManyModelRequest)
 
 ManyManyModelResponse = _reflection.GeneratedProtocolMessageType('ManyManyModelResponse', (_message.Message,), {
   'DESCRIPTOR' : _MANYMANYMODELRESPONSE,
@@ -300,6 +265,13 @@ ManyManyModelResponse = _reflection.GeneratedProtocolMessageType('ManyManyModelR
   # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ManyManyModelResponse)
   })
 _sym_db.RegisterMessage(ManyManyModelResponse)
+
+RelatedFieldModelDestroyRequest = _reflection.GeneratedProtocolMessageType('RelatedFieldModelDestroyRequest', (_message.Message,), {
+  'DESCRIPTOR' : _RELATEDFIELDMODELDESTROYREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.RelatedFieldModelDestroyRequest)
+  })
+_sym_db.RegisterMessage(RelatedFieldModelDestroyRequest)
 
 RelatedFieldModelListRequest = _reflection.GeneratedProtocolMessageType('RelatedFieldModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _RELATEDFIELDMODELLISTREQUEST,
@@ -322,12 +294,12 @@ RelatedFieldModelRequest = _reflection.GeneratedProtocolMessageType('RelatedFiel
   })
 _sym_db.RegisterMessage(RelatedFieldModelRequest)
 
-ManyManyModelRequest = _reflection.GeneratedProtocolMessageType('ManyManyModelRequest', (_message.Message,), {
-  'DESCRIPTOR' : _MANYMANYMODELREQUEST,
+RelatedFieldModelResponse = _reflection.GeneratedProtocolMessageType('RelatedFieldModelResponse', (_message.Message,), {
+  'DESCRIPTOR' : _RELATEDFIELDMODELRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.ManyManyModelRequest)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.RelatedFieldModelResponse)
   })
-_sym_db.RegisterMessage(ManyManyModelRequest)
+_sym_db.RegisterMessage(RelatedFieldModelResponse)
 
 RelatedFieldModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('RelatedFieldModelRetrieveRequest', (_message.Message,), {
   'DESCRIPTOR' : _RELATEDFIELDMODELRETRIEVEREQUEST,
@@ -336,19 +308,12 @@ RelatedFieldModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('Rel
   })
 _sym_db.RegisterMessage(RelatedFieldModelRetrieveRequest)
 
-RelatedFieldModelDestroyRequest = _reflection.GeneratedProtocolMessageType('RelatedFieldModelDestroyRequest', (_message.Message,), {
-  'DESCRIPTOR' : _RELATEDFIELDMODELDESTROYREQUEST,
+SpecialFieldsModelDestroyRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelDestroyRequest', (_message.Message,), {
+  'DESCRIPTOR' : _SPECIALFIELDSMODELDESTROYREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.RelatedFieldModelDestroyRequest)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SpecialFieldsModelDestroyRequest)
   })
-_sym_db.RegisterMessage(RelatedFieldModelDestroyRequest)
-
-SpecialFieldsModelResponse = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelResponse', (_message.Message,), {
-  'DESCRIPTOR' : _SPECIALFIELDSMODELRESPONSE,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SpecialFieldsModelResponse)
-  })
-_sym_db.RegisterMessage(SpecialFieldsModelResponse)
+_sym_db.RegisterMessage(SpecialFieldsModelDestroyRequest)
 
 SpecialFieldsModelListRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _SPECIALFIELDSMODELLISTREQUEST,
@@ -371,12 +336,40 @@ SpecialFieldsModelRequest = _reflection.GeneratedProtocolMessageType('SpecialFie
   })
 _sym_db.RegisterMessage(SpecialFieldsModelRequest)
 
-SpecialFieldsModelDestroyRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelDestroyRequest', (_message.Message,), {
-  'DESCRIPTOR' : _SPECIALFIELDSMODELDESTROYREQUEST,
+SpecialFieldsModelResponse = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelResponse', (_message.Message,), {
+  'DESCRIPTOR' : _SPECIALFIELDSMODELRESPONSE,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SpecialFieldsModelDestroyRequest)
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SpecialFieldsModelResponse)
   })
-_sym_db.RegisterMessage(SpecialFieldsModelDestroyRequest)
+_sym_db.RegisterMessage(SpecialFieldsModelResponse)
+
+SpecialFieldsModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('SpecialFieldsModelRetrieveRequest', (_message.Message,), {
+  'DESCRIPTOR' : _SPECIALFIELDSMODELRETRIEVEREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SpecialFieldsModelRetrieveRequest)
+  })
+_sym_db.RegisterMessage(SpecialFieldsModelRetrieveRequest)
+
+SyncUnitTestModelListWithExtraArgsRequest = _reflection.GeneratedProtocolMessageType('SyncUnitTestModelListWithExtraArgsRequest', (_message.Message,), {
+  'DESCRIPTOR' : _SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.SyncUnitTestModelListWithExtraArgsRequest)
+  })
+_sym_db.RegisterMessage(SyncUnitTestModelListWithExtraArgsRequest)
+
+UnitTestModelDestroyRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelDestroyRequest', (_message.Message,), {
+  'DESCRIPTOR' : _UNITTESTMODELDESTROYREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelDestroyRequest)
+  })
+_sym_db.RegisterMessage(UnitTestModelDestroyRequest)
+
+UnitTestModelListExtraArgsResponse = _reflection.GeneratedProtocolMessageType('UnitTestModelListExtraArgsResponse', (_message.Message,), {
+  'DESCRIPTOR' : _UNITTESTMODELLISTEXTRAARGSRESPONSE,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelListExtraArgsResponse)
+  })
+_sym_db.RegisterMessage(UnitTestModelListExtraArgsResponse)
 
 UnitTestModelListRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelListRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELLISTREQUEST,
@@ -392,6 +385,13 @@ UnitTestModelListResponse = _reflection.GeneratedProtocolMessageType('UnitTestMo
   })
 _sym_db.RegisterMessage(UnitTestModelListResponse)
 
+UnitTestModelListWithExtraArgsRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelListWithExtraArgsRequest', (_message.Message,), {
+  'DESCRIPTOR' : _UNITTESTMODELLISTWITHEXTRAARGSREQUEST,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelListWithExtraArgsRequest)
+  })
+_sym_db.RegisterMessage(UnitTestModelListWithExtraArgsRequest)
+
 UnitTestModelRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
@@ -399,19 +399,19 @@ UnitTestModelRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelRe
   })
 _sym_db.RegisterMessage(UnitTestModelRequest)
 
+UnitTestModelResponse = _reflection.GeneratedProtocolMessageType('UnitTestModelResponse', (_message.Message,), {
+  'DESCRIPTOR' : _UNITTESTMODELRESPONSE,
+  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
+  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelResponse)
+  })
+_sym_db.RegisterMessage(UnitTestModelResponse)
+
 UnitTestModelRetrieveRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelRetrieveRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELRETRIEVEREQUEST,
   '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
   # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelRetrieveRequest)
   })
 _sym_db.RegisterMessage(UnitTestModelRetrieveRequest)
-
-UnitTestModelDestroyRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelDestroyRequest', (_message.Message,), {
-  'DESCRIPTOR' : _UNITTESTMODELDESTROYREQUEST,
-  '__module__' : 'django_socio_grpc.tests.fakeapp.grpc.fakeapp_pb2'
-  # @@protoc_insertion_point(class_scope:fakeproject.fakeapp.UnitTestModelDestroyRequest)
-  })
-_sym_db.RegisterMessage(UnitTestModelDestroyRequest)
 
 UnitTestModelStreamRequest = _reflection.GeneratedProtocolMessageType('UnitTestModelStreamRequest', (_message.Message,), {
   'DESCRIPTOR' : _UNITTESTMODELSTREAMREQUEST,
@@ -430,104 +430,104 @@ _RELATEDFIELDMODELCONTROLLER = DESCRIPTOR.services_by_name['RelatedFieldModelCon
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _BASICFETCHDATAFORUSERREQUEST._serialized_start=134
-  _BASICFETCHDATAFORUSERREQUEST._serialized_end=183
-  _BASICSERVICERESPONSE._serialized_start=186
-  _BASICSERVICERESPONSE._serialized_end=341
-  _BASICSERVICELISTRESPONSE._serialized_start=343
-  _BASICSERVICELISTRESPONSE._serialized_end=444
-  _CUSTOMNAMEFORREQUEST._serialized_start=446
-  _CUSTOMNAMEFORREQUEST._serialized_end=487
-  _CUSTOMNAMEFORRESPONSE._serialized_start=489
-  _CUSTOMNAMEFORRESPONSE._serialized_end=531
-  _CUSTOMMIXPARAMFORREQUEST._serialized_start=533
-  _CUSTOMMIXPARAMFORREQUEST._serialized_end=578
-  _CUSTOMMIXPARAMFORLISTREQUEST._serialized_start=580
-  _CUSTOMMIXPARAMFORLISTREQUEST._serialized_end=689
-  _BASICMIXPARAMRESPONSE._serialized_start=691
-  _BASICMIXPARAMRESPONSE._serialized_end=733
-  _BASICMIXPARAMLISTRESPONSE._serialized_start=735
-  _BASICMIXPARAMLISTRESPONSE._serialized_end=838
-  _BASICPARAMWITHSERIALIZERREQUEST._serialized_start=841
-  _BASICPARAMWITHSERIALIZERREQUEST._serialized_end=1030
-  _BASICPARAMWITHSERIALIZERLISTREQUEST._serialized_start=1032
-  _BASICPARAMWITHSERIALIZERLISTREQUEST._serialized_end=1155
-  _BASICMIXPARAMWITHSERIALIZERLISTRESPONSE._serialized_start=1157
-  _BASICMIXPARAMWITHSERIALIZERLISTRESPONSE._serialized_end=1255
-  _BASEPROTOEXAMPLEREQUEST._serialized_start=1257
-  _BASEPROTOEXAMPLEREQUEST._serialized_end=1345
-  _BASEPROTOEXAMPLERESPONSE._serialized_start=1347
-  _BASEPROTOEXAMPLERESPONSE._serialized_end=1436
-  _BASEPROTOEXAMPLELISTRESPONSE._serialized_start=1438
-  _BASEPROTOEXAMPLELISTRESPONSE._serialized_end=1547
-  _BASICPROTOLISTCHILDREQUEST._serialized_start=1549
-  _BASICPROTOLISTCHILDREQUEST._serialized_end=1618
-  _BASICPROTOLISTCHILDLISTRESPONSE._serialized_start=1620
-  _BASICPROTOLISTCHILDLISTRESPONSE._serialized_end=1735
-  _BASICPROTOLISTCHILDRESPONSE._serialized_start=1737
-  _BASICPROTOLISTCHILDRESPONSE._serialized_end=1807
-  _SPECIALFIELDSMODELRETRIEVEREQUEST._serialized_start=1809
-  _SPECIALFIELDSMODELRETRIEVEREQUEST._serialized_end=1858
-  _CUSTOMRETRIEVERESPONSESPECIALFIELDSMODELRESPONSE._serialized_start=1861
-  _CUSTOMRETRIEVERESPONSESPECIALFIELDSMODELRESPONSE._serialized_end=2009
-  _SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_start=2011
-  _SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_end=2072
-  _UNITTESTMODELLISTEXTRAARGSRESPONSE._serialized_start=2075
-  _UNITTESTMODELLISTEXTRAARGSRESPONSE._serialized_end=2219
-  _UNITTESTMODELRESPONSE._serialized_start=2221
-  _UNITTESTMODELRESPONSE._serialized_end=2285
-  _UNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_start=2287
-  _UNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_end=2344
-  _FOREIGNMODELRESPONSE._serialized_start=2346
-  _FOREIGNMODELRESPONSE._serialized_end=2396
-  _FOREIGNMODELLISTREQUEST._serialized_start=2398
-  _FOREIGNMODELLISTREQUEST._serialized_end=2423
-  _FOREIGNMODELLISTRESPONSE._serialized_start=2425
-  _FOREIGNMODELLISTRESPONSE._serialized_end=2526
-  _FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST._serialized_start=2528
-  _FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST._serialized_end=2585
-  _FOREIGNMODELRETRIEVECUSTOMRESPONSE._serialized_start=2587
-  _FOREIGNMODELRETRIEVECUSTOMRESPONSE._serialized_end=2653
-  _IMPORTSTRUCTEVENINARRAYMODELREQUEST._serialized_start=2655
-  _IMPORTSTRUCTEVENINARRAYMODELREQUEST._serialized_end=2754
-  _IMPORTSTRUCTEVENINARRAYMODELRESPONSE._serialized_start=2756
-  _IMPORTSTRUCTEVENINARRAYMODELRESPONSE._serialized_end=2856
-  _RELATEDFIELDMODELRESPONSE._serialized_start=2859
-  _RELATEDFIELDMODELRESPONSE._serialized_end=3176
-  _MANYMANYMODELRESPONSE._serialized_start=3178
-  _MANYMANYMODELRESPONSE._serialized_end=3229
-  _RELATEDFIELDMODELLISTREQUEST._serialized_start=3231
-  _RELATEDFIELDMODELLISTREQUEST._serialized_end=3261
-  _RELATEDFIELDMODELLISTRESPONSE._serialized_start=3263
-  _RELATEDFIELDMODELLISTRESPONSE._serialized_end=3389
-  _RELATEDFIELDMODELREQUEST._serialized_start=3392
-  _RELATEDFIELDMODELREQUEST._serialized_end=3561
-  _MANYMANYMODELREQUEST._serialized_start=3563
-  _MANYMANYMODELREQUEST._serialized_end=3648
-  _RELATEDFIELDMODELRETRIEVEREQUEST._serialized_start=3650
-  _RELATEDFIELDMODELRETRIEVEREQUEST._serialized_end=3698
-  _RELATEDFIELDMODELDESTROYREQUEST._serialized_start=3700
-  _RELATEDFIELDMODELDESTROYREQUEST._serialized_end=3747
-  _SPECIALFIELDSMODELRESPONSE._serialized_start=3749
-  _SPECIALFIELDSMODELRESPONSE._serialized_end=3872
-  _SPECIALFIELDSMODELLISTREQUEST._serialized_start=3874
-  _SPECIALFIELDSMODELLISTREQUEST._serialized_end=3905
-  _SPECIALFIELDSMODELLISTRESPONSE._serialized_start=3907
-  _SPECIALFIELDSMODELLISTRESPONSE._serialized_end=4020
-  _SPECIALFIELDSMODELREQUEST._serialized_start=4022
-  _SPECIALFIELDSMODELREQUEST._serialized_end=4128
-  _SPECIALFIELDSMODELDESTROYREQUEST._serialized_start=4130
-  _SPECIALFIELDSMODELDESTROYREQUEST._serialized_end=4178
-  _UNITTESTMODELLISTREQUEST._serialized_start=4180
-  _UNITTESTMODELLISTREQUEST._serialized_end=4206
-  _UNITTESTMODELLISTRESPONSE._serialized_start=4208
-  _UNITTESTMODELLISTRESPONSE._serialized_end=4311
-  _UNITTESTMODELREQUEST._serialized_start=4313
-  _UNITTESTMODELREQUEST._serialized_end=4376
-  _UNITTESTMODELRETRIEVEREQUEST._serialized_start=4378
-  _UNITTESTMODELRETRIEVEREQUEST._serialized_end=4420
-  _UNITTESTMODELDESTROYREQUEST._serialized_start=4422
-  _UNITTESTMODELDESTROYREQUEST._serialized_end=4463
+  _BASEPROTOEXAMPLELISTRESPONSE._serialized_start=134
+  _BASEPROTOEXAMPLELISTRESPONSE._serialized_end=243
+  _BASEPROTOEXAMPLEREQUEST._serialized_start=245
+  _BASEPROTOEXAMPLEREQUEST._serialized_end=333
+  _BASEPROTOEXAMPLERESPONSE._serialized_start=335
+  _BASEPROTOEXAMPLERESPONSE._serialized_end=424
+  _BASICFETCHDATAFORUSERREQUEST._serialized_start=426
+  _BASICFETCHDATAFORUSERREQUEST._serialized_end=475
+  _BASICMIXPARAMLISTRESPONSE._serialized_start=477
+  _BASICMIXPARAMLISTRESPONSE._serialized_end=580
+  _BASICMIXPARAMRESPONSE._serialized_start=582
+  _BASICMIXPARAMRESPONSE._serialized_end=624
+  _BASICMIXPARAMWITHSERIALIZERLISTRESPONSE._serialized_start=626
+  _BASICMIXPARAMWITHSERIALIZERLISTRESPONSE._serialized_end=724
+  _BASICPARAMWITHSERIALIZERLISTREQUEST._serialized_start=726
+  _BASICPARAMWITHSERIALIZERLISTREQUEST._serialized_end=849
+  _BASICPARAMWITHSERIALIZERREQUEST._serialized_start=852
+  _BASICPARAMWITHSERIALIZERREQUEST._serialized_end=1041
+  _BASICPROTOLISTCHILDLISTRESPONSE._serialized_start=1043
+  _BASICPROTOLISTCHILDLISTRESPONSE._serialized_end=1158
+  _BASICPROTOLISTCHILDREQUEST._serialized_start=1160
+  _BASICPROTOLISTCHILDREQUEST._serialized_end=1229
+  _BASICPROTOLISTCHILDRESPONSE._serialized_start=1231
+  _BASICPROTOLISTCHILDRESPONSE._serialized_end=1301
+  _BASICSERVICELISTRESPONSE._serialized_start=1303
+  _BASICSERVICELISTRESPONSE._serialized_end=1404
+  _BASICSERVICERESPONSE._serialized_start=1407
+  _BASICSERVICERESPONSE._serialized_end=1562
+  _CUSTOMMIXPARAMFORLISTREQUEST._serialized_start=1564
+  _CUSTOMMIXPARAMFORLISTREQUEST._serialized_end=1673
+  _CUSTOMMIXPARAMFORREQUEST._serialized_start=1675
+  _CUSTOMMIXPARAMFORREQUEST._serialized_end=1720
+  _CUSTOMNAMEFORREQUEST._serialized_start=1722
+  _CUSTOMNAMEFORREQUEST._serialized_end=1763
+  _CUSTOMNAMEFORRESPONSE._serialized_start=1765
+  _CUSTOMNAMEFORRESPONSE._serialized_end=1807
+  _CUSTOMRETRIEVERESPONSESPECIALFIELDSMODELRESPONSE._serialized_start=1810
+  _CUSTOMRETRIEVERESPONSESPECIALFIELDSMODELRESPONSE._serialized_end=1958
+  _FOREIGNMODELLISTREQUEST._serialized_start=1960
+  _FOREIGNMODELLISTREQUEST._serialized_end=1985
+  _FOREIGNMODELLISTRESPONSE._serialized_start=1987
+  _FOREIGNMODELLISTRESPONSE._serialized_end=2088
+  _FOREIGNMODELRESPONSE._serialized_start=2090
+  _FOREIGNMODELRESPONSE._serialized_end=2140
+  _FOREIGNMODELRETRIEVECUSTOMRESPONSE._serialized_start=2142
+  _FOREIGNMODELRETRIEVECUSTOMRESPONSE._serialized_end=2208
+  _FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST._serialized_start=2210
+  _FOREIGNMODELRETRIEVECUSTOMRETRIEVEREQUEST._serialized_end=2267
+  _IMPORTSTRUCTEVENINARRAYMODELREQUEST._serialized_start=2269
+  _IMPORTSTRUCTEVENINARRAYMODELREQUEST._serialized_end=2368
+  _IMPORTSTRUCTEVENINARRAYMODELRESPONSE._serialized_start=2370
+  _IMPORTSTRUCTEVENINARRAYMODELRESPONSE._serialized_end=2470
+  _MANYMANYMODELREQUEST._serialized_start=2472
+  _MANYMANYMODELREQUEST._serialized_end=2557
+  _MANYMANYMODELRESPONSE._serialized_start=2559
+  _MANYMANYMODELRESPONSE._serialized_end=2610
+  _RELATEDFIELDMODELDESTROYREQUEST._serialized_start=2612
+  _RELATEDFIELDMODELDESTROYREQUEST._serialized_end=2659
+  _RELATEDFIELDMODELLISTREQUEST._serialized_start=2661
+  _RELATEDFIELDMODELLISTREQUEST._serialized_end=2691
+  _RELATEDFIELDMODELLISTRESPONSE._serialized_start=2693
+  _RELATEDFIELDMODELLISTRESPONSE._serialized_end=2819
+  _RELATEDFIELDMODELREQUEST._serialized_start=2822
+  _RELATEDFIELDMODELREQUEST._serialized_end=2991
+  _RELATEDFIELDMODELRESPONSE._serialized_start=2994
+  _RELATEDFIELDMODELRESPONSE._serialized_end=3311
+  _RELATEDFIELDMODELRETRIEVEREQUEST._serialized_start=3313
+  _RELATEDFIELDMODELRETRIEVEREQUEST._serialized_end=3361
+  _SPECIALFIELDSMODELDESTROYREQUEST._serialized_start=3363
+  _SPECIALFIELDSMODELDESTROYREQUEST._serialized_end=3411
+  _SPECIALFIELDSMODELLISTREQUEST._serialized_start=3413
+  _SPECIALFIELDSMODELLISTREQUEST._serialized_end=3444
+  _SPECIALFIELDSMODELLISTRESPONSE._serialized_start=3446
+  _SPECIALFIELDSMODELLISTRESPONSE._serialized_end=3559
+  _SPECIALFIELDSMODELREQUEST._serialized_start=3561
+  _SPECIALFIELDSMODELREQUEST._serialized_end=3667
+  _SPECIALFIELDSMODELRESPONSE._serialized_start=3669
+  _SPECIALFIELDSMODELRESPONSE._serialized_end=3792
+  _SPECIALFIELDSMODELRETRIEVEREQUEST._serialized_start=3794
+  _SPECIALFIELDSMODELRETRIEVEREQUEST._serialized_end=3843
+  _SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_start=3845
+  _SYNCUNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_end=3906
+  _UNITTESTMODELDESTROYREQUEST._serialized_start=3908
+  _UNITTESTMODELDESTROYREQUEST._serialized_end=3949
+  _UNITTESTMODELLISTEXTRAARGSRESPONSE._serialized_start=3952
+  _UNITTESTMODELLISTEXTRAARGSRESPONSE._serialized_end=4096
+  _UNITTESTMODELLISTREQUEST._serialized_start=4098
+  _UNITTESTMODELLISTREQUEST._serialized_end=4124
+  _UNITTESTMODELLISTRESPONSE._serialized_start=4126
+  _UNITTESTMODELLISTRESPONSE._serialized_end=4229
+  _UNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_start=4231
+  _UNITTESTMODELLISTWITHEXTRAARGSREQUEST._serialized_end=4288
+  _UNITTESTMODELREQUEST._serialized_start=4290
+  _UNITTESTMODELREQUEST._serialized_end=4353
+  _UNITTESTMODELRESPONSE._serialized_start=4355
+  _UNITTESTMODELRESPONSE._serialized_end=4419
+  _UNITTESTMODELRETRIEVEREQUEST._serialized_start=4421
+  _UNITTESTMODELRETRIEVEREQUEST._serialized_end=4463
   _UNITTESTMODELSTREAMREQUEST._serialized_start=4465
   _UNITTESTMODELSTREAMREQUEST._serialized_end=4493
   _BASICCONTROLLER._serialized_start=4496

@@ -58,7 +58,9 @@ class RegistryToProtoGenerator:
                 grpc_controller_name, OrderedDict(sorted(grpc_methods.items()))
             )
 
-        for grpc_message_name, grpc_message in registered_items["registered_messages"].items():
+        for grpc_message_name, grpc_message in sorted(
+            registered_items["registered_messages"].items()
+        ):
             self._generate_message(grpc_message_name, grpc_message)
 
         return self._writer.get_code()

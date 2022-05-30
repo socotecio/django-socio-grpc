@@ -27,11 +27,11 @@ def boot_django():
         DATABASES={
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": os.environ.get("DB_NAME"),
-                "USER": os.environ.get("DB_USER"),
-                "PASSWORD": os.environ.get("DB_PASSWORD"),
-                "HOST": os.environ.get("DB_HOST"),
-                "PORT": os.environ.get("DB_PORT", 5432),
+                "NAME": os.environ.get("DB_NAME", "test"),
+                "USER": os.environ.get("DB_USER", "test"),
+                "PASSWORD": os.environ.get("DB_PASSWORD", "test_pw"),
+                "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
+                "PORT": os.environ.get("DB_PORT", 5532),
             }
         },
         INSTALLED_APPS=(

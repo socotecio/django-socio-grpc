@@ -12,6 +12,7 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: postgres_pw
       DB_HOST: localhost
+      DB_PORT: 5432
     steps:
       - checkout
       - run: pip install --no-cache-dir poetry psycopg2-binary

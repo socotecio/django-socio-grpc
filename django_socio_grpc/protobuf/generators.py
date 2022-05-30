@@ -2,6 +2,7 @@ import io
 import json
 import logging
 import os
+from collections import OrderedDict
 
 import protoparser
 from django.apps import apps
@@ -37,7 +38,7 @@ class RegistryToProtoGenerator:
             )
             proto_by_app[app_name] = self.get_proto(app_name, registered_items)
 
-        return proto_by_app
+        return OrderedDict(sorted(proto_by_app.items()))
 
     def get_proto_path_for_app_name(self, app_name):
         return os.path.join(apps.get_app_config(app_name).path, "grpc", f"{app_name}.proto")
@@ -53,7 +54,9 @@ class RegistryToProtoGenerator:
         for grpc_controller_name, grpc_methods in registered_items[
             "registered_controllers"
         ].items():
-            self._generate_controller(grpc_controller_name, grpc_methods)
+            self._generate_controller(
+                grpc_controller_name, OrderedDict(sorted(grpc_methods.items()))
+            )
 
         for grpc_message_name, grpc_message in registered_items["registered_messages"].items():
             self._generate_message(grpc_message_name, grpc_message)

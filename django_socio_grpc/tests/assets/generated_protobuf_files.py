@@ -5,13 +5,13 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service UnitTestModelController {
-    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
-    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
 message UnitTestModelListWithExtraArgsRequest {
@@ -145,11 +145,11 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service RelatedFieldModelController {
-    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
     rpc Create(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
+    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModelResponse) {}
     rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
-    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
 message RelatedFieldModelResponse {
@@ -283,12 +283,12 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service UnitTestModelController {
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
-    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
 message UnitTestModelResponse {
@@ -332,11 +332,11 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service SpecialFieldsModelController {
-    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
-    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
     rpc Create(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
-    rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
+    rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
 }
 
 message SpecialFieldsModelRetrieveRequest {
@@ -384,14 +384,14 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service BasicController {
+    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
-    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
-    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
-    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 message BasicFetchDataForUserRequest {
@@ -499,42 +499,42 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service UnitTestModelController {
-    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
-    rpc Update(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
+    rpc Update(UnitTestModel) returns (UnitTestModel) {}
 }
 
 service SyncUnitTestModelController {
-    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
-    rpc Update(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
+    rpc Update(UnitTestModel) returns (UnitTestModel) {}
 }
 
 service SpecialFieldsModelController {
-    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModel) {}
-    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
     rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
-    rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModel) {}
+    rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
 }
 
 service BasicController {
+    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicService) {}
-    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
-    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc MixParam(CustomMixParamForRequestList) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleListResponse) {}
-    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 service ForeignModelController {
@@ -547,11 +547,11 @@ service ImportStructEvenInArrayModelController {
 }
 
 service RelatedFieldModelController {
-    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
     rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
+    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
     rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
-    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
 message UnitTestModelListWithExtraArgsRequest {
@@ -776,42 +776,42 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service UnitTestModelController {
-    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
-    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
 service SyncUnitTestModelController {
-    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
-    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
 service SpecialFieldsModelController {
-    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
-    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
     rpc Create(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
-    rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
+    rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
 }
 
 service BasicController {
+    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
-    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
-    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
-    rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 service ForeignModelController {
@@ -824,11 +824,11 @@ service ImportStructEvenInArrayModelController {
 }
 
 service RelatedFieldModelController {
-    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
     rpc Create(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
+    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModelResponse) {}
     rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
-    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
 message UnitTestModelListWithExtraArgsRequest {

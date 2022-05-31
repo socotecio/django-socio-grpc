@@ -382,7 +382,7 @@ message BasicFetchDataForUserRequest {
 }
 
 message BasicListIdsResponse {
-    repeated int ids = 1;
+    repeated int32 ids = 1;
 }
 
 message BasicListNameResponse {
@@ -555,7 +555,7 @@ message BasicFetchDataForUserRequest {
 }
 
 message BasicListIdsResponse {
-    repeated int ids = 1;
+    repeated int32 ids = 1;
 }
 
 message BasicListNameResponse {
@@ -849,7 +849,7 @@ message BasicFetchDataForUserRequest {
 }
 
 message BasicListIdsResponse {
-    repeated int ids = 1;
+    repeated int32 ids = 1;
 }
 
 message BasicListNameResponse {

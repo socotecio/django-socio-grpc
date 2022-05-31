@@ -5,7 +5,7 @@ from django_socio_grpc.decorators import grpc_action
 
 
 class ListIdsMixin(GRPCActionMixin, abstract=True):
-    @grpc_action(request=[], response=[{"name": "ids", "type": "repeated int"}])
+    @grpc_action(request=[], response=[{"name": "ids", "type": "repeated int32"}])
     async def ListIds(self, request, context):
         pass
 

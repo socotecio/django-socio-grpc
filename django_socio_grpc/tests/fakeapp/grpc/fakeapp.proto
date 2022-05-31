@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package myproject.fakeapp;
+package fakeproject.fakeapp;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
@@ -21,7 +21,7 @@ service BasicController {
 
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
-    rpc Retrieve(ForeignModelRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
+    rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
 }
 
 service ImportStructEvenInArrayModelController {
@@ -46,10 +46,10 @@ service SpecialFieldsModelController {
 
 service SyncUnitTestModelController {
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Destroy(SyncUnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc Retrieve(SyncUnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
@@ -86,7 +86,7 @@ message BasicFetchDataForUserRequest {
 }
 
 message BasicListIdsResponse {
-    repeated int ids = 1;
+    repeated int32 ids = 1;
 }
 
 message BasicListNameResponse {
@@ -198,7 +198,7 @@ message ForeignModelRetrieveCustomResponse {
     string custom = 2;
 }
 
-message ForeignModelRetrieveRequest {
+message ForeignModelRetrieveCustomRetrieveRequest {
     string name = 1;
 }
 
@@ -288,16 +288,8 @@ message SpecialFieldsModelRetrieveRequest {
     string uuid = 1;
 }
 
-message SyncUnitTestModelDestroyRequest {
-    int32 id = 1;
-}
-
 message SyncUnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
-}
-
-message SyncUnitTestModelRetrieveRequest {
-    int32 id = 1;
 }
 
 message UnitTestModelDestroyRequest {

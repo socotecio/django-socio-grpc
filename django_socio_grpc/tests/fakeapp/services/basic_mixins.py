@@ -1,7 +1,8 @@
 from typing import Dict, List
 
-from django_socio_grpc.actions import AttrPlaceholder, GRPCActionMixin
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.grpc_actions.actions import GRPCActionMixin
+from django_socio_grpc.grpc_actions.placeholders import AttrPlaceholder
 
 
 class ListIdsMixin(GRPCActionMixin, abstract=True):

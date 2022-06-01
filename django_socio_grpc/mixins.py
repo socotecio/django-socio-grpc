@@ -1,11 +1,12 @@
 from asgiref.sync import sync_to_async
 from google.protobuf import empty_pb2
 
-from .actions import GRPCActionMixin, SelfSerializer, get_serializer_and_base_name
 from .decorators import grpc_action
+from .grpc_actions.actions import GRPCActionMixin
+from .grpc_actions.placeholders import LookupField, SelfSerializer, StrTemplatePlaceholder
+from .grpc_actions.utils import get_serializer_base_name
 from .settings import grpc_settings
 from .utils.constants import DEFAULT_LIST_FIELD_NAME, REQUEST_SUFFIX
-from .utils.registry_singleton import get_lookup_field_from_serializer
 
 
 ############################################################
@@ -47,17 +48,14 @@ class CreateModelMixin(GRPCActionMixin, abstract=True):
 
 
 class ListModelMixin(GRPCActionMixin, abstract=True):
-    def _dynamic_grpc_action_registry(service):
-        serializer, base_name = get_serializer_and_base_name(service, "List")
-        return {
-            "List": {
-                "request": [],
-                "request_name": f"{base_name}List{REQUEST_SUFFIX}",
-                "response": serializer,
-                "use_response_list": True,
-            }
-        }
-
+    @grpc_action(
+        request=[],
+        request_name=StrTemplatePlaceholder(
+            f"{{}}List{REQUEST_SUFFIX}", get_serializer_base_name
+        ),
+        response=SelfSerializer,
+        use_response_list=True,
+    )
     def List(self, request, context):
         """
         List a queryset.  This sends a message array of
@@ -107,17 +105,14 @@ class ListModelMixin(GRPCActionMixin, abstract=True):
 
 
 class StreamModelMixin(GRPCActionMixin, abstract=True):
-    def _dynamic_grpc_action_registry(service):
-        serializer, base_name = get_serializer_and_base_name(service, "Stream")
-        return {
-            "Stream": {
-                "request": [],
-                "request_name": f"{base_name}Stream{REQUEST_SUFFIX}",
-                "response": serializer,
-                "response_stream": True,
-            }
-        }
-
+    @grpc_action(
+        request=[],
+        request_name=StrTemplatePlaceholder(
+            f"{{}}Stream{REQUEST_SUFFIX}", get_serializer_base_name
+        ),
+        response=SelfSerializer,
+        response_stream=True,
+    )
     def Stream(self, request, context):
         """
         List a queryset.  This sends a sequence of messages of
@@ -157,17 +152,13 @@ class StreamModelMixin(GRPCActionMixin, abstract=True):
 
 
 class RetrieveModelMixin(GRPCActionMixin, abstract=True):
-    def _dynamic_grpc_action_registry(service):
-        serializer, base_name = get_serializer_and_base_name(service, "Retrieve")
-        lookup_field = get_lookup_field_from_serializer(serializer(), service)
-        return {
-            "Retrieve": {
-                "request": [{"name": lookup_field[0], "type": lookup_field[1]}],
-                "request_name": f"{base_name}Retrieve{REQUEST_SUFFIX}",
-                "response": serializer,
-            }
-        }
-
+    @grpc_action(
+        request=LookupField,
+        request_name=StrTemplatePlaceholder(
+            f"{{}}Retrieve{REQUEST_SUFFIX}", get_serializer_base_name
+        ),
+        response=SelfSerializer,
+    )
     def Retrieve(self, request, context):
         """
         Retrieve a model instance.
@@ -282,17 +273,13 @@ class PartialUpdateModelMixin(GRPCActionMixin, abstract=True):
 
 
 class DestroyModelMixin(GRPCActionMixin, abstract=True):
-    def _dynamic_grpc_action_registry(service):
-        serializer, base_name = get_serializer_and_base_name(service, "Destroy")
-        lookup_field = get_lookup_field_from_serializer(serializer(), service)
-        return {
-            "Destroy": {
-                "request": [{"name": lookup_field[0], "type": lookup_field[1]}],
-                "request_name": f"{base_name}Destroy{REQUEST_SUFFIX}",
-                "response": [],
-            }
-        }
-
+    @grpc_action(
+        request=LookupField,
+        request_name=StrTemplatePlaceholder(
+            f"{{}}Destroy{REQUEST_SUFFIX}", get_serializer_base_name
+        ),
+        response=[],
+    )
     def Destroy(self, request, context):
         """
         Destroy a model instance.

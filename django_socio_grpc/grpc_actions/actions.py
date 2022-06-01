@@ -140,15 +140,13 @@ class GRPCAction:
 
 
 class GRPCActionMixinMeta(type):
-    def before_registration(cls, service=None):
+    def before_registration(cls, service_class=None):
         """
         Call all the service parents `_before_registration` methods
         """
-        if not service:
-            service = cls()
         for base in cls.action_parents[::-1]:
             if "_before_registration" in base.__dict__:
-                base._before_registration(service)
+                base._before_registration(service_class or cls)
 
     def get_parents_action_registry(cls, service=None):
         """
@@ -239,7 +237,7 @@ class GRPCActionMixin(metaclass=GRPCActionMixinMeta):
 
         cls.register_actions()
 
-    def _before_registration(service):
+    def _before_registration(service_class):
         """
         This should be overriden in your service or mixin if you want a specific behavior for a mixin
         Method called before gRPC actions registration

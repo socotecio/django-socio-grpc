@@ -13,8 +13,8 @@ from .basic_mixins import ListIdsMixin, ListNameMixin
 class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
     serializer_class = BasicServiceSerializer
 
-    def _before_registration(service):
-        service._list_name_response = [{"name": "name", "type": "repeated string"}]
+    def _before_registration(service_class):
+        service_class._list_name_response = [{"name": "name", "type": "repeated string"}]
 
     @grpc_action(
         request=[{"name": "user_name", "type": "string"}],

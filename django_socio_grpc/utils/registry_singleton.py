@@ -536,6 +536,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
             response_stream,
         )
 
+        return request_message_name, response_message_name
+
     def register_method_for_custom_action(
         self,
         app_name,

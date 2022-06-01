@@ -79,6 +79,9 @@ class GRPCAction:
         self.use_response_list = use_response_list
         self.function = function
 
+        self.response_message_name: Optional[None] = None
+        self.request_message_name: Optional[None] = None
+
         self._isasync = asyncio.iscoroutinefunction(function)
 
     def __set_name__(self, owner, name):
@@ -131,9 +134,13 @@ class GRPCAction:
                 if isinstance(v, Placeholder):
                     v(service, self, k)
 
-            service_registry.register_custom_action(
+            message_names = service_registry.register_custom_action(
                 service_class=owner, function_name=name, **self.get_action_params()
             )
+
+            self.response_message_name = message_names[0]
+            self.request_message_name = message_names[1]
+
         except Exception as e:
             logger.exception(f"Error while registering grpc_action {owner} - {name}: {e}")
         setattr(owner, name, self)

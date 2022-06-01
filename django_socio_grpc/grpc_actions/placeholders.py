@@ -1,5 +1,5 @@
 import abc
-from typing import TYPE_CHECKING, Any, Callable, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, TypeVar, Union
 
 from django_socio_grpc.grpc_actions.utils import get_serializer_class
 from django_socio_grpc.utils.registry_singleton import get_lookup_field_from_serializer

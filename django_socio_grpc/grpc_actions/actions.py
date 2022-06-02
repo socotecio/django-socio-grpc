@@ -151,12 +151,10 @@ class GRPCActionMixinMeta(type):
 
     def get_parents_action_registry(cls, service):
         """
-        return all the grpc action registries (static and dynamic) of all the parent mixin
+        Returns all the grpc action registries (static and dynamic) of all the parent mixin
         """
         registry = {}
-        # INFO - AM - 25/05/2022 - action_parents is all the parents
-        # instance that inherit from GRPCActionMixin and the instance itself
-        # to merge all the mixin action registry in one in the mro order
+
         for parent in cls.action_parents[::-1]:
             # INFO - AM - 25/05/2022 - if the parent inherit from GRPCActionMixin it
             # will have _dynamic_grpc_action_registry (method) and
@@ -168,7 +166,7 @@ class GRPCActionMixinMeta(type):
 
     def get_class_action_registry(cls, service):
         """
-        return all the grpc action registries (static and dynamic) of the class
+        Returns all the grpc action registries (static and dynamic) of the class
         """
         registry = {}
         if "_decorated_grpc_action_registry" in cls.__dict__:
@@ -179,12 +177,16 @@ class GRPCActionMixinMeta(type):
 
     @property
     def action_parents(cls):
+        """
+        Returns all the GRPCActionMixin parents of the class in mro order
+        """
         return [base for base in cls.mro() if issubclass(base, GRPCActionMixin)]
 
-    # INFO - AM - 25/05/2022 - register_actions iterate over the grpc_action_registry
-    # that use the private property _dynamic_grpc_action_registry and _decorated_grpc_action_registry
-    # that are populated automatically to register the mixins actions
     def register_actions(cls):
+        """
+        Call the `_before_registration` method of all the parents
+        Then iterate over the action registry and register the grpc actions
+        """
         cls.before_registration()
         for action, kwargs in cls.get_parents_action_registry(cls()).items():
             register_action(cls, action, **kwargs)
@@ -209,7 +211,7 @@ def register_action(cls, action_name: str, name: Optional[str] = None, **kwargs)
 class GRPCActionMixin(metaclass=GRPCActionMixinMeta):
 
     _decorated_grpc_action_registry: Dict[str, Dict[str, Any]]
-    """Static gRPC action registry"""
+    """Registry of grpc actions declared in the class"""
 
     _abstract = True
 

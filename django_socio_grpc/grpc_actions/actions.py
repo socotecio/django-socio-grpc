@@ -37,8 +37,8 @@ from MyService abstract parents. This dict is then registered.
 """
 
 import asyncio
-from asyncio.coroutines import _is_coroutine
 import logging
+from asyncio.coroutines import _is_coroutine
 from typing import Any, Dict, Optional
 
 from django_socio_grpc.services import Service

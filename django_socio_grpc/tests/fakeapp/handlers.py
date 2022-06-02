@@ -1,4 +1,3 @@
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 from fakeapp.services.basic_service import BasicService
 from fakeapp.services.foreign_model_service import ForeignModelService
 from fakeapp.services.import_struct_even_in_array_model_service import (
@@ -10,6 +9,7 @@ from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelServi
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 
 from django_socio_grpc.tests.fakeapp.utils import make_grpc_handler
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = []

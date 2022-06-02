@@ -1,3 +1,4 @@
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 from fakeapp.services.basic_service import BasicService
 from fakeapp.services.foreign_model_service import ForeignModelService
 from fakeapp.services.import_struct_even_in_array_model_service import (
@@ -13,6 +14,18 @@ from django_socio_grpc.tests.fakeapp.utils import make_grpc_handler
 # The API URLs are now determined automatically by the router.
 urlpatterns = []
 
+
+def grpc_handlers(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
+    app_registry.register(BasicService)
+    app_registry.register(ForeignModelService)
+    app_registry.register(ImportStructEvenInArrayModelService)
+    app_registry.register(RelatedFieldModelService)
+    app_registry.register(SpecialFieldsModelService)
+    app_registry.register(SyncUnitTestModelService)
+    app_registry.register(UnitTestModelService)
+
+
 services = (
     BasicService,
     ForeignModelService,
@@ -22,8 +35,4 @@ services = (
     SyncUnitTestModelService,
     UnitTestModelService,
 )
-
-
-grpc_handlers = make_grpc_handler("fakeapp", *services)
-
 reloaded_grpc_handlers = make_grpc_handler("fakeapp", *services, reload_services=True)

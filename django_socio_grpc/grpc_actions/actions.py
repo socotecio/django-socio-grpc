@@ -37,10 +37,9 @@ from MyService abstract parents. This dict is then registered.
 """
 
 import asyncio
+from asyncio.coroutines import _is_coroutine
 import logging
 from typing import Any, Dict, Optional
-
-from asgiref.sync import async_to_sync
 
 from django_socio_grpc.services import Service
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
@@ -82,7 +81,8 @@ class GRPCAction:
         self.response_message_name: Optional[None] = None
         self.request_message_name: Optional[None] = None
 
-        self._isasync = asyncio.iscoroutinefunction(function)
+        if asyncio.iscoroutinefunction(function):
+            self._is_coroutine = _is_coroutine
 
     def __set_name__(self, owner, name):
         """
@@ -102,14 +102,7 @@ class GRPCAction:
         return self.__class__(self.function.__get__(obj, type), **self.get_action_params())
 
     def __call__(self, *args, **kwargs):
-        fn = self.function
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            if self._isasync:
-                fn = async_to_sync(self.function)
-
-        return fn(*args, **kwargs)
+        return self.function(*args, **kwargs)
 
     def get_action_params(self):
         return {
@@ -127,12 +120,13 @@ class GRPCAction:
         try:
             service_registry = RegistrySingleton()
 
-            # INFO - LG - 31/05/2022 Call all placeholders with matching attribute
+            # INFO - LG - 31/05/2022 Iterate over the GRPCAction attributes
+            # and resolve all the placeholder instances
             service = owner()
             service.action = name
-            for k, v in self.get_action_params().items():
-                if isinstance(v, Placeholder):
-                    v(service, self, k)
+            for action_param_field, action_param_value in self.get_action_params().items():
+                if isinstance(action_param_value, Placeholder):
+                    action_param_value(service, self, action_param_field)
 
             message_names = service_registry.register_custom_action(
                 service_class=owner, function_name=name, **self.get_action_params()
@@ -155,12 +149,10 @@ class GRPCActionMixinMeta(type):
             if "_before_registration" in base.__dict__:
                 base._before_registration(service_class or cls)
 
-    def get_parents_action_registry(cls, service=None):
+    def get_parents_action_registry(cls, service):
         """
         return all the grpc action registries (static and dynamic) of all the parent mixin
         """
-        if not service:
-            service = cls()
         registry = {}
         # INFO - AM - 25/05/2022 - action_parents is all the parents
         # instance that inherit from GRPCActionMixin and the instance itself
@@ -174,12 +166,10 @@ class GRPCActionMixinMeta(type):
 
         return registry
 
-    def get_class_action_registry(cls, service=None):
+    def get_class_action_registry(cls, service):
         """
         return all the grpc action registries (static and dynamic) of the class
         """
-        if not service:
-            service = cls()
         registry = {}
         if "_decorated_grpc_action_registry" in cls.__dict__:
             registry.update(cls._decorated_grpc_action_registry)
@@ -196,7 +186,7 @@ class GRPCActionMixinMeta(type):
     # that are populated automatically to register the mixins actions
     def register_actions(cls):
         cls.before_registration()
-        for action, kwargs in cls.get_parents_action_registry().items():
+        for action, kwargs in cls.get_parents_action_registry(cls()).items():
             register_action(cls, action, **kwargs)
 
 

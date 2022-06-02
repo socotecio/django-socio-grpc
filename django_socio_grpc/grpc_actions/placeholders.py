@@ -21,8 +21,17 @@ class Placeholder(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __call__(self, service, action: "GRPCAction", field: str):
-        pass
+    def resolve(self, service: "GenericService"):
+        """
+        Resolve the placeholder
+        :param service: the service instance
+        :param action: the current action
+        :return: the resolved value
+        """
+        raise NotImplementedError
+
+    def __call__(self, service: "GenericService", action: "GRPCAction", field: str):
+        setattr(action, field, self.resolve(service))
 
 
 class AttrPlaceholder(Placeholder):
@@ -31,9 +40,8 @@ class AttrPlaceholder(Placeholder):
     def __init__(self, attr_name: str):
         self.attr_name = attr_name
 
-    def __call__(self, service, action: "GRPCAction", field: str):
-        attr = getattr(service, self.attr_name)
-        setattr(action, field, attr)
+    def resolve(self, service: "GenericService"):
+        return getattr(service, self.attr_name)
 
 
 class FnPlaceholder(Placeholder):
@@ -42,9 +50,8 @@ class FnPlaceholder(Placeholder):
     def __init__(self, fn: ServiceCallable):
         self.fn = fn
 
-    def __call__(self, service, action: "GRPCAction", field: str):
-        attr = self.fn(service)
-        setattr(action, field, attr)
+    def resolve(self, service: "GenericService"):
+        return self.fn(service)
 
 
 class StrTemplatePlaceholder(Placeholder):
@@ -68,13 +75,10 @@ class StrTemplatePlaceholder(Placeholder):
         else:
             raise ValueError(f"Unsupported param type {param}")
 
-    def __call__(self, service, action: "GRPCAction", field: str):
-
-        formatted_string = self.string.format(
+    def resolve(self, service: "GenericService"):
+        return self.string.format(
             *[self.get_param_value(service, param) for param in self.params]
         )
-
-        setattr(action, field, formatted_string)
 
 
 def _get_lookup_fields(service):

@@ -201,6 +201,21 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         proto_type = TYPE_MAPPING.get(field_type.__class__.__name__, "string")
 
+        # if  field_name == "slug_many_many":
+        #     print(f"class is : {field_type.__class__}")
+        #     print(f"is subclas of ListProtoSerializer: {issubclass(field_type.__class__, ListProtoSerializer)}")
+        #     print(f"is subclas of BaseProtoSerializer: {issubclass(field_type.__class__, BaseProtoSerializer)}")
+        #     print(f"is subclas of SlugRelatedField: {issubclass(field_type.__class__, SlugRelatedField)}")
+        #     print(
+        #         f"is subclas of ManyRelatedField: {issubclass(field_type.__class__, ManyRelatedField)}"
+        #     )
+        #     print(f"is subclas of RelatedField: {issubclass(field_type.__class__, RelatedField)}")
+        #     print(f"is subclas of ListSerializer: {issubclass(field_type.__class__, ListSerializer)}")
+        #     print(f"is subclas of ListField: {issubclass(field_type.__class__, ListField)}")
+        #     print(f"is subclas of DictField: {issubclass(field_type.__class__, DictField)}")
+        #     print(f"is subclas of BaseSerializer: {issubclass(field_type.__class__, BaseSerializer)}")
+        #     print(f"is subclas of SerializerMethodField: {issubclass(field_type.__class__, SerializerMethodField)}")
+
         # INFO - AM - 07/01/2022 - If the field type inherit of ListProtoSerializer that mean we have
         if issubclass(field_type.__class__, ListProtoSerializer):
             proto_type = f"repeated {get_message_name_from_field_or_serializer_instance(field_type.child, is_request=is_request)}"

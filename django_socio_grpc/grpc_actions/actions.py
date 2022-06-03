@@ -39,7 +39,7 @@ from MyService abstract parents. This dict is then registered.
 import asyncio
 import logging
 from asyncio.coroutines import _is_coroutine
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 from django_socio_grpc.services import Service
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
@@ -99,7 +99,7 @@ class GRPCAction:
         self.register(owner, name)
 
     def __get__(self, obj, type=None):
-        return self.__class__(self.function.__get__(obj, type), **self.get_action_params())
+        return self.clone(function=self.function.__get__(obj, type))
 
     def __call__(self, *args, **kwargs):
         return self.function(*args, **kwargs)
@@ -116,17 +116,11 @@ class GRPCAction:
             "use_response_list": self.use_response_list,
         }
 
-    def register(self, owner, name):
+    def register(self, owner: Type["Service"], name: str):
         try:
             service_registry = RegistrySingleton()
 
-            # INFO - LG - 31/05/2022 Iterate over the GRPCAction attributes
-            # and resolve all the placeholder instances
-            service = owner()
-            service.action = name
-            for action_param_field, action_param_value in self.get_action_params().items():
-                if isinstance(action_param_value, Placeholder):
-                    action_param_value(service, self, action_param_field)
+            self.resolve_placeholders(owner, name)
 
             message_names = service_registry.register_custom_action(
                 service_class=owner, function_name=name, **self.get_action_params()
@@ -138,6 +132,33 @@ class GRPCAction:
         except Exception as e:
             logger.exception(f"Error while registering grpc_action {owner} - {name}: {e}")
         setattr(owner, name, self)
+
+    def resolve_placeholders(self, service_class: Type["Service"], action: str):
+        """
+        Iterate over the `GRPCAction` attributes and resolve all the placeholder instances
+
+        Classic placeholder usage :
+        >>> @grpc_action(request=MyRequestPlaceholder, response=MyResponsePlaceholder)
+        >>> def MyAction(self, request, context): ...
+
+        `MyRequestPlaceholder` and `MyResponsePlaceholder` are placeholder instances
+        which are resolved with the current service by this method, allowing us to
+        set dynamic attributes to the `GRPCAction`.
+        """
+
+        service = service_class()
+        service.action = action
+        for action_param_field, action_param_value in self.get_action_params().items():
+            if isinstance(action_param_value, Placeholder):
+                action_param_value(service, self, action_param_field)
+
+    def clone(self, **kwargs):
+        """
+        Clones the current `GRPCAction` instance overriding the given kwargs
+        """
+        kwargs = {**self.get_action_params(), **kwargs}
+        fn = kwargs.pop("function")
+        return self.__class__(fn, **kwargs)
 
 
 class GRPCActionMixinMeta(type):
@@ -151,7 +172,7 @@ class GRPCActionMixinMeta(type):
 
     def get_parents_action_registry(cls, service):
         """
-        Returns all the grpc action registries (static and dynamic) of all the parent mixin
+        Returns all the grpc action registries (decorated and dynamic) of all the parent mixin
         """
         registry = {}
 
@@ -166,7 +187,7 @@ class GRPCActionMixinMeta(type):
 
     def get_class_action_registry(cls, service):
         """
-        Returns all the grpc action registries (static and dynamic) of the class
+        Returns all the grpc action registries (decorated and dynamic) of the class
         """
         registry = {}
         if "_decorated_grpc_action_registry" in cls.__dict__:

@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
-from django_socio_grpc.tests.fakeapp.utils import make_grpc_handler
+from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
@@ -29,27 +29,25 @@ from .assets.generated_protobuf_files import (
 def relatedfieldmodel_handler_hook(server):
     from fakeapp.services.related_field_model_service import RelatedFieldModelService
 
-    return make_grpc_handler("fakeapp", RelatedFieldModelService, reload_services=True)(server)
+    return make_reloaded_grpc_handler("fakeapp", RelatedFieldModelService)(server)
 
 
 def unittestmodel_handler_hook(server):
     from fakeapp.services.unit_test_model_service import UnitTestModelService
 
-    return make_grpc_handler("fakeapp", UnitTestModelService, reload_services=True)(server)
+    return make_reloaded_grpc_handler("fakeapp", UnitTestModelService)(server)
 
 
 def specialfieldmodel_handler_hook(server):
     from fakeapp.services.special_fields_model_service import SpecialFieldsModelService
 
-    return make_grpc_handler("fakeapp", SpecialFieldsModelService, reload_services=True)(
-        server
-    )
+    return make_reloaded_grpc_handler("fakeapp", SpecialFieldsModelService)(server)
 
 
 def foreignmodel_handler_hook(server):
     from fakeapp.services.foreign_model_service import ForeignModelService
 
-    return make_grpc_handler("fakeapp", ForeignModelService, reload_services=True)(server)
+    return make_reloaded_grpc_handler("fakeapp", ForeignModelService)(server)
 
 
 def importstructeveninarraymodel_handler_hook(server):
@@ -57,15 +55,19 @@ def importstructeveninarraymodel_handler_hook(server):
         ImportStructEvenInArrayModelService,
     )
 
-    return make_grpc_handler(
-        "fakeapp", ImportStructEvenInArrayModelService, reload_services=True
-    )(server)
+    return make_reloaded_grpc_handler("fakeapp", ImportStructEvenInArrayModelService)(server)
 
 
 def basicservice_handler_hook(server):
     from fakeapp.services.basic_service import BasicService
 
-    return make_grpc_handler("fakeapp", BasicService, reload_services=True)(server)
+    return make_reloaded_grpc_handler("fakeapp", BasicService)(server)
+
+
+def reloaded_grpc_handler_hook(server):
+    from fakeapp.handlers import services
+
+    return make_reloaded_grpc_handler("fakeapp", *services)(server)
 
 
 def empty_handler_hook(server):
@@ -93,7 +95,7 @@ def overide_grpc_framework(name_of_function):
 def overide_grpc_framework_no_separate():
     return {
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-        "ROOT_HANDLERS_HOOK": "fakeapp.handlers.reloaded_grpc_handlers",
+        "ROOT_HANDLERS_HOOK": "django_socio_grpc.tests.test_proto_generation.reloaded_grpc_handler_hook",
         "SEPARATE_READ_WRITE_MODEL": False,
     }
 

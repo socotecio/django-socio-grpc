@@ -1,6 +1,7 @@
 import logging
 import re
-from importlib import import_module
+import sys
+from importlib import import_module, reload
 
 from .registry_singleton import RegistrySingleton
 
@@ -8,11 +9,21 @@ logger = logging.getLogger("django_socio_grpc")
 
 
 class AppHandlerRegistry:
-    def __init__(self, app_name, server, service_folder="services", grpc_folder="grpc"):
+    def __init__(
+        self,
+        app_name,
+        server,
+        service_folder="services",
+        grpc_folder="grpc",
+        reload_service=False,
+    ):
         self.app_name = app_name
         self.server = server
         self.service_folder = service_folder
         self.grpc_folder = grpc_folder
+        if reload_service:
+            RegistrySingleton().clean_all()
+        self.reload_services = reload_service
 
     def get_service_file_path(self, service_name):
         service_file_path = ""
@@ -72,6 +83,9 @@ class AppHandlerRegistry:
             service_class = self.get_service_class_from_service_name(
                 service_class, service_file_path
             )
+
+        if self.reload_services:
+            reload(sys.modules[service_class.__module__])
 
         if self.server is None:
             service_registry = RegistrySingleton()

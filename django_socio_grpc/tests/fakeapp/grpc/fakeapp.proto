@@ -7,13 +7,33 @@ import "google/protobuf/struct.proto";
 
 service BasicController {
     rpc BasicList(BasicProtoListChildListResponse) returns (BasicProtoListChildListResponse) {}
+    rpc Create(BasicServiceRequest) returns (BasicServiceResponse) {}
     rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
     rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
+    rpc ListIds(google.protobuf.Empty) returns (BasicListIdsResponse) {}
+    rpc ListName(google.protobuf.Empty) returns (BasicListNameResponse) {}
     rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
     rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+service ForeignModelController {
+    rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
+    rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
+}
+
+service ImportStructEvenInArrayModelController {
+    rpc Create(ImportStructEvenInArrayModelRequest) returns (ImportStructEvenInArrayModelResponse) {}
+}
+
+service RelatedFieldModelController {
+    rpc Create(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
+    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModelResponse) {}
+    rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
 }
 
 service SpecialFieldsModelController {
@@ -44,23 +64,6 @@ service UnitTestModelController {
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
-service ForeignModelController {
-    rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
-    rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
-}
-
-service ImportStructEvenInArrayModelController {
-    rpc Create(ImportStructEvenInArrayModelRequest) returns (ImportStructEvenInArrayModelResponse) {}
-}
-
-service RelatedFieldModelController {
-    rpc Create(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
-    rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
-    rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModelResponse) {}
-    rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
-}
-
 message BaseProtoExampleListResponse {
     repeated BaseProtoExampleResponse results = 1;
     int32 count = 2;
@@ -80,6 +83,14 @@ message BaseProtoExampleResponse {
 
 message BasicFetchDataForUserRequest {
     string user_name = 1;
+}
+
+message BasicListIdsResponse {
+    repeated int32 ids = 1;
+}
+
+message BasicListNameResponse {
+    repeated string name = 1;
 }
 
 message BasicMixParamListResponse {
@@ -115,20 +126,28 @@ message BasicProtoListChildListResponse {
 }
 
 message BasicProtoListChildRequest {
-    string title = 1;
-    string text = 2;
-    int32 id = 3;
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
 }
 
 message BasicProtoListChildResponse {
-    string title = 1;
-    string text = 2;
-    int32 id = 3;
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
 }
 
 message BasicServiceListResponse {
     repeated BasicServiceResponse results = 1;
     int32 count = 2;
+}
+
+message BasicServiceRequest {
+    string user_name = 1;
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
 }
 
 message BasicServiceResponse {
@@ -218,10 +237,10 @@ message RelatedFieldModelListResponse {
 
 message RelatedFieldModelRequest {
     string uuid = 1;
-    string custom_field_name = 2;
-    string foreign = 3;
-    repeated string many_many = 4;
-    repeated ManyManyModelRequest many_many_obj = 5;
+    repeated ManyManyModelRequest many_many_obj = 2;
+    string custom_field_name = 3;
+    string foreign = 4;
+    repeated string many_many = 5;
 }
 
 message RelatedFieldModelResponse {

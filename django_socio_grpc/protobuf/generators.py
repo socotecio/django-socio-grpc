@@ -51,9 +51,9 @@ class RegistryToProtoGenerator:
         self._writer.write_line(f"package {self.project_name}.{app_name};")
         self._writer.write_line("")
         self._writer.write_line("IMPORT_PLACEHOLDER")
-        for grpc_controller_name, grpc_methods in registered_items[
-            "registered_controllers"
-        ].items():
+        for grpc_controller_name, grpc_methods in sorted(
+            registered_items["registered_controllers"].items()
+        ):
             self._generate_controller(
                 grpc_controller_name, OrderedDict(sorted(grpc_methods.items()))
             )

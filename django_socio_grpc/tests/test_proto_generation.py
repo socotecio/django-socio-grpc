@@ -1,16 +1,14 @@
 import os
+import sys
 from importlib import reload
 from unittest.mock import mock_open, patch
 
-import fakeapp.services.basic_service as basic_service
-import fakeapp.services.special_fields_model_service as special_fields_model_service
-import fakeapp.services.sync_unit_test_model_service as syncunitestmodel_service
-import fakeapp.services.unit_test_model_service as unitestmodel_service
 import mock
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
@@ -31,38 +29,49 @@ from .assets.generated_protobuf_files import (
 def relatedfieldmodel_handler_hook(server):
     from fakeapp.services.related_field_model_service import RelatedFieldModelService
 
-    app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register(RelatedFieldModelService)
+    return make_reloaded_grpc_handler("fakeapp", RelatedFieldModelService)(server)
 
 
 def unittestmodel_handler_hook(server):
-    app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("UnitTestModelService")
+    from fakeapp.services.unit_test_model_service import UnitTestModelService
+
+    return make_reloaded_grpc_handler("fakeapp", UnitTestModelService)(server)
 
 
 def specialfieldmodel_handler_hook(server):
-    app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("SpecialFieldsModelService")
+    from fakeapp.services.special_fields_model_service import SpecialFieldsModelService
+
+    return make_reloaded_grpc_handler("fakeapp", SpecialFieldsModelService)(server)
 
 
 def foreignmodel_handler_hook(server):
     from fakeapp.services.foreign_model_service import ForeignModelService
 
-    app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register(ForeignModelService)
+    return make_reloaded_grpc_handler("fakeapp", ForeignModelService)(server)
 
 
 def importstructeveninarraymodel_handler_hook(server):
-    app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("ImportStructEvenInArrayModelService")
+    from fakeapp.services.import_struct_even_in_array_model_service import (
+        ImportStructEvenInArrayModelService,
+    )
+
+    return make_reloaded_grpc_handler("fakeapp", ImportStructEvenInArrayModelService)(server)
 
 
 def basicservice_handler_hook(server):
-    app_registry = AppHandlerRegistry("fakeapp", server)
-    app_registry.register("BasicService")
+    from fakeapp.services.basic_service import BasicService
+
+    return make_reloaded_grpc_handler("fakeapp", BasicService)(server)
+
+
+def reloaded_grpc_handler_hook(server):
+    from fakeapp.handlers import services
+
+    return make_reloaded_grpc_handler("fakeapp", *services)(server)
 
 
 def empty_handler_hook(server):
+    RegistrySingleton().clean_all()
     pass
 
 
@@ -86,30 +95,31 @@ def overide_grpc_framework(name_of_function):
 def overide_grpc_framework_no_separate():
     return {
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-        "ROOT_HANDLERS_HOOK": "fakeapp.handlers.grpc_handlers",
+        "ROOT_HANDLERS_HOOK": "django_socio_grpc.tests.test_proto_generation.reloaded_grpc_handler_hook",
         "SEPARATE_READ_WRITE_MODEL": False,
     }
 
 
+def reload_all():
+    RegistrySingleton().clean_all()
+    from fakeapp.handlers import services
+
+    for service in services:
+        reload(sys.modules[service.__module__])
+
+
 @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
 class TestProtoGeneration(TestCase):
-    def setUp(self):
-        # INFO - AM - 14/01/2022 - This is necessary as RegistrySingleton is a singleton and each test reload django settings
-        # Tryed with reload to do the same as for decorator but without success. Maybe just not reloading the good module. It is not a priority as this work as expected and only for tests
-        RegistrySingleton.clean_all()
-
-        return super().setUp()
+    maxDiff = None
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
         mock.MagicMock(return_value=False),
     )
     def test_check_option(self):
-        reload(unitestmodel_service)
-        reload(syncunitestmodel_service)
-        reload(special_fields_model_service)
-        reload(basic_service)
-        self.maxDiff = None
+
+        reload_all()
+
         args = []
         opts = {"check": True, "generate_python": False}
         with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED_SEPARATE)) as m:
@@ -175,7 +185,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("relatedfieldmodel_handler_hook"))
     def test_generate_message_with_repeated_for_m2m(self):
-        self.maxDiff = None
 
         args = []
         opts = {"generate_python": False}
@@ -197,8 +206,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("unittestmodel_handler_hook"))
     def test_generate_one_app_one_model_with_custom_action(self):
-        reload(unitestmodel_service)
-        self.maxDiff = None
         args = []
         opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
@@ -219,8 +226,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("specialfieldmodel_handler_hook"))
     def test_generate_one_app_one_model_with_override_know_method(self):
-        reload(special_fields_model_service)
-        self.maxDiff = None
         args = []
         opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
@@ -241,7 +246,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("foreignmodel_handler_hook"))
     def test_generate_one_app_one_model_customized(self):
-        self.maxDiff = None
         args = []
         opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
@@ -264,7 +268,6 @@ class TestProtoGeneration(TestCase):
         GRPC_FRAMEWORK=overide_grpc_framework("importstructeveninarraymodel_handler_hook")
     )
     def test_generate_one_app_one_model_import_struct_in_array(self):
-        self.maxDiff = None
         args = []
         opts = {"generate_python": False}
         with patch("builtins.open", mock_open()) as m:
@@ -289,7 +292,6 @@ class TestProtoGeneration(TestCase):
         This test make the like the old unittestmodel have only id and title field.
         So when regeneration with the text field it should appear in third position and not in second
         """
-        self.maxDiff = None
         args = []
         opts = {"generate_python": False}
         with patch("builtins.open", mock_open(read_data=SIMPLE_APP_MODEL_OLD_ORDER)) as m:
@@ -310,8 +312,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("basicservice_handler_hook"))
     def test_generate_service_no_model(self):
-        reload(basic_service)
-        self.maxDiff = None
 
         args = []
         opts = {"generate_python": False}
@@ -332,11 +332,7 @@ class TestProtoGeneration(TestCase):
         mock.MagicMock(return_value=False),
     )
     def test_generate_all_models_separate_read_write(self):
-        reload(unitestmodel_service)
-        reload(syncunitestmodel_service)
-        reload(special_fields_model_service)
-        reload(basic_service)
-        self.maxDiff = None
+        reload_all()
 
         args = []
         opts = {"generate_python": False}
@@ -358,11 +354,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework_no_separate())
     def test_generate_all_models_no_separate(self):
-        reload(unitestmodel_service)
-        reload(syncunitestmodel_service)
-        reload(special_fields_model_service)
-        reload(basic_service)
-        self.maxDiff = None
 
         args = []
         opts = {"generate_python": False}

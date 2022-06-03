@@ -31,6 +31,8 @@ class GenericService(services.Service):
 
     service_name = None
 
+    action = None
+
     def get_service_name(self):
         if self.service_name:
             return self.service_name
@@ -157,7 +159,7 @@ class GenericService(services.Service):
 ############################################################
 
 
-class CreateService(mixins.CreateModelMixin, GenericService):
+class CreateService(mixins.CreateModelMixin, GenericService, abstract=True):
     """
     Concrete service for creating a model instance that provides a ``Create()``
     handler.
@@ -166,7 +168,7 @@ class CreateService(mixins.CreateModelMixin, GenericService):
     pass
 
 
-class ListService(mixins.ListModelMixin, GenericService):
+class ListService(mixins.ListModelMixin, GenericService, abstract=True):
     """
     Concrete service for listing a queryset that provides a ``List()`` handler.
     """
@@ -174,7 +176,7 @@ class ListService(mixins.ListModelMixin, GenericService):
     pass
 
 
-class StreamService(mixins.StreamModelMixin, GenericService):
+class StreamService(mixins.StreamModelMixin, GenericService, abstract=True):
     """
     Concrete service for listing one by one on streaming a queryset that provides a ``Stream()`` handler.
     """
@@ -182,7 +184,7 @@ class StreamService(mixins.StreamModelMixin, GenericService):
     pass
 
 
-class RetrieveService(mixins.RetrieveModelMixin, GenericService):
+class RetrieveService(mixins.RetrieveModelMixin, GenericService, abstract=True):
     """
     Concrete service for retrieving a model instance that provides a
     ``Retrieve()`` handler.
@@ -191,7 +193,7 @@ class RetrieveService(mixins.RetrieveModelMixin, GenericService):
     pass
 
 
-class DestroyService(mixins.DestroyModelMixin, GenericService):
+class DestroyService(mixins.DestroyModelMixin, GenericService, abstract=True):
     """
     Concrete service for deleting a model instance that provides a ``Destroy()``
     handler.
@@ -200,7 +202,7 @@ class DestroyService(mixins.DestroyModelMixin, GenericService):
     pass
 
 
-class UpdateService(mixins.UpdateModelMixin, GenericService):
+class UpdateService(mixins.UpdateModelMixin, GenericService, abstract=True):
     """
     Concrete service for updating a model instance that provides a
     ``Update()`` handler.
@@ -209,7 +211,9 @@ class UpdateService(mixins.UpdateModelMixin, GenericService):
     pass
 
 
-class ListCreateService(mixins.ListModelMixin, mixins.CreateModelMixin, GenericService):
+class ListCreateService(
+    mixins.ListModelMixin, mixins.CreateModelMixin, GenericService, abstract=True
+):
     """
     Concrete service for listing a queryset that provides a ``List()`` and ``Create()`` handler.
     """
@@ -217,7 +221,9 @@ class ListCreateService(mixins.ListModelMixin, mixins.CreateModelMixin, GenericS
     pass
 
 
-class ReadOnlyModelService(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericService):
+class ReadOnlyModelService(
+    mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericService, abstract=True
+):
     """
     Concrete service that provides default ``List()`` and ``Retrieve()``
     handlers.
@@ -233,6 +239,7 @@ class ModelService(
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,
     GenericService,
+    abstract=True,
 ):
     """
     Concrete service that provides default ``Create()``, ``Retrieve()``,
@@ -245,7 +252,7 @@ class ModelService(
 ############################################################
 #   Asynchronous Services                                  #
 ############################################################
-class AsyncCreateService(mixins.AsyncCreateModelMixin, GenericService):
+class AsyncCreateService(mixins.AsyncCreateModelMixin, GenericService, abstract=True):
     """
     Concrete service for creating a model instance that provides a ``Create()``
     handler.
@@ -254,7 +261,7 @@ class AsyncCreateService(mixins.AsyncCreateModelMixin, GenericService):
     pass
 
 
-class AsyncListService(mixins.AsyncListModelMixin, GenericService):
+class AsyncListService(mixins.AsyncListModelMixin, GenericService, abstract=True):
     """
     Concrete service for listing a queryset that provides a ``List()`` handler.
     """
@@ -262,7 +269,7 @@ class AsyncListService(mixins.AsyncListModelMixin, GenericService):
     pass
 
 
-class AsyncStreamService(mixins.AsyncStreamModelMixin, GenericService):
+class AsyncStreamService(mixins.AsyncStreamModelMixin, GenericService, abstract=True):
     """
     Concrete service for listing one by one on streaming a queryset that provides a ``Stream()`` handler.
     """
@@ -270,7 +277,7 @@ class AsyncStreamService(mixins.AsyncStreamModelMixin, GenericService):
     pass
 
 
-class AsyncRetrieveService(mixins.AsyncRetrieveModelMixin, GenericService):
+class AsyncRetrieveService(mixins.AsyncRetrieveModelMixin, GenericService, abstract=True):
     """
     Concrete service for retrieving a model instance that provides a
     ``Retrieve()`` handler.
@@ -279,7 +286,7 @@ class AsyncRetrieveService(mixins.AsyncRetrieveModelMixin, GenericService):
     pass
 
 
-class AsyncDestroyService(mixins.AsyncDestroyModelMixin, GenericService):
+class AsyncDestroyService(mixins.AsyncDestroyModelMixin, GenericService, abstract=True):
     """
     Concrete service for deleting a model instance that provides a ``Destroy()``
     handler.
@@ -288,7 +295,7 @@ class AsyncDestroyService(mixins.AsyncDestroyModelMixin, GenericService):
     pass
 
 
-class AsyncUpdateService(mixins.AsyncUpdateModelMixin, GenericService):
+class AsyncUpdateService(mixins.AsyncUpdateModelMixin, GenericService, abstract=True):
     """
     Concrete service for updating a model instance that provides a
     ``Update()`` handler.
@@ -298,7 +305,7 @@ class AsyncUpdateService(mixins.AsyncUpdateModelMixin, GenericService):
 
 
 class AsyncListCreateService(
-    mixins.AsyncListModelMixin, mixins.AsyncCreateModelMixin, GenericService
+    mixins.AsyncListModelMixin, mixins.AsyncCreateModelMixin, GenericService, abstract=True
 ):
     """
     Concrete service for listing a queryset that provides a ``List()`` and ``Create()`` handler.
@@ -308,7 +315,7 @@ class AsyncListCreateService(
 
 
 class AsyncReadOnlyModelService(
-    mixins.AsyncRetrieveModelMixin, mixins.AsyncListModelMixin, GenericService
+    mixins.AsyncRetrieveModelMixin, mixins.AsyncListModelMixin, GenericService, abstract=True
 ):
     """
     Concrete service that provides default ``List()`` and ``Retrieve()``
@@ -325,6 +332,7 @@ class AsyncModelService(
     mixins.AsyncDestroyModelMixin,
     mixins.AsyncListModelMixin,
     GenericService,
+    abstract=True,
 ):
     """
     Concrete service that provides default ``Create()``, ``Retrieve()``,

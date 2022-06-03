@@ -23,3 +23,14 @@ def grpc_handlers(server):
     app_registry.register(SpecialFieldsModelService)
     app_registry.register(SyncUnitTestModelService)
     app_registry.register(UnitTestModelService)
+
+
+services = (
+    BasicService,
+    ForeignModelService,
+    ImportStructEvenInArrayModelService,
+    RelatedFieldModelService,
+    SpecialFieldsModelService,
+    SyncUnitTestModelService,
+    UnitTestModelService,
+)

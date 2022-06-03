@@ -7,15 +7,21 @@ from fakeapp.serializers import (
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
 
+from .basic_mixins import ListIdsMixin, ListNameMixin
 
-class BasicService(generics.GenericService):
+
+class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
+    serializer_class = BasicServiceSerializer
+
+    def _before_registration(service_class):
+        service_class._list_name_response = [{"name": "name", "type": "repeated string"}]
+
     @grpc_action(
         request=[{"name": "user_name", "type": "string"}],
         response=BasicServiceSerializer,
     )
     async def FetchDataForUser(self, request, context):
         # INFO - AM - 14/01/2022 - Do something here as filter user with the user name
-        print(request.user_name)
 
         user_data = {
             "email": "fake_email@email.com",

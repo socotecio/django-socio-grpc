@@ -122,12 +122,12 @@ class GRPCAction:
 
             self.resolve_placeholders(owner, name)
 
-            message_names = service_registry.register_custom_action(
+            (
+                self.request_message_name,
+                self.response_message_name,
+            ) = service_registry.register_custom_action(
                 service_class=owner, function_name=name, **self.get_action_params()
             )
-
-            self.response_message_name = message_names[0]
-            self.request_message_name = message_names[1]
 
         except Exception as e:
             logger.exception(f"Error while registering grpc_action {owner} - {name}: {e}")
@@ -157,8 +157,11 @@ class GRPCAction:
         Clones the current `GRPCAction` instance overriding the given kwargs
         """
         kwargs = {**self.get_action_params(), **kwargs}
-        fn = kwargs.pop("function")
-        return self.__class__(fn, **kwargs)
+        fn = kwargs.pop("function", self.function)
+        new_cls = self.__class__(fn, **kwargs)
+        new_cls.response_message_name = self.response_message_name
+        new_cls.request_message_name = self.request_message_name
+        return new_cls
 
 
 class GRPCActionMixinMeta(type):

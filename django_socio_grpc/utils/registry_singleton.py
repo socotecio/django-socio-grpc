@@ -161,6 +161,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
                         serializer_instance,
                         is_request=is_request,
                     ),
+                    getattr(field_type, "help_text", ""),
                 )
 
                 self.registered_app[app_name]["registered_messages"][message_name].append(
@@ -171,7 +172,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
         # so we need a custom action here
         else:
             message = serializer_instance.to_proto_message()
-            messages_fields = [(item["name"], item["type"]) for item in message]
+            messages_fields = [
+                (item["name"], item["type"], item.get("comment", "")) for item in message
+            ]
             self.registered_app[app_name]["registered_messages"][
                 message_name
             ] = messages_fields
@@ -386,10 +389,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
             pagination = grpc_settings.DEFAULT_PAGINATION_CLASS is not None
 
         response_fields = [
-            (list_response_field_name, f"repeated {child_response_message_name}")
+            (list_response_field_name, f"repeated {child_response_message_name}", "")
         ]
         if pagination:
-            response_fields += [("count", "int32")]
+            response_fields += [("count", "int32", "")]
 
         # INFO - AM - 04/02/2022 - For list message with a custom name we need to add
         # List Before Response or Request end of word if seperate settings is true
@@ -582,7 +585,9 @@ class RegistrySingleton(metaclass=SingletonMeta):
             if len(message) == 0 and not message_name:
                 return "google.protobuf.Empty", DEFAULT_LIST_FIELD_NAME
 
-            messages_fields = [(item["name"], item["type"]) for item in message]
+            messages_fields = [
+                (item["name"], item["type"], item.get("comment", "")) for item in message
+            ]
             if message_name is None:
                 message_name = f"{service_name}{function_name}{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX}"
             self.registered_app[app_name]["registered_messages"][

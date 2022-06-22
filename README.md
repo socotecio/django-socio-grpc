@@ -42,9 +42,9 @@ For more informations follow the quickstart: [https://socotecio.github.io/django
 ```python
     docker-compose up --build
     docker-compose exec django-socio-grpc python test_utils/migrate.py
-    docker-compose exec django-socio-grpc python test_utils/load_tests.py
+    docker-compose exec django-socio-grpc poetry run test
     # single test launch
-    docker-compose exec django-socio-grpc python test_utils/load_tests.py django_socio_grpc/tests/test_proto_generation.py
+    docker-compose exec django-socio-grpc poetry run test django_socio_grpc/tests/test_proto_generation.py
 ```
 ## Contribute to documentation
 

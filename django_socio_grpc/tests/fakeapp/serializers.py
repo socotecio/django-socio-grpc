@@ -121,8 +121,8 @@ class CustomRetrieveResponseSpecialFieldsModelSerializer(
 
 class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
-    user_name = serializers.CharField()
-    user_data = serializers.DictField()
+    user_name = serializers.CharField(help_text=["@test=comment1", "@test2=comment2"])
+    user_data = serializers.DictField(help_text="@test=test_in_serializer")
     user_password = serializers.CharField(write_only=True)
     bytes_example = proto_serializers.BinaryField()
     list_of_dict = serializers.ListField(child=serializers.DictField())
@@ -131,6 +131,7 @@ class BasicServiceSerializer(proto_serializers.ProtoSerializer):
         proto_class = fakeapp_pb2.BasicServiceResponse
         proto_class_list = fakeapp_pb2.BasicServiceListResponse
         fields = ["user_name", "user_data", "user_password", "bytes_example", "list_of_dict"]
+        comment = {"user_name": "@vuex-orm-data: belongsTo(User)"}
 
 
 class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):

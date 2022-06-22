@@ -409,7 +409,10 @@ message BasicParamWithSerializerListRequest {
 }
 
 message BasicParamWithSerializerRequest {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -439,7 +442,10 @@ message BasicServiceListResponse {
 }
 
 message BasicServiceRequest {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -447,7 +453,10 @@ message BasicServiceRequest {
 }
 
 message BasicServiceResponse {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     bytes bytes_example = 3;
     repeated google.protobuf.Struct list_of_dict = 4;
@@ -463,6 +472,7 @@ message CustomMixParamForRequest {
 }
 
 message CustomNameForRequest {
+    //@test=in_decorator
     string user_name = 1;
 }
 
@@ -577,7 +587,10 @@ message BasicMixParamWithSerializerListResponse {
 }
 
 message BasicParamWithSerializerRequest {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -601,7 +614,10 @@ message BasicProtoListChildListResponse {
 }
 
 message BasicService {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -623,6 +639,7 @@ message CustomMixParamForRequestList {
 }
 
 message CustomNameForRequest {
+    //@test=in_decorator
     string user_name = 1;
 }
 
@@ -876,7 +893,10 @@ message BasicParamWithSerializerListRequest {
 }
 
 message BasicParamWithSerializerRequest {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -906,7 +926,10 @@ message BasicServiceListResponse {
 }
 
 message BasicServiceRequest {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -914,7 +937,10 @@ message BasicServiceRequest {
 }
 
 message BasicServiceResponse {
+    //@test=comment1
+    //@test2=comment2
     string user_name = 1;
+    //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     bytes bytes_example = 3;
     repeated google.protobuf.Struct list_of_dict = 4;
@@ -930,6 +956,7 @@ message CustomMixParamForRequest {
 }
 
 message CustomNameForRequest {
+    //@test=in_decorator
     string user_name = 1;
 }
 

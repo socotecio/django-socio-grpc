@@ -122,7 +122,7 @@ class RegistryToProtoGenerator:
             )
 
             # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields
-            for field_name, proto_type in grpc_message_fields:
+            for field_name, proto_type, comment in grpc_message_fields:
 
                 self.print(f"GENERATE FIELD: {field_name}", 4)
                 number += 1
@@ -132,9 +132,20 @@ class RegistryToProtoGenerator:
                 if "google.protobuf.Struct" in proto_type:
                     self._writer.import_struct = True
 
+                # Info - AM - 30/04/2021 - add comment
+                if comment:
+                    if type(comment) is list:
+                        for part_of_comment in comment:
+                            self.write_comment_line(part_of_comment)
+                    else:
+                        self.write_comment_line(comment)
+
                 self._writer.write_line(f"{proto_type} {field_name} = {number};")
         self._writer.write_line("}")
         self._writer.write_line("")
+
+    def write_comment_line(self, comment):
+        self._writer.write_line(f"//{comment}")
 
     def find_existing_number_for_field(self, grpc_message_name, field_name):
         """

@@ -78,7 +78,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         return serializer.message
 
     @grpc_action(
-        request=[{"name": "user_name", "type": "string"}],
+        request=[{"name": "user_name", "type": "string", "comment": "@test=in_decorator"}],
         response=[{"name": "user_name", "type": "string"}],
         request_name="CustomNameForRequest",
         response_name="CustomNameForResponse",

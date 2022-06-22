@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from collections import OrderedDict
+from collections.abc import Iterable
 
 import protoparser
 from django.apps import apps
@@ -134,11 +135,11 @@ class RegistryToProtoGenerator:
 
                 # Info - AM - 30/04/2021 - add comment
                 if comment:
-                    if type(comment) is list:
+                    if isinstance(comment, str):
+                        self.write_comment_line(comment)
+                    elif isinstance(comment, Iterable):
                         for part_of_comment in comment:
                             self.write_comment_line(part_of_comment)
-                    else:
-                        self.write_comment_line(comment)
 
                 self._writer.write_line(f"{proto_type} {field_name} = {number};")
         self._writer.write_line("}")

@@ -16,11 +16,15 @@ class AppHandlerRegistry:
         service_folder="services",
         grpc_folder="grpc",
         reload_service=False,
+        disable_proto_generation=False,
+        override_pb2_grpc_file_path=None,
     ):
         self.app_name = app_name
         self.server = server
         self.service_folder = service_folder
         self.grpc_folder = grpc_folder
+        self.disable_proto_generation = disable_proto_generation
+        self.override_pb2_grpc_file_path = override_pb2_grpc_file_path
         if reload_service:
             RegistrySingleton().clean_all()
         self.reload_services = reload_service
@@ -88,15 +92,19 @@ class AppHandlerRegistry:
             reload(sys.modules[service_class.__module__])
 
         if self.server is None:
+            if self.disable_proto_generation:
+                return
             service_registry = RegistrySingleton()
             service_registry.register_service(self.app_name, service_class)
             return
 
         try:
-
-            pb2_grpc = import_module(
-                f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
-            )
+            if self.override_pb2_grpc_file_path is not None:
+                pb2_grpc = import_module(self.override_pb2_grpc_file_path)
+            else:
+                pb2_grpc = import_module(
+                    f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
+                )
             service_instance = service_class()
 
             controller_name = service_instance.get_service_name()
@@ -106,6 +114,11 @@ class AppHandlerRegistry:
 
             add_server(service_class.as_servicer(), self.server)
         except ModuleNotFoundError:
+            if self.override_pb2_grpc_file_path is not None:
+                logger.error(
+                    f"PB2 module {self.override_pb2_grpc_file_path} not found. Please generate proto before launching server"
+                )
+                return
             logger.error(
                 f"PB2 module {self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc not found. Please generate proto before launching server"
             )

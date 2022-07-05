@@ -26,6 +26,7 @@ pytest-django = "^4.2.0"
 mkdocs = "^1.2.2"
 freezegun = "^1.1.0"
 toml = "^0.10.2"
+pre-commit = "^2.19.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -34,7 +35,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.black]
 line-length = 95
 include = '\.pyi?$'
-exclude = '''
+force-exclude = '''
 /(
     \.eggs
   | \.git

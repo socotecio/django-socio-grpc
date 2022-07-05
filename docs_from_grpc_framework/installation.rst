@@ -43,5 +43,3 @@ System Wide
 Install it for all users on the system::
 
     $ sudo pip install django-socio-grpc
-
-

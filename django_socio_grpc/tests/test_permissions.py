@@ -1,5 +1,6 @@
+from unittest import mock
+
 import grpc
-import mock
 import pytest
 from django.test import TestCase, override_settings
 

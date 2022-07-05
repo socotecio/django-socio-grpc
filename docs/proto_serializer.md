@@ -26,7 +26,7 @@ class Question(models.Model):
 
 Then we generate the proto file for this model. See [Generate Proto](https://socotecio.github.io/django-socio-grpc/#quickstart)
 
-You can now define your serializer like this: 
+You can now define your serializer like this:
 ```python
 # quickstart/serializers.py
 from django_socio_grpc import proto_serializers

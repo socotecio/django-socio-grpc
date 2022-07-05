@@ -113,7 +113,7 @@ class Command(BaseCommand):
             )
 
         if self.check:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 content = f.read()
                 self.check_proto_generation(content, proto, app_name)
         else:

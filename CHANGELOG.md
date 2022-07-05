@@ -20,7 +20,7 @@
 
 #### version 0.10.8 -> 0.10.16
 
-- Test and improve logger emitter and exception catcher 
+- Test and improve logger emitter and exception catcher
 
 
 #### version 0.10.7

@@ -80,7 +80,7 @@ class FakeRpcError(grpc.RpcError):
         return self._details
 
     def __repr__(self):
-        return "<FakeRpcError code: %s, details: %s>" % (self._code, self._details)
+        return f"<FakeRpcError code: {self._code}, details: {self._details}>"
 
 
 class FakeServer:

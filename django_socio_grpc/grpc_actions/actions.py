@@ -37,9 +37,12 @@ from MyService abstract parents. This dict is then registered.
 """
 
 import asyncio
+import functools
 import logging
 from asyncio.coroutines import _is_coroutine
 from typing import Any, Dict, Optional, Type
+
+from asgiref.sync import SyncToAsync
 
 from django_socio_grpc.services import Service
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
@@ -76,7 +79,15 @@ class GRPCAction:
         self.response_stream = response_stream
         self.use_request_list = use_request_list
         self.use_response_list = use_response_list
-        self.function = function
+
+        if isinstance(function, SyncToAsync):
+
+            async def func(self, *args, **kwargs):
+                return await function(self, *args, **kwargs)
+
+            self.function = functools.update_wrapper(func, function.func)
+        else:
+            self.function = function
 
         self.response_message_name: Optional[None] = None
         self.request_message_name: Optional[None] = None
@@ -229,7 +240,7 @@ def register_action(cls, action_name: str, name: Optional[str] = None, **kwargs)
     if not isinstance(action, GRPCAction):
         action = GRPCAction(action, **kwargs)
 
-    action.register(cls, name or action.function.__name__)
+    action.register(cls, name or getattr(action.function, "__name__", action_name))
 
 
 class GRPCActionMixin(metaclass=GRPCActionMixinMeta):

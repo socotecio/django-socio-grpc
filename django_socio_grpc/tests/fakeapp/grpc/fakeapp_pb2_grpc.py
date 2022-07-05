@@ -576,6 +576,11 @@ class RelatedFieldModelControllerStub(object):
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListResponse.FromString,
                 )
+        self.PartialUpdate = channel.unary_unary(
+                '/fakeproject.fakeapp.RelatedFieldModelController/PartialUpdate',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelPartialUpdateRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
+                )
         self.Retrieve = channel.unary_unary(
                 '/fakeproject.fakeapp.RelatedFieldModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelRetrieveRequest.SerializeToString,
@@ -604,6 +609,12 @@ class RelatedFieldModelControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def List(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PartialUpdate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -638,6 +649,11 @@ def add_RelatedFieldModelControllerServicer_to_server(servicer, server):
                     servicer.List,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListResponse.SerializeToString,
+            ),
+            'PartialUpdate': grpc.unary_unary_rpc_method_handler(
+                    servicer.PartialUpdate,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelPartialUpdateRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
@@ -711,6 +727,23 @@ class RelatedFieldModelController(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def PartialUpdate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.RelatedFieldModelController/PartialUpdate',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelPartialUpdateRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def Retrieve(request,
             target,
             options=(),
@@ -769,6 +802,11 @@ class SpecialFieldsModelControllerStub(object):
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListResponse.FromString,
                 )
+        self.PartialUpdate = channel.unary_unary(
+                '/fakeproject.fakeapp.SpecialFieldsModelController/PartialUpdate',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelPartialUpdateRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
+                )
         self.Retrieve = channel.unary_unary(
                 '/fakeproject.fakeapp.SpecialFieldsModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.SerializeToString,
@@ -797,6 +835,12 @@ class SpecialFieldsModelControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def List(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PartialUpdate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -831,6 +875,11 @@ def add_SpecialFieldsModelControllerServicer_to_server(servicer, server):
                     servicer.List,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListResponse.SerializeToString,
+            ),
+            'PartialUpdate': grpc.unary_unary_rpc_method_handler(
+                    servicer.PartialUpdate,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelPartialUpdateRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
@@ -904,6 +953,23 @@ class SpecialFieldsModelController(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def PartialUpdate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/PartialUpdate',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelPartialUpdateRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def Retrieve(request,
             target,
             options=(),
@@ -967,6 +1033,11 @@ class SyncUnitTestModelControllerStub(object):
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SyncUnitTestModelListWithExtraArgsRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.FromString,
                 )
+        self.PartialUpdate = channel.unary_unary(
+                '/fakeproject.fakeapp.SyncUnitTestModelController/PartialUpdate',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
+                )
         self.Retrieve = channel.unary_unary(
                 '/fakeproject.fakeapp.SyncUnitTestModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRetrieveRequest.SerializeToString,
@@ -1006,6 +1077,12 @@ class SyncUnitTestModelControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def ListWithExtraArgs(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PartialUpdate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1051,6 +1128,11 @@ def add_SyncUnitTestModelControllerServicer_to_server(servicer, server):
                     servicer.ListWithExtraArgs,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SyncUnitTestModelListWithExtraArgsRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.SerializeToString,
+            ),
+            'PartialUpdate': grpc.unary_unary_rpc_method_handler(
+                    servicer.PartialUpdate,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
@@ -1146,6 +1228,23 @@ class SyncUnitTestModelController(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def PartialUpdate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/PartialUpdate',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def Retrieve(request,
             target,
             options=(),
@@ -1226,6 +1325,11 @@ class UnitTestModelControllerStub(object):
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.FromString,
                 )
+        self.PartialUpdate = channel.unary_unary(
+                '/fakeproject.fakeapp.UnitTestModelController/PartialUpdate',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
+                )
         self.Retrieve = channel.unary_unary(
                 '/fakeproject.fakeapp.UnitTestModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRetrieveRequest.SerializeToString,
@@ -1265,6 +1369,12 @@ class UnitTestModelControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def ListWithExtraArgs(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PartialUpdate(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -1310,6 +1420,11 @@ def add_UnitTestModelControllerServicer_to_server(servicer, server):
                     servicer.ListWithExtraArgs,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.SerializeToString,
+            ),
+            'PartialUpdate': grpc.unary_unary_rpc_method_handler(
+                    servicer.PartialUpdate,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
@@ -1401,6 +1516,23 @@ class UnitTestModelController(object):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PartialUpdate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/PartialUpdate',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

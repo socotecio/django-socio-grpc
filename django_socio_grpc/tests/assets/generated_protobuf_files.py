@@ -9,6 +9,7 @@ service UnitTestModelController {
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModelResponse) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
@@ -34,6 +35,13 @@ message UnitTestModelListResponse {
 
 message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
+}
+
+message UnitTestModelPartialUpdateRequest {
+    int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    string text = 4;
 }
 
 message UnitTestModelRequest {
@@ -100,6 +108,7 @@ service RelatedFieldModelController {
     rpc Create(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc PartialUpdate(RelatedFieldModelPartialUpdateRequest) returns (RelatedFieldModelResponse) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModelResponse) {}
     rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
 }
@@ -130,6 +139,15 @@ message RelatedFieldModelListRequest {
 message RelatedFieldModelListResponse {
     repeated RelatedFieldModelResponse list_custom_field_name = 1;
     int32 count = 2;
+}
+
+message RelatedFieldModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated ManyManyModelRequest many_many_obj = 2;
+    string custom_field_name = 3;
+    repeated string _partial_update_fields = 4;
+    string foreign = 5;
+    repeated string many_many = 6;
 }
 
 message RelatedFieldModelRequest {
@@ -239,6 +257,7 @@ service UnitTestModelController {
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModelResponse) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
@@ -264,6 +283,13 @@ message UnitTestModelListResponse {
 
 message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
+}
+
+message UnitTestModelPartialUpdateRequest {
+    int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    string text = 4;
 }
 
 message UnitTestModelRequest {
@@ -298,6 +324,7 @@ service SpecialFieldsModelController {
     rpc Create(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc PartialUpdate(SpecialFieldsModelPartialUpdateRequest) returns (SpecialFieldsModelResponse) {}
     rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
     rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
 }
@@ -318,6 +345,13 @@ message SpecialFieldsModelListRequest {
 message SpecialFieldsModelListResponse {
     repeated SpecialFieldsModelResponse results = 1;
     int32 count = 2;
+}
+
+message SpecialFieldsModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated string _partial_update_fields = 2;
+    google.protobuf.Struct meta_datas = 3;
+    repeated int32 list_datas = 4;
 }
 
 message SpecialFieldsModelRequest {
@@ -517,6 +551,7 @@ service RelatedFieldModelController {
     rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc PartialUpdate(RelatedFieldModelPartialUpdateRequest) returns (RelatedFieldModel) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
     rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
 }
@@ -525,6 +560,7 @@ service SpecialFieldsModelController {
     rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc PartialUpdate(SpecialFieldsModelPartialUpdateRequest) returns (SpecialFieldsModel) {}
     rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModel) {}
     rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
 }
@@ -534,6 +570,7 @@ service SyncUnitTestModelController {
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
     rpc Update(UnitTestModel) returns (UnitTestModel) {}
@@ -544,6 +581,7 @@ service UnitTestModelController {
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgs) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModel) {}
     rpc Update(UnitTestModel) returns (UnitTestModel) {}
@@ -710,6 +748,19 @@ message RelatedFieldModelListResponse {
     int32 count = 2;
 }
 
+message RelatedFieldModelPartialUpdateRequest {
+    string uuid = 1;
+    ForeignModel foreign_obj = 2;
+    repeated ManyManyModel many_many_obj = 3;
+    int32 slug_test_model = 4;
+    repeated bool slug_reverse_test_model = 5;
+    repeated string slug_many_many = 6;
+    string custom_field_name = 7;
+    repeated string _partial_update_fields = 8;
+    string foreign = 9;
+    repeated string many_many = 10;
+}
+
 message RelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }
@@ -731,6 +782,14 @@ message SpecialFieldsModelListRequest {
 message SpecialFieldsModelListResponse {
     repeated SpecialFieldsModel results = 1;
     int32 count = 2;
+}
+
+message SpecialFieldsModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated string _partial_update_fields = 2;
+    google.protobuf.Struct meta_datas = 3;
+    repeated int32 list_datas = 4;
+    bytes binary = 5;
 }
 
 message SpecialFieldsModelRetrieveRequest {
@@ -767,6 +826,13 @@ message UnitTestModelListResponse {
 
 message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
+}
+
+message UnitTestModelPartialUpdateRequest {
+    int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    string text = 4;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -812,6 +878,7 @@ service RelatedFieldModelController {
     rpc Create(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc PartialUpdate(RelatedFieldModelPartialUpdateRequest) returns (RelatedFieldModelResponse) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModelResponse) {}
     rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
 }
@@ -820,6 +887,7 @@ service SpecialFieldsModelController {
     rpc Create(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc PartialUpdate(SpecialFieldsModelPartialUpdateRequest) returns (SpecialFieldsModelResponse) {}
     rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
     rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
 }
@@ -829,6 +897,7 @@ service SyncUnitTestModelController {
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModelResponse) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
@@ -839,6 +908,7 @@ service UnitTestModelController {
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModelResponse) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
@@ -1025,6 +1095,15 @@ message RelatedFieldModelListResponse {
     int32 count = 2;
 }
 
+message RelatedFieldModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated ManyManyModelRequest many_many_obj = 2;
+    string custom_field_name = 3;
+    repeated string _partial_update_fields = 4;
+    string foreign = 5;
+    repeated string many_many = 6;
+}
+
 message RelatedFieldModelRequest {
     string uuid = 1;
     repeated ManyManyModelRequest many_many_obj = 2;
@@ -1059,6 +1138,13 @@ message SpecialFieldsModelListRequest {
 message SpecialFieldsModelListResponse {
     repeated SpecialFieldsModelResponse results = 1;
     int32 count = 2;
+}
+
+message SpecialFieldsModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated string _partial_update_fields = 2;
+    google.protobuf.Struct meta_datas = 3;
+    repeated int32 list_datas = 4;
 }
 
 message SpecialFieldsModelRequest {
@@ -1102,6 +1188,13 @@ message UnitTestModelListResponse {
 
 message UnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
+}
+
+message UnitTestModelPartialUpdateRequest {
+    int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    string text = 4;
 }
 
 message UnitTestModelRequest {

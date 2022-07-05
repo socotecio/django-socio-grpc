@@ -107,3 +107,18 @@ class TestAsyncModelService(TestCase):
             self.assertEqual(len(response.results), 10)
 
             self.assertEqual(response.query_fetched_datetime, "2022-01-21T00:00:00Z")
+
+    def test_async_partial_update(self):
+        instance = UnitTestModel.objects.first()
+
+        old_text = instance.text
+
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+
+        request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
+            id=instance.id, _partial_update_fields=["title"], title="newTitle"
+        )
+        response = async_to_sync(grpc_stub.PartialUpdate)(request=request)
+
+        self.assertEqual(response.title, "newTitle")
+        self.assertEqual(response.text, old_text)

@@ -86,6 +86,21 @@ class TestSyncModelService(TestCase):
 
         self.assertEqual(len(response_list), 10)
 
+    def test_partial_update(self):
+        instance = UnitTestModel.objects.first()
+
+        old_text = instance.text
+
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+
+        request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
+            id=instance.id, _partial_update_fields=["title"], title="newTitle"
+        )
+        response = grpc_stub.PartialUpdate(request=request)
+
+        self.assertEqual(response.title, "newTitle")
+        self.assertEqual(response.text, old_text)
+
     def test_async_list_custom_action(self):
 
         with freeze_time(datetime(2022, 1, 21, tzinfo=timezone.utc)):

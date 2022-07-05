@@ -238,6 +238,7 @@ class ModelService(
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,
+    mixins.PartialUpdateModelMixin,
     GenericService,
     abstract=True,
 ):
@@ -331,6 +332,7 @@ class AsyncModelService(
     mixins.AsyncUpdateModelMixin,
     mixins.AsyncDestroyModelMixin,
     mixins.AsyncListModelMixin,
+    mixins.AsyncPartialUpdateModelMixin,
     GenericService,
     abstract=True,
 ):

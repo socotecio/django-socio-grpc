@@ -3,7 +3,7 @@ version: "3.1"
 services:
   doc_example:
     image: doc_example
-    tty: true 
+    tty: true
     build:
       context: .
     environment:

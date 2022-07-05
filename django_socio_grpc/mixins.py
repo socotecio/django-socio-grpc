@@ -130,8 +130,7 @@ class StreamModelMixin(GRPCActionMixin, abstract=True):
         else:
             serializer = self.get_serializer(queryset, many=True, stream=True)
 
-        for message in serializer.message:
-            yield message
+        yield from serializer.message
 
     @staticmethod
     def get_default_method(model_name):

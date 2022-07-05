@@ -30,9 +30,9 @@ As all the services are register at the launch of the server and not at the comm
 
 For all the following example we will show result with default value of settings.
 
-## Default generation 
+## Default generation
 
-By default each service registered inheriting from know mixins will generate the default method and message in proto file. 
+By default each service registered inheriting from know mixins will generate the default method and message in proto file.
 
 For example if we have a service that inherit from AsyncModelService and serializer like this:
 
@@ -183,7 +183,7 @@ message BasicServiceResponse {
 
 ### request_name and response_name arg
 
-Used to force a name for the message used. 
+Used to force a name for the message used.
 
 
 ### request_stream and response_stream arg

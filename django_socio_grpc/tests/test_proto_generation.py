@@ -1,9 +1,9 @@
 import os
 import sys
 from importlib import reload
+from unittest import mock
 from unittest.mock import mock_open, patch
 
-import mock
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
@@ -127,7 +127,7 @@ class TestProtoGeneration(TestCase):
 
         # this is done to avoid error on different absolute path
         assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r"
+        assert len(m.mock_calls[0].args) == 1
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",

@@ -1,7 +1,7 @@
 import json
 import logging
+from unittest import mock
 
-import mock
 from django.test import TestCase, override_settings
 from grpc._cython.cygrpc import _Metadatum
 

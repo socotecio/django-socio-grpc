@@ -77,7 +77,7 @@ class ErrorDetail(str):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "ErrorDetail(string=%r, code=%r)" % (
+        return "ErrorDetail(string={!r}, code={!r})".format(
             str(self),
             self.code,
         )

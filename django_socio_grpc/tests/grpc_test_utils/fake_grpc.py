@@ -10,7 +10,7 @@ from asgiref.sync import async_to_sync, sync_to_async
 from grpc._cython.cygrpc import _Metadatum
 
 
-class FakeServer(object):
+class FakeServer:
     def __init__(self):
         self.handlers = {}
 
@@ -46,7 +46,7 @@ class FakeRpcError(RuntimeError, grpc.RpcError):
         return self._details
 
 
-class FakeContext(object):
+class FakeContext:
     def __init__(self):
         self.stream_pipe = []
         self._invocation_metadata = []

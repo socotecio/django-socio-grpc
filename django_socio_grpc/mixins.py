@@ -1,10 +1,17 @@
 from asgiref.sync import sync_to_async
 from google.protobuf import empty_pb2
+from rest_framework import serializers
 
 from .decorators import grpc_action
 from .grpc_actions.actions import GRPCActionMixin
-from .grpc_actions.placeholders import LookupField, SelfSerializer, StrTemplatePlaceholder
+from .grpc_actions.placeholders import (
+    FnPlaceholder,
+    LookupField,
+    SelfSerializer,
+    StrTemplatePlaceholder,
+)
 from .grpc_actions.utils import get_serializer_base_name
+from .protobuf.json_format import message_to_dict
 from .settings import grpc_settings
 from .utils.constants import DEFAULT_LIST_FIELD_NAME, REQUEST_SUFFIX
 
@@ -228,19 +235,37 @@ class UpdateModelMixin(GRPCActionMixin, abstract=True):
         }
 
 
+def _get_partial_update_request(service):
+    class PartialUpdateRequest(service.get_serializer_class()):
+        _partial_update_fields = serializers.ListField(child=serializers.CharField())
+
+    return PartialUpdateRequest
+
+
 class PartialUpdateModelMixin(GRPCActionMixin, abstract=True):
-    @grpc_action(request=SelfSerializer, response=SelfSerializer)
+    @grpc_action(
+        request=FnPlaceholder(_get_partial_update_request),
+        request_name=StrTemplatePlaceholder(
+            f"{{}}PartialUpdate{REQUEST_SUFFIX}", get_serializer_base_name
+        ),
+        response=SelfSerializer,
+    )
     def PartialUpdate(self, request, context):
         """
         Partial update a model instance.
 
-        The request have to include a field corresponding to
-        ``lookup_request_field`` and you need to explicitly set the fields that
-        you want to update.  If an object is updated this returns a proto
-        message of ``serializer.Meta.proto_class``.
+        Performs a partial update on the given `_partial_update_fields`.
         """
+
+        content = message_to_dict(request)
+
+        data = {k: v for k, v in content.items() if k in request._partial_update_fields}
+
         instance = self.get_object()
-        serializer = self.get_serializer(instance, message=request, partial=True)
+
+        # INFO - L.G. - 11/07/2022 - We use the data parameter instead of message
+        # because we handle a dict not a grpc message.
+        serializer = self.get_serializer(instance, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_partial_update(serializer)
 

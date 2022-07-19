@@ -236,8 +236,18 @@ class UpdateModelMixin(GRPCActionMixin, abstract=True):
 
 
 def _get_partial_update_request(service):
-    class PartialUpdateRequest(service.get_serializer_class()):
+    serializer_class = service.get_serializer_class()
+
+    class PartialUpdateRequest(serializer_class):
         _partial_update_fields = serializers.ListField(child=serializers.CharField())
+
+        class Meta(serializer_class.Meta):
+            ...
+
+    # INFO - L.G. - 19/06/2022 - extra field needs to be appended to
+    # the serializer.
+    if (fields := serializer_class.Meta.fields) and not isinstance(fields, str):
+        PartialUpdateRequest.Meta.fields = (*fields, "_partial_update_fields")
 
     return PartialUpdateRequest
 

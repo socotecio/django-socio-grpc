@@ -39,9 +39,9 @@ message UnitTestModelListWithExtraArgsRequest {
 
 message UnitTestModelPartialUpdateRequest {
     int32 id = 1;
-    repeated string _partial_update_fields = 2;
-    string title = 3;
-    string text = 4;
+    string title = 2;
+    string text = 3;
+    repeated string _partial_update_fields = 4;
 }
 
 message UnitTestModelRequest {
@@ -287,9 +287,9 @@ message UnitTestModelListWithExtraArgsRequest {
 
 message UnitTestModelPartialUpdateRequest {
     int32 id = 1;
-    repeated string _partial_update_fields = 2;
-    string title = 3;
-    string text = 4;
+    string title = 2;
+    string text = 3;
+    repeated string _partial_update_fields = 4;
 }
 
 message UnitTestModelRequest {
@@ -830,9 +830,9 @@ message UnitTestModelListWithExtraArgsRequest {
 
 message UnitTestModelPartialUpdateRequest {
     int32 id = 1;
-    repeated string _partial_update_fields = 2;
-    string title = 3;
-    string text = 4;
+    string title = 2;
+    string text = 3;
+    repeated string _partial_update_fields = 4;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -1192,9 +1192,9 @@ message UnitTestModelListWithExtraArgsRequest {
 
 message UnitTestModelPartialUpdateRequest {
     int32 id = 1;
-    repeated string _partial_update_fields = 2;
-    string title = 3;
-    string text = 4;
+    string title = 2;
+    string text = 3;
+    repeated string _partial_update_fields = 4;
 }
 
 message UnitTestModelRequest {

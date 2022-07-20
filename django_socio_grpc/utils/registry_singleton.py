@@ -22,7 +22,7 @@ from django_socio_grpc.proto_serializers import (
 )
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
-from django_socio_grpc.utils.tools import rreplace
+from django_socio_grpc.utils.tools import ProtoComment, rreplace
 
 from .constants import (
     DEFAULT_LIST_FIELD_NAME,
@@ -173,7 +173,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
         else:
             message = serializer_instance.to_proto_message()
             messages_fields = [
-                (item["name"], item["type"], item.get("comment", "")) for item in message
+                (item["name"], item["type"], ProtoComment(item.get("comment", "")))
+                for item in message
             ]
             self.registered_app[app_name]["registered_messages"][
                 message_name
@@ -586,7 +587,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 return "google.protobuf.Empty", DEFAULT_LIST_FIELD_NAME
 
             messages_fields = [
-                (item["name"], item["type"], item.get("comment", "")) for item in message
+                (item["name"], item["type"], ProtoComment(item.get("comment", "")))
+                for item in message
             ]
             if message_name is None:
                 message_name = f"{service_name}{function_name}{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX}"

@@ -448,7 +448,6 @@ message BasicParamWithSerializerRequest {
     string user_name = 1;
     //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
-    //this is a lazy translation
     string user_password = 3;
     bytes bytes_example = 4;
     repeated google.protobuf.Struct list_of_dict = 5;
@@ -482,7 +481,6 @@ message BasicServiceRequest {
     string user_name = 1;
     //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
-    //this is a lazy translation
     string user_password = 3;
     bytes bytes_example = 4;
     repeated google.protobuf.Struct list_of_dict = 5;
@@ -632,7 +630,6 @@ message BasicParamWithSerializerRequest {
     string user_name = 1;
     //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
-    //this is a lazy translation
     string user_password = 3;
     bytes bytes_example = 4;
     repeated google.protobuf.Struct list_of_dict = 5;
@@ -660,7 +657,6 @@ message BasicService {
     string user_name = 1;
     //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
-    //this is a lazy translation
     string user_password = 3;
     bytes bytes_example = 4;
     repeated google.protobuf.Struct list_of_dict = 5;
@@ -972,7 +968,6 @@ message BasicParamWithSerializerRequest {
     string user_name = 1;
     //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
-    //this is a lazy translation
     string user_password = 3;
     bytes bytes_example = 4;
     repeated google.protobuf.Struct list_of_dict = 5;
@@ -1006,7 +1001,6 @@ message BasicServiceRequest {
     string user_name = 1;
     //@test=test_in_serializer
     google.protobuf.Struct user_data = 2;
-    //this is a lazy translation
     string user_password = 3;
     bytes bytes_example = 4;
     repeated google.protobuf.Struct list_of_dict = 5;

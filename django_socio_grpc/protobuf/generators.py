@@ -133,8 +133,15 @@ class RegistryToProtoGenerator:
                 if "google.protobuf.Struct" in proto_type:
                     self._writer.import_struct = True
 
-                # Info - AM - 30/04/2021 - add comment
+                # Info - AM - 30/04/2021 - add comment into the proto file
                 if comment:
+                    # INFO - AM - 20/07/2022 - If help text use gettext_lazy we do not have a str instance but a django.utils.functional.lazy.<locals>.__proxy__ instance.
+                    # We can do either comment.__class__.__name__ == "__proxy__" or "lazy" in str(comment.__class__)
+                    # I personnaly prefere the "lazy" in str(comment.__class__) option because it can be working with all lazy loading based class
+                    # But of course this can lead to potential error if we use a class with lazy on it that is an iterable in the help_text parameter
+                    # I considered this risk and judged it to minimale to handle it. If it become a problem one day just replace by str(comment.__class__) == django.utils.functional.lazy.<locals>.__proxy__
+                    if "lazy" in str(comment.__class__):
+                        comment = str(comment)
                     if isinstance(comment, str):
                         self.write_comment_line(comment)
                     elif isinstance(comment, Iterable):

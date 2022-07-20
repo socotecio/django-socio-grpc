@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from django_socio_grpc import proto_serializers
@@ -123,7 +124,9 @@ class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
     user_name = serializers.CharField(help_text=["@test=comment1", "@test2=comment2"])
     user_data = serializers.DictField(help_text="@test=test_in_serializer")
-    user_password = serializers.CharField(write_only=True)
+    user_password = serializers.CharField(
+        write_only=True, help_text=_("this is a lazy translation")
+    )
     bytes_example = proto_serializers.BinaryField()
     list_of_dict = serializers.ListField(child=serializers.DictField())
 

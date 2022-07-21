@@ -3,10 +3,11 @@ import json
 import logging
 import os
 from collections import OrderedDict
-from collections.abc import Iterable
 
 import protoparser
 from django.apps import apps
+
+from django_socio_grpc.utils.tools import ProtoComment
 
 MAX_SORT_NUMBER = 9999
 
@@ -133,13 +134,10 @@ class RegistryToProtoGenerator:
                 if "google.protobuf.Struct" in proto_type:
                     self._writer.import_struct = True
 
-                # Info - AM - 30/04/2021 - add comment
-                if comment:
-                    if isinstance(comment, str):
-                        self.write_comment_line(comment)
-                    elif isinstance(comment, Iterable):
-                        for part_of_comment in comment:
-                            self.write_comment_line(part_of_comment)
+                # Info - AM - 30/04/2021 - add comment into the proto file
+                if comment and isinstance(comment, ProtoComment):
+                    for part_of_comment in comment:
+                        self.write_comment_line(part_of_comment)
 
                 self._writer.write_line(f"{proto_type} {field_name} = {number};")
         self._writer.write_line("}")

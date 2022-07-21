@@ -4,6 +4,7 @@ import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from rest_framework import serializers
 
 from django_socio_grpc import proto_serializers
+from django_socio_grpc.utils.tools import ProtoComment
 
 from .models import (
     ForeignModel,
@@ -121,9 +122,13 @@ class CustomRetrieveResponseSpecialFieldsModelSerializer(
 
 class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
-    user_name = serializers.CharField(help_text=["@test=comment1", "@test2=comment2"])
-    user_data = serializers.DictField(help_text="@test=test_in_serializer")
-    user_password = serializers.CharField(write_only=True)
+    user_name = serializers.CharField(
+        help_text=ProtoComment(["@test=comment1", "@test2=comment2"])
+    )
+    user_data = serializers.DictField(help_text=ProtoComment("@test=test_in_serializer"))
+    user_password = serializers.CharField(
+        write_only=True, help_text="not showing in proto comment"
+    )
     bytes_example = proto_serializers.BinaryField()
     list_of_dict = serializers.ListField(child=serializers.DictField())
 

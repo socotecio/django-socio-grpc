@@ -177,12 +177,20 @@ class FakeAioCall(grpc.aio.Call):
         self._real_method = real_method
 
         if metadata:
-            self._grpc_channel.context._invocation_metadata.extend(
+            self._context._invocation_metadata.extend(
                 (_Metadatum(k, v) for k, v in metadata)
             )
 
-    def __call__(self, request=None):
-        self._request = request
+    def __call__(self, request=None, metadata=None):
+        
+        # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
+        if request is not None:
+            self._request = request
+        if self._metadata is None and metadata is not None:
+            self._metadata = metadata
+            self._context._invocation_metadata.extend(
+                (_Metadatum(k, v) for k, v in metadata)
+            )
         # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
         self.method_awaitable = self._real_method(request=self._request, context=self._context)
         return self

@@ -175,8 +175,10 @@ class FakeAioCall(grpc.aio.Call):
         self._call_type = call_type
         self._context = context
         self._real_method = real_method
+        self._metadata = None
 
         if metadata:
+            self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
     def __call__(self, request=None, metadata=None):

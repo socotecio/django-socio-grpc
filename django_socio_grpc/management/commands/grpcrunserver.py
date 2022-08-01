@@ -84,6 +84,7 @@ class Command(BaseCommand):
         server = grpc.server(
             futures.ThreadPoolExecutor(max_workers=self.max_workers),
             interceptors=grpc_settings.SERVER_INTERCEPTORS,
+            options=grpc_settings.SERVER_OPTIONS,
         )
 
         # ------------------------------------------------------------

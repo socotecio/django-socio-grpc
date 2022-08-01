@@ -42,6 +42,20 @@ key, for example set the following in your ``settings.py`` file::
 
 The default setting is ``'{settings.ROOT_URLCONF}.grpc_handlers'``.
 
+Setting the server options
+```````````````````````````````
+If you need to change the server options as max_send_message_length, max_receive_message_length use `SERVER_OPTIONS` settings:
+
+```
+GRPC_FRAMEWORK = {
+        ...
+        'SERVER_OPTIONS': [
+            ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
+            ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
+        ]
+    }
+```
+
 Setting the server interceptors
 ```````````````````````````````
 

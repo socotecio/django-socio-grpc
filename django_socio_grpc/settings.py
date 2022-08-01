@@ -30,21 +30,23 @@ from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
 
 DEFAULTS = {
-    #  Root grpc handlers hook configuration
+    # Root grpc handlers hook configuration
     "ROOT_HANDLERS_HOOK": None,
-    #  gRPC server configuration
+    # gRPC server configuration
     "SERVER_INTERCEPTORS": None,
-    #  Default servicer authentication classes
+    # gRPC server options. See https://grpc.github.io/grpc/python/grpc_asyncio.html#create-server, https://github.com/grpc/grpc/blob/v1.46.x/include/grpc/impl/codegen/grpc_types.h
+    "SERVER_OPTIONS": None,
+    # Default servicer authentication classes
     "DEFAULT_AUTHENTICATION_CLASSES": [],
     # Default filter class
     "DEFAULT_FILTER_BACKENDS": [],
     # default pagination class
     "DEFAULT_PAGINATION_CLASS": None,
-    #  Default permission classes
+    # Default permission classes
     "DEFAULT_PERMISSION_CLASSES": [],
     # gRPC running mode
     "GRPC_ASYNC": False,
-    #  Default grpc channel port
+    # Default grpc channel port
     "GRPC_CHANNEL_PORT": 50051,
     # Default logging action
     "LOGGING_ACTION": None,

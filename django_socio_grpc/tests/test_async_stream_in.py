@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     StreamInControllerStub,
@@ -6,21 +6,19 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 )
 from grpc import RpcError
 
-from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.tests.fakeapp.services.stream_in_service import StreamInService
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
 
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestAsyncStreamIn(TestCase):
     def setUp(self):
-        grpc_settings.GRPC_ASYNC = True
         self.fake_grpc = FakeFullAIOGRPC(
             add_StreamInControllerServicer_to_server, StreamInService.as_servicer()
         )
 
     def tearDown(self):
-        grpc_settings.GRPC_ASYNC = False
         self.fake_grpc.close()
 
     async def test_async_stream_in(self):

@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.test import TestCase
-from django.utils import timezone
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,

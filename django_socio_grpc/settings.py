@@ -56,6 +56,11 @@ DEFAULTS = {
     "SEPARATE_READ_WRITE_MODEL": True,
     # List service action that we do not want to be logged (health check for example) to avoid log flooding
     "IGNORE_LOG_FOR_ACTION": [],
+    # List of all middleware classes to be used for gRPC framework
+    "GRPC_MIDDLEWARE": [
+        "django_socio_grpc.middlewares.log_requests_middleware",
+        "django_socio_grpc.middlewares.close_old_connections_middleware",
+    ],
     # Root GRPC folder for external grpc handlers
     "ROOT_GRPC_FOLDER": "grpc_folder",
     # Default places where to search headers, pagination and filter data

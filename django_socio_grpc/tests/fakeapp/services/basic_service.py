@@ -44,13 +44,11 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         response="google.protobuf.Empty",
     )
     async def TestEmptyMethod(self, request, context):
-        print("TestEmptyMethod")
+        ...
 
     @grpc_action(request=[], response=BasicServiceSerializer, use_response_list=True)
     async def GetMultiple(self, request, context):
         # INFO - AM - 14/01/2022 - Do something here as filter user with the user name
-        print(request.user_name)
-
         user_datas = [
             {
                 "user_name": "fake",

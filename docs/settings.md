@@ -15,8 +15,8 @@ GRPC_FRAMEWORK = {
         "rest_framework.permissions.DjangoModelPermissions",
     ],
     "MAP_METADATA_KEYS": {
-        "HEADERS": "HEADERS", 
-        "PAGINATION": "PAGINATION", 
+        "HEADERS": "HEADERS",
+        "PAGINATION": "PAGINATION",
         "FILTERS": "FILTERS"
     },
 }
@@ -26,7 +26,7 @@ GRPC_FRAMEWORK = {
 
 It supports standard and Django REST frameworks authentications and permissions management.
 So feel free to specify `DEFAULT_AUTHENTICATION_CLASSES` and `DEFAULT_PERMISSION_CLASSES`
-as usually. Please read more in [Permissions and authentication](permissions_and_authentication.md) section. 
+as usually. Please read more in [Permissions and authentication](permissions_and_authentication.md) section.
 
 ### Metadata options
 
@@ -40,7 +40,7 @@ you should specify HEADERS metadata item as such JSON value:
 ```
 
 It's default behaviour. If you would like to have each header in separate metadata item,
-you can omit `HEADERS` key in `MAP_METADATA_KEYS` option.  
+you can omit `HEADERS` key in `MAP_METADATA_KEYS` option.
 
 ### Separate read write model option
 

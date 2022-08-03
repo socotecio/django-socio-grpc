@@ -45,6 +45,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 from asgiref.sync import SyncToAsync
 
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
+from django_socio_grpc.utils.utils import is_generator, isgeneratorfunction
 
 from .placeholders import Placeholder
 
@@ -97,6 +98,9 @@ class GRPCAction:
 
         if asyncio.iscoroutinefunction(function):
             self._is_coroutine = _is_coroutine
+
+        if isgeneratorfunction(function):
+            self._is_generator = is_generator
 
     def __set_name__(self, owner, name):
         """

@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
@@ -7,20 +7,17 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.services.basic_service import BasicService
 from google.protobuf import json_format
 
-from django_socio_grpc.settings import grpc_settings
-
 from .grpc_test_utils.fake_grpc import FakeAIOGRPC
 
 
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestAsyncModelService(TestCase):
     def setUp(self):
-        grpc_settings.GRPC_ASYNC = True
         self.fake_grpc = FakeAIOGRPC(
             add_BasicControllerServicer_to_server, BasicService.as_servicer()
         )
 
     def tearDown(self):
-        grpc_settings.GRPC_ASYNC = False
         self.fake_grpc.close()
 
     async def test_async_fetch_data_for_user(self):

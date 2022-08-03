@@ -25,7 +25,8 @@ class DummyService(Service):
 service = DummyService()
 
 
-def fake_create_service(self):
+def fake_create_service(self, **kwargs):
+    Service.__init__(service, **kwargs)
     return service
 
 

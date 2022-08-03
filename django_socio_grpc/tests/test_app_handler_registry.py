@@ -3,7 +3,11 @@ from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import UnitTestModelControllerStub
 from fakeapp.models import UnitTestModel
 
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
+from django_socio_grpc.utils.servicer_register import (
+    AppHandlerRegistry,
+    AppHandlerRegistryError,
+)
 
 from .grpc_test_utils.fake_grpc import FakeChannel, FakeGRPC, FakeServer
 
@@ -15,6 +19,9 @@ class TestAppHandlerRegistry(TestCase):
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
             UnitTestModel(title=title, text=text).save()
         pass
+
+    def tearDown(self) -> None:
+        RegistrySingleton().clean_all()
 
     def test_AppHandlerRegistry_old_way(self):
 
@@ -62,6 +69,9 @@ class TestAppHandlerRegistry(TestCase):
 
         fakeapp_handler_registry = AppHandlerRegistry(app_name="fakeapp", server=fake_server)
         fakeapp_handler_registry.register("UnitTestModelService")
+
+        with self.assertRaises(AppHandlerRegistryError):
+            AppHandlerRegistry(app_name="fakeapp", server=fake_server)
 
         ###############
         # Test that the service is correctly registered

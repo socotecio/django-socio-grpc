@@ -1,12 +1,13 @@
 import io
 import json
 import logging
-import os
 from collections import OrderedDict
+from pathlib import Path
 
 import protoparser
-from django.apps import apps
 
+from django_socio_grpc.utils.registry_singleton import RegistrySingleton
+from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 from django_socio_grpc.utils.tools import ProtoComment
 
 MAX_SORT_NUMBER = 9999
@@ -15,7 +16,13 @@ logger = logging.getLogger("django_socio_grpc")
 
 
 class RegistryToProtoGenerator:
-    def __init__(self, registry_instance, project_name, verbose=0, only_messages=None):
+    def __init__(
+        self,
+        registry_instance: RegistrySingleton,
+        project_name: str,
+        verbose=0,
+        only_messages=None,
+    ):
         self.registry_instance = registry_instance
         self.project_name = project_name
         self.verbose = verbose if verbose is not None else 0
@@ -31,21 +38,18 @@ class RegistryToProtoGenerator:
 
     def get_protos_by_app(self):
         proto_by_app = {}
-        for app_name, registered_items in self.registry_instance.registered_app.items():
+        for app_name, registry in self.registry_instance.registered_app.items():
             self.print("\n\n--------------------------------\n\n", 1)
             self.print(f"GENERATE APP {app_name}", 1)
 
             self.current_existing_proto_data = self.parse_existing_proto_file(
-                self.get_proto_path_for_app_name(app_name)
+                registry.get_proto_path()
             )
-            proto_by_app[app_name] = self.get_proto(app_name, registered_items)
+            proto_by_app[app_name] = self.get_proto(app_name, registry)
 
         return OrderedDict(sorted(proto_by_app.items()))
 
-    def get_proto_path_for_app_name(self, app_name):
-        return os.path.join(apps.get_app_config(app_name).path, "grpc", f"{app_name}.proto")
-
-    def get_proto(self, app_name, registered_items):
+    def get_proto(self, app_name, registry: AppHandlerRegistry):
         self._writer = _CodeWriter()
 
         self._writer.write_line('syntax = "proto3";')
@@ -54,15 +58,13 @@ class RegistryToProtoGenerator:
         self._writer.write_line("")
         self._writer.write_line("IMPORT_PLACEHOLDER")
         for grpc_controller_name, grpc_methods in sorted(
-            registered_items["registered_controllers"].items()
+            registry.registered_controllers.items()
         ):
             self._generate_controller(
                 grpc_controller_name, OrderedDict(sorted(grpc_methods.items()))
             )
 
-        for grpc_message_name, grpc_message in sorted(
-            registered_items["registered_messages"].items()
-        ):
+        for grpc_message_name, grpc_message in sorted(registry.registered_messages.items()):
             self._generate_message(grpc_message_name, grpc_message)
 
         return self._writer.get_code()
@@ -171,13 +173,13 @@ class RegistryToProtoGenerator:
         )
         return grpc_message_fields
 
-    def check_if_existing_proto_file(self, existing_proto_path):
+    def check_if_existing_proto_file(self, existing_proto_path: Path):
         """
         This method is here only to help mocking test because os.path.exists is call multiple time
         """
-        return os.path.exists(existing_proto_path)
+        return existing_proto_path.exists()
 
-    def parse_existing_proto_file(self, existing_proto_path):
+    def parse_existing_proto_file(self, existing_proto_path: Path):
         if not self.check_if_existing_proto_file(existing_proto_path):
             return None
 

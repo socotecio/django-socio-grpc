@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 
 from asgiref.sync import async_to_sync
@@ -13,12 +12,14 @@ from fakeapp.models import UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 from freezegun import freeze_time
 
+from django_socio_grpc.settings import grpc_settings
+
 from .grpc_test_utils.fake_grpc import FakeAIOGRPC
 
 
 class TestAsyncModelService(TestCase):
     def setUp(self):
-        os.environ["GRPC_ASYNC"] = "True"
+        grpc_settings.GRPC_ASYNC = True
         self.fake_grpc = FakeAIOGRPC(
             add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )
@@ -26,7 +27,7 @@ class TestAsyncModelService(TestCase):
         self.create_instances()
 
     def tearDown(self):
-        os.environ["GRPC_ASYNC"] = ""
+        grpc_settings.GRPC_ASYNC = False
         self.fake_grpc.close()
 
     def create_instances(self):

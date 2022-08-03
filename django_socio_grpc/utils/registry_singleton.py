@@ -1,6 +1,6 @@
 import inspect
 from collections import OrderedDict
-from typing import Dict, List, Tuple
+from typing import TYPE_CHECKING, Dict, List, Tuple, Type
 
 from django.db import models
 from rest_framework.fields import (
@@ -30,6 +30,10 @@ from .constants import (
     REQUEST_SUFFIX,
     RESPONSE_SUFFIX,
 )
+
+if TYPE_CHECKING:
+    from django_socio_grpc.services import Service
+    from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 
 class RegisterServiceException(Exception):
@@ -106,7 +110,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         cls._instances = {}
 
     def __init__(self):
-        self.registered_app = OrderedDict()
+        self.registered_app: OrderedDict[str, "AppHandlerRegistry"] = OrderedDict()
 
     ############################################################################
     #
@@ -130,10 +134,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if getattr(serializer_instance.Meta, "model", None):
             pk_name = model_meta.get_model_pk(serializer_instance.Meta.model).name
 
-        if message_name in self.registered_app[app_name]["registered_messages"]:
+        if message_name in self.registered_app[app_name].registered_messages:
             return message_name
 
-        self.registered_app[app_name]["registered_messages"][message_name] = []
+        self.registered_app[app_name].registered_messages[message_name] = []
 
         if issubclass(serializer_instance.__class__, ProtoSerializer):
             for field_name, field_type in serializer_instance.get_fields().items():
@@ -164,7 +168,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
                     getattr(field_type, "help_text", ""),
                 )
 
-                self.registered_app[app_name]["registered_messages"][message_name].append(
+                self.registered_app[app_name].registered_messages[message_name].append(
                     field_grpc_generator_format
                 )
         # INFO - AM - 07/01/2022 - else if the field type inherit from base proto
@@ -176,9 +180,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
                 (item["name"], item["type"], ProtoComment(item.get("comment", "")))
                 for item in message
             ]
-            self.registered_app[app_name]["registered_messages"][
-                message_name
-            ] = messages_fields
+            self.registered_app[app_name].registered_messages[message_name] = messages_fields
 
         return message_name
 
@@ -413,7 +415,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         else:
             response_message_name = f"{base_name}List{RESPONSE_SUFFIX}"
 
-        self.registered_app[app_name]["registered_messages"][
+        self.registered_app[app_name].registered_messages[
             response_message_name
         ] = response_fields
 
@@ -428,49 +430,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
     ############################################################################
     #
-    # Default Registration (from know method with no decorator)
-    #
-    ############################################################################
-    def register_service(self, app_name, service_class):
-        """ "
-        For each service register in ROOT_HANDLERS_HOOK we try to register its controller and its messages
-        """
-
-        service_instance = service_class()
-
-        # INFO - AM - 07/01/2022 - Initialize the app in the project to be generated as a specific proto file
-        if app_name not in self.registered_app:
-            self.registered_app[app_name] = {
-                "registered_controllers": OrderedDict(),
-                "registered_messages": OrderedDict(),
-            }
-
-        self.set_controller_and_messages(app_name, service_instance)
-
-    def set_controller_and_messages(self, app_name, service_instance):
-        """
-        Generate proto methods and messages for a service instance.
-        First it try all know methods defined in the mixins used by ModelService.
-        If not existing it do nothing
-        If existing we look if it already register with a decorator that will prevent the default behavior
-        If not already register that mean we want to use the default behavior so we just go with that and call register_default_message_from_method
-        """
-        service_name = service_instance.get_service_name()
-
-        # INFO - AM - 07/01/2022 - Choose the name of the controler
-        controller_name = f"{service_name}Controller"
-
-        if controller_name not in self.registered_app[app_name]["registered_controllers"]:
-            self.registered_app[app_name]["registered_controllers"][controller_name] = {}
-
-    ############################################################################
-    #
     # Decorator Registration
     #
     ############################################################################
     def register_custom_action(
         self,
-        service_class,
+        service_class: Type["Service"],
         function_name,
         request=None,
         response=None,
@@ -481,13 +446,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         use_request_list=False,
         use_response_list=False,
     ):
-        app_name = self.get_app_name_from_service_class(service_class)
-        # INFO - AM - 14/01/2022 - Initialize the app in the project to be generated as a specific proto file
-        if app_name not in self.registered_app:
-            self.registered_app[app_name] = {
-                "registered_controllers": OrderedDict(),
-                "registered_messages": OrderedDict(),
-            }
+        app_name = service_class._app_handler.app_name
 
         service_instance = service_class()
         service_name = service_instance.get_service_name()
@@ -547,7 +506,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         self.register_method_for_custom_action(
             app_name,
-            service_name,
+            service_instance.get_controller_name(),
             function_name,
             request_message_name,
             response_message_name,
@@ -560,19 +519,18 @@ class RegistrySingleton(metaclass=SingletonMeta):
     def register_method_for_custom_action(
         self,
         app_name,
-        service_name,
+        controller_name,
         function_name,
         request_message_name,
         response_message_name,
         request_stream,
         response_stream,
     ):
-        controller_name = f"{service_name}Controller"
-        if controller_name not in self.registered_app[app_name]["registered_controllers"]:
-            self.registered_app[app_name]["registered_controllers"][
+        if controller_name not in self.registered_app[app_name].registered_controllers:
+            self.registered_app[app_name].registered_controllers[
                 controller_name
             ] = OrderedDict()
-        self.registered_app[app_name]["registered_controllers"][controller_name][
+        self.registered_app[app_name].registered_controllers[controller_name][
             function_name
         ] = {
             "request": {"is_stream": request_stream, "message": request_message_name},
@@ -592,9 +550,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             ]
             if message_name is None:
                 message_name = f"{service_name}{function_name}{REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX}"
-            self.registered_app[app_name]["registered_messages"][
-                message_name
-            ] = messages_fields
+            self.registered_app[app_name].registered_messages[message_name] = messages_fields
             return message_name, DEFAULT_LIST_FIELD_NAME
 
         elif isinstance(message, str):

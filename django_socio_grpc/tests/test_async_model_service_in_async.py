@@ -90,6 +90,7 @@ class TestAsyncModelService(TestCase):
         stream = grpc_stub.Stream(request=request)
 
         import grpc
+
         while True:
             result = await stream.read()
             if result == grpc.aio.EOF:

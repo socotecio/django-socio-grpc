@@ -83,11 +83,7 @@ class FakeContext:
         self.stream_pipe.put(data)
 
     def read(self):
-        try:
-            response = self.stream_pipe.get_nowait()
-            return response
-        except queue.Empty:
-            return grpc.aio.EOF
+        return self.stream_pipe.get_nowait()
 
 
 class FakeAsyncContext(FakeContext):
@@ -306,12 +302,6 @@ class FakeFullAioCall(FakeAioCall):
                 # INFO - AM - 11/08/2022 - Get message in queue without waiting to avoid blocking the current loop
                 response = await self._context.read()
 
-                # INFO - AM - 11/08/2022 - if we receive a grpc.aio.EOF this can mean that the grpc action is finish 
-                # OR that we have ended the queue for now and we are waiting for more.
-                # This should be removed by juste not catching the queue.empty in the FakeContext class but this is breaking the old synchrone test so keeping for legacy purpose for now
-                if response == grpc.aio.EOF and (self.method_awaitable is None or not self.method_awaitable.done()):
-                    raise queue.Empty()
-                
                 return response
             except queue.Empty:
                 # INFO - AM - 11/08/2022 - if the queue is not empty no need to wait, just handle the next event.
@@ -328,7 +318,6 @@ class FakeFullAioCall(FakeAioCall):
         if response == grpc.aio.EOF:
             raise StopAsyncIteration()
         return response
-
 
 
 class FakeAIOChannel(FakeChannel):

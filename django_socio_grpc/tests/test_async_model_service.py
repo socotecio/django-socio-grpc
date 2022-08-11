@@ -1,7 +1,6 @@
 import os
 from datetime import datetime
 
-import grpc
 from asgiref.sync import async_to_sync
 from django.test import TestCase
 from django.utils import timezone
@@ -81,21 +80,22 @@ class TestAsyncModelService(TestCase):
 
         self.assertFalse(UnitTestModel.objects.filter(id=unit_id).exists())
 
-    def test_async_stream(self):
-        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
-        request = fakeapp_pb2.UnitTestModelStreamRequest()
-        stream = grpc_stub.Stream(request=request)
+    # INFO - AM - 11/08/2022 - Since version 0.15.0 stream test need to be executed in an async context see test_async_model_service_in_async.
+    # def test_async_stream(self):
+    #     grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+    #     request = fakeapp_pb2.UnitTestModelStreamRequest()
+    #     stream = grpc_stub.Stream(request=request)
 
-        async_to_sync(stream)()
+    #     async_to_sync(stream)()
 
-        response_list = []
-        while True:
-            result = stream.read()
-            if result == grpc.aio.EOF:
-                break
-            response_list.append(result)
+    #     response_list = []
+    #     while True:
+    #         result = stream.read()
+    #         if result == grpc.aio.EOF:
+    #             break
+    #         response_list.append(result)
 
-        self.assertEqual(len(response_list), 10)
+    #     self.assertEqual(len(response_list), 10)
 
     def test_async_list_custom_action(self):
 

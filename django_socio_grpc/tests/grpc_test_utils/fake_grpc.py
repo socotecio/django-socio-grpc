@@ -3,7 +3,10 @@
 # https://github.com/kataev/pytest-grpc/blob/master/pytest_grpc/plugin.py
 """
 import asyncio
+import itertools
 import socket
+import types
+from collections.abc import Iterable
 
 import grpc
 from asgiref.sync import async_to_sync, sync_to_async
@@ -47,10 +50,28 @@ class FakeRpcError(RuntimeError, grpc.RpcError):
 
 
 class FakeContext:
-    def __init__(self):
-        self.stream_pipe = []
+    def __init__(self, stream_pipe=None):
+        self.stream_pipe = stream_pipe
+        if self.stream_pipe is None:
+            self.stream_pipe = iter(())
+        if not isinstance(self.stream_pipe, Iterable):
+            raise Exception("FakeContext stream pipe must be an iterable")
+        if not isinstance(self.stream_pipe, types.GeneratorType):
+            # Convert iterable to a generator
+            self.stream_pipe = (elmt for elmt in self.stream_pipe)
+
         self._invocation_metadata = []
-        self.last_index_called = -1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            # Iter on generator until raise StopAsyncIteration
+            # for terminating async for loop
+            return next(self.stream_pipe)
+        except StopIteration:
+            raise StopAsyncIteration
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
@@ -59,14 +80,15 @@ class FakeContext:
         return self._invocation_metadata
 
     def write(self, data):
-        self.stream_pipe.append(data)
+        self.stream_pipe = itertools.chain(self.stream_pipe, [data])
 
     def read(self):
-        new_index = self.last_index_called + 1
-        self.last_index_called = new_index
-        if new_index >= len(self.stream_pipe):
+        try:
+            # Iter on generator until raise StopAsyncIteration
+            # for terminating async for loop
+            return next(self.stream_pipe)
+        except StopIteration:
             return grpc.aio.EOF
-        return self.stream_pipe[new_index]
 
 
 class FakeAsyncContext(FakeContext):
@@ -78,6 +100,13 @@ class FakeAsyncContext(FakeContext):
 
     async def read(self):
         return await sync_to_async(super().read)()
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        await asyncio.sleep(1)
+        return await sync_to_async(super().__next__)()
 
 
 def get_brand_new_default_event_loop():
@@ -176,13 +205,13 @@ class FakeAioCall(grpc.aio.Call):
         self._context = context
         self._real_method = real_method
         self._metadata = None
+        self._request = None
 
         if metadata:
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
     def __call__(self, request=None, metadata=None):
-
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
         if request is not None:
             self._request = request
@@ -234,6 +263,41 @@ class FakeAioCall(grpc.aio.Call):
         pass
 
 
+# INFO - AM - 10/08/2022 - FakeFullAioCall use async function where FakeFullAioCall use async_to_sync
+class FakeFullAioCall(FakeAioCall):
+    def __call__(self, request=None, metadata=None):
+        # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
+        if request is not None:
+            self._request = request
+        if self._metadata is None and metadata is not None:
+            self._metadata = metadata
+            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+        # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
+        # self.method_awaitable = self._real_method(request=self._request, context=self._context)
+        self.method_awaitable = asyncio.create_task(
+            self._real_method(request=self._request, context=self._context)
+        )
+        # yield self._context
+        # loop = asyncio.get_running_loop()
+        # loop.run_until_complete(self._real_method(request=self._request, context=self._context))
+        return self
+
+    def __await__(self):
+        # INFO - AM - 10/08/2022 - https://github.com/grpc/grpc/blob/4df74f2b4c3ddc00e6607825b52cf82ee842d820/src/python/grpcio/grpc/aio/_call.py#L268
+        # Need to implement CancelledError and EOF response
+        response = yield from self.method_awaitable
+        return response
+
+    async def write(self, data):
+        await self._context.write(data)
+
+    async def read(self):
+        return await self._context.read()
+
+    def __aiter__(self):
+        return self._context
+
+
 class FakeAIOChannel(FakeChannel):
     def fake_method(self, method_name, uri, *args, **kwargs):
         handler = self.server.handlers[uri]
@@ -245,6 +309,24 @@ class FakeAIOChannel(FakeChannel):
         )
 
 
+# INFO - AM - 10/08/2022 - FakeFullAIOChannel use async function where FakeAIOChannel use async_to_sync
+class FakeFullAIOChannel(FakeChannel):
+    def fake_method(self, method_name, uri, *args, **kwargs):
+        handler = self.server.handlers[uri]
+        real_method = getattr(handler, method_name)
+        self.context = FakeAsyncContext()
+
+        return FakeFullAioCall(
+            context=self.context, call_type=method_name, real_method=real_method
+        )
+
+
 class FakeAIOGRPC(FakeGRPC):
     def get_fake_channel(self):
         return FakeAIOChannel(self.grpc_server)
+
+
+# INFO - AM - 10/08/2022 - FakeFullAIOGRPC use async function where FakeAIOGRPC use async_to_sync
+class FakeFullAIOGRPC(FakeGRPC):
+    def get_fake_channel(self):
+        return FakeFullAIOChannel(self.grpc_server)

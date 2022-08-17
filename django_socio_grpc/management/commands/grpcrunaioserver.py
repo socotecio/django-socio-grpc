@@ -19,7 +19,7 @@ class Command(BaseCommand):
     help = "Starts an async gRPC server"
 
     # Validation is called explicitly each time the server is reloaded.
-    requires_system_checks = False
+    requires_system_checks = []
 
     def add_arguments(self, parser):
         parser.add_argument(

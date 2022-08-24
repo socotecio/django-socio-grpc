@@ -1,5 +1,5 @@
-import errno
 import os
+from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -89,9 +89,10 @@ class Command(BaseCommand):
                     detail="No Service registered. You should use ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry."
                 )
             for app_name, proto in protos_by_app.items():
-                auto_file_path = generator.get_proto_path_for_app_name(app_name)
-                self.create_directory_if_not_exist(auto_file_path)
-                self.check_or_write(auto_file_path, proto, app_name)
+                registry = RegistrySingleton().registered_app[app_name]
+                auto_file_path = registry.get_proto_path()
+                auto_file_path.parent.mkdir(exist_ok=True)
+                self.check_or_write(auto_file_path, proto, registry.app_name)
                 path_used_for_generation = auto_file_path
 
                 if self.generate_python:
@@ -101,23 +102,21 @@ class Command(BaseCommand):
                         f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {path_used_for_generation}"
                     )
 
-    def check_or_write(self, file_path, proto, app_name):
+    def check_or_write(self, file: Path, proto, app_name):
         """
         Write the new generated proto to the corresponding file
         If option --check is used verify if the new content is identical to one already there
         """
-        if self.check and not os.path.exists(file_path):
+        if self.check and not file.exists():
             raise ProtobufGenerationException(
                 app_name=app_name,
-                detail="Check fail ! You doesn't have a proto file to compare to",
+                detail="Check fail ! You don't have a proto file to compare to",
             )
 
         if self.check:
-            with open(file_path) as f:
-                content = f.read()
-                self.check_proto_generation(content, proto, app_name)
+            self.check_proto_generation(file.read_text(), proto, app_name)
         else:
-            with open(file_path, "w+") as f:
+            with file.open("w+") as f:
                 f.write(proto)
 
     def check_proto_generation(self, original_file, new_proto_content, app_name):
@@ -131,12 +130,4 @@ class Command(BaseCommand):
                 detail="Check fail ! Generated proto mismatch",
             )
         else:
-            print("Check Success ! File are identical")
-
-    def create_directory_if_not_exist(self, file_path):
-        if not os.path.exists(os.path.dirname(file_path)):
-            try:
-                os.makedirs(os.path.dirname(file_path))
-            except OSError as exc:  # Guard against race condition
-                if exc.errno != errno.EEXIST:
-                    raise
+            print("Check Success ! Files are identical")

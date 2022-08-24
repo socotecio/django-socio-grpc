@@ -19,7 +19,7 @@ from .utils.constants import DEFAULT_LIST_FIELD_NAME, REQUEST_SUFFIX
 ############################################################
 #   Synchronous mixins                                     #
 ############################################################
-class CreateModelMixin(GRPCActionMixin, abstract=True):
+class CreateModelMixin(GRPCActionMixin):
     @grpc_action(request=SelfSerializer, response=SelfSerializer)
     def Create(self, request, context):
         """
@@ -54,7 +54,7 @@ class CreateModelMixin(GRPCActionMixin, abstract=True):
         }
 
 
-class ListModelMixin(GRPCActionMixin, abstract=True):
+class ListModelMixin(GRPCActionMixin):
     @grpc_action(
         request=[],
         request_name=StrTemplatePlaceholder(
@@ -111,7 +111,7 @@ class ListModelMixin(GRPCActionMixin, abstract=True):
         }
 
 
-class StreamModelMixin(GRPCActionMixin, abstract=True):
+class StreamModelMixin(GRPCActionMixin):
     @grpc_action(
         request=[],
         request_name=StrTemplatePlaceholder(
@@ -157,7 +157,7 @@ class StreamModelMixin(GRPCActionMixin, abstract=True):
         }
 
 
-class RetrieveModelMixin(GRPCActionMixin, abstract=True):
+class RetrieveModelMixin(GRPCActionMixin):
     @grpc_action(
         request=LookupField,
         request_name=StrTemplatePlaceholder(
@@ -193,7 +193,7 @@ class RetrieveModelMixin(GRPCActionMixin, abstract=True):
         }
 
 
-class UpdateModelMixin(GRPCActionMixin, abstract=True):
+class UpdateModelMixin(GRPCActionMixin):
     @grpc_action(request=SelfSerializer, response=SelfSerializer)
     def Update(self, request, context):
         """
@@ -252,7 +252,7 @@ def _get_partial_update_request(service):
     return PartialUpdateRequest
 
 
-class PartialUpdateModelMixin(GRPCActionMixin, abstract=True):
+class PartialUpdateModelMixin(GRPCActionMixin):
     @grpc_action(
         request=FnPlaceholder(_get_partial_update_request),
         request_name=StrTemplatePlaceholder(
@@ -306,7 +306,7 @@ class PartialUpdateModelMixin(GRPCActionMixin, abstract=True):
         }
 
 
-class DestroyModelMixin(GRPCActionMixin, abstract=True):
+class DestroyModelMixin(GRPCActionMixin):
     @grpc_action(
         request=LookupField,
         request_name=StrTemplatePlaceholder(
@@ -351,19 +351,19 @@ class DestroyModelMixin(GRPCActionMixin, abstract=True):
 ############################################################
 
 
-class AsyncCreateModelMixin(CreateModelMixin, abstract=True):
+class AsyncCreateModelMixin(CreateModelMixin):
     async def Create(self, request, context):
         async_parent_method = sync_to_async(super().Create)
         return await async_parent_method(request, context)
 
 
-class AsyncListModelMixin(ListModelMixin, abstract=True):
+class AsyncListModelMixin(ListModelMixin):
     async def List(self, request, context):
         async_parent_method = sync_to_async(super().List)
         return await async_parent_method(request, context)
 
 
-class AsyncStreamModelMixin(StreamModelMixin, abstract=True):
+class AsyncStreamModelMixin(StreamModelMixin):
     @sync_to_async
     def _get_list_data(self):
         queryset = self.filter_queryset(self.get_queryset())
@@ -390,25 +390,25 @@ class AsyncStreamModelMixin(StreamModelMixin, abstract=True):
             await context.write(message)
 
 
-class AsyncRetrieveModelMixin(RetrieveModelMixin, abstract=True):
+class AsyncRetrieveModelMixin(RetrieveModelMixin):
     async def Retrieve(self, request, context):
         async_parent_method = sync_to_async(super().Retrieve)
         return await async_parent_method(request, context)
 
 
-class AsyncUpdateModelMixin(UpdateModelMixin, abstract=True):
+class AsyncUpdateModelMixin(UpdateModelMixin):
     async def Update(self, request, context):
         async_parent_method = sync_to_async(super().Update)
         return await async_parent_method(request, context)
 
 
-class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin, abstract=True):
+class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin):
     async def PartialUpdate(self, request, context):
         async_parent_method = sync_to_async(super().PartialUpdate)
         return await async_parent_method(request, context)
 
 
-class AsyncDestroyModelMixin(DestroyModelMixin, abstract=True):
+class AsyncDestroyModelMixin(DestroyModelMixin):
     async def Destroy(self, request, context):
         async_parent_method = sync_to_async(super().Destroy)
         return await async_parent_method(request, context)

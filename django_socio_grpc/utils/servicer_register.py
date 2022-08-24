@@ -1,47 +1,58 @@
 import logging
-import re
 import sys
+from dataclasses import dataclass, field
 from importlib import import_module, reload
+from pathlib import Path
+from typing import Any, List, OrderedDict, Tuple, Type, Union
+
+from django.apps.registry import apps
+from django.conf import settings
+
+from django_socio_grpc.services import Service
+from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.utils import camel_to_snake
 
 from .registry_singleton import RegistrySingleton
 
 logger = logging.getLogger("django_socio_grpc")
 
 
+@dataclass
 class AppHandlerRegistry:
-    def __init__(
-        self,
-        app_name,
-        server,
-        service_folder="services",
-        grpc_folder="grpc",
-        reload_service=False,
-        disable_proto_generation=False,
-        override_pb2_grpc_file_path=None,
-    ):
-        self.app_name = app_name
-        self.server = server
-        self.service_folder = service_folder
-        self.grpc_folder = grpc_folder
-        self.disable_proto_generation = disable_proto_generation
-        self.override_pb2_grpc_file_path = override_pb2_grpc_file_path
-        if reload_service:
+    app_name: str
+    server: Any
+    service_folder: str = "services"
+    grpc_folder: str = "grpc"
+    reload_services: bool = False
+    disable_proto_generation: bool = False
+    override_pb2_grpc_file_path: str = None
+    to_root_grpc: bool = False
+    registered_controllers: OrderedDict = field(default_factory=OrderedDict, init=False)
+    registered_messages: OrderedDict[str, List[Tuple[str, str, str]]] = field(
+        default_factory=OrderedDict, init=False
+    )
+
+    def __post_init__(self):
+        if self.reload_services:
             RegistrySingleton().clean_all()
-        self.reload_services = reload_service
+
+        service_registry = RegistrySingleton()
+        if self.app_name not in service_registry.registered_app:
+            service_registry.registered_app[self.app_name] = self
+        elif service_registry.registered_app[self.app_name] is not self:
+            raise AppHandlerRegistryError(
+                f"{self.app_name} is already registered by another AppHandlerRegistry"
+            )
 
     def get_service_file_path(self, service_name):
         service_file_path = ""
         if self.service_folder:
-            service_name = self.camel_to_snake(service_name)
+            service_name = camel_to_snake(service_name)
             service_file_path = f"{self.app_name}.{self.service_folder}.{service_name}"
         else:
             service_file_path = f"{self.app_name}.services"
 
         return service_file_path
-
-    def camel_to_snake(self, name):
-        name = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
-        return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
 
     def get_service_class_from_service_name(self, service_name, service_file_path=None):
         is_manual_service_path = service_file_path is not None
@@ -74,7 +85,7 @@ class AppHandlerRegistry:
 
         return service_class
 
-    def register(self, service, service_file_path=None):
+    def register(self, service: Union[str, Type[Service]], service_file_path=None):
         """
         Register a service to the grpc server
 
@@ -82,29 +93,29 @@ class AppHandlerRegistry:
         :param: service_file_path: If you pass the service name but he path is not possibly find manually
         """
 
-        service_class = service
-        if isinstance(service_class, str):
+        service_class: Type[Service]
+        if isinstance(service, str):
             service_class = self.get_service_class_from_service_name(
-                service_class, service_file_path
+                service, service_file_path
             )
+        else:
+            service_class = service
 
         if self.reload_services:
             reload(sys.modules[service_class.__module__])
 
+        if self.server is None and self.disable_proto_generation:
+            return
+
+        service_class._app_handler = self
+        service_class.register_actions()
+
         if self.server is None:
-            if self.disable_proto_generation:
-                return
-            service_registry = RegistrySingleton()
-            service_registry.register_service(self.app_name, service_class)
             return
 
         try:
-            if self.override_pb2_grpc_file_path is not None:
-                pb2_grpc = import_module(self.override_pb2_grpc_file_path)
-            else:
-                pb2_grpc = import_module(
-                    f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
-                )
+            path = self.get_pb2_grpc_module()
+            pb2_grpc = import_module(path)
             service_instance = service_class()
 
             controller_name = service_instance.get_service_name()
@@ -114,11 +125,44 @@ class AppHandlerRegistry:
 
             add_server(service_class.as_servicer(), self.server)
         except ModuleNotFoundError:
-            if self.override_pb2_grpc_file_path is not None:
-                logger.error(
-                    f"PB2 module {self.override_pb2_grpc_file_path} not found. Please generate proto before launching server"
-                )
-                return
             logger.error(
-                f"PB2 module {self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc not found. Please generate proto before launching server"
+                f"PB2 module {path} not found. Please generate proto before launching server"
             )
+
+    def get_grpc_folder(self):
+        base_dir = Path(settings.BASE_DIR)
+
+        if self.to_root_grpc:
+            path = base_dir / Path(grpc_settings.ROOT_GRPC_FOLDER) / self.app_name
+        else:
+            path = Path(apps.get_app_config(self.app_name).path) / self.grpc_folder
+
+        resolved_path = path.resolve()
+
+        if base_dir not in resolved_path.parents:
+            logger.warn(
+                f"{self.app_name} AppHandlerRegistry path ({resolved_path}) is not in current working directory"
+                "You may want to use `to_root_grpc` option"
+            )
+        return resolved_path
+
+    def get_grpc_module(self):
+        if self.to_root_grpc:
+            return ".".join([grpc_settings.ROOT_GRPC_FOLDER, self.app_name])
+        else:
+            return ".".join(
+                [apps.get_app_config(self.app_name).module.__name__, self.grpc_folder]
+            )
+
+    def get_pb2_module(self):
+        return f"{self.get_grpc_module()}.{self.app_name}_pb2"
+
+    def get_pb2_grpc_module(self):
+        return f"{self.get_grpc_module()}.{self.app_name}_pb2_grpc"
+
+    def get_proto_path(self):
+        return self.get_grpc_folder() / f"{self.app_name}.proto"
+
+
+class AppHandlerRegistryError(Exception):
+    pass

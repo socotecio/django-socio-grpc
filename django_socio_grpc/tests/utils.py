@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+from unittest.mock import mock_open, patch
+
 import grpc
 from django.test import testcases
 
@@ -130,3 +133,12 @@ class RPCTestCase(testcases.TestCase):
     def setUp(self):
         super().setUp()
         self.channel = self.channel_class()
+
+
+@contextmanager
+def patch_open(read_data=""):
+
+    m = mock_open(read_data=read_data)
+
+    with patch("io.open", m), patch("builtins.open", m), patch("pathlib.Path.mkdir"):
+        yield m

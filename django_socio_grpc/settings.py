@@ -54,6 +54,8 @@ DEFAULTS = {
     "SEPARATE_READ_WRITE_MODEL": True,
     # List service action that we do not want to be logged (health check for example) to avoid log flooding
     "IGNORE_LOG_FOR_ACTION": [],
+    # Root GRPC folder for external grpc handlers
+    "ROOT_GRPC_FOLDER": "grpc_folder",
 }
 
 

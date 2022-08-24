@@ -1,5 +1,5 @@
 """
->>> MyMixin(GRPCActionMixin, abstract=True):
+>>> MyMixin(GRPCActionMixin, ):
 ...     @grpc_action(request=[], response=[])
 ...     def MyDecoratedAction(self, request, context):
 ...         pass
@@ -40,14 +40,17 @@ import asyncio
 import functools
 import logging
 from asyncio.coroutines import _is_coroutine
-from typing import Any, Dict, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 
 from asgiref.sync import SyncToAsync
 
-from django_socio_grpc.services import Service
 from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 
 from .placeholders import Placeholder
+
+if TYPE_CHECKING:
+    from django_socio_grpc.services import Service
+
 
 logger = logging.getLogger("django_socio_grpc")
 
@@ -106,8 +109,6 @@ class GRPCAction:
             if "_decorated_grpc_action_registry" not in owner.__dict__:
                 owner._decorated_grpc_action_registry = {}
             owner._decorated_grpc_action_registry.update({name: self.get_action_params()})
-            return
-        self.register(owner, name)
 
     def __get__(self, obj, type=None):
         return self.clone(function=self.function.__get__(obj, type))
@@ -128,11 +129,10 @@ class GRPCAction:
         }
 
     def register(self, owner: Type["Service"], name: str):
+        service_registry = RegistrySingleton()
+
+        self.resolve_placeholders(owner, name)
         try:
-            service_registry = RegistrySingleton()
-
-            self.resolve_placeholders(owner, name)
-
             (
                 self.request_message_name,
                 self.response_message_name,
@@ -247,29 +247,6 @@ class GRPCActionMixin(metaclass=GRPCActionMixinMeta):
 
     _decorated_grpc_action_registry: Dict[str, Dict[str, Any]]
     """Registry of grpc actions declared in the class"""
-
-    _abstract = True
-
-    def __new__(cls, *args, **kwargs):
-        if cls._abstract:
-            raise TypeError(f"{cls.__name__} is abstract and cannot be instantiated")
-        return super().__new__(cls, *args, **kwargs)
-
-    def __init_subclass__(cls, abstract=False) -> None:
-        """
-        INFO - AM - 25/05/2022 - __init_subclass__ allow to register the mixins actions with the child name to generate the corect proto
-        Example: ListIdMixin have a Listids method and we want it inside the BasicService. We need to pass BasicService as owner to register_custom_action
-        """
-        super().__init_subclass__()
-
-        if "_abstract" not in cls.__dict__:
-            # Child need to be Service to not be abstract
-            cls._abstract = abstract or not issubclass(cls, Service)
-
-        if cls._abstract:
-            return
-
-        cls.register_actions()
 
     def _before_registration(service_class):
         """

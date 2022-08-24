@@ -7,14 +7,14 @@ from django_socio_grpc.grpc_actions.actions import GRPCActionMixin
 from django_socio_grpc.grpc_actions.placeholders import AttrPlaceholder
 
 
-class ListIdsMixin(GRPCActionMixin, abstract=True):
+class ListIdsMixin(GRPCActionMixin):
     @grpc_action(request=[], response=[{"name": "ids", "type": "repeated int32"}])
     @sync_to_async
     def ListIds(self, request, context):
         pass
 
 
-class ListNameMixin(GRPCActionMixin, abstract=True):
+class ListNameMixin(GRPCActionMixin):
     _list_name_response: List[Dict[str, str]]
 
     @grpc_action(request=[], response=AttrPlaceholder("_list_name_response"))

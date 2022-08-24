@@ -44,6 +44,8 @@ class TestPlaceholders(TestCase):
                     return MyOtherProtoSerializer
                 return super().get_serializer_class()
 
+        MyService.register_actions()
+
         self.assertIs(MyService.Method.request, MyProtoSerializer)
         self.assertIs(MyService.Method.response, MyProtoSerializer)
 
@@ -59,6 +61,8 @@ class TestPlaceholders(TestCase):
         class MyService(MyMixin, BaseService):
             _my_serializer = MyOtherProtoSerializer
 
+        MyService.register_actions()
+
         self.assertIs(MyService.Method.request, MyOtherProtoSerializer)
         self.assertIs(MyService.Method.response, MyProtoSerializer)
 
@@ -72,6 +76,8 @@ class TestPlaceholders(TestCase):
 
         class MyService(MyMixin, BaseService):
             pass
+
+        MyService.register_actions()
 
         self.assertIs(MyService.Method.request, MyOtherProtoSerializer)
         self.assertIs(MyService.Method.response, MyProtoSerializer)
@@ -95,6 +101,8 @@ class TestPlaceholders(TestCase):
         class MyService(MyMixin, BaseService):
             pass
 
+        MyService.register_actions()
+
         lookup_name = MyService.Method.request[0]["name"]
         lookup_type = MyService.Method.request[0]["type"]
 
@@ -117,6 +125,8 @@ class TestPlaceholders(TestCase):
 
         class MyService(MyMixin, BaseService):
             _id = 3
+
+        MyService.register_actions()
 
         self.assertEqual(MyService.Method.request_name, "MyService_3")
         self.assertIs(MyService.Method.response, MyProtoSerializer)

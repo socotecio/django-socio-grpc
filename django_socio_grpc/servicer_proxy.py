@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 import sys
 import traceback
 
@@ -22,11 +21,9 @@ class ServicerProxy:
     def __init__(self, ServiceClass, **initkwargs):
         self.service_class = ServiceClass
         self.initkwargs = initkwargs
-        # TODO - AM - 06/05 - convert to boolean ?
-        self.grpc_async = os.environ.get("GRPC_ASYNC", False)
 
     def call_handler(self, action):
-        if self.grpc_async:
+        if grpc_settings.GRPC_ASYNC:
 
             async def async_handler(request, context):
                 try:
@@ -46,7 +43,7 @@ class ServicerProxy:
                     service_instance.request = request
                     service_instance.context = GRPCSocioProxyContext(context, action)
                     service_instance.action = action
-                    await sync_to_async(service_instance.before_action)()
+                    await service_instance.before_action()
 
                     # INFO - AM - 05/05/2021 - getting the real function in the service and then calling it if necessary
                     instance_action = getattr(service_instance, action)

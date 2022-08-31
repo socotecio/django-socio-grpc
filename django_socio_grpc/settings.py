@@ -19,6 +19,8 @@ GRPC_FRAMEWORK = {
     'SEPARATE_READ_WRITE_MODEL': True,
 
     'IGNORE_LOG_FOR_ACTION': ['Service1.Action1', 'Service1.Action1'],
+
+    'ROOT_GRPC_FOLDER': 'my_grpc_folder'
 }
 
 This module provides the `grpc_setting` object, that is used to access

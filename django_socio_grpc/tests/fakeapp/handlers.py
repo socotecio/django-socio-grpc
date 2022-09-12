@@ -5,6 +5,7 @@ from fakeapp.services.import_struct_even_in_array_model_service import (
 )
 from fakeapp.services.related_field_model_service import RelatedFieldModelService
 from fakeapp.services.special_fields_model_service import SpecialFieldsModelService
+from fakeapp.services.stream_in_service import StreamInService
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 
@@ -23,6 +24,7 @@ def grpc_handlers(server):
     app_registry.register(SpecialFieldsModelService)
     app_registry.register(SyncUnitTestModelService)
     app_registry.register(UnitTestModelService)
+    app_registry.register(StreamInService)
 
 
 services = (
@@ -33,4 +35,5 @@ services = (
     SpecialFieldsModelService,
     SyncUnitTestModelService,
     UnitTestModelService,
+    StreamInService,
 )

@@ -565,6 +565,10 @@ service SpecialFieldsModelController {
     rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
 }
 
+service StreamInController {
+    rpc StreamIn(stream StreamInStreamInRequest) returns (StreamInStreamInListResponse) {}
+}
+
 service SyncUnitTestModelController {
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
@@ -796,6 +800,19 @@ message SpecialFieldsModelRetrieveRequest {
     string uuid = 1;
 }
 
+message StreamInStreamInListResponse {
+    repeated StreamInStreamInResponse results = 1;
+    int32 count = 2;
+}
+
+message StreamInStreamInRequest {
+    string name = 1;
+}
+
+message StreamInStreamInResponse {
+    int32 count = 1;
+}
+
 message SyncUnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
 }
@@ -890,6 +907,10 @@ service SpecialFieldsModelController {
     rpc PartialUpdate(SpecialFieldsModelPartialUpdateRequest) returns (SpecialFieldsModelResponse) {}
     rpc Retrieve(SpecialFieldsModelRetrieveRequest) returns (CustomRetrieveResponseSpecialFieldsModelResponse) {}
     rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
+}
+
+service StreamInController {
+    rpc StreamIn(stream StreamInStreamInRequest) returns (StreamInStreamInListResponse) {}
 }
 
 service SyncUnitTestModelController {
@@ -1162,6 +1183,19 @@ message SpecialFieldsModelResponse {
 
 message SpecialFieldsModelRetrieveRequest {
     string uuid = 1;
+}
+
+message StreamInStreamInListResponse {
+    repeated StreamInStreamInResponse results = 1;
+    int32 count = 2;
+}
+
+message StreamInStreamInRequest {
+    string name = 1;
+}
+
+message StreamInStreamInResponse {
+    int32 count = 1;
 }
 
 message SyncUnitTestModelListWithExtraArgsRequest {

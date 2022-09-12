@@ -46,6 +46,10 @@ service SpecialFieldsModelController {
     rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
 }
 
+service StreamInController {
+    rpc StreamIn(stream StreamInStreamInRequest) returns (StreamInStreamInListResponse) {}
+}
+
 service SyncUnitTestModelController {
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
@@ -316,6 +320,19 @@ message SpecialFieldsModelResponse {
 
 message SpecialFieldsModelRetrieveRequest {
     string uuid = 1;
+}
+
+message StreamInStreamInListResponse {
+    repeated StreamInStreamInResponse results = 1;
+    int32 count = 2;
+}
+
+message StreamInStreamInRequest {
+    string name = 1;
+}
+
+message StreamInStreamInResponse {
+    int32 count = 1;
 }
 
 message SyncUnitTestModelListWithExtraArgsRequest {

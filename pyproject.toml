@@ -13,6 +13,7 @@ grpcio = "<2"
 grpcio-tools = "<2"
 asyncio = "^3.4.3"
 proto-parser = "^1.6.3"
+protobuf = ">=3.5.0.post1,<4.0dev"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

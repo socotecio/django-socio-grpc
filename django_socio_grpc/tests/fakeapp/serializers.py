@@ -87,6 +87,7 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
 
 class SpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
+        proto_comment = ProtoComment(["Special Fields Model", "with two lines comment"])
         model = SpecialFieldsModel
         proto_class = fakeapp_pb2.SpecialFieldsModelResponse
         proto_class_list = fakeapp_pb2.SpecialFieldsModelListResponse
@@ -115,6 +116,7 @@ class CustomRetrieveResponseSpecialFieldsModelSerializer(
         return [{"test": "test"}]
 
     class Meta:
+        proto_comment = "Test comment for whole message"
         model = SpecialFieldsModel
         proto_class = fakeapp_pb2.RelatedFieldModelResponse
         fields = ["uuid", "default_method_field", "custom_method_field"]

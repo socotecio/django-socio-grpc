@@ -3,7 +3,7 @@ import sys
 from dataclasses import dataclass, field
 from importlib import import_module, reload
 from pathlib import Path
-from typing import Any, List, OrderedDict, Tuple, Type, Union
+from typing import Any, List, OrderedDict, Tuple, Type, Union, Dict
 
 from django.apps.registry import apps
 from django.conf import settings
@@ -11,6 +11,7 @@ from django.conf import settings
 from django_socio_grpc.services import Service
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import camel_to_snake
+from django_socio_grpc.utils.tools import ProtoComment
 
 from .registry_singleton import RegistrySingleton
 
@@ -30,6 +31,9 @@ class AppHandlerRegistry:
     registered_controllers: OrderedDict = field(default_factory=OrderedDict, init=False)
     registered_messages: OrderedDict[str, List[Tuple[str, str, str]]] = field(
         default_factory=OrderedDict, init=False
+    )
+    registered_messages_comments: Dict[str, ProtoComment] = field(
+        default_factory=lambda: {}, init=False
     )
 
     def __post_init__(self):

@@ -329,6 +329,7 @@ service SpecialFieldsModelController {
     rpc Update(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
 }
 
+// Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModelResponse {
     string uuid = 1;
     int32 default_method_field = 2;
@@ -360,6 +361,8 @@ message SpecialFieldsModelRequest {
     repeated int32 list_datas = 3;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModelResponse {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
@@ -443,10 +446,10 @@ message BasicParamWithSerializerListRequest {
 }
 
 message BasicParamWithSerializerRequest {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -476,10 +479,10 @@ message BasicServiceListResponse {
 }
 
 message BasicServiceRequest {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -487,10 +490,10 @@ message BasicServiceRequest {
 }
 
 message BasicServiceResponse {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     bytes bytes_example = 3;
     repeated google.protobuf.Struct list_of_dict = 4;
@@ -506,7 +509,7 @@ message CustomMixParamForRequest {
 }
 
 message CustomNameForRequest {
-    //@test=in_decorator
+    // @test=in_decorator
     string user_name = 1;
 }
 
@@ -625,10 +628,10 @@ message BasicMixParamWithSerializerListResponse {
 }
 
 message BasicParamWithSerializerRequest {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -652,10 +655,10 @@ message BasicProtoListChildListResponse {
 }
 
 message BasicService {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -677,7 +680,7 @@ message CustomMixParamForRequestList {
 }
 
 message CustomNameForRequest {
-    //@test=in_decorator
+    // @test=in_decorator
     string user_name = 1;
 }
 
@@ -685,6 +688,7 @@ message CustomNameForResponse {
     string user_name = 1;
 }
 
+// Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModel {
     string uuid = 1;
     int32 default_method_field = 2;
@@ -765,6 +769,8 @@ message RelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModel {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
@@ -963,10 +969,10 @@ message BasicParamWithSerializerListRequest {
 }
 
 message BasicParamWithSerializerRequest {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -996,10 +1002,10 @@ message BasicServiceListResponse {
 }
 
 message BasicServiceRequest {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     string user_password = 3;
     bytes bytes_example = 4;
@@ -1007,10 +1013,10 @@ message BasicServiceRequest {
 }
 
 message BasicServiceResponse {
-    //@test=comment1
-    //@test2=comment2
+    // @test=comment1
+    // @test2=comment2
     string user_name = 1;
-    //@test=test_in_serializer
+    // @test=test_in_serializer
     google.protobuf.Struct user_data = 2;
     bytes bytes_example = 3;
     repeated google.protobuf.Struct list_of_dict = 4;
@@ -1026,7 +1032,7 @@ message CustomMixParamForRequest {
 }
 
 message CustomNameForRequest {
-    //@test=in_decorator
+    // @test=in_decorator
     string user_name = 1;
 }
 
@@ -1034,6 +1040,7 @@ message CustomNameForResponse {
     string user_name = 1;
 }
 
+// Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModelResponse {
     string uuid = 1;
     int32 default_method_field = 2;
@@ -1153,6 +1160,8 @@ message SpecialFieldsModelRequest {
     repeated int32 list_datas = 3;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModelResponse {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;

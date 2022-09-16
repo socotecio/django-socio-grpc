@@ -65,7 +65,11 @@ class RegistryToProtoGenerator:
             )
 
         for grpc_message_name, grpc_message in sorted(registry.registered_messages.items()):
-            self._generate_message(grpc_message_name, grpc_message)
+            self._generate_message(
+                grpc_message_name,
+                grpc_message,
+                grpc_message_comment=registry.registered_messages_comments.get(grpc_message_name),
+            )
 
         return self._writer.get_code()
 
@@ -101,7 +105,7 @@ class RegistryToProtoGenerator:
             self._writer.import_empty = True
         return f"{'stream ' if method_info.get('is_stream', False) else ''}{grpc_message}"
 
-    def _generate_message(self, grpc_message_name, grpc_message_fields):
+    def _generate_message(self, grpc_message_name, grpc_message_fields, grpc_message_comment=None):
         """
         Take a model and smartly decide why messages and which field for each message to write in the protobuf file.
         It use the model._meta.grpc_messages if exist or use the default configurations
@@ -112,8 +116,15 @@ class RegistryToProtoGenerator:
 
         self.print("\n------\n", 2)
         self.print(f"GENERATE MESSAGE: {grpc_message_name}", 2)
+        if grpc_message_comment:
+            self.print(grpc_message_comment, 2)
         self.print(grpc_message_fields, 3)
         self.print("not ordered yet", 4)
+
+        # Info - NS - 16/09/2022 - Write whole message comment if exists
+        if grpc_message_comment:
+            for part_of_comment in grpc_message_comment:
+                self.write_comment_line(part_of_comment)
 
         # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {grpc_message_name} {{")
@@ -146,7 +157,7 @@ class RegistryToProtoGenerator:
         self._writer.write_line("")
 
     def write_comment_line(self, comment):
-        self._writer.write_line(f"//{comment}")
+        self._writer.write_line(f"// {comment}")
 
     def find_existing_number_for_field(self, grpc_message_name, field_name):
         """

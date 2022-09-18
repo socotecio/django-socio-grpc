@@ -21,7 +21,7 @@ class SocioProxyHttpRequest:
         grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
         )
-        self.headers = json.loads(grpc_request_metadata.get(self.HEADERS_KEY, "{}"))
+        self.headers = grpc_request_metadata # json.loads(grpc_request_metadata.get(self.HEADERS_KEY, "{}"))
         self.META = {
             self.MAP_HEADERS.get(key.upper()): value for key, value in self.headers.items()
         }

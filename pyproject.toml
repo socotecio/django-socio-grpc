@@ -9,8 +9,9 @@ license = "Apache-2.0"
 python = ">=3.8,<4.0"
 django = ">=2.2"
 djangorestframework = "*"
-grpcio = "<2"
-grpcio-tools = "<2"
+# https://github.com/grpc/grpc/issues/31044
+grpcio = "<1.49.0"
+grpcio-tools = "<1.49.0"
 asyncio = "^3.4.3"
 proto-parser = "^1.6.3"
 

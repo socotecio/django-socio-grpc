@@ -9,5 +9,6 @@ RUN pip install --no-cache-dir psycopg2 poetry
 RUN poetry config virtualenvs.create false
 
 COPY pyproject.toml .
+COPY poetry.lock .
 
 RUN poetry install

@@ -348,6 +348,8 @@ message SpecialFieldsModelListResponse {
     int32 count = 2;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModelPartialUpdateRequest {
     string uuid = 1;
     repeated string _partial_update_fields = 2;
@@ -355,6 +357,8 @@ message SpecialFieldsModelPartialUpdateRequest {
     repeated int32 list_datas = 4;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModelRequest {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;
@@ -790,6 +794,8 @@ message SpecialFieldsModelListResponse {
     int32 count = 2;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModelPartialUpdateRequest {
     string uuid = 1;
     repeated string _partial_update_fields = 2;
@@ -1147,6 +1153,8 @@ message SpecialFieldsModelListResponse {
     int32 count = 2;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModelPartialUpdateRequest {
     string uuid = 1;
     repeated string _partial_update_fields = 2;
@@ -1154,6 +1162,8 @@ message SpecialFieldsModelPartialUpdateRequest {
     repeated int32 list_datas = 4;
 }
 
+// Special Fields Model
+// with two lines comment
 message SpecialFieldsModelRequest {
     string uuid = 1;
     google.protobuf.Struct meta_datas = 2;

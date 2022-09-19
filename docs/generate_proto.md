@@ -385,3 +385,29 @@ message ExampleListResponse {
     int32 count = 2;
 }
 ```
+
+
+## Add comments to fields
+
+You could specify comments for fields in your model (proto message) via `help_text` attribute and `django_socio_grpc.utils.tools.ProtoComment` class:
+
+```python
+class ExampleSerializer(proto_serializers.ProtoSerializer):
+
+    name = serializers.CharField(help_text=ProtoComment(["Comment for the name field"]))
+    value = serializers.CharField(help_text=ProtoComment(["Multiline comment", "for the value field"]))
+
+    class Meta:
+        fields = ["name", "value"]
+
+```
+
+```proto
+message ExampleResponse {
+    // Comment for the name field
+    string name = 1;
+    // Multiline comment
+    // for the value field
+    string value = 2;
+}
+```

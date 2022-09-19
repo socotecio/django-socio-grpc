@@ -20,7 +20,6 @@ class SocioProxyHttpRequest:
 
     def __init__(self, grpc_context, grpc_action):
 
-        print(grpc_context.__dict__)
         self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
         )

@@ -1,4 +1,5 @@
 import json
+from django_socio_grpc.settings import grpc_settings
 
 
 class SocioProxyHttpRequest:
@@ -18,10 +19,11 @@ class SocioProxyHttpRequest:
     }
 
     def __init__(self, grpc_context, grpc_action):
-        grpc_request_metadata = self.convert_metadata_to_dict(
+
+        self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
         )
-        self.headers = json.loads(grpc_request_metadata.get(self.HEADERS_KEY, "{}"))
+        self.headers = self.get_from_metadata(self.HEADERS_KEY)
         self.META = {
             self.MAP_HEADERS.get(key.upper()): value for key, value in self.headers.items()
         }
@@ -35,11 +37,17 @@ class SocioProxyHttpRequest:
         self.method = self.grpc_action_to_http_method_name(grpc_action)
 
         # Computed params
-        self.query_params = self.get_query_params(grpc_request_metadata)
+        self.query_params = self.get_query_params()
         # INFO - AM - 10/02/2021 - Only implementing GET because it's easier as we have metadata here. For post we will have to pass the request and transform it to python dict.
         # It's possible but it will be slow the all thing so we hava to param this behavior with settings.
         # So we are waiting for the need to implement it
         self.GET = self.query_params
+
+    def get_from_metadata(self, metadata_key):
+        metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key, None)
+        if not metadata_key:
+            return self.grpc_request_metadata
+        return json.loads(self.grpc_request_metadata.get(metadata_key, "{}"))
 
     def convert_metadata_to_dict(self, invocation_metadata):
         grpc_request_metadata = {}
@@ -47,10 +55,11 @@ class SocioProxyHttpRequest:
             grpc_request_metadata[key.upper()] = value
         return grpc_request_metadata
 
-    def get_query_params(self, grpc_request_metadata):
-        filters_params = json.loads(grpc_request_metadata.get(self.FILTERS_KEY, "{}"))
-        pagination_params = json.loads(grpc_request_metadata.get(self.PAGINATION_KEY, "{}"))
-        return {**filters_params, **pagination_params}
+    def get_query_params(self):
+        return {
+            **self.get_from_metadata(self.FILTERS_KEY),
+            **self.get_from_metadata(self.PAGINATION_KEY),
+        }
 
     def build_absolute_uri(self):
         return "NYI"

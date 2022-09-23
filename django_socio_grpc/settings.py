@@ -56,6 +56,8 @@ DEFAULTS = {
     "IGNORE_LOG_FOR_ACTION": [],
     # Root GRPC folder for external grpc handlers
     "ROOT_GRPC_FOLDER": "grpc_folder",
+    # Default places where to search headers, pagination and filter data
+    "MAP_METADATA_KEYS": {"HEADERS": "HEADERS", "PAGINATION": "PAGINATION", "FILTERS": "FILTERS"},
 }
 
 

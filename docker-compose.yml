@@ -42,7 +42,7 @@ services:
     ports:
       - "5532:5432"
     volumes:
-      - /srv/django-socio-grpc/database/django-socio-grpc:/var/lib/postgresql/data
+      - django-socio-grpc-data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: test
       POSTGRES_USER: test
@@ -52,3 +52,6 @@ services:
 
 networks:
   django-socio-grpc-network:
+
+volumes:
+  django-socio-grpc-data: {}

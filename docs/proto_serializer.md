@@ -1,7 +1,7 @@
 ## Proto Serializer
 
 
-Proto Serializer works exctly the same as [DRF serializer](https://www.django-rest-framework.org/api-guide/serializers/). You juste have to inherit from a different class (see mapping under) and add two meta attr `proto_class` and `proto_class_list`.
+Proto Serializer works exactly the same as [DRF serializer](https://www.django-rest-framework.org/api-guide/serializers/). You juste have to inherit from a different class (see mapping under) and add two meta attr `proto_class` and `proto_class_list`.
 
 ### Mapping betwen Django REST Framework and Django Socio gRPC
 
@@ -38,6 +38,7 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = Question
         proto_class = quickstart_pb2.Question
+        proto_comment = ProtoComment(["Multiline", "comment", "for", "message"])
         proto_class_list = quickstart_pb2.QuestionListResponse
         fields = ["id", "question_text", "pub_date"]
 ```
@@ -61,6 +62,8 @@ Extra kwargs options are used like this: `serializer_instance = SerializerClass(
 - `stream <Boolean>`: return the message as a list of proto_class instead of an instance of proto_class_list to be used in stream. See [Stream exemple](https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/mixins.py#L107)
 
 - `message_list_attr <String>`: change the attribute name for the list of instance returned by a proto_class_list (default is results).
+
+- `proto_comment <ProtoComment or string>`: add to model (message) comment in output PROTO file. `ProtoComment` class is declared in `django_socio_grpc.utils.tools` a helps to have multi-line comments.
 
 ### Tips for converting UUID Field
 

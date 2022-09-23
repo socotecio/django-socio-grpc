@@ -43,7 +43,7 @@ force-exclude = '''
   | \.venv
   | build
   | dist
-  | examples
+  | examples
   | migrations
   | grpc
 )/

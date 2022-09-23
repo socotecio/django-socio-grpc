@@ -68,7 +68,9 @@ class RegistryToProtoGenerator:
             self._generate_message(
                 grpc_message_name,
                 grpc_message,
-                grpc_message_comment=registry.registered_messages_comments.get(grpc_message_name),
+                grpc_message_comment=registry.registered_messages_comments.get(
+                    grpc_message_name
+                ),
             )
 
         return self._writer.get_code()
@@ -105,7 +107,9 @@ class RegistryToProtoGenerator:
             self._writer.import_empty = True
         return f"{'stream ' if method_info.get('is_stream', False) else ''}{grpc_message}"
 
-    def _generate_message(self, grpc_message_name, grpc_message_fields, grpc_message_comment=None):
+    def _generate_message(
+        self, grpc_message_name, grpc_message_fields, grpc_message_comment=None
+    ):
         """
         Take a model and smartly decide why messages and which field for each message to write in the protobuf file.
         It use the model._meta.grpc_messages if exist or use the default configurations

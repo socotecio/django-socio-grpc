@@ -3,7 +3,7 @@ import sys
 from dataclasses import dataclass, field
 from importlib import import_module, reload
 from pathlib import Path
-from typing import Any, List, OrderedDict, Tuple, Type, Union, Dict
+from typing import Any, Dict, List, OrderedDict, Tuple, Type, Union
 
 from django.apps.registry import apps
 from django.conf import settings

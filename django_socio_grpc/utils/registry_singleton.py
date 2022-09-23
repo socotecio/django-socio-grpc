@@ -141,10 +141,11 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # Add comment for whole message if proto_comment exists in Meta
         if hasattr(serializer_instance.Meta, "proto_comment"):
-            self.registered_app[app_name].registered_messages_comments[message_name] = \
-                serializer_instance.Meta.proto_comment \
-                    if isinstance(serializer_instance.Meta.proto_comment, ProtoComment) \
-                    else ProtoComment(serializer_instance.Meta.proto_comment)
+            self.registered_app[app_name].registered_messages_comments[message_name] = (
+                serializer_instance.Meta.proto_comment
+                if isinstance(serializer_instance.Meta.proto_comment, ProtoComment)
+                else ProtoComment(serializer_instance.Meta.proto_comment)
+            )
 
         if issubclass(serializer_instance.__class__, ProtoSerializer):
             for field_name, field_type in serializer_instance.get_fields().items():

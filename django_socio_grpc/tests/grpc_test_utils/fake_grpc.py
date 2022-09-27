@@ -94,15 +94,18 @@ class FakeAsyncContext(FakeContext):
         await sync_to_async(super().write)(data)
 
     async def read(self):
-        return await sync_to_async(super().read)()
+        try:
+            return await sync_to_async(super().read)()
+        except queue.Empty:
+            return grpc.aio.EOF
 
     def __aiter__(self):
         return self
 
     async def __anext__(self):
-        response = self.stream_pipe.get_nowait()
+        response = await self.read()
         if response == grpc.aio.EOF:
-            raise StopIteration()
+            raise StopAsyncIteration
         else:
             return response
 
@@ -298,15 +301,15 @@ class FakeFullAioCall(FakeAioCall):
             or not self.method_awaitable.done()
             or not self._context.stream_pipe.empty()
         ):
-            try:
-                # INFO - AM - 11/08/2022 - Get message in queue without waiting to avoid blocking the current loop
-                response = await self._context.read()
+            # INFO - AM - 11/08/2022 - Get message in queue without waiting to avoid blocking the current loop
+            response = await self._context.read()
 
-                return response
-            except queue.Empty:
+            if response == grpc.aio.EOF:
                 # INFO - AM - 11/08/2022 - if the queue is not empty no need to wait, just handle the next event.
                 if self._context.stream_pipe.empty():
                     await asyncio.sleep(0.1)
+            else:
+                return response
 
         return grpc.aio.EOF
 

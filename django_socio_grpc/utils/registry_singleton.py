@@ -1,7 +1,7 @@
 import inspect
+import logging
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Dict, List, Tuple, Type
-import logging
 
 from django.db import models
 from rest_framework.fields import (

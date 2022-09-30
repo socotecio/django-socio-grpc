@@ -52,6 +52,7 @@ class SingletonMeta(type):
 TYPE_MAPPING = {
     # Numeric
     models.AutoField.__name__: "int32",
+    models.BigAutoField.__name__: "int64",
     models.SmallIntegerField.__name__: "int32",
     models.IntegerField.__name__: "int32",
     models.BigIntegerField.__name__: "int64",

@@ -328,7 +328,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             ).__class__.__name__
         grpc_field_type = TYPE_MAPPING.get(type_name, "related_not_found")
         if grpc_field_type == "related_not_found":
-            logger.error(f"No mapping found in registry_singleton for {grpc_field_type}")
+            logger.error(f"No mapping found in registry_singleton for {type_name}")
         return grpc_field_type
 
     def get_pk_from_slug_related_field(

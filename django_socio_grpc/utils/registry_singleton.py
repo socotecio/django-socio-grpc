@@ -1,6 +1,7 @@
 import inspect
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Dict, List, Tuple, Type
+import logging
 
 from django.db import models
 from rest_framework.fields import (
@@ -34,6 +35,8 @@ from .constants import (
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
     from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+
+logger = logging.getLogger("django_socio_grpc")
 
 
 class RegisterServiceException(Exception):
@@ -323,7 +326,10 @@ class RegistrySingleton(metaclass=SingletonMeta):
             type_name = model_meta.get_model_pk(
                 related_field.queryset.model
             ).__class__.__name__
-        return TYPE_MAPPING.get(type_name, "related_not_found")
+        grpc_field_type = TYPE_MAPPING.get(type_name, "related_not_found")
+        if grpc_field_type == "related_not_found":
+            logger.error(f"No mapping found in registry_singleton for {grpc_field_type}")
+        return grpc_field_type
 
     def get_pk_from_slug_related_field(
         self, slug_related_field, field_name, serializer_instance

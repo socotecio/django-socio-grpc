@@ -99,16 +99,6 @@ class FakeAsyncContext(FakeContext):
         except queue.Empty:
             return grpc.aio.EOF
 
-    def __aiter__(self):
-        return self
-
-    async def __anext__(self):
-        response = await self.read()
-        if response == grpc.aio.EOF:
-            raise StopAsyncIteration
-        else:
-            return response
-
 
 def get_brand_new_default_event_loop():
     try:
@@ -200,7 +190,39 @@ class FakeGRPC:
         return grpc_stub_cls(self.grpc_channel)
 
 
-class FakeAioCall(grpc.aio.Call):
+class FakeBaseCall(grpc.aio.Call):
+    def add_done_callback(*args, **kwargs):
+        pass
+
+    def cancel(*args, **kwargs):
+        pass
+
+    def cancelled(*args, **kwargs):
+        pass
+
+    def code(*args, **kwargs):
+        pass
+
+    def details(*args, **kwargs):
+        pass
+
+    def done(*args, **kwargs):
+        pass
+
+    def initial_metadata(*args, **kwargs):
+        pass
+
+    def time_remaining(*args, **kwargs):
+        pass
+
+    def trailing_metadata(*args, **kwargs):
+        pass
+
+    def wait_for_connection(*args, **kwargs):
+        pass
+
+
+class FakeAioCall(FakeBaseCall):
     def __init__(self, context=None, call_type=None, real_method=None, metadata=None):
         self._call_type = call_type
         self._context = context
@@ -234,39 +256,21 @@ class FakeAioCall(grpc.aio.Call):
     def read(self):
         return async_to_sync(self._context.read)()
 
-    def add_done_callback(*args, **kwargs):
-        pass
-
-    def cancel(*args, **kwargs):
-        pass
-
-    def cancelled(*args, **kwargs):
-        pass
-
-    def code(*args, **kwargs):
-        pass
-
-    def details(*args, **kwargs):
-        pass
-
-    def done(*args, **kwargs):
-        pass
-
-    def initial_metadata(*args, **kwargs):
-        pass
-
-    def time_remaining(*args, **kwargs):
-        pass
-
-    def trailing_metadata(*args, **kwargs):
-        pass
-
-    def wait_for_connection(*args, **kwargs):
-        pass
-
 
 # INFO - AM - 10/08/2022 - FakeFullAioCall use async function where FakeFullAioCall use async_to_sync
-class FakeFullAioCall(FakeAioCall):
+class FakeFullAioCall(FakeBaseCall):
+    def __init__(self, context=None, call_type=None, real_method=None, metadata=None):
+        self._call_type = call_type
+        self._context = context
+        self._real_method = real_method
+        self._metadata = None
+        self._request = None
+        self.method_awaitable = None
+
+        if metadata:
+            self._metadata = metadata
+            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+
     def __call__(self, request=None, metadata=None):
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
         if request is not None:
@@ -280,19 +284,43 @@ class FakeFullAioCall(FakeAioCall):
         )
         return self
 
+
+class UnaryResponseMixin:
     def __await__(self):
-        # INFO - AM - 10/08/2022 - https://github.com/grpc/grpc/blob/4df74f2b4c3ddc00e6607825b52cf82ee842d820/src/python/grpcio/grpc/aio/_call.py#L268
+        # TODO - AM - 10/08/2022 - https://github.com/grpc/grpc/blob/4df74f2b4c3ddc00e6607825b52cf82ee842d820/src/python/grpcio/grpc/aio/_call.py#L268
         # Need to implement CancelledError and EOF response
         response = yield from self.method_awaitable
-        # response = self.method_awaitable.__await__()
         return response
 
+
+class StreamRequestMixin:
+    _is_done_writing = False
+
+    def __call__(self, request=None, metadata=None):
+        if request is not None:
+            raise ValueError("request must be None for stream calls")
+        return super().__call__(request=FakeMessageReceiver(self._context), metadata=metadata)
+
     async def write(self, data):
-        await self._context.write(data)
+        if self._is_done_writing:
+            raise ValueError("write() is called after done_writing()")
+        return await self._context.write(data)
+
+    async def done_writing(self) -> None:
+        self._is_done_writing = True
+
+
+class StreamResponseMixin:
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        response = await self.read()
+        if response == grpc.aio.EOF:
+            raise StopAsyncIteration()
+        return response
 
     async def read(self):
-        # return await self._context.read()
-
         # INFO - AM - 11/08/2022 - while "self.method_awaitable is None" mean while the grpc method has not been call
         # while "not self.method_awaitable.done()" mean while the grpc method is not finish to be executed
         # while "not self._context.stream_pipe.empty()" mean while there is some message that need to be intrepreted from the context
@@ -313,14 +341,55 @@ class FakeFullAioCall(FakeAioCall):
 
         return grpc.aio.EOF
 
+
+class FakeFullAioStreamUnaryCall(
+    StreamRequestMixin, FakeFullAioCall, UnaryResponseMixin, grpc.aio.StreamUnaryCall
+):
+    pass
+
+
+class FakeFullAioStreamStreamCall(
+    StreamRequestMixin, FakeFullAioCall, StreamResponseMixin, grpc.aio.StreamStreamCall
+):
+    pass
+
+
+class FakeFullAioUnaryStreamCall(
+    FakeFullAioCall, StreamResponseMixin, grpc.aio.UnaryStreamCall
+):
+    pass
+
+
+class FakeFullAioUnaryUnaryCall(FakeFullAioCall, UnaryResponseMixin, grpc.aio.UnaryUnaryCall):
+    pass
+
+
+class FakeMessageReceiver:
+    """
+    From `grpc._cython.cygrpc._MessageReceiver`
+    """
+
+    def __init__(self, context):
+        self._servicer_context = context
+        self._agen = None
+
+    async def _async_message_receiver(self):
+        """An async generator that receives messages."""
+        while True:
+            message = await self._servicer_context.read()
+            if message is not grpc.aio.EOF:
+                yield message
+            else:
+                break
+
     def __aiter__(self):
-        return self
+        # Prevents never awaited warning if application never used the async generator
+        if self._agen is None:
+            self._agen = self._async_message_receiver()
+        return self._agen
 
     async def __anext__(self):
-        response = await self.read()
-        if response == grpc.aio.EOF:
-            raise StopAsyncIteration()
-        return response
+        return await self.__aiter__().__anext__()
 
 
 class FakeAIOChannel(FakeChannel):
@@ -341,7 +410,25 @@ class FakeFullAIOChannel(FakeChannel):
         real_method = getattr(handler, method_name)
         self.context = FakeAsyncContext()
 
-        return FakeFullAioCall(
+        # INFO - LG - 05/10/2022 - Using the right call type
+        # https://github.com/grpc/grpc/blob/abde72280d88c0a0b8e25efc6f810cd702b21f07/src/python/grpcio/grpc/_cython/_cygrpc/aio/server.pyx.pxi#L795
+
+        if handler.request_streaming and not handler.response_streaming:
+            return FakeFullAioStreamUnaryCall(
+                context=self.context, call_type=method_name, real_method=real_method
+            )
+
+        if handler.request_streaming and handler.response_streaming:
+            return FakeFullAioStreamStreamCall(
+                context=self.context, call_type=method_name, real_method=real_method
+            )
+
+        if not handler.request_streaming and handler.response_streaming:
+            return FakeFullAioUnaryStreamCall(
+                context=self.context, call_type=method_name, real_method=real_method
+            )
+
+        return FakeFullAioUnaryUnaryCall(
             context=self.context, call_type=method_name, real_method=real_method
         )
 

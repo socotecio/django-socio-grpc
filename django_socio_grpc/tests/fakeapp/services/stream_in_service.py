@@ -15,6 +15,6 @@ class StreamInService(generics.GenericService):
         use_response_list=True,
     )
     async def StreamIn(self, request, context):
-        names = [name async for name in context.grpc_context]
+        names = [name async for name in request]
 
         return fakeapp_pb2.StreamInStreamInResponse(count=len(names))

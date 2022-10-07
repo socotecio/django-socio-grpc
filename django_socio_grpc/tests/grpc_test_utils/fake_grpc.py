@@ -94,10 +94,12 @@ class FakeAsyncContext(FakeContext):
         await sync_to_async(super().write)(data)
 
     async def read(self):
-        try:
-            return await sync_to_async(super().read)()
-        except queue.Empty:
-            return grpc.aio.EOF
+        while True:
+            try:
+                await asyncio.sleep(0.1)
+                return await sync_to_async(super().read)()
+            except queue.Empty:
+                pass
 
 
 def get_brand_new_default_event_loop():
@@ -261,7 +263,7 @@ class FakeAioCall(FakeBaseCall):
 class FakeFullAioCall(FakeBaseCall):
     def __init__(self, context=None, call_type=None, real_method=None, metadata=None):
         self._call_type = call_type
-        self._context = context
+        self._context: FakeAsyncContext = context
         self._real_method = real_method
         self._metadata = None
         self._request = None
@@ -278,9 +280,16 @@ class FakeFullAioCall(FakeBaseCall):
         if self._metadata is None and metadata is not None:
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+
+        async def wrapped(*args, **kwargs):
+            response = await self._real_method(request=self._request, context=self._context)
+            # INFO - FB - 07/10/2022 - We have say that real_method have finish in Stream Stream
+            await self._context.write(grpc.aio.EOF)
+            return response
+
         # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
         self.method_awaitable = asyncio.create_task(
-            self._real_method(request=self._request, context=self._context)
+            wrapped(request=self._request, context=self._context)
         )
         return self
 
@@ -304,7 +313,6 @@ class StreamRequestMixin:
     async def write(self, data):
         if self._is_done_writing:
             raise ValueError("write() is called after done_writing()")
-        return await self._context.write(data)
 
     async def done_writing(self) -> None:
         self._is_done_writing = True
@@ -321,26 +329,7 @@ class StreamResponseMixin:
         return response
 
     async def read(self):
-        # INFO - AM - 11/08/2022 - while "self.method_awaitable is None" mean while the grpc method has not been call
-        # while "not self.method_awaitable.done()" mean while the grpc method is not finish to be executed
-        # while "not self._context.stream_pipe.empty()" mean while there is some message that need to be intrepreted from the context
-        while (
-            self.method_awaitable is None
-            or not self.method_awaitable.done()
-            or not self._context.stream_pipe.empty()
-        ):
-            # INFO - AM - 11/08/2022 - Get message in queue without waiting to avoid blocking the current loop
-            response = await self._context.read()
-
-            if response == grpc.aio.EOF:
-                # INFO - AM - 11/08/2022 - if the queue is not empty no need to wait, just handle the next event.
-                if self._context.stream_pipe.empty():
-                    await asyncio.sleep(0.1)
-            else:
-                return response
-
-        return grpc.aio.EOF
-
+        return await self._context.read()
 
 class FakeFullAioStreamUnaryCall(
     StreamRequestMixin, FakeFullAioCall, UnaryResponseMixin, grpc.aio.StreamUnaryCall

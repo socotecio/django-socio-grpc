@@ -6,7 +6,6 @@ import asyncio
 import queue
 import socket
 from collections.abc import Iterable
-from time import time
 
 import grpc
 from asgiref.sync import async_to_sync, sync_to_async
@@ -95,18 +94,18 @@ class FakeAsyncContext(FakeContext):
         await sync_to_async(super().write)(data)
 
     async def read(self):
-        t = time()
+        count = 0
         while True:
-            if time() - t > 2:
+            if count > 100:
                 raise TimeoutError(
                     "Context read timeout, please make sure you are correctly "
-                    "closing your stream with `done_writing`"
+                    "closing your stream with `stream_call.done_writing()`"
                 )
             try:
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0)
                 return await sync_to_async(super().read)()
             except queue.Empty:
-                pass
+                count += 1
 
 
 def get_brand_new_default_event_loop():
@@ -323,7 +322,7 @@ class StreamRequestMixin:
 
     async def done_writing(self) -> None:
         if not self._is_done_writing:
-            await self.write(grpc.aio.EOF)
+            await self._context.write(grpc.aio.EOF)
             self._is_done_writing = True
 
 

@@ -22,7 +22,7 @@ class TestAsyncStreamIn(TestCase):
         grpc_settings.GRPC_ASYNC = False
         self.fake_grpc.close()
 
-    async def test_async_partial_update(self):
+    async def test_async_stream_in(self):
 
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 

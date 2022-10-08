@@ -323,9 +323,22 @@ class RegistrySingleton(metaclass=SingletonMeta):
         if related_field.pk_field:
             type_name = related_field.pk_field.__class__.__name__
         else:
-            type_name = model_meta.get_model_pk(
-                related_field.queryset.model
-            ).__class__.__name__
+            # INFO - AM - 08/10/2022 - happen if read_only = True
+            if related_field.queryset is None:
+                try:
+                    logger.warning(
+                        "One of your related field in your seriliazer is in read only without queryset parameter and without pk_field parameter. We can't automatically determine the type of this related field. Defaulting to DEFAULT_AUTO_FIELD or string for django < 3.2. Please use pk_field param to specify the type if needed."
+                    )
+                    from django.conf import settings
+
+                    # INFO - AM - 08/10/2022 - settings.DEFAULT_AUTO_FIELD look like django.db.models.AutoField
+                    type_name = settings.DEFAULT_AUTO_FIELD.split(".")[-1]
+                except Exception:  # INFO - AM - 08/10/2022 - before django 3.2  DEFAULT_AUTO_FIELD does not exist
+                    type_name = models.CharField.__name__
+            else:
+                type_name = model_meta.get_model_pk(
+                    related_field.queryset.model
+                ).__class__.__name__
         grpc_field_type = TYPE_MAPPING.get(type_name, "related_not_found")
         if grpc_field_type == "related_not_found":
             logger.error(f"No mapping found in registry_singleton for {type_name}")

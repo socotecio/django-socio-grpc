@@ -246,7 +246,9 @@ def _get_partial_update_request(service):
 
     # INFO - L.G. - 19/06/2022 - extra field needs to be appended to
     # the serializer.
-    if (fields := serializer_class.Meta.fields) and not isinstance(fields, str):
+    if (fields := getattr(PartialUpdateRequest.Meta, "fields", None)) and not isinstance(
+        fields, str
+    ):
         PartialUpdateRequest.Meta.fields = (*fields, "_partial_update_fields")
 
     return PartialUpdateRequest

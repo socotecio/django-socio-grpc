@@ -1,3 +1,4 @@
+import asyncio
 from django.test import TestCase
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
@@ -50,3 +51,30 @@ class TestAsyncStreamIn(TestCase):
 
         with self.assertRaisesMessage(RpcError, "Context read timeout"):
             await stream_caller
+
+
+    async def test_async_stream_stream(self):
+
+
+        grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
+
+        stream_caller = grpc_stub.StreamToStream()
+
+        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="a"))
+        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="b"))
+
+        response1 = await stream_caller.read()
+
+        self.assertEqual(response1.name, "aResponse")
+
+        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="c"))
+
+        response2 = await stream_caller.read()
+        response3 = await stream_caller.read()
+
+        self.assertEqual(response2.name, "bResponse")
+        self.assertEqual(response3.name, "cResponse")
+
+
+        await stream_caller.done_writing()
+        # response = await stream_caller

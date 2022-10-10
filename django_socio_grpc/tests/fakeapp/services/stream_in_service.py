@@ -15,6 +15,21 @@ class StreamInService(generics.GenericService):
         use_response_list=True,
     )
     async def StreamIn(self, request, context):
-        names = [name async for name in request]
+        messages = [message async for message in request]
 
-        return fakeapp_pb2.StreamInStreamInResponse(count=len(names))
+        return fakeapp_pb2.StreamInStreamInResponse(count=len(messages))
+
+    @grpc_action(
+        request=[{"name": "name", "type": "string"}],
+        response=[{"name": "name", "type": "string"}],
+        request_stream=True,
+        response_stream=True,
+    )
+    async def StreamToStream(self, request, context):
+        print()
+
+        async for message in request:
+            name = message.name
+            await context.write(
+                fakeapp_pb2.StreamInStreamToStreamResponse(name=f"{name}Response")
+            )

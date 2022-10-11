@@ -32,7 +32,7 @@ class TestAsyncStreamIn(TestCase):
 
         for name in ["a", "b", "c"]:
             request = fakeapp_pb2.StreamInStreamInRequest(name=name)
-            await stream_caller._context.write(request)
+            await stream_caller.write(request)
 
         await stream_caller.done_writing()
         response = await stream_caller
@@ -47,7 +47,7 @@ class TestAsyncStreamIn(TestCase):
 
         for name in ["a", "b", "c"]:
             request = fakeapp_pb2.StreamInStreamInRequest(name=name)
-            await stream_caller._context.write(request)
+            await stream_caller.write(request)
 
         with self.assertRaisesMessage(RpcError, "Context read timeout"):
             await stream_caller

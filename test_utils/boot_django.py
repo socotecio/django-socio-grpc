@@ -31,7 +31,7 @@ def boot_django():
                 "USER": os.environ.get("DB_USER", "test"),
                 "PASSWORD": os.environ.get("DB_PASSWORD", "test_pw"),
                 "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
-                "PORT": os.environ.get("DB_PORT"),
+                "PORT": os.environ.get("DB_PORT", 5532),
             }
         },
         INSTALLED_APPS=(

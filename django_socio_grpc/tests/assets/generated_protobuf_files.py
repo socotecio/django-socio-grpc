@@ -574,6 +574,7 @@ service SpecialFieldsModelController {
 
 service StreamInController {
     rpc StreamIn(stream StreamInStreamInRequest) returns (StreamInStreamInListResponse) {}
+    rpc StreamToStream(stream StreamInStreamToStreamRequest) returns (stream StreamInStreamToStreamResponse) {}
 }
 
 service SyncUnitTestModelController {
@@ -825,6 +826,14 @@ message StreamInStreamInResponse {
     int32 count = 1;
 }
 
+message StreamInStreamToStreamRequest {
+    string name = 1;
+}
+
+message StreamInStreamToStreamResponse {
+    string name = 1;
+}
+
 message SyncUnitTestModelListWithExtraArgsRequest {
     bool archived = 1;
 }
@@ -923,6 +932,7 @@ service SpecialFieldsModelController {
 
 service StreamInController {
     rpc StreamIn(stream StreamInStreamInRequest) returns (StreamInStreamInListResponse) {}
+    rpc StreamToStream(stream StreamInStreamToStreamRequest) returns (stream StreamInStreamToStreamResponse) {}
 }
 
 service SyncUnitTestModelController {
@@ -1215,6 +1225,14 @@ message StreamInStreamInRequest {
 
 message StreamInStreamInResponse {
     int32 count = 1;
+}
+
+message StreamInStreamToStreamRequest {
+    string name = 1;
+}
+
+message StreamInStreamToStreamResponse {
+    string name = 1;
 }
 
 message SyncUnitTestModelListWithExtraArgsRequest {

@@ -50,7 +50,11 @@ class FakeRpcError(RuntimeError, grpc.RpcError):
 
 class FakeContext:
     def __init__(self, stream_pipe=None, auto_eof=True):
+        # INFO - FB - 11/10/2022 - When you run Stream to Stream, you have to write on different Queue
+        # The stream_pip_client,  in which client writes requests and reads by the server
         self.stream_pipe_client = queue.Queue()
+
+        # The stream_pipe_server, in which server writes responses and reads by the client
         self.stream_pipe_server = queue.Queue()
         if stream_pipe is None:
             pass
@@ -58,9 +62,9 @@ class FakeContext:
             raise Exception("FakeContext stream pipe must be an iterable")
         else:
             for item in stream_pipe:
-                self.stream_pipe_client.put(item)
+                self.stream_pipe_server.put(item)
         if stream_pipe is not None and auto_eof:
-            self.stream_pipe_client.put(grpc.aio.EOF)
+            self.stream_pipe_server.put(grpc.aio.EOF)
 
         self._invocation_metadata = []
 

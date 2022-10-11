@@ -73,4 +73,3 @@ class TestAsyncStreamIn(TestCase):
         self.assertEqual(response3.name, "cResponse")
 
         await stream_caller.done_writing()
-        # response = await stream_caller

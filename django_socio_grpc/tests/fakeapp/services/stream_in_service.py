@@ -26,8 +26,6 @@ class StreamInService(generics.GenericService):
         response_stream=True,
     )
     async def StreamToStream(self, request, context):
-        print()
-
         async for message in request:
             name = message.name
             await context.write(

@@ -1,7 +1,7 @@
 import inspect
 import logging
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Dict, List, Tuple, Type
+from typing import TYPE_CHECKING, Dict, List, Tuple, Type, get_args, get_origin
 
 from django.db import models
 from rest_framework.fields import (
@@ -309,8 +309,8 @@ class RegistrySingleton(metaclass=SingletonMeta):
 
         # INFO - AM - 07/01/2022 - Else if the field type inherit from the BaseSerializer that mean it's a Struct
         elif issubclass(field_type.__class__, SerializerMethodField):
-            proto_type = get_proto_type_from_inspect(
-                field_type, field_name, serializer_instance
+            proto_type = self.get_proto_type_from_inspect(
+                app_name, field_type, field_name, serializer_instance, is_request
             )
 
         return proto_type
@@ -618,6 +618,40 @@ class RegistrySingleton(metaclass=SingletonMeta):
     def is_special_protobuf_message(self, message_name):
         return message_name.startswith("google.protobuf")
 
+    def get_proto_type_from_inspect(
+        self, app_name, field_type, field_name, serializer_instance, is_request=None
+    ):
+        """
+        In some cases (for now only SerializerMethodField) we need to introspect method and ask user to specify the return type to be able to find the correct proto type
+        """
+        # INFO - AM - 23/10/2022 - return_type = method.__annotations__["return"]
+        (
+            proto_type_from_common_return_type,
+            return_type,
+        ) = get_proto_type_from_common_return_type(field_type, field_name, serializer_instance)
+
+        # INFO - AM - 23/10/2022 - if the prototype has been found from common type then return it
+        if proto_type_from_common_return_type:
+            return proto_type_from_common_return_type
+
+        used_class = return_type
+        base_proto_type = ""
+        # https://docs.python.org/3/library/typing.html#typing.get_origin
+        if get_origin(return_type) is list:
+            # https://docs.python.org/3/library/typing.html#typing.get_args
+            list_args = get_args(return_type)
+            if len(list_args) > 1:
+                raise RegisterServiceException(
+                    f"You are trying to register the serializer {serializer_instance.__class__.__name__} with a SerializerMethodField on the field {field_name}. But the method associated return a List type with multiple args. DSG only support one kind of args for List typing"
+                )
+            used_class = list_args[0]
+            base_proto_type = "repeated "
+
+        field_type = used_class()
+        return base_proto_type + self.get_proto_type(
+            app_name, field_type, field_name, serializer_instance, is_request
+        )
+
 
 def get_message_name_from_field_or_serializer_instance(
     class_or_field_instance, is_request=None, append_type=True
@@ -663,7 +697,7 @@ def get_lookup_field_from_serializer(serializer_instance, service_instance, fiel
     return [field_name, field_proto_type]
 
 
-def get_proto_type_from_inspect(field_type, field_name, serializer_instance):
+def get_proto_type_from_common_return_type(field_type, field_name, serializer_instance):
     """
     In some cases (for now only SerializerMethodField) we need to introspect method and ask user to specify the return type to be able to find the correct proto type
     """
@@ -673,7 +707,7 @@ def get_proto_type_from_inspect(field_type, field_name, serializer_instance):
     method = getattr(serializer_instance, method_name, None)
     if method is None:
         # TODO - AM - 21/01/2022 - What todo here ? raise an excpetion or let DRF handle this kind of problems ?
-        return "string"
+        return "string", str
 
     if "return" not in method.__annotations__:
         raise RegisterServiceException(
@@ -697,4 +731,7 @@ def get_proto_type_from_inspect(field_type, field_name, serializer_instance):
         List[Dict]: "repeated google.protobuf.Struct",
     }
 
-    return python_type_to_proto_type[method.__annotations__["return"]]
+    return (
+        python_type_to_proto_type.get(method.__annotations__["return"], None),
+        method.__annotations__["return"],
+    )

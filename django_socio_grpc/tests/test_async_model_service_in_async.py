@@ -5,14 +5,19 @@ from django.test import TestCase
 from django.utils import timezone
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
+    RelatedFieldModelControllerStub,
     UnitTestModelControllerStub,
+    add_RelatedFieldModelControllerServicer_to_server,
     add_UnitTestModelControllerServicer_to_server,
 )
-from fakeapp.models import UnitTestModel
+from fakeapp.models import ForeignModel, UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 from freezegun import freeze_time
 
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.tests.fakeapp.services.related_field_model_service import (
+    RelatedFieldModelService,
+)
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
@@ -135,3 +140,35 @@ class TestAsyncModelService(TestCase):
 
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
+
+
+class TestAsyncRelatedFieldModelService(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        grpc_settings.GRPC_ASYNC = True
+        cls.fake_grpc = FakeFullAIOGRPC(
+            add_RelatedFieldModelControllerServicer_to_server,
+            RelatedFieldModelService.as_servicer(),
+        )
+
+        cls.item1 = RelatedFieldModelService.queryset.create()
+        cls.foreign = ForeignModel.objects.create(name="foreign")
+        cls.item2 = RelatedFieldModelService.queryset.create(foreign=cls.foreign)
+
+    @classmethod
+    def tearDownClass(cls):
+        grpc_settings.GRPC_ASYNC = False
+        cls.fake_grpc.close()
+
+    async def test_async_retrieve(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(RelatedFieldModelControllerStub)
+
+        request = fakeapp_pb2.RelatedFieldModelRetrieveRequest(uuid=str(self.item1.uuid))
+        response = await grpc_stub.Retrieve(request=request)
+
+        self.assertEqual(response.proto_slug_related_field, "")
+
+        request = fakeapp_pb2.RelatedFieldModelRetrieveRequest(uuid=str(self.item2.uuid))
+        response = await grpc_stub.Retrieve(request=request)
+
+        self.assertEqual(response.proto_slug_related_field, str(self.foreign.uuid))

@@ -143,31 +143,26 @@ message RelatedFieldModelListResponse {
 
 message RelatedFieldModelPartialUpdateRequest {
     string uuid = 1;
-    repeated ManyManyModelRequest many_many_obj = 2;
+    repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
     repeated string _partial_update_fields = 4;
-    string foreign = 5;
-    repeated string many_many = 6;
 }
 
 message RelatedFieldModelRequest {
     string uuid = 1;
-    repeated ManyManyModelRequest many_many_obj = 2;
+    repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
-    string foreign = 4;
-    repeated string many_many = 5;
 }
 
 message RelatedFieldModelResponse {
     string uuid = 1;
-    ForeignModelResponse foreign_obj = 2;
-    repeated ManyManyModelResponse many_many_obj = 3;
+    ForeignModelResponse foreign = 2;
+    repeated ManyManyModelResponse many_many = 3;
     int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string custom_field_name = 7;
-    string foreign = 8;
-    repeated string many_many = 9;
+    string proto_slug_related_field = 7;
+    string custom_field_name = 8;
 }
 
 message RelatedFieldModelRetrieveRequest {
@@ -175,7 +170,6 @@ message RelatedFieldModelRetrieveRequest {
 }
 
 """
-
 MODEL_WITH_STRUCT_IMORT_IN_ARRAY = """syntax = "proto3";
 
 package myproject.fakeapp;
@@ -739,14 +733,13 @@ message ManyManyModel {
 
 message RelatedFieldModel {
     string uuid = 1;
-    ForeignModel foreign_obj = 2;
-    repeated ManyManyModel many_many_obj = 3;
+    ForeignModel foreign = 2;
+    repeated ManyManyModel many_many = 3;
     int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string custom_field_name = 7;
-    string foreign = 8;
-    repeated string many_many = 9;
+    string proto_slug_related_field = 7;
+    string custom_field_name = 8;
 }
 
 message RelatedFieldModelDestroyRequest {
@@ -763,15 +756,14 @@ message RelatedFieldModelListResponse {
 
 message RelatedFieldModelPartialUpdateRequest {
     string uuid = 1;
-    ForeignModel foreign_obj = 2;
-    repeated ManyManyModel many_many_obj = 3;
+    ForeignModel foreign = 2;
+    repeated ManyManyModel many_many = 3;
     int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string custom_field_name = 7;
-    repeated string _partial_update_fields = 8;
-    string foreign = 9;
-    repeated string many_many = 10;
+    string proto_slug_related_field = 7;
+    string custom_field_name = 8;
+    repeated string _partial_update_fields = 9;
 }
 
 message RelatedFieldModelRetrieveRequest {
@@ -881,7 +873,6 @@ message UnitTestModelStreamRequest {
 }
 
 """
-
 ALL_APP_GENERATED_SEPARATE = """syntax = "proto3";
 
 package myproject.fakeapp;
@@ -1141,31 +1132,26 @@ message RelatedFieldModelListResponse {
 
 message RelatedFieldModelPartialUpdateRequest {
     string uuid = 1;
-    repeated ManyManyModelRequest many_many_obj = 2;
+    repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
     repeated string _partial_update_fields = 4;
-    string foreign = 5;
-    repeated string many_many = 6;
 }
 
 message RelatedFieldModelRequest {
     string uuid = 1;
-    repeated ManyManyModelRequest many_many_obj = 2;
+    repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
-    string foreign = 4;
-    repeated string many_many = 5;
 }
 
 message RelatedFieldModelResponse {
     string uuid = 1;
-    ForeignModelResponse foreign_obj = 2;
-    repeated ManyManyModelResponse many_many_obj = 3;
+    ForeignModelResponse foreign = 2;
+    repeated ManyManyModelResponse many_many = 3;
     int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string custom_field_name = 7;
-    string foreign = 8;
-    repeated string many_many = 9;
+    string proto_slug_related_field = 7;
+    string custom_field_name = 8;
 }
 
 message RelatedFieldModelRetrieveRequest {

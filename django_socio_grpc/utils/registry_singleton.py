@@ -345,7 +345,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
         return grpc_field_type
 
     def get_pk_from_slug_related_field(
-        self, slug_related_field, field_name, serializer_instance
+        self, slug_related_field: SlugRelatedField, field_name, serializer_instance
     ):
         """
         When we have SlugRelatedField (relation by a field) we need to find the type of the field used in the relation by its name.
@@ -370,12 +370,12 @@ class RegistrySingleton(metaclass=SingletonMeta):
         ) = get_field_info(serializer_instance.Meta.model)
 
         # INFO - AM - 27/01/2022 - the field name need to match with an existing relation ship to have a correct SlugRelatedField
-        if field_name not in relationships:
+        source_field_name = slug_related_field.source or field_name
+        if source_field_name not in relationships:
             print(
-                f"GENERATION ERROR: slug_related field name {field_name} not found in relationships of {serializer_instance.Meta.model}"
+                f"GENERATION ERROR: slug_related field name {source_field_name} not found in relationships of {serializer_instance.Meta.model}"
             )
             return "string"
-
         (
             model_field,
             related_model,
@@ -383,7 +383,7 @@ class RegistrySingleton(metaclass=SingletonMeta):
             to_field,
             has_through_model,
             reverse,
-        ) = relationships[field_name]
+        ) = relationships[source_field_name]
 
         # INFO - AM - 27/01/2022 - A SlugRelatedFiel has a required slug_field attribute that is the name of the attibute in the related model we want to find the proto type
         slug_defered_attribute = getattr(related_model, slug_related_field.slug_field, None)

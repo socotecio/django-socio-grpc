@@ -66,14 +66,21 @@ class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
-    foreign_obj = ForeignModelSerializer(read_only=True)
-    many_many_obj = ManyManyModelSerializer(many=True)
+    foreign = ForeignModelSerializer(read_only=True)
+    many_many = ManyManyModelSerializer(many=True)
 
     slug_test_model = serializers.SlugRelatedField(slug_field="special_number", read_only=True)
     slug_reverse_test_model = serializers.SlugRelatedField(
-        slug_field="is_active", read_only=True
+        slug_field="is_active", read_only=True, many=True
     )
     slug_many_many = serializers.SlugRelatedField(slug_field="name", read_only=True, many=True)
+
+    proto_slug_related_field = proto_serializers.SlugRelatedConvertedField(
+        source="foreign",
+        slug_field="uuid",
+        convert_type=str,
+        read_only=True,
+    )
 
     custom_field_name = serializers.CharField()
 

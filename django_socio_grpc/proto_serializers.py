@@ -1,6 +1,6 @@
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
-from google.protobuf.pyext._message import RepeatedCompositeContainer
+from google._upb._message import RepeatedCompositeContainer
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (

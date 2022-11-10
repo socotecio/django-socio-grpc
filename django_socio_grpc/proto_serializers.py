@@ -184,7 +184,7 @@ class SlugRelatedConvertedField(SlugRelatedField):
         super().__init__(**kwargs)
 
     def to_representation(self, obj):
-        slug_value = getattr(obj, self.slug_field)
-        if self.convert_type:
+        slug_value = super().to_representation(obj)
+        if slug_value is not None and self.convert_type:
             return self.convert_type(slug_value)
         return slug_value

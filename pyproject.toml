@@ -10,8 +10,8 @@ python = ">=3.8,<4.0"
 django = ">=2.2"
 djangorestframework = "*"
 # https://github.com/grpc/grpc/issues/31044
-grpcio = "<1.49.0"
-grpcio-tools = "<1.49.0"
+grpcio = "^1.50.0"
+grpcio-tools = "^1.50.0"
 asyncio = "^3.4.3"
 proto-parser = "^1.6.3"
 

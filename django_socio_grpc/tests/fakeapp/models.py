@@ -94,6 +94,9 @@ class RelatedFieldModel(models.Model):
         ManyManyModel, blank=True, related_name="relateds_slugs"
     )
 
+    def custom_field_name(self):
+        return "custom_field_name"
+
     class Meta:
         ###############################################################
         # Manually add many_many to serializer and a custom field     #

@@ -92,6 +92,8 @@ def perform_import(val, setting_name):
                 setting_name,
             )
         return None
+    elif setting_name == "SERVER_INTERCEPTORS":
+        return val
     elif isinstance(val, str):
         return import_from_string(val, setting_name)
     elif isinstance(val, (list, tuple)):

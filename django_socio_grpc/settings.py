@@ -70,7 +70,6 @@ DEFAULTS = {
 # List of settings that may be in string import notation.
 IMPORT_STRINGS = [
     "ROOT_HANDLERS_HOOK",
-    "SERVER_INTERCEPTORS",
     "DEFAULT_AUTHENTICATION_CLASSES",
     "DEFAULT_PERMISSION_CLASSES",
     "DEFAULT_PAGINATION_CLASS",
@@ -92,8 +91,6 @@ def perform_import(val, setting_name):
                 setting_name,
             )
         return None
-    elif setting_name == "SERVER_INTERCEPTORS":
-        return val
     elif isinstance(val, str):
         return import_from_string(val, setting_name)
     elif isinstance(val, (list, tuple)):

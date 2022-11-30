@@ -91,7 +91,7 @@ class Command(BaseCommand):
             for app_name, proto in protos_by_app.items():
                 registry = RegistrySingleton().registered_app[app_name]
                 auto_file_path = registry.get_proto_path()
-                auto_file_path.parent.mkdir(exist_ok=True)
+                auto_file_path.parent.mkdir(parents=True, exist_ok=True)
                 self.check_or_write(auto_file_path, proto, registry.app_name)
                 path_used_for_generation = auto_file_path
 

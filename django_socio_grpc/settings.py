@@ -70,7 +70,6 @@ DEFAULTS = {
 # List of settings that may be in string import notation.
 IMPORT_STRINGS = [
     "ROOT_HANDLERS_HOOK",
-    "SERVER_INTERCEPTORS",
     "DEFAULT_AUTHENTICATION_CLASSES",
     "DEFAULT_PERMISSION_CLASSES",
     "DEFAULT_PAGINATION_CLASS",

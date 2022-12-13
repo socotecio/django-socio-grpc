@@ -1,6 +1,7 @@
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
 from google._upb._message import RepeatedCompositeContainer
+from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (
@@ -103,7 +104,9 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             message_list_attr = self.message_list_attr
 
         repeated_message = getattr(message, message_list_attr, "")
-        if not isinstance(repeated_message, RepeatedCompositeContainer):
+        if not isinstance(repeated_message, RepeatedCompositeContainer) and not isinstance(
+            repeated_message, RepeatedCompositeFieldContainer
+        ):
             error_message = self.default_error_messages["not_a_list"].format(
                 input_type=repeated_message.__class__.__name__
             )

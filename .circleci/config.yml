@@ -1,3 +1,5 @@
+version: 2.1
+
 jobs:
   test:
     docker:
@@ -33,8 +35,7 @@ jobs:
       - run: poetry config pypi-token.pypi $PYPI_TOKEN
       - run: poetry publish
 orbs:
-  python: circleci/python@1.0.0
-version: 2.1
+  python: circleci/python@2.1.1
 workflows:
   main:
     jobs:

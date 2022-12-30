@@ -1,8 +1,10 @@
 import abc
 from typing import TYPE_CHECKING, Callable, TypeVar, Union
 
-from django_socio_grpc.grpc_actions.utils import get_serializer_class
-from django_socio_grpc.utils.registry_singleton import get_lookup_field_from_serializer
+from django_socio_grpc.grpc_actions.utils import (
+    get_lookup_field_from_serializer,
+    get_serializer_class,
+)
 
 if TYPE_CHECKING:
     from django_socio_grpc.generics import GenericService
@@ -83,8 +85,8 @@ class StrTemplatePlaceholder(Placeholder):
 
 def _get_lookup_fields(service):
     serializer = get_serializer_class(service)
-    lookup_field = get_lookup_field_from_serializer(serializer(), service)
-    return [{"name": lookup_field[0], "type": lookup_field[1]}]
+    lname, ltype = get_lookup_field_from_serializer(serializer(), service)
+    return [{"name": lname, "type": ltype}]
 
 
 def _get_serializer_class(service):

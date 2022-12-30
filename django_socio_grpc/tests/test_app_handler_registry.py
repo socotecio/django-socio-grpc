@@ -3,8 +3,8 @@ from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import UnitTestModelControllerStub
 from fakeapp.models import UnitTestModel
 
-from django_socio_grpc.utils.registry_singleton import RegistrySingleton
-from django_socio_grpc.utils.servicer_register import (
+from django_socio_grpc.protobuf import RegistrySingleton
+from django_socio_grpc.protobuf.app_handler_registry import (
     AppHandlerRegistry,
     AppHandlerRegistryError,
 )
@@ -21,7 +21,7 @@ class TestAppHandlerRegistry(TestCase):
         pass
 
     def tearDown(self) -> None:
-        RegistrySingleton().clean_all()
+        RegistrySingleton.clean_all()
 
     def test_AppHandlerRegistry_old_way(self):
 

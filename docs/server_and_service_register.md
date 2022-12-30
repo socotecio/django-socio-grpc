@@ -80,11 +80,10 @@ Code snippet to explain how we use the function from the pb2_grpc file
 pb2_grpc = import_module(
     f"{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc"
 )
-service_instance = service_class()
 
-controller_name = service_instance.get_service_name()
+controller_name = service_class.get_controller_name()
 add_server = getattr(
-    pb2_grpc, f"add_{controller_name}ControllerServicer_to_server"
+    pb2_grpc, f"add_{controller_name}Servicer_to_server"
 )
 
 add_server(service_class.as_servicer(), self.server)

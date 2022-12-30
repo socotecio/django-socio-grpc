@@ -31,11 +31,12 @@ class GenericService(services.Service):
 
     service_name = None
 
-    def get_service_name(self):
-        if self.service_name:
-            return self.service_name
+    @classmethod
+    def get_service_name(cls):
+        if cls.service_name:
+            return cls.service_name
         else:
-            return rreplace(self.__class__.__name__, "Service", "", 1)
+            return rreplace(cls.__name__, "Service", "", 1)
 
     def get_queryset(self):
         """

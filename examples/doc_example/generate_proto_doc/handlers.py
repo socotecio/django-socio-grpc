@@ -1,4 +1,4 @@
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from django_socio_grpc.protobuf import AppHandlerRegistry
 
 
 def grpc_handlers(server):

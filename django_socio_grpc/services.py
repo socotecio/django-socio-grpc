@@ -16,7 +16,7 @@ from django_socio_grpc.servicer_proxy import ServicerProxy
 from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
-    from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+    from django_socio_grpc.protobuf import AppHandlerRegistry
 
 logger = logging.getLogger("django_socio_grpc")
 
@@ -41,11 +41,13 @@ class Service(GRPCActionMixin):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def get_service_name(self):
-        return self.__class__.__name__
+    @classmethod
+    def get_service_name(cls):
+        return cls.__name__
 
-    def get_controller_name(self):
-        return f"{self.get_service_name()}Controller"
+    @classmethod
+    def get_controller_name(cls):
+        return f"{cls.get_service_name()}Controller"
 
     def perform_authentication(self):
         user_auth_tuple = None

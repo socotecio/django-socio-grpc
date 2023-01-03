@@ -111,6 +111,20 @@ class Service(GRPCActionMixin):
             return self._async_before_action()
         return self._before_action()
 
+    def _after_action(self):
+        ...
+
+    async def _async_after_action(self):
+        ...
+
+    def after_action(self):
+        """
+        Runs anything that needs to occur after calling the method handler.
+        """
+        if grpc_settings.GRPC_ASYNC:
+            return self._async_after_action()
+        return self._after_action()
+
     @classmethod
     def as_servicer(cls, **initkwargs):
         """

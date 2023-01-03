@@ -38,12 +38,12 @@ async def safe_async_response(fn, request: "GRPCRequestContainer", process_excep
             raise e
 
 
-is_generator = object()
+_is_generator = object()
 
 
 def isgeneratorfunction(fn):
     return (
         inspect.isgeneratorfunction(fn)
         or inspect.isasyncgenfunction(fn)
-        or getattr(fn, "_is_generator", False) is is_generator
+        or getattr(fn, "_is_generator", False) is _is_generator
     )

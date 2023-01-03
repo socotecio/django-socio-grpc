@@ -33,13 +33,14 @@ class GRPCRequestContainer:
     message: Message
     context: GRPCSocioProxyContext
     action: str
-    proxy: "ServicerProxy"
+    service: "Service"
 
 
 class MiddlewareCapable(metaclass=abc.ABCMeta):
     """
     Allows to define middlewares that can be used in sync and async mode.
     Most of the code is taken from django.core.handlers.base.BaseHandler
+    https://github.com/django/django/blob/main/django/core/handlers/base.py
     """
 
     _middleware_chain = None
@@ -49,7 +50,6 @@ class MiddlewareCapable(metaclass=abc.ABCMeta):
     def load_middleware(self, is_async=False):
         """
         Populate middleware lists from settings.GRPC_MIDDLEWARE.
-        Must be called after the environment is fixed (see __call__ in subclasses).
         """
 
         handler = self._get_response_async if is_async else self._get_response
@@ -109,16 +109,29 @@ class MiddlewareCapable(metaclass=abc.ABCMeta):
     async def _get_response_async(self, request: GRPCRequestContainer):
         ...
 
-    @abc.abstractmethod
-    def process_exception(self, exception, request):
-        ...
-
-    @abc.abstractmethod
-    async def async_process_exception(self, exception, request):
-        ...
-
 
 class ServicerProxy(MiddlewareCapable):
+
+    """
+    gRPC call
+        ↓
+    `ServicerProxy.__getattr__(action)`
+        ↓
+    `ServicerProxy.get_handler(action)`
+        ↓
+    `ServicerProxy.[correct handler]` (sync or async and stream or not)
+        ↓
+    `return _middleware_chain` (from setting GRPC_MIDDLEWARE)
+        ↓... middleware 1
+            ↓... middleware 2
+                ↓... middleware n
+                    ↓ `ServicerProxy._get_response` (sync or async)
+                ...
+            ...
+        ...
+
+    """
+
     def __init__(self, service_class: Type["Service"], **initkwargs):
         self.service_class = service_class
         self.initkwargs = initkwargs
@@ -126,37 +139,39 @@ class ServicerProxy(MiddlewareCapable):
         self.load_middleware(is_async=grpc_settings.GRPC_ASYNC)
 
     def _get_response(self, request: GRPCRequestContainer):
-        service_instance = self.create_service(
-            request=request.message, context=request.context, action=request.action
-        )
-        service_instance.before_action()
-        action = getattr(service_instance, request.action)
+        action = getattr(request.service, request.action)
         if asyncio.iscoroutinefunction(action):
             action = async_to_sync(action)
         try:
+            request.service.before_action()
             return action(request.message, request.context)
         except Exception as e:
             self.process_exception(e, request)
+        finally:
+            request.service.after_action()
 
     async def _get_response_async(self, request: GRPCRequestContainer):
-        service_instance = self.create_service(
-            request=request.message, context=request.context, action=request.action
-        )
-        await service_instance.before_action()
+        def wrapped_action(request: GRPCRequestContainer):
+            return getattr(request.service, request.action)(request.message, request.context)
 
-        def wrapped_action(request):
-            return getattr(service_instance, request.action)(request.message, request.context)
-
-        return await safe_async_response(
-            wrapped_action,
-            request,
-            self.async_process_exception,
-        )
+        try:
+            await request.service.before_action()
+            return await safe_async_response(
+                wrapped_action,
+                request,
+                self.async_process_exception,
+            )
+        finally:
+            await request.service.after_action()
 
     def _get_async_stream_handler(self, action: str):
         async def handler(request: Message, context):
+            proxy_context = GRPCSocioProxyContext(context, action)
+            service_instance = self.create_service(
+                request=request, context=proxy_context, action=action
+            )
             request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, self
+                request, GRPCSocioProxyContext(context, action), action, service_instance
             )
             async for response in await safe_async_response(
                 self._middleware_chain, request, self.async_process_exception
@@ -167,8 +182,12 @@ class ServicerProxy(MiddlewareCapable):
 
     def _get_async_handler(self, action: str):
         async def handler(request: Message, context):
+            proxy_context = GRPCSocioProxyContext(context, action)
+            service_instance = self.create_service(
+                request=request, context=proxy_context, action=action
+            )
             request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, self
+                request, GRPCSocioProxyContext(context, action), action, service_instance
             )
             return await safe_async_response(
                 self._middleware_chain, request, self.async_process_exception
@@ -178,8 +197,12 @@ class ServicerProxy(MiddlewareCapable):
 
     def _get_handler(self, action: str):
         def handler(request: Message, context):
+            proxy_context = GRPCSocioProxyContext(context, action)
+            service_instance = self.create_service(
+                request=request, context=proxy_context, action=action
+            )
             request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, self
+                request, GRPCSocioProxyContext(context, action), action, service_instance
             )
             try:
                 return self._middleware_chain(request)
@@ -190,8 +213,12 @@ class ServicerProxy(MiddlewareCapable):
 
     def _get_stream_handler(self, action: str):
         def handler(request: Message, context):
+            proxy_context = GRPCSocioProxyContext(context, action)
+            service_instance = self.create_service(
+                request=request, context=proxy_context, action=action
+            )
             request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, self
+                request, GRPCSocioProxyContext(context, action), action, service_instance
             )
             try:
                 yield from self._middleware_chain(request)

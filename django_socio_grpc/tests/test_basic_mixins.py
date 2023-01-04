@@ -1,6 +1,4 @@
-import os
-
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
@@ -12,15 +10,14 @@ from google.protobuf import json_format
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
 
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestBasicMixin(TestCase):
     def setUp(self):
-        os.environ["GRPC_ASYNC"] = "True"
         self.fake_grpc = FakeGRPC(
             add_BasicControllerServicer_to_server, BasicService.as_servicer()
         )
 
     def tearDown(self):
-        os.environ["GRPC_ASYNC"] = ""
         self.fake_grpc.close()
 
     def test_async_fetch_data_for_user(self):

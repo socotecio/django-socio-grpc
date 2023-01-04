@@ -1,8 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from asgiref.sync import sync_to_async
-from django.test import TestCase
-from django.utils import timezone
+from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     RelatedFieldModelControllerStub,
@@ -14,7 +13,6 @@ from fakeapp.models import ForeignModel, UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 from freezegun import freeze_time
 
-from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.tests.fakeapp.services.related_field_model_service import (
     RelatedFieldModelService,
 )
@@ -22,9 +20,9 @@ from django_socio_grpc.tests.fakeapp.services.related_field_model_service import
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
 
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestAsyncModelService(TestCase):
     def setUp(self):
-        grpc_settings.GRPC_ASYNC = True
         self.fake_grpc = FakeFullAIOGRPC(
             add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )
@@ -32,7 +30,6 @@ class TestAsyncModelService(TestCase):
         self.create_instances()
 
     def tearDown(self):
-        grpc_settings.GRPC_ASYNC = False
         self.fake_grpc.close()
 
     def create_instances(self):
@@ -142,23 +139,23 @@ class TestAsyncModelService(TestCase):
         self.assertEqual(response.text, old_text)
 
 
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestAsyncRelatedFieldModelService(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        grpc_settings.GRPC_ASYNC = True
-        cls.fake_grpc = FakeFullAIOGRPC(
+    def setUp(self):
+        self.fake_grpc = FakeFullAIOGRPC(
             add_RelatedFieldModelControllerServicer_to_server,
             RelatedFieldModelService.as_servicer(),
         )
 
+    def tearDown(self):
+        self.fake_grpc.close()
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
         cls.item1 = RelatedFieldModelService.queryset.create()
         cls.foreign = ForeignModel.objects.create(name="foreign")
         cls.item2 = RelatedFieldModelService.queryset.create(foreign=cls.foreign)
-
-    @classmethod
-    def tearDownClass(cls):
-        grpc_settings.GRPC_ASYNC = False
-        cls.fake_grpc.close()
 
     async def test_async_retrieve(self):
         grpc_stub = self.fake_grpc.get_fake_stub(RelatedFieldModelControllerStub)

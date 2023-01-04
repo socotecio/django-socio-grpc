@@ -29,7 +29,6 @@ class UnitTestModelService(generics.AsyncModelService, mixins.AsyncStreamModelMi
     )
     async def ListWithExtraArgs(self, request, context):
         # INFO - AM - 14/01/2022 - archived is an extra args in the custom request
-        print(request.archived)
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         count = 0

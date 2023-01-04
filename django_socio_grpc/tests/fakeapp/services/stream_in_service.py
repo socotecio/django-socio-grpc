@@ -3,6 +3,7 @@ from fakeapp.models import UnitTestModel
 
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.exceptions import NotFound
 
 
 class StreamInService(generics.GenericService):
@@ -28,6 +29,6 @@ class StreamInService(generics.GenericService):
     async def StreamToStream(self, request, context):
         async for message in request:
             name = message.name
-            await context.write(
-                fakeapp_pb2.StreamInStreamToStreamResponse(name=f"{name}Response")
-            )
+            if name == "abort":
+                raise NotFound()
+            yield fakeapp_pb2.StreamInStreamToStreamResponse(name=f"{name}Response")

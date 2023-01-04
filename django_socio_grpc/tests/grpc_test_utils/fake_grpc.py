@@ -3,6 +3,7 @@
 # https://github.com/kataev/pytest-grpc/blob/master/pytest_grpc/plugin.py
 """
 import asyncio
+import inspect
 import queue
 import socket
 from collections.abc import Iterable
@@ -128,19 +129,6 @@ class FakeAsyncContext(FakeContext):
                 count += 1
 
 
-def get_brand_new_default_event_loop():
-    try:
-        old_loop = asyncio.get_event_loop()
-        if not old_loop.is_closed():
-            old_loop.close()
-    except RuntimeError:
-        # no default event loop, ignore exception
-        pass
-    _loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(_loop)
-    return _loop
-
-
 class FakeChannel:
     def __init__(self, fake_server):
         self.server = fake_server
@@ -154,11 +142,10 @@ class FakeChannel:
 
     def fake_method(self, method_name, uri, *args, **kwargs):
         handler = self.server.handlers[uri]
-        real_method = getattr(handler, method_name)
 
         def fake_handler(request=None, metadata=None):
-            nonlocal real_method
             self.context = FakeContext()
+            real_method = getattr(handler, method_name)
 
             if asyncio.iscoroutinefunction(real_method):
                 real_method = async_to_sync(real_method)
@@ -251,6 +238,9 @@ class FakeBaseCall(grpc.aio.Call):
 
 
 class FakeAioCall(FakeBaseCall):
+
+    _is_coroutine = asyncio.coroutines._is_coroutine
+
     def __init__(self, context=None, call_type=None, real_method=None, metadata=None):
         self._call_type = call_type
         self._context = context
@@ -308,8 +298,11 @@ class FakeFullAioCall(FakeBaseCall):
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
         async def wrapped(*args, **kwargs):
-            response = await self._real_method(request=self._request, context=self._context)
-            # INFO - FB - 07/10/2022 - We have say that real_method have finish in Stream Stream
+            method = self._real_method(request=self._request, context=self._context)
+            if inspect.isasyncgen(method):
+                async for response in method:
+                    await self._context.write(response)
+            response = await method
             await self._context.write(grpc.aio.EOF)
             return response
 
@@ -353,6 +346,8 @@ class StreamResponseMixin:
 
     async def __anext__(self):
         response = await self.read()
+        if isinstance(response, Exception):
+            raise response
         if response == grpc.aio.EOF:
             raise StopAsyncIteration()
         return response

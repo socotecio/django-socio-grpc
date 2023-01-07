@@ -32,7 +32,7 @@ Add `django_socio_grpc` and you new `quickstart` app to INSTALLED_APPS, settings
 INSTALLED_APPS = [
     ...
     'django_socio_grpc',
-    `quickstart`
+    'quickstart'
 ]
 ```
 

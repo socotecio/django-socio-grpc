@@ -170,9 +170,7 @@ class ServicerProxy(MiddlewareCapable):
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
-            request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, service_instance
-            )
+            request = GRPCRequestContainer(request, proxy_context, action, service_instance)
             async for response in await safe_async_response(
                 self._middleware_chain, request, self.async_process_exception
             ):
@@ -186,9 +184,7 @@ class ServicerProxy(MiddlewareCapable):
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
-            request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, service_instance
-            )
+            request = GRPCRequestContainer(request, proxy_context, action, service_instance)
             return await safe_async_response(
                 self._middleware_chain, request, self.async_process_exception
             )
@@ -201,9 +197,7 @@ class ServicerProxy(MiddlewareCapable):
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
-            request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, service_instance
-            )
+            request = GRPCRequestContainer(request, proxy_context, action, service_instance)
             try:
                 return self._middleware_chain(request)
             except Exception as e:
@@ -217,9 +211,7 @@ class ServicerProxy(MiddlewareCapable):
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
-            request = GRPCRequestContainer(
-                request, GRPCSocioProxyContext(context, action), action, service_instance
-            )
+            request = GRPCRequestContainer(request, proxy_context, action, service_instance)
             try:
                 yield from self._middleware_chain(request)
             except Exception as e:

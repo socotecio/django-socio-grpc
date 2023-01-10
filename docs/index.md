@@ -12,11 +12,6 @@ And some really cool helper as the protobuf generation from the model or the reg
 ### Install dependencies
 
 ```bash
-pip install djangogrpcframework
-pip install django
-pip install grpcio
-pip install grpcio-tools
-pip install asyncio # Not mandatory but it's the default behavior used in the quickstart
 pip install django-socio-grpc
 ```
 
@@ -31,12 +26,13 @@ python manage.py migrate
 
 ### Django settings
 
-Add django_socio_grpc to INSTALLED_APPS, settings module is in tutorial/settings.py:
+Add `django_socio_grpc` and you new `quickstart` app to INSTALLED_APPS, settings module is in tutorial/settings.py:
 
 ```python
 INSTALLED_APPS = [
     ...
     'django_socio_grpc',
+    'quickstart'
 ]
 ```
 
@@ -57,7 +53,6 @@ class Question(models.Model):
 ```python
 # quickstart/serializers.py
 from django_socio_grpc import proto_serializers
-import quickstart.grpc.quickstart_pb2 as quickstart_pb2
 from .models import Question
 
 
@@ -95,6 +90,18 @@ def grpc_handlers(server):
     app_registry = AppHandlerRegistry("quickstart", server)
     app_registry.register(QuestionService)
 ```
+
+This Handler will be the entrypoint for the service registration. Set its path as the `ROOT_HANDLERS_HOOK` 
+of the `GRPC_FRAMEWORK` settings
+
+```python
+# tutorial/settings.py
+...
+GRPC_FRAMEWORK = {
+    "ROOT_HANDLERS_HOOK" : 'quickstart.handlers.grpc_handlers'
+}
+```
+
 
 ### Generate the protofile and the client associated to the model
 

@@ -302,9 +302,12 @@ class FakeFullAioCall(FakeBaseCall):
             if inspect.isasyncgen(method):
                 async for response in method:
                     await self._context.write(response)
-            response = await method
-            await self._context.write(grpc.aio.EOF)
-            return response
+                await self._context.write(grpc.aio.EOF)
+                return
+            else:
+                response = await method
+                await self._context.write(grpc.aio.EOF)
+                return response
 
         # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
         self.method_awaitable = asyncio.create_task(

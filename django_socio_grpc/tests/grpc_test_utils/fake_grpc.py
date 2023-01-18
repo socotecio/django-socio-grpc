@@ -297,14 +297,23 @@ class FakeFullAioCall(FakeBaseCall):
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
+        
         async def wrapped(*args, **kwargs):
             method = self._real_method(request=self._request, context=self._context)
             if inspect.isasyncgen(method):
+                print("isasyncgen true")
                 async for response in method:
+                    print("response: ", response)
                     await self._context.write(response)
-            response = await method
-            await self._context.write(grpc.aio.EOF)
-            return response
+                await self._context.write(grpc.aio.EOF)
+                print("end of async")
+                return
+            else:
+                print("isasyncgen false")
+                response = await method
+                print("response: ", response)
+                await self._context.write(grpc.aio.EOF)
+                return response
 
         # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
         self.method_awaitable = asyncio.create_task(

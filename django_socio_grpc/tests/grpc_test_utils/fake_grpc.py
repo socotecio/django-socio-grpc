@@ -297,21 +297,15 @@ class FakeFullAioCall(FakeBaseCall):
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
-        
         async def wrapped(*args, **kwargs):
             method = self._real_method(request=self._request, context=self._context)
             if inspect.isasyncgen(method):
-                print("isasyncgen true")
                 async for response in method:
-                    print("response: ", response)
                     await self._context.write(response)
                 await self._context.write(grpc.aio.EOF)
-                print("end of async")
                 return
             else:
-                print("isasyncgen false")
                 response = await method
-                print("response: ", response)
                 await self._context.write(grpc.aio.EOF)
                 return response
 

@@ -138,6 +138,21 @@ class TestAsyncModelService(TestCase):
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
 
+    async def test_optional_field(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+        request = fakeapp_pb2.UnitTestModelRequest(title="fake")
+        response = await grpc_stub.Create(request=request)
+
+        self.assertFalse(response.HasField("text"))
+
+        request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=response.id)
+        response = await grpc_stub.Retrieve(request=request)
+
+        self.assertFalse(response.HasField("text"))
+
+        instance = await UnitTestModel.objects.aget(id=response.id)
+        assert instance.text is None
+
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestAsyncRelatedFieldModelService(TestCase):

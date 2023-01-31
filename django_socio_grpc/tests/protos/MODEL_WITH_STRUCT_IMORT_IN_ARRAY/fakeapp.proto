@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/struct.proto";
+
+service ImportStructEvenInArrayModelController {
+    rpc Create(ImportStructEvenInArrayModelRequest) returns (ImportStructEvenInArrayModelResponse) {}
+}
+
+message ImportStructEvenInArrayModelRequest {
+    string uuid = 1;
+    repeated google.protobuf.Struct this_is_crazy = 2;
+}
+
+message ImportStructEvenInArrayModelResponse {
+    string uuid = 1;
+    repeated google.protobuf.Struct this_is_crazy = 2;
+}
+

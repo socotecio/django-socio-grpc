@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package myproject.fakeapp;
+
+service ForeignModelController {
+    rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
+    rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
+}
+
+message ForeignModelListRequest {
+}
+
+message ForeignModelListResponse {
+    repeated ForeignModelResponse results = 1;
+    int32 count = 2;
+}
+
+message ForeignModelResponse {
+    string uuid = 1;
+    string name = 2;
+}
+
+message ForeignModelRetrieveCustomResponse {
+    string name = 1;
+    string custom = 2;
+}
+
+message ForeignModelRetrieveCustomRetrieveRequest {
+    string name = 1;
+}
+

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package fakeproject.fakeapp;
+package myproject.fakeapp;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
@@ -262,28 +262,28 @@ message RelatedFieldModelListResponse {
 
 message RelatedFieldModelPartialUpdateRequest {
     string uuid = 1;
-    string custom_field_name = 2;
-    repeated string _partial_update_fields = 3;
-    repeated ManyManyModelRequest many_many = 4;
+    repeated ManyManyModelRequest many_many = 2;
+    string custom_field_name = 3;
+    repeated string _partial_update_fields = 4;
     repeated string many_many_foreigns = 5;
 }
 
 message RelatedFieldModelRequest {
     string uuid = 1;
-    string custom_field_name = 2;
-    repeated ManyManyModelRequest many_many = 3;
+    repeated ManyManyModelRequest many_many = 2;
+    string custom_field_name = 3;
     repeated string many_many_foreigns = 4;
 }
 
 message RelatedFieldModelResponse {
     string uuid = 1;
-    int32 slug_test_model = 2;
-    repeated bool slug_reverse_test_model = 3;
-    repeated string slug_many_many = 4;
-    string custom_field_name = 5;
-    ForeignModelResponse foreign = 6;
-    repeated ManyManyModelResponse many_many = 7;
-    string proto_slug_related_field = 8;
+    ForeignModelResponse foreign = 2;
+    repeated ManyManyModelResponse many_many = 3;
+    int32 slug_test_model = 4;
+    repeated bool slug_reverse_test_model = 5;
+    repeated string slug_many_many = 6;
+    string proto_slug_related_field = 7;
+    string custom_field_name = 8;
     repeated string many_many_foreigns = 9;
 }
 

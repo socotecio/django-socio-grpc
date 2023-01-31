@@ -15,7 +15,7 @@ from django_socio_grpc.mixins import (
 class UnitTestModel(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=20)
-    text = models.CharField(max_length=100)
+    text = models.CharField(max_length=100, null=True)
 
     class Meta:
         grpc_messages = {
@@ -92,6 +92,10 @@ class RelatedFieldModel(models.Model):
     )
     slug_many_many = models.ManyToManyField(
         ManyManyModel, blank=True, related_name="relateds_slugs"
+    )
+
+    many_many_foreigns = models.ManyToManyField(
+        "RelatedFieldModel", blank=True, related_name="related_foreigns"
     )
 
     def custom_field_name(self):

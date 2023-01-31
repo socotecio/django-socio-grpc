@@ -17,7 +17,7 @@ class BasicControllerStub(object):
         """
         self.BasicList = channel.unary_unary(
                 '/fakeproject.fakeapp.BasicController/BasicList',
-                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.SerializeToString,
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.FromString,
                 )
         self.Create = channel.unary_unary(
@@ -146,7 +146,7 @@ def add_BasicControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'BasicList': grpc.unary_unary_rpc_method_handler(
                     servicer.BasicList,
-                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.FromString,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.SerializeToString,
             ),
             'Create': grpc.unary_unary_rpc_method_handler(
@@ -221,7 +221,7 @@ class BasicController(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/BasicList',
-            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

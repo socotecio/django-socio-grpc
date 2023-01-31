@@ -1,0 +1,146 @@
+syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+service BasicController {
+    rpc BasicList(BasicProtoListChildListRequest) returns (BasicProtoListChildListResponse) {}
+    rpc Create(BasicServiceRequest) returns (BasicServiceResponse) {}
+    rpc FetchDataForUser(BasicFetchDataForUserRequest) returns (BasicServiceResponse) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
+    rpc ListIds(google.protobuf.Empty) returns (BasicListIdsResponse) {}
+    rpc ListName(google.protobuf.Empty) returns (BasicListNameResponse) {}
+    rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
+    rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
+    rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
+    rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+message BaseProtoExampleListResponse {
+    repeated BaseProtoExampleResponse results = 1;
+    int32 count = 2;
+}
+
+message BaseProtoExampleRequest {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+
+message BaseProtoExampleResponse {
+    string uuid = 1;
+    int32 number_of_elements = 2;
+    bool is_archived = 3;
+}
+
+message BasicFetchDataForUserRequest {
+    string user_name = 1;
+}
+
+message BasicListIdsResponse {
+    repeated int32 ids = 1;
+}
+
+message BasicListNameResponse {
+    repeated string name = 1;
+}
+
+message BasicMixParamListResponse {
+    repeated BasicMixParamResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicMixParamResponse {
+    string user_name = 1;
+}
+
+message BasicMixParamWithSerializerListResponse {
+    repeated google.protobuf.Struct results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerListRequest {
+    repeated BasicParamWithSerializerRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicParamWithSerializerRequest {
+    // @test=comment1
+    // @test2=comment2
+    string user_name = 1;
+    // @test=test_in_serializer
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
+}
+
+message BasicProtoListChildListRequest {
+    repeated BasicProtoListChildRequest results = 1;
+    int32 count = 2;
+}
+
+message BasicProtoListChildListResponse {
+    repeated BasicProtoListChildResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicProtoListChildRequest {
+    int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+}
+
+message BasicProtoListChildResponse {
+    int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+}
+
+message BasicServiceListResponse {
+    repeated BasicServiceResponse results = 1;
+    int32 count = 2;
+}
+
+message BasicServiceRequest {
+    // @test=comment1
+    // @test2=comment2
+    string user_name = 1;
+    // @test=test_in_serializer
+    google.protobuf.Struct user_data = 2;
+    string user_password = 3;
+    bytes bytes_example = 4;
+    repeated google.protobuf.Struct list_of_dict = 5;
+}
+
+message BasicServiceResponse {
+    // @test=comment1
+    // @test2=comment2
+    string user_name = 1;
+    // @test=test_in_serializer
+    google.protobuf.Struct user_data = 2;
+    bytes bytes_example = 3;
+    repeated google.protobuf.Struct list_of_dict = 4;
+}
+
+message CustomMixParamForListRequest {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
+}
+
+message CustomMixParamForRequest {
+    string user_name = 1;
+}
+
+message CustomNameForRequest {
+    // @test=in_decorator
+    string user_name = 1;
+}
+
+message CustomNameForResponse {
+    string user_name = 1;
+}
+

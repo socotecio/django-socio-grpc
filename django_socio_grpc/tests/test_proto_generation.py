@@ -1,30 +1,19 @@
 import os
 import sys
 from importlib import reload
+from pathlib import Path
 from unittest import mock
 from unittest.mock import patch
 
+import protoparser
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django_socio_grpc.protobuf import RegistrySingleton
+from django_socio_grpc.protobuf.app_handler_registry import AppHandlerRegistry
 from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.tests.utils import patch_open
-from django_socio_grpc.utils.registry_singleton import RegistrySingleton
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
-
-from .assets.generated_protobuf_files import (
-    ALL_APP_GENERATED_NO_SEPARATE,
-    ALL_APP_GENERATED_SEPARATE,
-    CUSTOM_APP_MODEL_GENERATED,
-    MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED,
-    MODEL_WITH_M2M_GENERATED,
-    MODEL_WITH_STRUCT_IMORT_IN_ARRAY,
-    NO_MODEL_GENERATED,
-    SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER,
-    SIMPLE_APP_MODEL_OLD_ORDER,
-    SIMPLE_MODEL_GENERATED,
-)
 
 
 def relatedfieldmodel_handler_hook(server):
@@ -79,7 +68,7 @@ def service_in_root_grpc_handler_hook(server):
 
 
 def empty_handler_hook(server):
-    RegistrySingleton().clean_all()
+    RegistrySingleton.clean_all()
     pass
 
 
@@ -114,12 +103,36 @@ def overide_grpc_framework_in_root_grpc():
     }
 
 
+OVERRIDEN_SETTINGS = {
+    "ALL_APP_GENERATED_NO_SEPARATE": overide_grpc_framework_no_separate(),
+    "ALL_APP_GENERATED_SEPARATE": {},
+    "CUSTOM_APP_MODEL_GENERATED": overide_grpc_framework("foreignmodel_handler_hook"),
+    "MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED": overide_grpc_framework(
+        "specialfieldmodel_handler_hook"
+    ),
+    "MODEL_WITH_M2M_GENERATED": overide_grpc_framework("relatedfieldmodel_handler_hook"),
+    "MODEL_WITH_STRUCT_IMORT_IN_ARRAY": overide_grpc_framework(
+        "importstructeveninarraymodel_handler_hook"
+    ),
+    "NO_MODEL_GENERATED": overide_grpc_framework("basicservice_handler_hook"),
+    "SIMPLE_MODEL_GENERATED": overide_grpc_framework("unittestmodel_handler_hook"),
+}
+
+
+def get_proto_file_content(name):
+    with open(Path(__file__).parent / "protos" / name / "fakeapp.proto") as f:
+        return f.read()
+
+
 def reload_all():
-    RegistrySingleton().clean_all()
+    RegistrySingleton.clean_all()
     from fakeapp.handlers import services
 
     for service in services:
         reload(sys.modules[service.__module__])
+
+
+old_order_data = get_proto_file_content("SIMPLE_APP_MODEL_OLD_ORDER")
 
 
 @patch.dict(os.environ, {"DJANGO_SETTINGS_MODULE": "myproject.settings"})
@@ -127,16 +140,19 @@ class TestProtoGeneration(TestCase):
     maxDiff = None
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
     def test_check_option(self):
 
         reload_all()
 
         args = []
-        opts = {"check": True, "generate_python": False}
-        with patch_open(read_data=ALL_APP_GENERATED_SEPARATE) as m:
+        opts = {"check": True, "no_generate_pb2": True}
+
+        input_data = get_proto_file_content("ALL_APP_GENERATED_SEPARATE")
+
+        with patch_open(read_data=input_data) as m:
             call_command("generateproto", *args, **opts)
 
         # this is done to avoid error on different absolute path
@@ -144,13 +160,13 @@ class TestProtoGeneration(TestCase):
         assert m.mock_calls[0].args[1] == "r"
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("empty_handler_hook"))
     def test_raise_when_no_service_registered(self):
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with self.assertRaises(ProtobufGenerationException) as fake_generation_error:
             call_command("generateproto", *args, **opts)
 
@@ -160,13 +176,13 @@ class TestProtoGeneration(TestCase):
         )
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("error_app_unkown_handler_hook"))
     def test_raise_when_app_not_exising(self):
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with self.assertRaises(ModuleNotFoundError) as fake_generation_error:
             call_command("generateproto", *args, **opts)
 
@@ -176,15 +192,15 @@ class TestProtoGeneration(TestCase):
         )
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
     @override_settings(
         GRPC_FRAMEWORK=overide_grpc_framework("error_service_unkown_handler_hook")
     )
     def test_raise_when_service_not_existing(self):
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with self.assertRaises(ModuleNotFoundError) as fake_generation_error:
             call_command("generateproto", *args, **opts)
 
@@ -194,14 +210,14 @@ class TestProtoGeneration(TestCase):
         )
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
-    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("relatedfieldmodel_handler_hook"))
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["MODEL_WITH_M2M_GENERATED"])
     def test_generate_message_with_repeated_for_m2m(self):
 
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with patch_open() as m:
             call_command("generateproto", *args, **opts)
 
@@ -212,16 +228,19 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, MODEL_WITH_M2M_GENERATED)
+
+        proto_file_content = get_proto_file_content("MODEL_WITH_M2M_GENERATED")
+
+        self.assertEqual(called_with_data, proto_file_content)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
-    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("unittestmodel_handler_hook"))
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["SIMPLE_MODEL_GENERATED"])
     def test_generate_one_app_one_model_with_custom_action(self):
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with patch_open() as m:
             call_command("generateproto", *args, **opts)
 
@@ -232,58 +251,21 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, SIMPLE_MODEL_GENERATED)
+
+        proto_file_content = get_proto_file_content("SIMPLE_MODEL_GENERATED")
+
+        self.assertEqual(called_with_data, proto_file_content)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
-    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("specialfieldmodel_handler_hook"))
-    def test_generate_one_app_one_model_with_override_know_method(self):
-        args = []
-        opts = {"generate_python": False}
-        with patch_open() as m:
-            call_command("generateproto", *args, **opts)
-
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
-
-        handle = m()
-
-        called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED)
-
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
-    )
-    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("foreignmodel_handler_hook"))
-    def test_generate_one_app_one_model_customized(self):
-        args = []
-        opts = {"generate_python": False}
-        with patch_open() as m:
-            call_command("generateproto", *args, **opts)
-
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
-
-        handle = m()
-
-        called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, CUSTOM_APP_MODEL_GENERATED)
-
-    @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
     @override_settings(
-        GRPC_FRAMEWORK=overide_grpc_framework("importstructeveninarraymodel_handler_hook")
+        GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED"]
     )
-    def test_generate_one_app_one_model_import_struct_in_array(self):
+    def test_generate_one_app_one_model_with_override_know_method(self):
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with patch_open() as m:
             call_command("generateproto", *args, **opts)
 
@@ -294,11 +276,62 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, MODEL_WITH_STRUCT_IMORT_IN_ARRAY)
+
+        proto_file_content = get_proto_file_content(
+            "MODEL_WITH_KNOWN_METHOD_OVERRIDEN_GENERATED"
+        )
+
+        self.assertEqual(called_with_data, proto_file_content)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=True),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
+    )
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["CUSTOM_APP_MODEL_GENERATED"])
+    def test_generate_one_app_one_model_customized(self):
+        args = []
+        opts = {"no_generate_pb2": True}
+        with patch_open() as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "w+"
+
+        handle = m()
+
+        called_with_data = handle.write.call_args[0][0]
+
+        proto_file_content = get_proto_file_content("CUSTOM_APP_MODEL_GENERATED")
+
+        self.assertEqual(called_with_data, proto_file_content)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
+    )
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["MODEL_WITH_STRUCT_IMORT_IN_ARRAY"])
+    def test_generate_one_app_one_model_import_struct_in_array(self):
+        args = []
+        opts = {"no_generate_pb2": True}
+        with patch_open() as m:
+            call_command("generateproto", *args, **opts)
+
+        # this is done to avoid error on different absolute path
+        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert m.mock_calls[0].args[1] == "w+"
+
+        handle = m()
+
+        called_with_data = handle.write.call_args[0][0]
+
+        proto_file_content = get_proto_file_content("MODEL_WITH_STRUCT_IMORT_IN_ARRAY")
+
+        self.assertEqual(called_with_data, proto_file_content)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=protoparser.parse(old_order_data)),
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("unittestmodel_handler_hook"))
     def test_order_proto_field_if_existing(self):
@@ -307,28 +340,32 @@ class TestProtoGeneration(TestCase):
         So when regeneration with the text field it should appear in third position and not in second
         """
         args = []
-        opts = {"generate_python": False}
-        with patch_open(read_data=SIMPLE_APP_MODEL_OLD_ORDER) as m:
+        opts = {"no_generate_pb2": True}
+
+        with patch_open(read_data=old_order_data) as m:
             call_command("generateproto", *args, **opts)
 
         # this is done to avoid error on different absolute path
         assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r"
+        assert m.mock_calls[0].args[1] == "w+"
 
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER)
+
+        output_data = get_proto_file_content("SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER")
+
+        self.assertEqual(called_with_data, output_data)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
-    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework("basicservice_handler_hook"))
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["NO_MODEL_GENERATED"])
     def test_generate_service_no_model(self):
 
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with patch_open() as m:
             call_command("generateproto", *args, **opts)
 
@@ -339,17 +376,20 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, NO_MODEL_GENERATED)
+
+        proto_file_content = get_proto_file_content("NO_MODEL_GENERATED")
+
+        self.assertEqual(called_with_data, proto_file_content)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
     def test_generate_all_models_separate_read_write(self):
         reload_all()
 
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with patch_open() as m:
             call_command("generateproto", *args, **opts)
 
@@ -360,17 +400,20 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, ALL_APP_GENERATED_SEPARATE)
+
+        proto_file_content = get_proto_file_content("ALL_APP_GENERATED_SEPARATE")
+
+        self.assertEqual(called_with_data, proto_file_content)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
-    @override_settings(GRPC_FRAMEWORK=overide_grpc_framework_no_separate())
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["ALL_APP_GENERATED_NO_SEPARATE"])
     def test_generate_all_models_no_separate(self):
 
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with patch_open() as m:
             call_command("generateproto", *args, **opts)
 
@@ -381,17 +424,20 @@ class TestProtoGeneration(TestCase):
         handle = m()
 
         called_with_data = handle.write.call_args[0][0]
-        self.assertEqual(called_with_data, ALL_APP_GENERATED_NO_SEPARATE)
+
+        proto_file_content = get_proto_file_content("ALL_APP_GENERATED_NO_SEPARATE")
+
+        self.assertEqual(called_with_data, proto_file_content)
 
     @mock.patch(
-        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.check_if_existing_proto_file",
-        mock.MagicMock(return_value=False),
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework_in_root_grpc())
     def test_generate_proto_to_root_grpc(self):
 
         args = []
-        opts = {"generate_python": False}
+        opts = {"no_generate_pb2": True}
         with patch_open() as m:
             call_command("generateproto", *args, **opts)
 

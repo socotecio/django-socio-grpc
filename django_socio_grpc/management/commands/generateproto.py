@@ -5,9 +5,9 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
-from django_socio_grpc.utils.registry_singleton import RegistrySingleton
 
 
 class Command(BaseCommand):
@@ -26,11 +26,11 @@ class Command(BaseCommand):
             help="print proto data without writing them",
         )
         parser.add_argument(
-            "--generate-python",
-            "-gp",
+            "--no-generate-pb2",
+            "-nopb2",
             action="store_true",
-            default=True,
-            help="generate python file too",
+            default=False,
+            help="Do not generate PB2 python files",
         )
         parser.add_argument(
             "--check",
@@ -44,6 +44,12 @@ class Command(BaseCommand):
             type=int,
             help="Number from 1 to 4 indicating the verbose level of the generation",
         )
+        parser.add_argument(
+            "--directory",
+            "-d",
+            default=None,
+            help="Directory where the proto files will be generated. Default will be in the apps directories",
+        )
 
     def handle(self, *args, **options):
 
@@ -52,15 +58,20 @@ class Command(BaseCommand):
         # ------------------------------------------
         grpc_settings.ROOT_HANDLERS_HOOK(None)
         self.project_name = options["project"]
-        if not self.project_name and os.environ.get("DJANGO_SETTINGS_MODULE"):
+        if not self.project_name:
+            if not os.environ.get("DJANGO_SETTINGS_MODULE"):
+                raise ProtobufGenerationException(
+                    detail="Can't automatically find the correct project name. Set DJANGO_SETTINGS_MODULE or specify the --project option",
+                )
             self.project_name = os.environ.get("DJANGO_SETTINGS_MODULE").split(".")[0]
-        else:
-            raise ProtobufGenerationException(
-                detail="Can't automatically found the correct project name. Set DJANGO_SETTINGS_MODULE or specify the --project option",
-            )
+
         self.dry_run = options["dry_run"]
-        self.generate_python = options["generate_python"]
+        self.generate_pb2 = not options["no_generate_pb2"]
         self.check = options["check"]
+        self.directory = options["directory"]
+        if self.directory:
+            self.directory = Path(self.directory)
+            self.directory.mkdir(parents=True, exist_ok=True)
 
         registry_instance = RegistrySingleton()
 
@@ -70,14 +81,13 @@ class Command(BaseCommand):
         generator = RegistryToProtoGenerator(
             registry_instance=registry_instance,
             project_name=self.project_name,
-            verbose=options["custom_verbose"],
+            verbose=options["custom_verbose"] or 0,
         )
 
         # ------------------------------------------------------------
         # ---- Produce a proto file on current filesystem and Path ---
         # ------------------------------------------------------------
-        path_used_for_generation = None
-        protos_by_app = generator.get_protos_by_app()
+        protos_by_app = generator.get_protos_by_app(directory=self.directory)
 
         if self.dry_run and not self.check:
             self.stdout.write(protos_by_app)
@@ -86,20 +96,24 @@ class Command(BaseCommand):
 
             if not protos_by_app.keys():
                 raise ProtobufGenerationException(
-                    detail="No Service registered. You should use ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry."
+                    detail="No Service registered. You should use "
+                    "ROOT_HANDLERS_HOOK settings and register Service using AppHandlerRegistry."
                 )
             for app_name, proto in protos_by_app.items():
-                registry = RegistrySingleton().registered_app[app_name]
-                auto_file_path = registry.get_proto_path()
-                auto_file_path.parent.mkdir(parents=True, exist_ok=True)
-                self.check_or_write(auto_file_path, proto, registry.app_name)
-                path_used_for_generation = auto_file_path
+                registry = RegistrySingleton().registered_apps[app_name]
 
-                if self.generate_python:
+                if self.directory:
+                    file_path = self.directory / f"{app_name}.proto"
+                else:
+                    file_path = registry.get_proto_path()
+                    file_path.parent.mkdir(parents=True, exist_ok=True)
+                self.check_or_write(file_path, proto, registry.app_name)
+
+                if self.generate_pb2:
                     if not settings.BASE_DIR:
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
                     os.system(
-                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {path_used_for_generation}"
+                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {file_path}"
                     )
 
     def check_or_write(self, file: Path, proto, app_name):

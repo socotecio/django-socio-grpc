@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+
+service UnitTestModelController {
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
+    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
+    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+}
+
+message UnitTestModelRequest {
+    int32 id = 1;
+    string title = 2;
+    string text = 3;
+}
+
+message UnitTestModelResponse {
+    int32 id = 1;
+    string text = 2;
+}
+
+message UnitTestModelListRequest {
+}
+
+message UnitTestModelListResponse {
+    repeated UnitTestModelResponse results = 1;
+    int32 count = 2;
+}
+
+message UnitTestModelRetrieveRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelStreamRequest {
+}
+

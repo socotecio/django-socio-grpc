@@ -4,7 +4,7 @@ import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from rest_framework import serializers
 
 from django_socio_grpc import proto_serializers
-from django_socio_grpc.utils.tools import ProtoComment
+from django_socio_grpc.protobuf import ProtoComment
 
 from .models import (
     ForeignModel,

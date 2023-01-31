@@ -299,15 +299,23 @@ class FakeFullAioCall(FakeBaseCall):
 
         async def wrapped(*args, **kwargs):
             method = self._real_method(request=self._request, context=self._context)
-            if inspect.isasyncgen(method):
-                async for response in method:
-                    await self._context.write(response)
+            try:
+                if inspect.isasyncgen(method):
+                    async for response in method:
+                        await self._context.write(response)
+                    await self._context.write(grpc.aio.EOF)
+                    return
+                else:
+                    response = await method
+                    await self._context.write(grpc.aio.EOF)
+                    return response
+            except Exception as e:
+                # INFO - AM - 31/01/2023 - Need to write exception to context to have the exception raised in read client
+                await self._context.write(e)
+                # INFO - AM - 31/01/2023 - Need to write EOF to context to avoid the timeoutError and have the correct error
                 await self._context.write(grpc.aio.EOF)
-                return
-            else:
-                response = await method
-                await self._context.write(grpc.aio.EOF)
-                return response
+                # INFO - AM - 31/01/2023 - Need to rais exception to have the exception raised in write client
+                raise e
 
         # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
         self.method_awaitable = asyncio.create_task(

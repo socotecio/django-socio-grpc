@@ -88,10 +88,13 @@ class TestSyncModelService(TestCase):
     def test_partial_update(self):
         instance = UnitTestModel.objects.first()
 
-        old_text = instance.text
+        old_text = "text"
+        instance.text = old_text
+        instance.save()
 
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
 
+        # Test partial update does not update fields not specified
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
             id=instance.id, _partial_update_fields=["title"], title="newTitle"
         )
@@ -99,6 +102,17 @@ class TestSyncModelService(TestCase):
 
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
+
+        # Test partial update takes into account empty optional fields
+        request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
+            id=instance.id, _partial_update_fields=["text"]
+        )
+        response = grpc_stub.PartialUpdate(request=request)
+
+        self.assertEqual(response.title, "newTitle")
+
+        # Directly getting `text` would return default value, which is empty string
+        self.assertFalse(response.HasField("text"))
 
     def test_async_list_custom_action(self):
 

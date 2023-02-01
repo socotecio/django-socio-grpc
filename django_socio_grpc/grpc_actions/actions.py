@@ -94,11 +94,11 @@ class GRPCAction:
     proto_rpc: Optional[ProtoRpc] = field(init=False, default=None)
 
     def __post_init__(self):
-
         if isinstance(self.function, SyncToAsync):
+            base_function = self.function
 
-            async def func(self, *args, **kwargs):
-                return await self.function(self, *args, **kwargs)
+            async def func(*args, **kwargs):
+                return await base_function(*args, **kwargs)
 
             self.function = functools.update_wrapper(func, self.function.func)
 
@@ -162,10 +162,8 @@ class GRPCAction:
         as_list: bool,
         list_field_name: Optional[str],
     ):
-
         assert not isinstance(message, Placeholder)
         try:
-
             prefix = service.get_service_name()
             proto_message = message_class.create(
                 message,
@@ -227,7 +225,6 @@ class GRPCAction:
             )
 
     def make_proto_rpc(self, action_name: str, service: Type["Service"]) -> ProtoRpc:
-
         req_class = res_class = ProtoMessage
         if grpc_settings.SEPARATE_READ_WRITE_MODEL:
             req_class = RequestProtoMessage
@@ -325,7 +322,6 @@ def register_action(cls, action_name: str, name: Optional[str] = None, **kwargs)
 
 
 class GRPCActionMixin(abc.ABC):
-
     _decorated_grpc_action_registry: Dict[str, Dict[str, Any]]
     """Registry of grpc actions declared in the class"""
 
@@ -396,7 +392,6 @@ class GRPCActionMixin(abc.ABC):
         This should be overriden in your service or mixin if you want a specific behavior for a mixin
         Method called before gRPC actions registration
         """
-        pass
 
     def _dynamic_grpc_action_registry(service) -> Dict[str, Dict[str, Any]]:
         """Dynamic gRPC action registry"""

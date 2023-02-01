@@ -59,7 +59,11 @@ class GRPCHandler(logging.Handler):
         except Exception:
             tb = None
         # INFO - AG - 11/05/2022 - format dict of locals variables
-        locals = json.dumps(tb.stack[-1].locals, sort_keys=False, indent=4) if tb else None
+        locals = (
+            json.dumps(tb.stack[-1].locals, sort_keys=False, indent=4)
+            if tb and len(tb.stack) > 1
+            else None
+        )
         record = logging.makeLogRecord(
             {
                 "asctime": self.generate_asctime(),
@@ -80,9 +84,21 @@ class GRPCHandler(logging.Handler):
         return str_now
 
     def extract_exc_info_from_traceback(self, formatted_exception):
+        if not len(formatted_exception):
+            return ("no path", "0", "no formatted exception")
+        # INFO - AM - 01/02/2023 - RuntimeError can produce this
+        if len(formatted_exception) < 2:
+            return ("no path", "0", formatted_exception[0])
         # INFO - FB - 21/07/2021 - formatted_exception is an array where each item is a line of the traceback from the exeption and the last item is the text of the exception
         # INFO - FB - 21/07/2021 - Getting the -2 element mean getting the line where the exception is raised
         traceback_last_line = formatted_exception[-2]
+
+        # INFO - AM - 01/02/2023 - Sometime when exception is raising in exception we need to take 2 line before it line
+        if (
+            traceback_last_line
+            == "\nDuring handling of the above exception, another exception occurred:\n\n"
+        ):
+            traceback_last_line = formatted_exception[-4]
 
         # INFO - FB - 21/07/2021 - traceback_last_line look lie: '  File "<pathtofile>", line <linenumber>, in <function_name>\n    <text line that raise error>\n'
         (

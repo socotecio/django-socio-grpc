@@ -310,12 +310,10 @@ class FakeFullAioCall(FakeBaseCall):
                     await self._context.write(grpc.aio.EOF)
                     return response
             except Exception as e:
-                # INFO - AM - 31/01/2023 - Need to write exception to context to have the exception raised in read client
+                # INFO - AM - 31/01/2023 - Need to write exception to context to have the exception raised in read client for stream response. This has no effect for unary response
                 await self._context.write(e)
-                # INFO - AM - 31/01/2023 - Need to write EOF to context to avoid the timeoutError and have the correct error
-                await self._context.write(grpc.aio.EOF)
-                # INFO - AM - 31/01/2023 - Need to rais exception to have the exception raised in write client
-                raise e
+                # INFO - AM - 31/01/2023 - Return are for unary response
+                return e
 
         # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
         self.method_awaitable = asyncio.create_task(
@@ -327,8 +325,9 @@ class FakeFullAioCall(FakeBaseCall):
 class UnaryResponseMixin:
     def __await__(self):
         # TODO - AM - 10/08/2022 - https://github.com/grpc/grpc/blob/4df74f2b4c3ddc00e6607825b52cf82ee842d820/src/python/grpcio/grpc/aio/_call.py#L268
-        # Need to implement CancelledError and EOF response
         response = yield from self.method_awaitable
+        if isinstance(response, Exception):
+            raise response
         return response
 
 

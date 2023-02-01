@@ -1,4 +1,5 @@
 from fakeapp.services.basic_service import BasicService
+from fakeapp.services.exception_service import ExceptionService
 from fakeapp.services.foreign_model_service import ForeignModelService
 from fakeapp.services.import_struct_even_in_array_model_service import (
     ImportStructEvenInArrayModelService,
@@ -25,6 +26,7 @@ def grpc_handlers(server):
     app_registry.register(SyncUnitTestModelService)
     app_registry.register(UnitTestModelService)
     app_registry.register(StreamInService)
+    app_registry.register(ExceptionService)
 
 
 services = (

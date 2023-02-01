@@ -19,6 +19,11 @@ service BasicController {
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
+service ExceptionController {
+    rpc StreamRaiseException(google.protobuf.Empty) returns (stream ExceptionStreamRaiseExceptionResponse) {}
+    rpc UnaryRaiseException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
     rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustomResponse) {}
@@ -203,6 +208,10 @@ message CustomRetrieveResponseSpecialFieldsModelResponse {
     string uuid = 1;
     int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message ExceptionStreamRaiseExceptionResponse {
+    string id = 1;
 }
 
 message ForeignModelListRequest {

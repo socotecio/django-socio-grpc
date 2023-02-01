@@ -397,6 +397,100 @@ class BasicController(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
 
+class ExceptionControllerStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.StreamRaiseException = channel.unary_stream(
+                '/fakeproject.fakeapp.ExceptionController/StreamRaiseException',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ExceptionStreamRaiseExceptionResponse.FromString,
+                )
+        self.UnaryRaiseException = channel.unary_unary(
+                '/fakeproject.fakeapp.ExceptionController/UnaryRaiseException',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+
+
+class ExceptionControllerServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def StreamRaiseException(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UnaryRaiseException(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_ExceptionControllerServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'StreamRaiseException': grpc.unary_stream_rpc_method_handler(
+                    servicer.StreamRaiseException,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ExceptionStreamRaiseExceptionResponse.SerializeToString,
+            ),
+            'UnaryRaiseException': grpc.unary_unary_rpc_method_handler(
+                    servicer.UnaryRaiseException,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'fakeproject.fakeapp.ExceptionController', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class ExceptionController(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def StreamRaiseException(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/fakeproject.fakeapp.ExceptionController/StreamRaiseException',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ExceptionStreamRaiseExceptionResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UnaryRaiseException(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.ExceptionController/UnaryRaiseException',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
 class ForeignModelControllerStub(object):
     """Missing associated documentation comment in .proto file."""
 

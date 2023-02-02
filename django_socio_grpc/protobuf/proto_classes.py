@@ -130,7 +130,6 @@ class ProtoField:
 
     @classmethod
     def from_field(cls, field: serializers.Field) -> "ProtoField":
-
         cardinality = cls._get_cardinality(field)
 
         if hasattr(field, "proto_type"):
@@ -476,7 +475,6 @@ class ProtoMessage:
         base_name: Optional[str] = None,
         list_field_name: Optional[str] = None,
     ) -> "ProtoMessage":
-
         if list_field_name is None:
             try:
                 list_field_name = base_message.serializer.Meta.message_list_attr
@@ -700,6 +698,7 @@ FIELDS_TO_PROTO_TYPES = {
 
 PRIMITIVE_TYPES = {
     "google.protobuf.Struct": StructMessage,
+    "google.protobuf.Empty": EmptyMessage,
 }
 
 TYPING_TO_PROTO_TYPES = {

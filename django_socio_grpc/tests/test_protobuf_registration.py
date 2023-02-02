@@ -8,6 +8,7 @@ from django_socio_grpc import proto_serializers
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.protobuf import ProtoComment, ProtoRegistrationError
 from django_socio_grpc.protobuf.proto_classes import (
+    EmptyMessage,
     FieldCardinality,
     ProtoField,
     ProtoMessage,
@@ -43,7 +44,6 @@ class MyIntSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class MySerializer(proto_serializers.ProtoSerializer):
-
     user_name = serializers.IntegerField(
         help_text=ProtoComment(["@test=comment1", "@test2=comment2"])
     )
@@ -66,7 +66,6 @@ class MySerializer(proto_serializers.ProtoSerializer):
 
 
 class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
-
     serializer = MySerializer()
     serializer_list = MySerializer(many=True)
 
@@ -411,6 +410,13 @@ class TestGrpcActionProto:
         async def Optional(self, request, context):
             ...
 
+        @grpc_action(
+            request=[],
+            response="google.protobuf.Empty",
+        )
+        async def EmptyMessages(self, request, context):
+            ...
+
     def test_register_action_list(self):
         proto_rpc = self.MyAction.BasicList.make_proto_rpc("BasicList", self.MyAction)
 
@@ -439,3 +445,12 @@ class TestGrpcActionProto:
 
         assert request["optional_title"].cardinality == FieldCardinality.OPTIONAL
         assert response["optional_field"].cardinality == FieldCardinality.OPTIONAL
+
+    def test_register_action_with_empty(self):
+        proto_rpc = self.MyAction.EmptyMessages.make_proto_rpc("EmptyMessages", self.MyAction)
+
+        request = proto_rpc.request
+        response = proto_rpc.response
+
+        assert request is EmptyMessage
+        assert response is EmptyMessage

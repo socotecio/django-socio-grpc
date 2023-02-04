@@ -386,9 +386,10 @@ class AsyncListModelMixin(ListModelMixin):
         page = await sync_to_async(self.paginate_queryset)(queryset)
         if page is not None:
             serializer = await self.aget_serializer(page, many=True)
-            if hasattr(serializer.amessage, "count"):
-                serializer.amessage.count = self.paginator.page.paginator.count
-            return await serializer.amessage
+            message = await serializer.amessage
+            if hasattr(message, "count"):
+                message.count = self.paginator.page.paginator.count
+            return message
         else:
             serializer = await self.aget_serializer(queryset, many=True)
             return await serializer.amessage

@@ -363,9 +363,9 @@ class AsyncCreateModelMixin(CreateModelMixin):
         ``serializer.Meta.proto_class``.
         """
         serializer = await self.aget_serializer(message=request)
-        serializer.is_valid(raise_exception=True)
+        await sync_to_async(serializer.is_valid)(raise_exception=True)
         await self.aperform_create(serializer)
-        return serializer.message
+        return await serializer.amessage
 
     async def aperform_create(self, serializer):
         """Save a new object instance."""
@@ -446,7 +446,7 @@ class AsyncUpdateModelMixin(UpdateModelMixin):
         """
         instance = await self.aget_object()
         serializer = await self.aget_serializer(instance, message=request)
-        serializer.is_valid(raise_exception=True)
+        await sync_to_async(serializer.is_valid)(raise_exception=True)
         await self.aperform_update(serializer)
 
         if getattr(instance, "_prefetched_objects_cache", None):
@@ -478,7 +478,7 @@ class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin):
         # INFO - L.G. - 11/07/2022 - We use the data parameter instead of message
         # because we handle a dict not a grpc message.
         serializer = await self.aget_serializer(instance, data=data, partial=True)
-        serializer.is_valid(raise_exception=True)
+        await sync_to_async(serializer.is_valid)(raise_exception=True)
         await self.aperform_partial_update(serializer)
 
         if getattr(instance, "_prefetched_objects_cache", None):

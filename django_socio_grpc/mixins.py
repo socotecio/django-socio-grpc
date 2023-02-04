@@ -355,28 +355,56 @@ class DestroyModelMixin(GRPCActionMixin):
 
 class AsyncCreateModelMixin(CreateModelMixin):
     async def Create(self, request, context):
-        async_parent_method = sync_to_async(super().Create)
-        return await async_parent_method(request, context)
+        """
+        Create a model instance.
+
+        The request should be a proto message of ``serializer.Meta.proto_class``.
+        If an object is created this returns a proto message of
+        ``serializer.Meta.proto_class``.
+        """
+        serializer = await self.aget_serializer(message=request)
+        serializer.is_valid(raise_exception=True)
+        await self.aperform_create(serializer)
+        return serializer.message
+
+    async def aperform_create(self, serializer):
+        """Save a new object instance."""
+        await sync_to_async(serializer.save)()
 
 
 class AsyncListModelMixin(ListModelMixin):
     async def List(self, request, context):
-        async_parent_method = sync_to_async(super().List)
-        return await async_parent_method(request, context)
+        """
+        List a queryset.  This sends a message array of
+        ``serializer.Meta.proto_class`` to the client.
+
+        .. note::
+
+            This is a server streaming RPC.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        page = await sync_to_async(self.paginate_queryset)(queryset)
+        if page is not None:
+            serializer = await self.aget_serializer(page, many=True)
+            if hasattr(serializer.message, "count"):
+                serializer.message.count = self.paginator.page.paginator.count
+            return await serializer.amessage
+        else:
+            serializer = await self.aget_serializer(queryset, many=True)
+            return await serializer.amessage
 
 
 class AsyncStreamModelMixin(StreamModelMixin):
-    @sync_to_async
-    def _get_list_data(self):
+    async def _get_list_data(self):
         queryset = self.filter_queryset(self.get_queryset())
 
-        page = self.paginate_queryset(queryset)
+        page = await sync_to_async(self.paginate_queryset)(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True, stream=True)
+            serializer = await self.aget_serializer(page, many=True, stream=True)
         else:
-            serializer = self.get_serializer(queryset, many=True, stream=True)
+            serializer = await self.aget_serializer(queryset, many=True, stream=True)
 
-        return serializer.message
+        return await serializer.amessage
 
     async def Stream(self, request, context):
         """
@@ -394,26 +422,92 @@ class AsyncStreamModelMixin(StreamModelMixin):
 
 class AsyncRetrieveModelMixin(RetrieveModelMixin):
     async def Retrieve(self, request, context):
-        async_parent_method = sync_to_async(super().Retrieve)
-        return await async_parent_method(request, context)
+        """
+        Retrieve a model instance.
+
+        The request have to include a field corresponding to
+        ``lookup_request_field``.  If an object can be retrieved this returns
+        a proto message of ``serializer.Meta.proto_class``.
+        """
+        instance = await self.aget_object()
+        serializer = await self.aget_serializer(instance)
+        return await serializer.amessage
 
 
 class AsyncUpdateModelMixin(UpdateModelMixin):
     async def Update(self, request, context):
-        async_parent_method = sync_to_async(super().Update)
-        return await async_parent_method(request, context)
+        """
+        Update a model instance.
+
+        The request should be a proto message of ``serializer.Meta.proto_class``.
+        If an object is updated this returns a proto message of
+        ``serializer.Meta.proto_class``.
+        """
+        instance = await self.aget_object()
+        serializer = await self.aget_serializer(instance, message=request)
+        serializer.is_valid(raise_exception=True)
+        await self.aperform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return await serializer.amessage
+
+    async def aperform_update(self, serializer):
+        """Save an existing object instance."""
+        await sync_to_async(serializer.save)()
 
 
 class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin):
     async def PartialUpdate(self, request, context):
-        async_parent_method = sync_to_async(super().PartialUpdate)
-        return await async_parent_method(request, context)
+        """
+        Partial update a model instance.
+
+        Performs a partial update on the given `_partial_update_fields`.
+        """
+
+        content = message_to_dict(request)
+
+        data = {k: v for k, v in content.items() if k in request._partial_update_fields}
+
+        instance = await self.aget_object()
+
+        # INFO - L.G. - 11/07/2022 - We use the data parameter instead of message
+        # because we handle a dict not a grpc message.
+        serializer = await self.aget_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        await self.aperform_partial_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return await serializer.amessage
+
+    async def aperform_partial_update(self, serializer):
+        """Save an existing object instance."""
+        await sync_to_async(serializer.save)()
 
 
 class AsyncDestroyModelMixin(DestroyModelMixin):
     async def Destroy(self, request, context):
-        async_parent_method = sync_to_async(super().Destroy)
-        return await async_parent_method(request, context)
+        """
+        Destroy a model instance.
+
+        The request have to include a field corresponding to
+        ``lookup_request_field``.  If an object is deleted this returns
+        a proto message of ``google.protobuf.empty_pb2.Empty``.
+        """
+        instance = await self.aget_object()
+        await self.aperform_destroy(instance)
+        return empty_pb2.Empty()
+
+    async def aperform_destroy(self, instance):
+        """Delete an object instance."""
+        await sync_to_async(instance.delete)()
 
 
 ############################################################

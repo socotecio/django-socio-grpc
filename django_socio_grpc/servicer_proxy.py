@@ -171,9 +171,7 @@ class ServicerProxy(MiddlewareCapable):
                 request=request, context=proxy_context, action=action
             )
             request = GRPCRequestContainer(request, proxy_context, action, service_instance)
-            async for response in await safe_async_response(
-                self._middleware_chain, request, self.async_process_exception
-            ):
+            async for response in await safe_async_response(self._middleware_chain, request):
                 yield response
 
         return handler
@@ -185,9 +183,7 @@ class ServicerProxy(MiddlewareCapable):
                 request=request, context=proxy_context, action=action
             )
             request = GRPCRequestContainer(request, proxy_context, action, service_instance)
-            return await safe_async_response(
-                self._middleware_chain, request, self.async_process_exception
-            )
+            return await safe_async_response(self._middleware_chain, request)
 
         return handler
 

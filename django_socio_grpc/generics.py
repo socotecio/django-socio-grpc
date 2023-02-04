@@ -1,3 +1,4 @@
+from asgiref.sync import sync_to_async
 from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import Http404
@@ -106,6 +107,29 @@ class GenericService(services.Service):
         self.check_object_permissions(obj)
         return obj
 
+    async def aget_object(self):
+        """
+        Returns an object instance that should be used for detail services.
+        Defaults to using the lookup_field parameter to filter the base
+        queryset.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_request_field = self.get_lookup_request_field(queryset)
+        assert hasattr(self.request, lookup_request_field), (
+            "Expected service %s to be called with request that has a field "
+            'named "%s". Fix your request protocol definition, or set the '
+            "`.lookup_field` attribute on the service correctly."
+            % (self.__class__.__name__, lookup_request_field)
+        )
+        lookup_value = getattr(self.request, lookup_request_field)
+        filter_kwargs = {lookup_request_field: lookup_value}
+        try:
+            obj = await sync_to_async(get_object_or_404)(queryset, **filter_kwargs)
+        except (TypeError, ValueError, ValidationError, Http404):
+            raise NotFound(detail=f"{queryset.model.__name__}: {lookup_value} not found!")
+        await self.acheck_object_permissions(obj)
+        return obj
+
     def get_serializer(self, *args, **kwargs):
         """
         Return the serializer instance that should be used for validating and
@@ -114,6 +138,11 @@ class GenericService(services.Service):
         serializer_class = self.get_serializer_class()
         kwargs.setdefault("context", self.get_serializer_context())
         return serializer_class(*args, **kwargs)
+
+    async def aget_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        kwargs.setdefault("context", self.get_serializer_context())
+        return await sync_to_async(serializer_class)(*args, **kwargs)
 
     def get_serializer_context(self):
         """

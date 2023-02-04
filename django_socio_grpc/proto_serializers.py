@@ -1,3 +1,4 @@
+from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
 from google._upb._message import RepeatedCompositeContainer
@@ -53,6 +54,13 @@ class BaseProtoSerializer(BaseSerializer):
     def message(self):
         if not hasattr(self, "_message"):
             self._message = self.data_to_message(self.data)
+        return self._message
+
+    @property
+    async def amessage(self):
+        data = await sync_to_async(getattr)(self, "data")
+        if not hasattr(self, "_message"):
+            self._message = self.data_to_message(data)
         return self._message
 
     @classmethod

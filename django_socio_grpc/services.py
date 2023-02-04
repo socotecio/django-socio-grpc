@@ -89,6 +89,14 @@ class Service(GRPCActionMixin):
             return self._async_check_permissions()
         return self._check_permissions()
 
+    async def acheck_object_permissions(self, obj):
+        for permission in self.get_permissions():
+            has_object_permission = permission.has_object_permission
+            if not asyncio.iscoroutinefunction(permission.has_object_permission):
+                has_object_permission = sync_to_async(permission.has_object_permission)
+            if not await has_object_permission(self.context, self):
+                raise PermissionDenied(detail=getattr(permission, "message", None))
+
     def check_object_permissions(self, obj):
         for permission in self.get_permissions():
             if not permission.has_object_permission(self.context, self, obj):

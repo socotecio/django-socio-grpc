@@ -163,7 +163,6 @@ class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
         ]
 
     class Meta:
-        pass
         proto_class = fakeapp_pb2.BaseProtoExampleResponse
         proto_class_list = fakeapp_pb2.BaseProtoExampleListResponse
 

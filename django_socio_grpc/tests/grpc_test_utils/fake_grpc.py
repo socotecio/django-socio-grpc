@@ -257,7 +257,7 @@ class FakeAioCall(FakeBaseCall):
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
         if request is not None:
             self._request = request
-        if self._metadata is None and metadata is not None:
+        if metadata is not None:
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
         # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
@@ -293,7 +293,7 @@ class FakeFullAioCall(FakeBaseCall):
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
         if request is not None:
             self._request = request
-        if self._metadata is None and metadata is not None:
+        if metadata is not None:
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 

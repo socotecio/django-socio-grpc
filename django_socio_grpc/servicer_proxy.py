@@ -243,7 +243,7 @@ class ServicerProxy(MiddlewareCapable):
         if isinstance(exc, GRPCException):
             logger.error(exc)
             request.context.abort(exc.status_code, exc.get_full_details())
-        elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
+        elif isinstance(exc, grpc.RpcError) or request.context._state.aborted:
             raise exc
         else:
             etype, value, tb = sys.exc_info()

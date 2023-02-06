@@ -7,8 +7,7 @@ from grpc._cython.cygrpc import _Metadatum
 
 from django_socio_grpc.services import Service
 from django_socio_grpc.settings import grpc_settings
-
-from .utils import FakeContext
+from django_socio_grpc.tests.grpc_test_utils.fake_grpc import FakeContext
 
 logger = logging.getLogger()
 

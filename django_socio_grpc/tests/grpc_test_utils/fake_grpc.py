@@ -49,7 +49,7 @@ class FakeRpcError(RuntimeError, grpc.RpcError):
         return self._details
 
 
-class FakeContext:
+class _BaseFakeContext:
     def __init__(self, stream_pipe=None, auto_eof=True):
         # INFO - FB - 11/10/2022 - When you run Stream to Stream, you have to write on different Queue
         # The stream_pip_client,  in which client writes requests and reads by the server
@@ -98,7 +98,21 @@ class FakeContext:
         return self.stream_pipe_server.get_nowait()
 
 
-class FakeAsyncContext(FakeContext):
+class FakeState:
+    aborted = False
+
+
+class FakeContext(_BaseFakeContext):
+    def __init__(self, *args, **kwargs):
+        self._state = FakeState()
+        super().__init__(*args, **kwargs)
+
+    def abort(self, code, details):
+        self._state.aborted = True
+        return super().abort(code, details)
+
+
+class FakeAsyncContext(_BaseFakeContext):
     async def abort(self, code, details):
         await sync_to_async(super().abort)(code, details)
 
@@ -238,7 +252,6 @@ class FakeBaseCall(grpc.aio.Call):
 
 
 class FakeAioCall(FakeBaseCall):
-
     _is_coroutine = asyncio.coroutines._is_coroutine
 
     def __init__(self, context=None, call_type=None, real_method=None, metadata=None):

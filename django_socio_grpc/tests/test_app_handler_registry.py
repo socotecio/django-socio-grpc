@@ -18,7 +18,6 @@ class TestAppHandlerRegistry(TestCase):
             title = "z" * (idx + 1)
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
             UnitTestModel(title=title, text=text).save()
-        pass
 
     def tearDown(self) -> None:
         RegistrySingleton.clean_all()

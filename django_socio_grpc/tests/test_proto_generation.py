@@ -69,7 +69,6 @@ def service_in_root_grpc_handler_hook(server):
 
 def empty_handler_hook(server):
     RegistrySingleton.clean_all()
-    pass
 
 
 def error_app_unkown_handler_hook(server):

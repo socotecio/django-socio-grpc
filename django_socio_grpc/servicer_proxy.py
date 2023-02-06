@@ -171,7 +171,9 @@ class ServicerProxy(MiddlewareCapable):
                 request=request, context=proxy_context, action=action
             )
             request = GRPCRequestContainer(request, proxy_context, action, service_instance)
-            async for response in await safe_async_response(self._middleware_chain, request):
+            async for response in await safe_async_response(
+                self._middleware_chain, request, self.async_process_exception
+            ):
                 yield response
 
         return handler
@@ -183,7 +185,9 @@ class ServicerProxy(MiddlewareCapable):
                 request=request, context=proxy_context, action=action
             )
             request = GRPCRequestContainer(request, proxy_context, action, service_instance)
-            return await safe_async_response(self._middleware_chain, request)
+            return await safe_async_response(
+                self._middleware_chain, request, self.async_process_exception
+            )
 
         return handler
 
@@ -255,13 +259,10 @@ class ServicerProxy(MiddlewareCapable):
         if isinstance(exc, GRPCException):
             logger.error(exc)
             await request.context.abort(exc.status_code, exc.get_full_details())
-        elif isinstance(exc, grpc.RpcError):
+        elif isinstance(exc, grpc.RpcError) or isinstance(exc, grpc.aio.AbortError):
             raise exc
         else:
             etype, value, tb = sys.exc_info()
-            formatted_exception = traceback.format_exception(etype, value, tb)
-            # No need to send it to µservices logging because we did it as exception with log_unhandled_exception
-            logger.error("".join(formatted_exception), extra={"emit_to_server": False})
             grpc_handler = GRPCHandler()
             grpc_handler.log_unhandled_exception(etype, value, tb)
             await request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))

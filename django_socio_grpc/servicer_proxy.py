@@ -2,7 +2,6 @@ import abc
 import asyncio
 import logging
 import sys
-import traceback
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Type
 
@@ -244,13 +243,10 @@ class ServicerProxy(MiddlewareCapable):
         if isinstance(exc, GRPCException):
             logger.error(exc)
             request.context.abort(exc.status_code, exc.get_full_details())
-        elif isinstance(exc, grpc.RpcError):
+        elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
             raise exc
         else:
             etype, value, tb = sys.exc_info()
-            formatted_exception = traceback.format_exception(etype, value, tb)
-            # No need to send it to µservices logging because we did it as exception with log_unhandled_exception
-            logger.error("".join(formatted_exception), extra={"emit_to_server": False})
             grpc_handler = GRPCHandler()
             grpc_handler.log_unhandled_exception(etype, value, tb)
             request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
@@ -259,13 +255,10 @@ class ServicerProxy(MiddlewareCapable):
         if isinstance(exc, GRPCException):
             logger.error(exc)
             await request.context.abort(exc.status_code, exc.get_full_details())
-        elif isinstance(exc, grpc.RpcError):
+        elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
             raise exc
         else:
             etype, value, tb = sys.exc_info()
-            formatted_exception = traceback.format_exception(etype, value, tb)
-            # No need to send it to µservices logging because we did it as exception with log_unhandled_exception
-            logger.error("".join(formatted_exception), extra={"emit_to_server": False})
             grpc_handler = GRPCHandler()
             grpc_handler.log_unhandled_exception(etype, value, tb)
             await request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))

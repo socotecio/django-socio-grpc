@@ -267,9 +267,9 @@ class ProtoField:
             )
 
         # https://docs.python.org/3/library/typing.html#typing.get_origin
+        args = get_args(return_type)
         if get_origin(return_type) is list:
             cardinality = FieldCardinality.REPEATED
-            args = get_args(return_type)
             if len(args) > 1:
                 raise ProtoRegistrationError(
                     f"You are trying to register the serializer {field.parent.__class__.__name__} "
@@ -280,8 +280,15 @@ class ProtoField:
             # INFO - LG - 03/01/2023 - By default a list is a list of str
             (return_type,) = args or [str]
 
-        if (proto_type := TYPING_TO_PROTO_TYPES.get(return_type)) or issubclass(
-            return_type, serializers.BaseSerializer
+        # When a method returns an Optional, it is considered as an Union of the return_type with None
+        elif get_origin(return_type) is Union and len(args) == 2 and type(None) in args:
+            cardinality = FieldCardinality.OPTIONAL
+            (return_type,) = (t for t in args if not issubclass(t, type(None)))
+
+        if (
+            (proto_type := TYPING_TO_PROTO_TYPES.get(return_type))
+            or isinstance(return_type, type)
+            and issubclass(return_type, serializers.BaseSerializer)
         ):
             field_type = proto_type or return_type
         else:

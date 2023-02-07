@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import pytest
 from django.db import models
@@ -61,7 +61,7 @@ class MySerializer(proto_serializers.ProtoSerializer):
     def get_smf(self, obj) -> List[int]:
         ...
 
-    def get_smf_with_serializer(self, obj) -> BasicServiceSerializer:
+    def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]:
         ...
 
 
@@ -185,7 +185,7 @@ class TestFields:
 
         assert proto_field.name == "smf_with_serializer"
         assert proto_field.field_type is BasicServiceSerializer
-        assert proto_field.cardinality == FieldCardinality.NONE
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
     def test_from_field_serializer_choice_field(self):
         ser = MyIntSerializer()

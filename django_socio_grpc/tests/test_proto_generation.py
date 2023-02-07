@@ -11,7 +11,7 @@ from django.test import TestCase, override_settings
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
-from django_socio_grpc.protobuf.app_handler_registry import AppHandlerRegistry
+from django_socio_grpc.services import AppHandlerRegistry
 from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.tests.utils import patch_open
 
@@ -143,7 +143,6 @@ class TestProtoGeneration(TestCase):
         mock.MagicMock(return_value=None),
     )
     def test_check_option(self):
-
         reload_all()
 
         args = []
@@ -214,7 +213,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["MODEL_WITH_M2M_GENERATED"])
     def test_generate_message_with_repeated_for_m2m(self):
-
         args = []
         opts = {"no_generate_pb2": True}
         with patch_open() as m:
@@ -362,7 +360,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["NO_MODEL_GENERATED"])
     def test_generate_service_no_model(self):
-
         args = []
         opts = {"no_generate_pb2": True}
         with patch_open() as m:
@@ -410,7 +407,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["ALL_APP_GENERATED_NO_SEPARATE"])
     def test_generate_all_models_no_separate(self):
-
         args = []
         opts = {"no_generate_pb2": True}
         with patch_open() as m:
@@ -434,7 +430,6 @@ class TestProtoGeneration(TestCase):
     )
     @override_settings(GRPC_FRAMEWORK=overide_grpc_framework_in_root_grpc())
     def test_generate_proto_to_root_grpc(self):
-
         args = []
         opts = {"no_generate_pb2": True}
         with patch_open() as m:

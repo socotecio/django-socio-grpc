@@ -4,7 +4,7 @@ from fakeapp.grpc.fakeapp_pb2_grpc import UnitTestModelControllerStub
 from fakeapp.models import UnitTestModel
 
 from django_socio_grpc.protobuf import RegistrySingleton
-from django_socio_grpc.protobuf.app_handler_registry import (
+from django_socio_grpc.services.app_handler_registry import (
     AppHandlerRegistry,
     AppHandlerRegistryError,
 )
@@ -23,7 +23,6 @@ class TestAppHandlerRegistry(TestCase):
         RegistrySingleton.clean_all()
 
     def test_AppHandlerRegistry_old_way(self):
-
         ################
         #  Setup fake server but with the registry handler
         ################
@@ -54,7 +53,6 @@ class TestAppHandlerRegistry(TestCase):
         fake_server.stop(grace=None)
 
     def test_AppHandlerRegistry(self):
-
         ################
         #  Setup fake server but with the registry handler
         ################

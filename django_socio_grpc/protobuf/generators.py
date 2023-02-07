@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 from django_socio_grpc.protobuf import RegistrySingleton
-from django_socio_grpc.protobuf.app_handler_registry import AppHandlerRegistry
 from django_socio_grpc.protobuf.proto_classes import ProtoMessage, ProtoService
+from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
 from .protoparser import protoparser
 
@@ -32,7 +32,6 @@ class RegistryToProtoGenerator:
             logger.log(verbose_level, message)
 
     def get_protos_by_app(self, directory: Optional[Path] = None):
-
         proto_by_app = {}
         for app_name, registry in self.registry_instance.registered_apps.items():
             proto_path = registry.get_proto_path()
@@ -129,10 +128,8 @@ class RegistryToProtoGenerator:
         # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {message.name} {{")
         with self._writer.indent():
-
             # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields
             for field in sorted(message.fields, key=lambda x: x.index):
-
                 self.print(f"GENERATE FIELD: {field.name}", 4)
 
                 # Info - AM - 30/04/2021 - add comment into the proto file

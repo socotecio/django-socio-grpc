@@ -92,29 +92,6 @@ class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class TestFields:
-    def test_to_string(self):
-        proto_field = ProtoField("title", "string", FieldCardinality.NONE, index=0)
-        assert str(proto_field) == "string title = 0;"
-        proto_field = ProtoField("title", "string", FieldCardinality.REPEATED, index=0)
-        assert str(proto_field) == "repeated string title = 0;"
-        proto_field = ProtoField("number", "int32", FieldCardinality.OPTIONAL, index=1)
-        assert str(proto_field) == "optional int32 number = 1;"
-        proto_field = ProtoField(
-            "number",
-            "int32",
-            FieldCardinality.REPEATED,
-            index=1,
-            comments=["comment0", "comment1"],
-        )
-        assert str(proto_field) == "// comment0\n// comment1\nrepeated int32 number = 1;"
-        proto_field = ProtoField(
-            "req",
-            ProtoMessage("TestMessage", []),
-            FieldCardinality.NONE,
-            index=1,
-        )
-        assert str(proto_field) == "TestMessage req = 1;"
-
     # FROM_FIELD
     def test_from_field_basic(self):
         ser = MySerializer()
@@ -226,20 +203,26 @@ class TestFields:
         ser = MyOtherSerializer()
         field = ser.fields["serializer"]
 
-        proto_message = ProtoField.from_serializer(field)
+        def to_message(serializer_class):
+            return serializer_class.__name__
+
+        proto_message = ProtoField.from_serializer(field, to_message)
 
         assert proto_message.name == "serializer"
-        assert proto_message.field_type is MySerializer
+        assert proto_message.field_type == "MySerializer"
         assert proto_message.cardinality == FieldCardinality.NONE
 
     def test_from_list_serializer(self):
         ser = MyOtherSerializer()
         field = ser.fields["serializer_list"]
 
-        proto_message = ProtoField.from_serializer(field)
+        def to_message(serializer_class):
+            return serializer_class.__name__
+
+        proto_message = ProtoField.from_serializer(field, to_message)
 
         assert proto_message.name == "serializer_list"
-        assert proto_message.field_type is MySerializer
+        assert proto_message.field_type == "MySerializer"
         assert proto_message.cardinality == FieldCardinality.REPEATED
 
     def test_from_field_dict(self):
@@ -280,6 +263,20 @@ class TestFields:
         assert proto_field.name == "title"
         assert proto_field.field_type == "string"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
+        assert proto_field.comments == ["comment0", "comment1"]
+
+        field_dict = {
+            "name": "title",
+            "type": "string",
+            "cardinality": "repeated",
+            "comment": ["comment0", "comment1"],
+        }
+
+        proto_field = ProtoField.from_field_dict(field_dict)
+
+        assert proto_field.name == "title"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.REPEATED
         assert proto_field.comments == ["comment0", "comment1"]
 
         with pytest.raises(ProtoRegistrationError):

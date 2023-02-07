@@ -1,4 +1,4 @@
-from django_socio_grpc.protobuf import AppHandlerRegistry
+from django_socio_grpc.services import AppHandlerRegistry
 
 
 def make_reloaded_grpc_handler(name, *services):

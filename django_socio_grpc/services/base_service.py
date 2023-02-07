@@ -22,7 +22,6 @@ logger = logging.getLogger("django_socio_grpc")
 
 
 class Service(GRPCActionMixin):
-
     authentication_classes = grpc_settings.DEFAULT_AUTHENTICATION_CLASSES
     permission_classes = grpc_settings.DEFAULT_PERMISSION_CLASSES
 

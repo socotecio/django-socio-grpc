@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package test.package;
+
+message MyMessage {
+    string string_field = 1;
+    optional string optional_string_field = 2;
+    oneof oneof_field {
+        string field1 = 3;
+    }
+    oneof oneof_field2 {
+        string field2 = 4;
+        string field3 = 5;
+    }
+}

@@ -1,4 +1,3 @@
-from .app_handler_registry import AppHandlerRegistry
 from .exceptions import ProtoRegistrationError
 from .proto_classes import (
     ProtoComment,
@@ -20,6 +19,5 @@ __all__ = [
     "ProtoRpc",
     "ProtoService",
     "get_proto_type",
-    "AppHandlerRegistry",
     "RegistrySingleton",
 ]

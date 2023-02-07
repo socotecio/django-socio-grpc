@@ -160,7 +160,6 @@ class GenericService(services.Service):
     def filter_queryset(self, queryset):
         """Given a queryset, filter it, returning a new queryset."""
         for backend in list(self.filter_backends):
-
             if asyncio.iscoroutinefunction(backend().filter_queryset):
                 queryset = async_to_sync(backend().filter_queryset)(
                     self.context, queryset, self

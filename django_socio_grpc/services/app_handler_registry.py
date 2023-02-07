@@ -3,16 +3,14 @@ import sys
 from dataclasses import dataclass, field
 from importlib import import_module, reload
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, OrderedDict, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
 
 from django.apps.registry import apps
 from django.conf import settings
 
+from django_socio_grpc.protobuf import ProtoMessage, ProtoService, RegistrySingleton
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import camel_to_snake
-
-from .proto_classes import ProtoComment, ProtoMessage, ProtoService
-from .registry_singleton import RegistrySingleton
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -31,14 +29,6 @@ class AppHandlerRegistry:
     disable_proto_generation: bool = False
     override_pb2_grpc_file_path: str = None
     to_root_grpc: bool = False
-    registered_controllers: OrderedDict = field(default_factory=OrderedDict, init=False)
-    registered_messages: OrderedDict[str, List[Tuple[str, str, str]]] = field(
-        default_factory=OrderedDict, init=False
-    )
-    registered_messages_comments: Dict[str, ProtoComment] = field(
-        default_factory=lambda: {}, init=False
-    )
-
     proto_services: List[ProtoService] = field(default_factory=list, init=False)
 
     def __post_init__(self):

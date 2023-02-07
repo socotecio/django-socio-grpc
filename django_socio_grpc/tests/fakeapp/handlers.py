@@ -10,7 +10,7 @@ from fakeapp.services.stream_in_service import StreamInService
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 
-from django_socio_grpc.protobuf.app_handler_registry import AppHandlerRegistry
+from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = []

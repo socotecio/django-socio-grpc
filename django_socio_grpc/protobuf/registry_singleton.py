@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar, Dict
 
 if TYPE_CHECKING:
-    from django_socio_grpc.protobuf.app_handler_registry import AppHandlerRegistry
+    from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
 logger = logging.getLogger("django_socio_grpc")
 

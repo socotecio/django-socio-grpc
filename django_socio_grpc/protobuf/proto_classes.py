@@ -3,9 +3,8 @@ from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
-from enum import Enum
-from textwrap import indent
 from typing import (
+    Callable,
     ClassVar,
     Dict,
     List,
@@ -23,25 +22,27 @@ from rest_framework import serializers
 from rest_framework.fields import HiddenField
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
-from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
+from django_socio_grpc.utils.constants import (
+    DEFAULT_LIST_FIELD_NAME,
+    LIST_ATTR_MESSAGE_NAME,
+    REQUEST_SUFFIX,
+    RESPONSE_SUFFIX,
+)
 from django_socio_grpc.utils.model_meta import get_model_pk
 from django_socio_grpc.utils.tools import rreplace
 
 from .exceptions import ProtoRegistrationError
-from .typing import FieldDict
+from .typing import FieldCardinality, FieldDict
 
 logger = logging.getLogger("django_socio_grpc")
 
 
-class FieldCardinality(Enum):
-    NONE = ""
-    OPTIONAL = "optional"
-    REPEATED = "repeated"
-    # TODO: ONEOF = "oneof"
-    # TODO: MAP = "map"
-
-
 class ProtoComment:
+    """
+    This class is used to represent a comment in a proto file.
+    It allows adding a comment in a serializer field help_text.
+    """
+
     def __init__(self, comments):
         if isinstance(comments, str):
             # INFO - AM - 20/07/2022 - if only pass a string we do not want to display a empty comment
@@ -61,20 +62,23 @@ class ProtoComment:
 
 @dataclass
 class ProtoField:
+    """
+    Represents a field in a proto message.
+
+    ```
+    {comments}
+    {cardinality} {field_type} {name} = {index};
+    ```
+    """
+
     name: str
-    # field_type can temporarily be a Serializer class, which will have to
-    # be replaced by a ProtoMessage
-    field_type: Union[str, "ProtoMessage", Type[serializers.BaseSerializer]]
+    field_type: Union[str, "ProtoMessage"]
     cardinality: FieldCardinality = FieldCardinality.NONE
     comments: Optional[List[str]] = None
     index: int = 0
 
     @property
     def field_type_str(self) -> str:
-        if self.has_serializer_field:
-            raise ProtoRegistrationError(
-                f"Serializer {self.field_type} was not registered as ProtoMessage"
-            )
         if isinstance(self.field_type, str):
             return self.field_type
         return self.field_type.name
@@ -83,14 +87,8 @@ class ProtoField:
     def field_line(self) -> str:
         values = [self.field_type_str, self.name, f"= {self.index};"]
         if self.cardinality != FieldCardinality.NONE:
-            values.insert(0, self.cardinality.value)
+            values.insert(0, self.cardinality)
         return " ".join(values)
-
-    @property
-    def has_serializer_field(self) -> bool:
-        return isinstance(self.field_type, type) and issubclass(
-            self.field_type, serializers.BaseSerializer
-        )
 
     @classmethod
     def _get_cardinality(self, field: serializers.Field):
@@ -98,20 +96,28 @@ class ProtoField:
 
     @classmethod
     def from_field_dict(cls, field_dict: FieldDict) -> "ProtoField":
-        cardinality = FieldCardinality.NONE
+        cardinality = field_dict.get("cardinality", FieldCardinality.NONE)
+        name = field_dict["name"]
         field_type = field_dict["type"]
         type_parts = field_type.split(" ")
         if len(type_parts) == 2:
-            try:
-                cardinality = FieldCardinality(type_parts[0])
-            except ValueError as exc:
+            if cardinality:
                 raise ProtoRegistrationError(
-                    f"Unknown cardinality {type_parts[0]} for field {field_dict['name']}"
-                ) from exc
-            field_type = type_parts[1]
+                    f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({name})"
+                )
+            cardinality, field_type = type_parts
+            logger.warning(
+                f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({name})"
+                "Please set it in the `cardinality` key instead.",
+                exc_info=1,
+            )
         elif len(type_parts) > 2:
             raise ProtoRegistrationError(
-                f"Unknown field type {field_type} for field {field_dict['name']}"
+                f"Unknown field type `{field_type}` for field `{name}`"
+            )
+        if cardinality not in FieldCardinality.__members__.values():
+            raise ProtoRegistrationError(
+                f"Unknown cardinality `{cardinality}` for field `{name}`"
             )
 
         if comments := field_dict.get("comment"):
@@ -122,7 +128,7 @@ class ProtoField:
             field_type = PRIMITIVE_TYPES[field_type]
 
         return cls(
-            name=field_dict["name"],
+            name=name,
             field_type=field_type,
             cardinality=cardinality,
             comments=comments,
@@ -149,20 +155,11 @@ class ProtoField:
         elif isinstance(field, serializers.RelatedField):
             return cls._from_related_field(field)
 
-        if isinstance(field, serializers.ChoiceField):
-            choices = field.choices
-            first_type = type(list(choices.keys())[0])
-            if all(isinstance(choice, first_type) for choice in choices.keys()):
-                field_type = TYPING_TO_PROTO_TYPES.get(first_type, "string")
-            else:
-                field_type = "string"
-
-        else:
-            field_type = get_proto_type(field)
-
         if isinstance(field, serializers.ListField):
             cardinality = FieldCardinality.REPEATED
             field_type = get_proto_type(field.child)
+        else:
+            field_type = get_proto_type(field)
 
         comments = None
         if isinstance(help_text := getattr(field, "help_text", None), ProtoComment):
@@ -176,16 +173,21 @@ class ProtoField:
         )
 
     @classmethod
-    def from_serializer(cls, field: serializers.Serializer) -> "ProtoField":
+    def from_serializer(
+        cls, field: serializers.Serializer, to_message: Callable
+    ) -> "ProtoField":
+        """
+        Create a ProtoField from a Serializer, which will be converted to a ProtoMessage with `to_message`
+        """
         cardinality = cls._get_cardinality(field)
-        field_type = field.__class__
+        serializer_class = field.__class__
         if getattr(field, "many", False):
             cardinality = FieldCardinality.REPEATED
-            field_type = field.child.__class__
+            serializer_class = field.child.__class__
 
         return cls(
             name=field.field_name,
-            field_type=field_type,
+            field_type=to_message(serializer_class),
             cardinality=cardinality,
         )
 
@@ -294,16 +296,19 @@ class ProtoField:
             cardinality=cardinality,
         )
 
-    def __str__(self) -> str:
-        comms = [f"// {c}" for c in self.comments or []]
-        return "\n".join(comms + [self.field_line])
-
-    def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self.name}>"
-
 
 @dataclass
 class ProtoMessage:
+    """
+    Represents a proto message with its fields and comments
+
+    ```
+    {comments}
+    message {name} {
+        [{fields}]
+    }
+    """
+
     base_name: str
     fields: List["ProtoField"] = dataclass_field(default_factory=list)
     comments: Optional[List[str]] = None
@@ -313,16 +318,18 @@ class ProtoMessage:
     prefixable: bool = True
 
     prefix: str = ""
-    suffix: ClassVar = ""
+    suffix: ClassVar[str] = ""
 
-    def __post_init__(self) -> None:
-        for field in self.fields:
-            if field.has_serializer_field:
-                field.field_type = self.from_serializer(field.field_type)
+    @property
+    def name(self) -> str:
+        if self.imported_from:
+            return self.base_name
+        return self.append_name()
 
     def get_all_messages(self) -> Dict[str, "ProtoMessage"]:
         messages = {self.name: self}
         for field in self.fields:
+            # Retrieve all messages from nested messages
             if isinstance(field.field_type, ProtoMessage):
                 messages.update(field.field_type.get_all_messages())
         return messages
@@ -349,12 +356,6 @@ class ProtoMessage:
             name = f"{self.prefix}{name}"
         return name
 
-    @property
-    def name(self) -> str:
-        if self.imported_from:
-            return self.base_name
-        return self.append_name()
-
     @classmethod
     def get_base_name_from_serializer(
         cls, serializer: Type[serializers.BaseSerializer]
@@ -377,14 +378,13 @@ class ProtoMessage:
     ) -> Union["ProtoMessage", str]:
         if isinstance(value, type) and issubclass(value, serializers.BaseSerializer):
             return cls.from_serializer(value, name=None if appendable_name else base_name)
+        elif isinstance(value, str):
+            return PRIMITIVE_TYPES.get(value, value)
+        # Empty value means an EmptyMessage, this is handled in the from_field_dicts
         elif isinstance(value, list) or not value:
             return cls.from_field_dicts(
                 value, base_name=base_name, appendable_name=appendable_name, prefix=prefix
             )
-        elif isinstance(value, str):
-            if value in PRIMITIVE_TYPES:
-                return PRIMITIVE_TYPES[value]
-            return value
         else:
             raise TypeError()
 
@@ -435,7 +435,7 @@ class ProtoMessage:
                     continue
 
                 if isinstance(field, serializers.BaseSerializer):
-                    fields.append(ProtoField.from_serializer(field))
+                    fields.append(ProtoField.from_serializer(field, cls.from_serializer))
                 else:
                     fields.append(ProtoField.from_field(field))
         # INFO - AM - 07/01/2022 - else the serializer needs to implement to_proto_message
@@ -477,9 +477,9 @@ class ProtoMessage:
     ) -> "ProtoMessage":
         if list_field_name is None:
             try:
-                list_field_name = base_message.serializer.Meta.message_list_attr
+                list_field_name = getattr(base_message.serializer.Meta, LIST_ATTR_MESSAGE_NAME)
             except AttributeError:
-                list_field_name = "results"
+                list_field_name = DEFAULT_LIST_FIELD_NAME
 
         fields = [
             ProtoField(
@@ -505,21 +505,6 @@ class ProtoMessage:
             base_message.comments = None
 
         return list_message
-
-    def __str__(self) -> str:
-        # INFO - LG - 06/01/2023 - Imported messages are not displayed
-        if self.imported_from:
-            return ""
-        fields = "\n".join(str(f) for f in sorted(self.fields, key=lambda x: x.index))
-        fields = indent(fields, "    ")
-        if fields:
-            fields += "\n"
-        comms = [f"// {c}" for c in self.comments or []]
-
-        return "\n".join(comms + [f"message {self.name} {{\n{fields}}}"])
-
-    def __repr__(self):
-        return f"<{self.__class__.__name__} {self.name}>"
 
     def __getitem__(self, key: str) -> "ProtoField":
         for field in self.fields:
@@ -584,6 +569,14 @@ StructMessage = ProtoMessage(
 
 @dataclass
 class ProtoRpc:
+    """
+    Represent a RPC method in a service
+
+    ```
+    rpc {name}({request_stream?} {request.name}) returns ({response_stream?} {response.name}) {}
+    ```
+    """
+
     name: str
     request: Union[ProtoMessage, str]
     response: Union[ProtoMessage, str]
@@ -609,6 +602,16 @@ class ProtoRpc:
 
 @dataclass
 class ProtoService:
+    """
+    Represents a service in a proto file
+
+    ```
+    service {name} {
+        [{rpcs}]
+    }
+    ```
+    """
+
     name: str
     rpcs: List[ProtoRpc] = dataclass_field(default_factory=list)
 
@@ -626,10 +629,6 @@ class ProtoService:
             messages.update(rpc.get_all_messages())
         return messages
 
-    def __str__(self) -> str:
-        rpcs_str = "\n".join(str(rpc) for rpc in sorted(self.rpcs, key=lambda x: x.name))
-        return f"service {self.name} {{\n{indent(rpcs_str,'    ')}\n}}"
-
 
 def get_proto_type(
     field: Union[models.Field, serializers.Field],
@@ -644,6 +643,13 @@ def get_proto_type(
 
     if isinstance(field, serializers.ModelField):
         return get_proto_type(field.model_field)
+
+    # ChoiceFields need to look into the choices to determine the type
+    if isinstance(field, serializers.ChoiceField):
+        choices = field.choices
+        first_type = type(list(choices.keys())[0])
+        if all(isinstance(choice, first_type) for choice in choices.keys()):
+            return TYPING_TO_PROTO_TYPES.get(first_type, "string")
 
     proto_type = None
     field_mro = field.__class__.mro()

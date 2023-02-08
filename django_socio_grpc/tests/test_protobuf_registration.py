@@ -53,6 +53,7 @@ class MySerializer(proto_serializers.ProtoSerializer):
 
     smf = serializers.SerializerMethodField()
     smf_with_serializer = serializers.SerializerMethodField()
+    smf_with_list_serializer = serializers.SerializerMethodField()
 
     read_only_field0 = serializers.CharField(read_only=True)
     read_only_field1 = serializers.CharField(read_only=True)
@@ -62,6 +63,9 @@ class MySerializer(proto_serializers.ProtoSerializer):
         ...
 
     def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]:
+        ...
+
+    def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]:
         ...
 
 
@@ -184,8 +188,18 @@ class TestFields:
         proto_field = ProtoField.from_field(field)
 
         assert proto_field.name == "smf_with_serializer"
-        assert proto_field.field_type is BasicServiceSerializer
+        assert proto_field.field_type.name == "BasicServiceResponse"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_method_field_with_list_serializer(self):
+        ser = MySerializer()
+        field = ser.fields["smf_with_list_serializer"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "smf_with_list_serializer"
+        assert proto_field.field_type.name == "BasicServiceResponse"
+        assert proto_field.cardinality == FieldCardinality.REPEATED
 
     def test_from_field_serializer_choice_field(self):
         ser = MyIntSerializer()

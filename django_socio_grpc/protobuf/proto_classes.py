@@ -82,8 +82,6 @@ class ProtoField:
     def field_type_str(self) -> str:
         if isinstance(self.field_type, str):
             return self.field_type
-        print("self.name", self.name)
-        print("type(self.field_type)", type(self.field_type))
         return self.field_type.name
 
     @property
@@ -261,7 +259,6 @@ class ProtoField:
         cardinality = cls._get_cardinality(field)
         method_name = field.method_name
 
-        print("iciccic\n" * 10)
         try:
             method = getattr(field.parent, method_name)
         except AttributeError:
@@ -298,19 +295,12 @@ class ProtoField:
             cardinality = FieldCardinality.OPTIONAL
             (return_type,) = (t for t in args if not issubclass(t, type(None)))
 
-        print("return type: ", return_type)
-        if (
-            (proto_type := TYPING_TO_PROTO_TYPES.get(return_type))
-            or isinstance(return_type, type)
-            and issubclass(return_type, serializers.BaseSerializer)
+        if proto_type := TYPING_TO_PROTO_TYPES.get(return_type):
+            field_type = proto_type
+        elif isinstance(return_type, type) and issubclass(
+            return_type, serializers.BaseSerializer
         ):
-            print("in strange condition", proto_type)
-            field_type = proto_type or return_type
-            if isinstance(return_type, type) and issubclass(
-                return_type, serializers.BaseSerializer
-            ):
-                print("in custom condition")
-                field_type = ResponseProtoMessage.from_serializer(return_type)
+            field_type = ResponseProtoMessage.from_serializer(return_type)
 
         else:
             raise ProtoRegistrationError(
@@ -319,15 +309,11 @@ class ProtoField:
                 "associated returns a type not supported by DSG."
             )
 
-        instance = cls(
+        return cls(
             name=field.field_name,
             field_type=field_type,
             cardinality=cardinality,
         )
-        print("field.field_name: ", field.field_name)
-        print("field_type: ", field_type)
-        print(instance.field_line)
-        return instance
 
 
 @dataclass

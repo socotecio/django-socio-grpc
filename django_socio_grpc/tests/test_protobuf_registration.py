@@ -345,7 +345,7 @@ class TestProtoMessage:
         proto_message = ProtoMessage.from_serializer(MySerializer)
 
         assert proto_message.name == "My"
-        assert len(proto_message.fields) == 9
+        assert len(proto_message.fields) == 10
 
     def test_from_serializer_request(self):
         proto_message = RequestProtoMessage.from_serializer(MySerializer)
@@ -364,7 +364,7 @@ class TestProtoMessage:
         proto_message = ResponseProtoMessage.from_serializer(MySerializer)
 
         assert proto_message.name == "MyResponse"
-        assert len(proto_message.fields) == 8
+        assert len(proto_message.fields) == 9
 
     def test_from_serializer_nested(self):
         proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer)
@@ -374,7 +374,7 @@ class TestProtoMessage:
         assert proto_message.comments == ["serializer comment"]
 
         assert proto_message.fields[0].name == "serializer"
-        assert len(proto_message.fields[0].field_type.fields) == 8
+        assert len(proto_message.fields[0].field_type.fields) == 9
 
     def test_as_list_message(self):
         proto_message = ResponseProtoMessage.from_serializer(MySerializer)

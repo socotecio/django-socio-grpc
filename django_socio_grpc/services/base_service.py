@@ -12,7 +12,7 @@ from django_socio_grpc.grpc_actions.actions import GRPCActionMixin
 from django_socio_grpc.request_transformer.grpc_socio_proxy_context import (
     GRPCSocioProxyContext,
 )
-from django_socio_grpc.servicer_proxy import ServicerProxy
+from django_socio_grpc.services.servicer_proxy import ServicerProxy
 from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:

@@ -13,7 +13,7 @@ from asgiref.sync import sync_to_async
 from django import db
 from django.utils.decorators import sync_and_async_middleware
 
-from django_socio_grpc.servicer_proxy import GRPCRequestContainer
+from django_socio_grpc.services.servicer_proxy import GRPCRequestContainer
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.utils import safe_async_response
 

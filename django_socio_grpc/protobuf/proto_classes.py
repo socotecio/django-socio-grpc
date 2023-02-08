@@ -1,4 +1,5 @@
 import logging
+import traceback
 from collections import OrderedDict
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -106,11 +107,19 @@ class ProtoField:
                     f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({name})"
                 )
             cardinality, field_type = type_parts
-            logger.warning(
-                f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({name})"
-                "Please set it in the `cardinality` key instead.",
-                exc_info=1,
+
+            stack = traceback.StackSummary.extract(
+                traceback.walk_stack(None), capture_locals=True
             )
+            for frame in stack:
+                if frame.name == "make_proto_rpc":
+                    logger.warning(
+                        f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({name})"
+                        " Please set it in the `cardinality` key instead.\n"
+                        f"`{frame.locals['self']}`"
+                    )
+                    break
+
         elif len(type_parts) > 2:
             raise ProtoRegistrationError(
                 f"Unknown field type `{field_type}` for field `{name}`"

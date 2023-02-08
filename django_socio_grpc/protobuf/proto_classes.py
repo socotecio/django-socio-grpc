@@ -258,6 +258,7 @@ class ProtoField:
     ) -> "ProtoField":
         cardinality = cls._get_cardinality(field)
         method_name = field.method_name
+
         try:
             method = getattr(field.parent, method_name)
         except AttributeError:
@@ -294,18 +295,20 @@ class ProtoField:
             cardinality = FieldCardinality.OPTIONAL
             (return_type,) = (t for t in args if not issubclass(t, type(None)))
 
-        if (
-            (proto_type := TYPING_TO_PROTO_TYPES.get(return_type))
-            or isinstance(return_type, type)
-            and issubclass(return_type, serializers.BaseSerializer)
+        if proto_type := TYPING_TO_PROTO_TYPES.get(return_type):
+            field_type = proto_type
+        elif isinstance(return_type, type) and issubclass(
+            return_type, serializers.BaseSerializer
         ):
-            field_type = proto_type or return_type
+            field_type = ResponseProtoMessage.from_serializer(return_type)
+
         else:
             raise ProtoRegistrationError(
                 f"You are trying to register the serializer {field.parent.__class__.__name__} "
                 f"with a SerializerMethodField on the field {field.field_name}. But the method "
                 "associated returns a type not supported by DSG."
             )
+
         return cls(
             name=field.field_name,
             field_type=field_type,

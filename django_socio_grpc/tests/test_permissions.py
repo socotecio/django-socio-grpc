@@ -126,7 +126,8 @@ class TestPermissionUnitary(TestCase):
 
 
 @mock.patch(
-    "django_socio_grpc.servicer_proxy.ServicerProxy.create_service", new=fake_create_service
+    "django_socio_grpc.services.servicer_proxy.ServicerProxy.create_service",
+    new=fake_create_service,
 )
 class TestPermissionsIntegration(TestCase):
     def setUp(self):

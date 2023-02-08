@@ -3,7 +3,7 @@ import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django_socio_grpc.servicer_proxy import GRPCRequestContainer
+    from django_socio_grpc.services.servicer_proxy import GRPCRequestContainer
 
 
 def camel_to_snake(name):

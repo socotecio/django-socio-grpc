@@ -174,7 +174,9 @@ class GenericService(services.Service):
             if asyncio.iscoroutinefunction(backend().filter_queryset):
                 queryset = await backend().filter_queryset(self.context, queryset, self)
             else:
-                queryset = backend().filter_queryset(self.context, queryset, self)
+                queryset = await sync_to_async(backend().filter_queryset)(
+                    self.context, queryset, self
+                )
         return queryset
 
     @property

@@ -1,153 +1,119 @@
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  
-  <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Server and service register - Django Socio gRPC Documentation</title>
-  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
-  
-  <script>
-    // Current page data
-    var mkdocs_page_name = "Server and service register";
-    var mkdocs_page_input_path = "server_and_service_register.md";
-    var mkdocs_page_url = null;
-  </script>
-  
-  <script src="../js/jquery-2.1.1.min.js" defer></script>
-  <script src="../js/modernizr-2.8.3.min.js" defer></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script> 
-  
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Server and service register - Django Socio gRPC Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Server and service register";
+        var mkdocs_page_input_path = "server_and_service_register.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
 </head>
 
 <body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
-
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-        <a href=".." class="icon icon-home"> Django Socio gRPC Documentation</a>
-        <div role="search">
+          <a href=".." class="icon icon-home"> Django Socio gRPC Documentation
+        </a><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-	<ul class="current">
-	  
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="..">Home</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../generate_proto/">Generate Proto</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../generic_service/">Generic Service</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../model_service/">Model Service</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../proto_serializer/">Proto Serializer</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../sync_vs_async/">Sync vs Async</a>
-	    </li>
-          
-            <li class="toctree-l1 current">
-		
-    <a class="current" href="./">Server and service register</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l2"><a href="#grpc-sever-and-services-registration">gRPC sever and services registration</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l3" href="#grpcrunserver-grpcrunaioserver">grpcrunserver &amp;&amp; grpcrunaioserver</a></li>
-        
-            <li><a class="toctree-l3" href="#service-registration">Service Registration</a></li>
-        
-            <li><a class="toctree-l3" href="#to-go-deeper">To go deeper</a></li>
-        
-        </ul>
-    
-
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../generate_proto/">Generate Proto</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../generic_service/">Generic Service</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../model_service/">Model Service</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../proto_serializer/">Proto Serializer</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sync_vs_async/">Sync vs Async</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="./">Server and service register</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#grpcrunserver-grpcrunaioserver">grpcrunserver &amp;&amp; grpcrunaioserver</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#service-registration">Service Registration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#to-go-deeper">To go deeper</a>
+    </li>
     </ul>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../permissions_and_authentication/">Permissions and Authentication</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../logging/">Logging</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../settings/">Settings</a>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../testing/">Testing</a>
-	    </li>
-          
-        </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../permissions_and_authentication/">Permissions and Authentication</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../settings/">Settings</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../testing/">Testing</a>
+                </li>
+              </ul>
       </div>
-      &nbsp;
+    </div>
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="..">Django Socio gRPC Documentation</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Django Socio gRPC Documentation</a>
+        
       </nav>
-
-      
       <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="..">Docs</a> &raquo;</li>
-    
-      
-    
-    <li>Server and service register</li>
+    <li><a href=".." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>Server and service register</li>
     <li class="wy-breadcrumbs-aside">
-      
     </li>
   </ul>
   <hr/>
 </div>
-          <div role="main">
-            <div class="section">
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
               
                 <h1 id="grpc-sever-and-services-registration">gRPC sever and services registration</h1>
 <h2 id="grpcrunserver-grpcrunaioserver">grpcrunserver &amp;&amp; grpcrunaioserver</h2>
@@ -155,52 +121,45 @@
 <p>grpcrunserver is the django command launching a synchrone server and grpcrunaioserver the async server.</p>
 <p>For performance issue and Stream availability we recommend you to always use grpcrunaioserver</p>
 <p>Run a grpc server:</p>
-<pre><code class="bash">python manage.py grpcrunaioserver
+<pre><code class="language-bash">python manage.py grpcrunaioserver
 </code></pre>
-
 <p>Run a grpc development server, this tells Django to use the auto-reloader and run checks:</p>
-<pre><code class="bash">python manage.py grpcrunaioserver --dev
+<pre><code class="language-bash">python manage.py grpcrunaioserver --dev
 </code></pre>
-
 <p>Run the server with a certain address:</p>
-<pre><code class="bash">python manage.py grpcrunaioserver 127.0.0.1:8000 --max-workers 5
+<pre><code class="language-bash">python manage.py grpcrunaioserver 127.0.0.1:8000 --max-workers 5
 </code></pre>
-
 <h2 id="service-registration">Service Registration</h2>
 <p>To be able to serve endpoint we need to register our endpoint into the gRPC server for that we need a handler hook function.</p>
-<pre><code class="python">def grpc_handlers(server):
+<pre><code class="language-python">def grpc_handlers(server):
     ...
 </code></pre>
-
 <p>Then we need to set the ROOT_HANDLERS_HOOK settings with the path to this handler method:</p>
-<pre><code class="python">GRPC_FRAMEWORK = {
+<pre><code class="language-python">GRPC_FRAMEWORK = {
     ...
     'ROOT_HANDLERS_HOOK': 'path.to.your.grpc_handlers',
 }
 </code></pre>
-
 <p>Once defined you need to register your service. To easily do that we provide a class helper, AppHandlerRegistry. It allow to register Services for a particular app.</p>
-<pre><code class="python">from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+<pre><code class="language-python">from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 from my_app_name.services.my_service import MyService
 
 def grpc_handlers(server):
     app_registry = AppHandlerRegistry(&quot;my_app_name&quot;, server)
     app_registry.register(MyService)
 </code></pre>
-
 <p>AppHandlerRegistry also support dynamic import by name but it can imply error as it expect to find the file to a correct location (by default <code>&lt;app_name&gt;/services/&lt;service_name&gt;_service.py</code>) that can be changed with undocumented arguments:</p>
-<pre><code class="python">from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+<pre><code class="language-python">from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 
 def grpc_handlers(server):
     app_registry = AppHandlerRegistry(&quot;my_app_name&quot;, server)
     app_registry.register(&quot;MyService&quot;)
 </code></pre>
-
 <h2 id="to-go-deeper">To go deeper</h2>
 <p>Under the hood AppHandlerRegistry register method will use the name of the app and the name of the service to import the correct method from the pb2_grpc file generated automatically by the generateproto command.</p>
 <p>This helper is also the entrypoint for the registration of the service for the proto generation. So even if you can use Django Socio gRPC without it the automatic registration and so the automatic proto generation will not work.</p>
 <p>Code snippet to explain how we use the function from the pb2_grpc file</p>
-<pre><code class="python">pb2_grpc = import_module(
+<pre><code class="language-python">pb2_grpc = import_module(
     f&quot;{self.app_name}.{self.grpc_folder}.{self.app_name}_pb2_grpc&quot;
 )
 
@@ -213,29 +172,21 @@ add_server(service_class.as_servicer(), self.server)
 </code></pre>
               
             </div>
-          </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../sync_vs_async/" class="btn btn-neutral float-left" title="Sync vs Async"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../permissions_and_authentication/" class="btn btn-neutral float-right" title="Permissions and Authentication">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-        <a href="../sync_vs_async/" class="btn btn-neutral" title="Sync vs Async"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-      
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <!-- Copyright etc -->
-    
   </div>
 
-  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
-      
+          
         </div>
       </div>
 
@@ -243,20 +194,26 @@ add_server(service_class.as_servicer(), self.server)
 
   </div>
 
-  <div class="rst-versions" role="note" style="cursor: pointer">
-    <span class="rst-current-version" data-toggle="rst-current-version">
-      
-      
-        <span><a href="../sync_vs_async/" style="color: #fcfcfc;">&laquo; Previous</a></span>
-      
-      
-        <span style="margin-left: 15px"><a href="../permissions_and_authentication/" style="color: #fcfcfc">Next &raquo;</a></span>
-      
-    </span>
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../sync_vs_async/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../permissions_and_authentication/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
 </div>
     <script>var base_url = '..';</script>
+    <script src="../js/theme_extra.js" defer></script>
     <script src="../js/theme.js" defer></script>
       <script src="../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
 
 </body>
 </html>

@@ -1,7 +1,6 @@
 name: DSG lint test workflow
 on: 
   push:
-  workflow_dispatch:
 
 env:
   DB_NAME: postgres

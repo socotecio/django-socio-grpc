@@ -1,19 +1,10 @@
-name: Build and Deploy back to GKE
+name: DSG build and deploy to pypi
 
 # Only trigger, when the build workflow succeeded
 on:
-  workflow_run:
-    workflows: 
-      - "DSG lint test workflow"
-    push:
-      tags: '*'
-    types:
-      - completed
-  # push:
-  #   branches-ignore:
-  #     - '*'  
-  #   tags:
-  #     - '*'
+  push:
+    tags:
+      - '*'
 
 
 jobs:
@@ -52,4 +43,4 @@ jobs:
           sed -i 's/version = "0.1.1"/version = "'$GITHUB_REF_NAME'"/g' pyproject.toml
           poetry build
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          # poetry publish
+          poetry publish

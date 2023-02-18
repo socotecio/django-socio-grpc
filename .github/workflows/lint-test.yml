@@ -3,6 +3,13 @@ on:
   push:
   workflow_dispatch:
 
+env:
+  DB_NAME: postgres
+  DB_USER: postgres
+  DB_PASSWORD: postgres
+  DB_HOST: "127.0.0.1"
+  DB_PORT: "5432"
+
 jobs:
   Lint-Check-Test-back:
     runs-on: ubuntu-latest

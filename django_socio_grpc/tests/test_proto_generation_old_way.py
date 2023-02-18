@@ -1,11 +1,12 @@
 import os
 from unittest import mock
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django_socio_grpc.tests.utils import patch_open
 
 from .assets.generated_protobuf_files_old_way import (
     ALL_APP_GENERATED,
@@ -36,11 +37,14 @@ class TestProtoGenerationOldWay(TestCase):
             "file": "proto/unittestmodel.proto",
             "generate_python": False,
         }
-        with patch("builtins.open", mock_open()) as m:
+        with patch_open() as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
-        m.assert_called_once_with("proto/unittestmodel.proto", "w+")
-        handle = m()
+        # this is done to avoid error on different absolute path
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("proto/unittestmodel.proto")
+        assert mocked_open.mock_calls[0].args[1] == "w+"
+
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_MODEL_GENERATED)
@@ -53,12 +57,12 @@ class TestProtoGenerationOldWay(TestCase):
         self.maxDiff = None
         args = []
         opts = {"app": "fakeapp", "generate_python": False, "check": True}
-        with patch("builtins.open", mock_open(read_data=ALL_APP_GENERATED)) as m:
+        with patch_open(read_data=ALL_APP_GENERATED) as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r+"
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "r+"
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators_old_way.ModelProtoGeneratorOldWay.check_if_existing_proto_file",
@@ -114,14 +118,14 @@ class TestProtoGenerationOldWay(TestCase):
 
         args = []
         opts = {"app": "fakeapp", "model": "RelatedFieldModel", "generate_python": False}
-        with patch("builtins.open", mock_open()) as m:
+        with patch_open() as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, MODEL_WITH_M2M_GENERATED)
@@ -135,13 +139,13 @@ class TestProtoGenerationOldWay(TestCase):
 
         args = []
         opts = {"app": "fakeapp", "model": "NotDisplayedModel", "generate_python": False}
-        with patch("builtins.open", mock_open()) as m:
+        with patch_open() as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
-        handle = m()
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "w+"
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_NO_GENERATION)
@@ -154,14 +158,14 @@ class TestProtoGenerationOldWay(TestCase):
         self.maxDiff = None
         args = []
         opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
-        with patch("builtins.open", mock_open()) as m:
+        with patch_open() as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED)
@@ -175,14 +179,14 @@ class TestProtoGenerationOldWay(TestCase):
 
         args = []
         opts = {"app": "fakeapp", "generate_python": False}
-        with patch("builtins.open", mock_open()) as m:
+        with patch_open() as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, ALL_APP_GENERATED)
@@ -195,14 +199,14 @@ class TestProtoGenerationOldWay(TestCase):
         self.maxDiff = None
         args = []
         opts = {"app": "fakeapp", "model": "ForeignModel", "generate_python": False}
-        with patch("builtins.open", mock_open()) as m:
+        with patch_open() as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, CUSTOM_APP_MODEL_GENERATED)
@@ -219,14 +223,14 @@ class TestProtoGenerationOldWay(TestCase):
             "model": "ImportStructEvenInArrayModel",
             "generate_python": False,
         }
-        with patch("builtins.open", mock_open()) as m:
+        with patch_open() as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, MODEL_WITH_STRUCT_IMORT_IN_ARRAY)
@@ -243,14 +247,16 @@ class TestProtoGenerationOldWay(TestCase):
         self.maxDiff = None
         args = []
         opts = {"app": "fakeapp", "model": "unittestmodel", "generate_python": False}
-        with patch("builtins.open", mock_open(read_data=SIMPLE_APP_MODEL_OLD_ORDER)) as m:
+        with patch_open(read_data=SIMPLE_APP_MODEL_OLD_ORDER) as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r"
+        mocked_open.assert_called()
 
-        handle = m()
+        # this is done to avoid error on different absolute path
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "r"
+
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, SIMPLE_APP_MODEL_GENERATED_FROM_OLD_ORDER)
@@ -267,16 +273,14 @@ class TestProtoGenerationOldWay(TestCase):
         self.maxDiff = None
         args = []
         opts = {"app": "fakeapp", "model": "relatedfieldmodel", "generate_python": False}
-        with patch(
-            "builtins.open", mock_open(read_data=APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER)
-        ) as m:
+        with patch_open(read_data=APP_MODEL_WITH_CUSTOM_FIELD_OLD_ORDER) as mocked_open:
             call_command("generate_proto_old_way", *args, **opts)
 
         # this is done to avoid error on different absolute path
-        assert m.mock_calls[0].args[0].endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r"
+        assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
+        assert mocked_open.mock_calls[0].args[1] == "r"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
         self.assertEqual(called_with_data, APP_MODEL_WITH_CUSTOM_FIELD_FROM_OLD_ORDER)

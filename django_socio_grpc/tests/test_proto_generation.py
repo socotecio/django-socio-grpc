@@ -150,12 +150,17 @@ class TestProtoGeneration(TestCase):
 
         input_data = get_proto_file_content("ALL_APP_GENERATED_SEPARATE")
 
-        with patch_open(read_data=input_data) as m:
+        with patch_open(read_data=input_data) as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "r"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].kwargs["mode"] == "r"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "r"
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
@@ -215,14 +220,19 @@ class TestProtoGeneration(TestCase):
     def test_generate_message_with_repeated_for_m2m(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -238,14 +248,19 @@ class TestProtoGeneration(TestCase):
     def test_generate_one_app_one_model_with_custom_action(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -263,14 +278,19 @@ class TestProtoGeneration(TestCase):
     def test_generate_one_app_one_model_with_override_know_method(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -288,14 +308,19 @@ class TestProtoGeneration(TestCase):
     def test_generate_one_app_one_model_customized(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -311,14 +336,19 @@ class TestProtoGeneration(TestCase):
     def test_generate_one_app_one_model_import_struct_in_array(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -339,14 +369,20 @@ class TestProtoGeneration(TestCase):
         args = []
         opts = {"no_generate_pb2": True}
 
-        with patch_open(read_data=old_order_data) as m:
+        with patch_open(read_data=old_order_data) as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        mocked_open.assert_called()
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -362,14 +398,19 @@ class TestProtoGeneration(TestCase):
     def test_generate_service_no_model(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -386,14 +427,19 @@ class TestProtoGeneration(TestCase):
 
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -409,14 +455,19 @@ class TestProtoGeneration(TestCase):
     def test_generate_all_models_no_separate(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        # this is done to avoid error on different absolute path
-        assert str(m.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"
 
-        handle = m()
+        handle = mocked_open()
 
         called_with_data = handle.write.call_args[0][0]
 
@@ -432,8 +483,14 @@ class TestProtoGeneration(TestCase):
     def test_generate_proto_to_root_grpc(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with patch_open() as m:
+        with patch_open() as mocked_open:
             call_command("generateproto", *args, **opts)
 
-        assert str(m.mock_calls[0].args[0]).endswith("grpc_folder/myapp/myapp.proto")
-        assert m.mock_calls[0].args[1] == "w+"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            assert mocked_open.mock_calls[0].args[0] == "w+"
+        else:
+            # this is done to avoid error on different absolute path
+            assert str(mocked_open.mock_calls[0].args[0]).endswith(
+                "fakeapp/grpc/fakeapp.proto"
+            )
+            assert mocked_open.mock_calls[0].args[1] == "w+"

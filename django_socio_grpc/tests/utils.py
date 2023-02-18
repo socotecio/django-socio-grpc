@@ -6,5 +6,7 @@ from unittest.mock import mock_open, patch
 def patch_open(read_data=""):
     m = mock_open(read_data=read_data)
 
-    with patch("io.open", m), patch("builtins.open", m), patch("pathlib.Path.mkdir"):
+    with patch("io.open", m), patch("builtins.open", m), patch("pathlib.Path.mkdir"), patch(
+        "pathlib.Path.open", m
+    ):
         yield m

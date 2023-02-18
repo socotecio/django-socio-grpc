@@ -56,12 +56,7 @@ jobs:
 
       - name: Run validation
         run: |
-          ls -la
           poetry run black --diff --check .
           poetry run flake8 .
           poetry run isort --check-only --diff .
-          poetry run python manage.py check
-          poetry run python manage.py makemigrations --check --dry-run
-          poetry run python manage.py generateproto --check
-          poetry run python manage.py migrate
-          poetry run pytest
+          poetry run tests

@@ -56,8 +56,8 @@ class GRPCHandler(logging.Handler):
             if value is None or tb is None:
                 etype, value, tb = sys.exc_info()
             if old_taceback_function is not None:
-                old_taceback_function(value=value, tb=tb)
-            formatted_exception = traceback.format_exception(value=value, tb=tb)
+                old_taceback_function(etype=etype, value=value, tb=tb)
+            formatted_exception = traceback.format_exception(etype=etype, value=value, tb=tb)
 
         msg = "".join(formatted_exception)
         pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)

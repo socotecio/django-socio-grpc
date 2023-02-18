@@ -7,8 +7,6 @@ on:
       - "DSG lint test workflow"
     types:
       - completed
-    branches:
-      - master
     tags:
       - '*'
   # push:

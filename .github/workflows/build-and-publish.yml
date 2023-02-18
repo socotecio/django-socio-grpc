@@ -5,10 +5,10 @@ on:
   workflow_run:
     workflows: 
       - "DSG lint test workflow"
+    push:
+      tags: '*'
     types:
       - completed
-    tags:
-      - '*'
   # push:
   #   branches-ignore:
   #     - '*'  

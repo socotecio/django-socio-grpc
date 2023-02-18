@@ -7,14 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  
   <link rel="shortcut icon" href="../img/favicon.ico">
   <title>Proto Generation - Django Socio gRPC Documentation</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
-
-  <link rel="stylesheet" href="../css/theme.css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
@@ -25,8 +22,9 @@
   
   <script src="../js/jquery-2.1.1.min.js" defer></script>
   <script src="../js/modernizr-2.8.3.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
+  
 </head>
 
 <body class="wy-body-for-nav" role="document">
@@ -35,63 +33,77 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
         <a href=".." class="icon icon-home"> Django Socio gRPC Documentation</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../generate_proto/">Generate Proto</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../generic_service/">Generic Service</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../model_service/">Model Service</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../proto_serializer/">Proto Serializer</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../sync_vs_async/">Sync vs Async</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../server_and_service_register/">Server and service register</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../permissions_and_authentication/">Permissions and Authentication</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../settings/">Settings</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../testing/">Testing</a>
-                    </li>
-                </ul>
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../generate_proto/">Generate Proto</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../generic_service/">Generic Service</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../model_service/">Model Service</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../proto_serializer/">Proto Serializer</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../sync_vs_async/">Sync vs Async</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../server_and_service_register/">Server and service register</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../permissions_and_authentication/">Permissions and Authentication</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../logging/">Logging</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../settings/">Settings</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../testing/">Testing</a>
+	    </li>
+          
+        </ul>
       </div>
-    </div>
+      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -116,18 +128,17 @@
       
     </li>
   </ul>
-  
   <hr/>
 </div>
-
           <div role="main">
             <div class="section">
               
                 <h1 id="proto-generation">Proto Generation</h1>
 <h2 id="command">Command</h2>
 <p>To automatically generate proto and python files use the generateproto command:</p>
-<pre><code class="language-bash">python manage.py generateproto
+<pre><code class="bash">python manage.py generateproto
 </code></pre>
+
 <p>Options Available:</p>
 <table>
 <thead>
@@ -186,15 +197,16 @@
 <h2 id="default-generation">Default generation</h2>
 <p>By default each model generate the default viewset as proto file. It allow by default to match all the endpoint given by the generics.AsyncModelService or generics.ModelService classes.</p>
 <p>For example if we have a model like:</p>
-<pre><code class="language-python">from django.db import models
+<pre><code class="python">from django.db import models
 
 class Something(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     start_date = models.DateField()
     rate = models.CharField(max_length=255, null=True, blank=True, verbose_name=_(&quot;Rate&quot;))
 </code></pre>
+
 <p>this will generate a proto like:</p>
-<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+<pre><code class="proto">syntax = &quot;proto3&quot;;
 
 package tutorial.quickstart;
 
@@ -229,16 +241,18 @@ message SomethingDestroyRequest {
     string uuid = 1;
 }
 </code></pre>
+
 <h2 id="customize-proto-generation">Customize proto generation</h2>
 <p><a href="https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/models.py">See exemple used for test here</a></p>
 <p>It is possible to adapt the proto generation depending of your need. To customize your proto generation you need to override <code>grpc_messages</code> and <code>grpc_methods</code> attributes of the Meta class of the model:</p>
-<pre><code class="language-python">class Something(models.Model):
+<pre><code class="python">class Something(models.Model):
     ...
 
     class Meta:
         grpc_messages = {...}
         grpc_methods = {...}
 </code></pre>
+
 <p>This two dictionnary will allow you to customize the messages and the methods generated by the command <code>generate_proto</code> by simply reconstruct the file from the data of the dict. To see the data format read the next two sections.</p>
 <h2 id="customize-grpc-messages">Customize gRPC Messages</h2>
 <h3 id="format">Format</h3>
@@ -248,15 +262,16 @@ message SomethingDestroyRequest {
 <li>FieldNames is an array of models field. We use django instrospection to find the correct type to display in the proto file</li>
 </ul>
 <p>Example if we want a message named SomethingSmall:</p>
-<pre><code class="language-python">class Something(models.Model):
+<pre><code class="python">class Something(models.Model):
     ...
 
     class Meta:
         grpc_messages = {&quot;SomethingSmall&quot;: [&quot;uuid&quot;, &quot;start_date&quot;]}
         grpc_methods = {}
 </code></pre>
+
 <p>This will generate a proto file like:</p>
-<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+<pre><code class="proto">syntax = &quot;proto3&quot;;
 
 package tutorial.quickstart;
 
@@ -265,18 +280,20 @@ message SomethingSmall {
     string start_date = 2;
 }
 </code></pre>
+
 <h3 id="specific-fieldname-values">Specific FieldName Values</h3>
 <p>There is two helper to help building message:
 - <code>__all__</code>: Allow you to use all the fields of the model</p>
-<pre><code class="language-python">class Something(models.Model):
+<pre><code class="python">class Something(models.Model):
     ...
 
     class Meta:
         grpc_messages = {&quot;SomethingAll&quot;: &quot;__all__&quot;}
         grpc_methods = {}
 </code></pre>
+
 <p>This will generate a proto file like:</p>
-<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+<pre><code class="proto">syntax = &quot;proto3&quot;;
 
 package tutorial.quickstart;
 
@@ -286,18 +303,20 @@ message SomethingSmall {
     string rate = 3;
 }
 </code></pre>
+
 <ul>
 <li><code>__custom__[proto_type]__[field_name]__</code>: Allow to specify a name not existing in the model and specify its type. You can put everything you want it will be directly transformed into protobuf format without django instropection. Be carefull when you use it to match your serializer and if you use nested messages that the other message it already declared.</li>
 </ul>
-<pre><code class="language-python">class Something(models.Model):
+<pre><code class="python">class Something(models.Model):
     ...
 
     class Meta:
         grpc_messages = {&quot;SomethingAll&quot;: [&quot;uuid&quot;, &quot;__custom__int32__counter__&quot;, &quot;__custom__repeated string__last_rates__&quot;]}
         grpc_methods = {}
 </code></pre>
+
 <p>This will generate a proto file like:</p>
-<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+<pre><code class="proto">syntax = &quot;proto3&quot;;
 
 package tutorial.quickstart;
 
@@ -307,12 +326,13 @@ message SomethingSmall {
     repeated string last_rates = 3;
 }
 </code></pre>
+
 <h2 id="customize-grpc-methods">Customize gRPC Methods</h2>
 <h3 id="format_1">Format</h3>
 <p><code>grpc_methods</code> attribute is a dict with the format <code>{[MethodName&lt;String&gt;]: { request: Request&lt;Object&gt;, response: Response&lt;Object&gt;}}</code> where <code>Request</code> and <code>Response</code> are object like: <code>{message: MessageName&lt;String&gt;, is_stream: &lt;Boolean&gt;}</code></p>
 <p>This data are simply used to generate the line of the method specified by MethodName in the grpc controller.
 Example:</p>
-<pre><code class="language-python">class Something(models.Model):
+<pre><code class="python">class Something(models.Model):
     ...
 
     class Meta:
@@ -323,8 +343,9 @@ Example:</p>
             },
         }
 </code></pre>
+
 <p>This will generate a proto file like:</p>
-<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+<pre><code class="proto">syntax = &quot;proto3&quot;;
 
 package tutorial.quickstart;
 
@@ -332,13 +353,14 @@ service ForeignModelController {
     rpc StreamList(SomethingListRequest) returns (stream SomethingListStreamResponse) {}
 }
 </code></pre>
+
 <p>This will crash you have not SomethingListRequest and SomethingListStreamResponse defined in the messages of the proto file.
 See the <a href="#using-default-methods-to-simplify-overwriting">default generated message and methods</a></p>
 <h2 id="using-default-methods-to-simplify-overwriting">Using default methods to simplify overwriting</h2>
-<p>As seen in the first part of this page we have some default generation. But at soon as you overwrite <code>grpc_methods</code> or <code>grpc_messages</code> you loose all the default generation. 
+<p>As seen in the first part of this page we have some default generation. But at soon as you overwrite <code>grpc_methods</code> or <code>grpc_messages</code> you loose all the default generation.
 Often you only want to add a custom field or doesn't want to rewrite the all things.</p>
 <p>For that you can use the mixins methods <code>get_default_message</code> and <code>get_default_method</code> like:</p>
-<pre><code class="language-python">class Something(models.Model):
+<pre><code class="python">class Something(models.Model):
     ...
 
     class Meta:
@@ -362,8 +384,9 @@ Often you only want to add a custom field or doesn't want to rewrite the all thi
             },
         }
 </code></pre>
+
 <p>this will generate something like:</p>
-<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+<pre><code class="proto">syntax = &quot;proto3&quot;;
 
 package tutorial.quickstart;
 
@@ -395,9 +418,10 @@ message SomethingRetrieveResponseCustom {
     string uuid = 1;
 }
 </code></pre>
+
 <p><code>get_default_message</code> and <code>get_default_method</code> exist for all the mixins: CreateModelMixin, ListModelMixin, StreamModelMixin, RetrieveModelMixin, UpdateModelMixin, PartialUpdateModelMixin, DestroyModelMixin. Same for the async model that just inherit from the sync models.</p>
 <p>You can also use <code>mixins.get_default_grpc_methods</code> and <code>mixins.get_default_grpc_messages</code> to simulate all the defautl configuration and overwrite it after:</p>
-<pre><code class="language-python">class Something(models.Model):
+<pre><code class="python">class Something(models.Model):
     ...
 
     class Meta:
@@ -410,8 +434,9 @@ message SomethingRetrieveResponseCustom {
             **get_default_grpc_methods(&quot;Something&quot;),
         }
 </code></pre>
+
 <p>this will generate something like:</p>
-<pre><code class="language-proto">syntax = &quot;proto3&quot;;
+<pre><code class="proto">syntax = &quot;proto3&quot;;
 
 package tutorial.quickstart;
 
@@ -460,7 +485,7 @@ message SomethingDestroyRequest {
     
   </div>
 
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
       
         </div>
@@ -470,22 +495,16 @@ message SomethingDestroyRequest {
 
   </div>
 
-  <div class="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-    
-    
-  </span>
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
 </div>
     <script>var base_url = '..';</script>
-    <script src="../js/theme_extra.js" defer></script>
     <script src="../js/theme.js" defer></script>
       <script src="../search/main.js" defer></script>
-    <script defer>
-        window.onload = function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        };
-    </script>
 
 </body>
 </html>

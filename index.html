@@ -7,14 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="None">
   
-  
   <link rel="shortcut icon" href="img/favicon.ico">
-  <title>Django Socio gRPC Documentation</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
-
-  <link rel="stylesheet" href="css/theme.css" />
-  <link rel="stylesheet" href="css/theme_extra.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  <title>Home - Django Socio gRPC Documentation</title>
+  <link rel="stylesheet" href="css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
@@ -25,8 +22,9 @@
   
   <script src="js/jquery-2.1.1.min.js" defer></script>
   <script src="js/modernizr-2.8.3.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
+  
 </head>
 
 <body class="wy-body-for-nav" role="document">
@@ -35,91 +33,91 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
         <a href="." class="icon icon-home"> Django Socio gRPC Documentation</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
-      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-                <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#what-is-django-socio-grpc">What is Django Socio gRPC</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#quickstart">Quickstart</a>
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href=".">Home</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#django-socio-grpc-documentation">Django Socio gRPC Documentation</a></li>
+    
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#install-dependencies">Install dependencies</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#django-setup">Django setup</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#django-settings">Django settings</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#define-a-model">Define a model</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#define-a-serializer">Define a Serializer</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#define-a-service">Define a Service</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#register-the-service">Register the service</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#generate-the-protofile-and-the-client-associated-to-the-model">Generate the protofile and the client associated to the model</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#assign-the-newly-generated-class-to-the-serializer">Assign the newly generated class to the serializer</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#launch-the-server">Launch the server</a>
-    </li>
+        
+            <li><a class="toctree-l3" href="#what-is-django-socio-grpc">What is Django Socio gRPC</a></li>
+        
+            <li><a class="toctree-l3" href="#quickstart">Quickstart</a></li>
+        
         </ul>
-    </li>
+    
+
     </ul>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="generate_proto/">Generate Proto</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="generic_service/">Generic Service</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="model_service/">Model Service</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="proto_serializer/">Proto Serializer</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="sync_vs_async/">Sync vs Async</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="server_and_service_register/">Server and service register</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="permissions_and_authentication/">Permissions and Authentication</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="logging/">Logging</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="settings/">Settings</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="testing/">Testing</a>
-                    </li>
-                </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="generate_proto/">Generate Proto</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="generic_service/">Generic Service</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="model_service/">Model Service</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="proto_serializer/">Proto Serializer</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="sync_vs_async/">Sync vs Async</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="server_and_service_register/">Server and service register</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="permissions_and_authentication/">Permissions and Authentication</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="logging/">Logging</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="settings/">Settings</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="testing/">Testing</a>
+	    </li>
+          
+        </ul>
       </div>
-    </div>
+      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -144,10 +142,8 @@
       
     </li>
   </ul>
-  
   <hr/>
 </div>
-
           <div role="main">
             <div class="section">
               
@@ -158,28 +154,27 @@
 And some really cool helper as the protobuf generation from the model or the register helper.</p>
 <h2 id="quickstart">Quickstart</h2>
 <h3 id="install-dependencies">Install dependencies</h3>
-<pre><code class="language-bash">pip install djangogrpcframework
-pip install django
-pip install grpcio
-pip install grpcio-tools
-pip install asyncio # Not mandatory but it's the default behavior used in the quickstart
-pip install django-socio-grpc
+<pre><code class="bash">pip install django-socio-grpc
 </code></pre>
+
 <h3 id="django-setup">Django setup</h3>
-<pre><code class="language-bash">django-admin startproject tutorial
+<pre><code class="bash">django-admin startproject tutorial
 cd tutorial
 django-admin startapp quickstart
 python manage.py migrate
 </code></pre>
+
 <h3 id="django-settings">Django settings</h3>
-<p>Add django_socio_grpc to INSTALLED_APPS, settings module is in tutorial/settings.py:</p>
-<pre><code class="language-python">INSTALLED_APPS = [
+<p>Add <code>django_socio_grpc</code> and you new <code>quickstart</code> app to INSTALLED_APPS, settings module is in tutorial/settings.py:</p>
+<pre><code class="python">INSTALLED_APPS = [
     ...
     'django_socio_grpc',
+    'quickstart'
 ]
 </code></pre>
+
 <h3 id="define-a-model">Define a model</h3>
-<pre><code class="language-python"># quickstart/models.py
+<pre><code class="python"># quickstart/models.py
 from django.db import models
 
 
@@ -187,10 +182,10 @@ class Question(models.Model):
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
 </code></pre>
+
 <h3 id="define-a-serializer">Define a Serializer</h3>
-<pre><code class="language-python"># quickstart/serializers.py
+<pre><code class="python"># quickstart/serializers.py
 from django_socio_grpc import proto_serializers
-import quickstart.grpc.quickstart_pb2 as quickstart_pb2
 from .models import Question
 
 
@@ -200,8 +195,9 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
         fields = [&quot;id&quot;, &quot;question_text&quot;, &quot;pub_date&quot;]
 
 </code></pre>
+
 <h3 id="define-a-service">Define a Service</h3>
-<pre><code class="language-python"># quickstart/services.py
+<pre><code class="python"># quickstart/services.py
 from django_socio_grpc import generics
 from .models import Question
 from .serializers import QuestionProtoSerializer
@@ -212,8 +208,9 @@ class QuestionService(generics.AsyncModelService):
     serializer_class = QuestionProtoSerializer
 
 </code></pre>
+
 <h3 id="register-the-service">Register the service</h3>
-<pre><code class="language-python"># quickstart/handlers.py
+<pre><code class="python"># quickstart/handlers.py
 from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
 from quickstart.services import QuestionService
 
@@ -222,11 +219,22 @@ def grpc_handlers(server):
     app_registry = AppHandlerRegistry(&quot;quickstart&quot;, server)
     app_registry.register(QuestionService)
 </code></pre>
-<h3 id="generate-the-protofile-and-the-client-associated-to-the-model">Generate the protofile and the client associated to the model</h3>
-<pre><code class="language-bash">python manage.py generateproto
+
+<p>This Handler will be the entrypoint for the service registration. Set its path as the <code>ROOT_HANDLERS_HOOK</code> 
+of the <code>GRPC_FRAMEWORK</code> settings</p>
+<pre><code class="python"># tutorial/settings.py
+...
+GRPC_FRAMEWORK = {
+    &quot;ROOT_HANDLERS_HOOK&quot; : 'quickstart.handlers.grpc_handlers'
+}
 </code></pre>
+
+<h3 id="generate-the-protofile-and-the-client-associated-to-the-model">Generate the protofile and the client associated to the model</h3>
+<pre><code class="bash">python manage.py generateproto
+</code></pre>
+
 <h3 id="assign-the-newly-generated-class-to-the-serializer">Assign the newly generated class to the serializer</h3>
-<pre><code class="language-python"># quickstart/serializers.py
+<pre><code class="python"># quickstart/serializers.py
 from django_socio_grpc import proto_serializers
 import quickstart.grpc.quickstart_pb2 as quickstart_pb2
 from .models import Question
@@ -239,8 +247,9 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
         proto_class_list = quickstart_pb2.QuestionListResponse # Modification here
         fields = [&quot;id&quot;, &quot;question_text&quot;, &quot;pub_date&quot;]
 </code></pre>
+
 <h3 id="launch-the-server">Launch the server</h3>
-<pre><code class="language-bash">python manage.py grpcrunaioserver --dev
+<pre><code class="bash">python manage.py grpcrunaioserver --dev
 </code></pre>
               
             </div>
@@ -262,7 +271,7 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
     
   </div>
 
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
       
         </div>
@@ -272,29 +281,23 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
 
   </div>
 
-  <div class="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-    
-    
-      <span><a href="generate_proto/" style="color: #fcfcfc">Next &raquo;</a></span>
-    
-  </span>
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="generate_proto/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
 </div>
     <script>var base_url = '.';</script>
-    <script src="js/theme_extra.js" defer></script>
     <script src="js/theme.js" defer></script>
       <script src="search/main.js" defer></script>
-    <script defer>
-        window.onload = function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        };
-    </script>
 
 </body>
 </html>
 
 <!--
-MkDocs version : 1.2.2
-Build Date UTC : 2022-03-01 12:33:02.690134+00:00
+MkDocs version : 1.0.4
+Build Date UTC : 2023-02-18 17:12:05
 -->

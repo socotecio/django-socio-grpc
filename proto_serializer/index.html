@@ -7,14 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  
   <link rel="shortcut icon" href="../img/favicon.ico">
   <title>Proto Serializer - Django Socio gRPC Documentation</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
-
-  <link rel="stylesheet" href="../css/theme.css" />
-  <link rel="stylesheet" href="../css/theme_extra.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
@@ -25,8 +22,9 @@
   
   <script src="../js/jquery-2.1.1.min.js" defer></script>
   <script src="../js/modernizr-2.8.3.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
+  
 </head>
 
 <body class="wy-body-for-nav" role="document">
@@ -35,79 +33,101 @@
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
         <a href=".." class="icon icon-home"> Django Socio gRPC Documentation</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../generate_proto/">Generate Proto</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../generic_service/">Generic Service</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../model_service/">Model Service</a>
-                    </li>
-                </ul>
-                <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Proto Serializer</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#mapping-betwen-django-rest-framework-and-django-socio-grpc">Mapping betwen Django REST Framework and Django Socio gRPC</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#example-with-modelprotoserializer">Example with ModelProtoSerializer</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#proto_class-and-proto_class_list">proto_class and proto_class_list</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#serializerdata-vs-serializermessage">serializer.data vs serializer.message</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#extra-kwargs-options">Extra kwargs options</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#tips-for-converting-uuid-field">Tips for converting UUID Field</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#tips-for-converting-empty-string-to-none">Tips for converting empty string to None</a>
-    </li>
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../generate_proto/">Generate Proto</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../generic_service/">Generic Service</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../model_service/">Model Service</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Proto Serializer</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#proto-serializer">Proto Serializer</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#mapping-betwen-django-rest-framework-and-django-socio-grpc">Mapping betwen Django REST Framework and Django Socio gRPC</a></li>
+        
+            <li><a class="toctree-l3" href="#example-with-modelprotoserializer">Example with ModelProtoSerializer</a></li>
+        
+            <li><a class="toctree-l3" href="#proto_class-and-proto_class_list">proto_class and proto_class_list</a></li>
+        
+            <li><a class="toctree-l3" href="#serializerdata-vs-serializermessage">serializer.data vs serializer.message</a></li>
+        
+            <li><a class="toctree-l3" href="#extra-kwargs-options">Extra kwargs options</a></li>
+        
+            <li><a class="toctree-l3" href="#tips-for-converting-uuid-field">Tips for converting UUID Field</a></li>
+        
+            <li><a class="toctree-l3" href="#tips-for-converting-empty-string-to-none">Tips for converting empty string to None</a></li>
+        
+        </ul>
+    
+
     </ul>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../sync_vs_async/">Sync vs Async</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../server_and_service_register/">Server and service register</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../permissions_and_authentication/">Permissions and Authentication</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../logging/">Logging</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../settings/">Settings</a>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../testing/">Testing</a>
-                    </li>
-                </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../sync_vs_async/">Sync vs Async</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../server_and_service_register/">Server and service register</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../permissions_and_authentication/">Permissions and Authentication</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../logging/">Logging</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../settings/">Settings</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../testing/">Testing</a>
+	    </li>
+          
+        </ul>
       </div>
-    </div>
+      &nbsp;
     </nav>
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
@@ -132,15 +152,13 @@
       
     </li>
   </ul>
-  
   <hr/>
 </div>
-
           <div role="main">
             <div class="section">
               
                 <h2 id="proto-serializer">Proto Serializer</h2>
-<p>Proto Serializer works exctly the same as <a href="https://www.django-rest-framework.org/api-guide/serializers/">DRF serializer</a>. You juste have to inherit from a different class (see mapping under) and add two meta attr <code>proto_class</code> and <code>proto_class_list</code>.</p>
+<p>Proto Serializer works exactly the same as <a href="https://www.django-rest-framework.org/api-guide/serializers/">DRF serializer</a>. You juste have to inherit from a different class (see mapping under) and add two meta attr <code>proto_class</code> and <code>proto_class_list</code>.</p>
 <h3 id="mapping-betwen-django-rest-framework-and-django-socio-grpc">Mapping betwen Django REST Framework and Django Socio gRPC</h3>
 <table>
 <thead>
@@ -171,13 +189,14 @@
 <h3 id="example-with-modelprotoserializer">Example with ModelProtoSerializer</h3>
 <p>Example will only focus on ModelProtoSerializer.</p>
 <p>First we will use again our Question model used in the quickstart:</p>
-<pre><code class="language-python">class Question(models.Model):
+<pre><code class="python">class Question(models.Model):
   question_text = models.CharField(max_length=200)
   pub_date = models.DateTimeField('date published')
 </code></pre>
+
 <p>Then we generate the proto file for this model. See <a href="https://socotecio.github.io/django-socio-grpc/#quickstart">Generate Proto</a></p>
-<p>You can now define your serializer like this: </p>
-<pre><code class="language-python"># quickstart/serializers.py
+<p>You can now define your serializer like this:</p>
+<pre><code class="python"># quickstart/serializers.py
 from django_socio_grpc import proto_serializers
 import quickstart.grpc.quickstart_pb2 as quickstart_pb2
 from .models import Question
@@ -187,9 +206,11 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = Question
         proto_class = quickstart_pb2.Question
+        proto_comment = ProtoComment([&quot;Multiline&quot;, &quot;comment&quot;, &quot;for&quot;, &quot;message&quot;])
         proto_class_list = quickstart_pb2.QuestionListResponse
         fields = [&quot;id&quot;, &quot;question_text&quot;, &quot;pub_date&quot;]
 </code></pre>
+
 <h3 id="proto_class-and-proto_class_list">proto_class and proto_class_list</h3>
 <p><code>proto_class</code> and <code>proto_class_list</code> will be used to convert incoming grpc message or python data into grpc messages.</p>
 <p><code>proto_class_list</code> is used when the param <code>many=True</code> is passed to the serializer. It allow us to have 2 differents proto messages with the same models for list and retrieve methods in a ModelService</p>
@@ -205,19 +226,23 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
 <li>
 <p><code>message_list_attr &lt;String&gt;</code>: change the attribute name for the list of instance returned by a proto_class_list (default is results).</p>
 </li>
+<li>
+<p><code>proto_comment &lt;ProtoComment or string&gt;</code>: add to model (message) comment in output PROTO file. <code>ProtoComment</code> class is declared in <code>django_socio_grpc.utils.tools</code> a helps to have multi-line comments.</p>
+</li>
 </ul>
 <h3 id="tips-for-converting-uuid-field">Tips for converting UUID Field</h3>
 <p>If you use UUID you can came accross problem as this type is not automatically converted in string format when used as Foreign Key.
 To fix this please use <a href="https://www.django-rest-framework.org/api-guide/relations/#primarykeyrelatedfield">pk_field</a>:</p>
-<pre><code class="language-python">related_object = serializers.PrimaryKeyRelatedField(
+<pre><code class="python">related_object = serializers.PrimaryKeyRelatedField(
     queryset=Something.objects.all(),
     pk_field=UUIDField(format=&quot;hex_verbose&quot;),
 )
 </code></pre>
+
 <h3 id="tips-for-converting-empty-string-to-none">Tips for converting empty string to None</h3>
 <p>As gRPC always send the default value for type if not send some behavior of DRF like handling differently None value and empty string are not working.
 You can design your own system by adding arguments to adapt the behavior but if you have field where empty string mean None as for Datetime for example you can use code like this:</p>
-<pre><code class="language-python">from django_socio_grpc import proto_serializers
+<pre><code class="python">from django_socio_grpc import proto_serializers
 from rest_framework.fields import DateTimeField
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -258,7 +283,7 @@ class ExampleProtoSerializer(proto_serializers.ModelProtoSerializer):
     
   </div>
 
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
       
         </div>
@@ -268,26 +293,20 @@ class ExampleProtoSerializer(proto_serializers.ModelProtoSerializer):
 
   </div>
 
-  <div class="rst-versions" role="note" aria-label="versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-    
-      <span><a href="../model_service/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../sync_vs_async/" style="color: #fcfcfc">Next &raquo;</a></span>
-    
-  </span>
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../model_service/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../sync_vs_async/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
 </div>
     <script>var base_url = '..';</script>
-    <script src="../js/theme_extra.js" defer></script>
     <script src="../js/theme.js" defer></script>
       <script src="../search/main.js" defer></script>
-    <script defer>
-        window.onload = function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        };
-    </script>
 
 </body>
 </html>

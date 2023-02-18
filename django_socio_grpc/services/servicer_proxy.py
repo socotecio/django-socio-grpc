@@ -1,7 +1,6 @@
 import abc
 import asyncio
 import logging
-import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Type
 
@@ -246,9 +245,8 @@ class ServicerProxy(MiddlewareCapable):
         elif isinstance(exc, grpc.RpcError) or request.context._state.aborted:
             raise exc
         else:
-            etype, value, tb = sys.exc_info()
             grpc_handler = GRPCHandler()
-            grpc_handler.log_unhandled_exception(etype, value, tb)
+            grpc_handler.log_unhandled_exception(exc)
             request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
     async def async_process_exception(self, exc, request: GRPCRequestContainer):
@@ -258,7 +256,7 @@ class ServicerProxy(MiddlewareCapable):
         elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
             raise exc
         else:
-            etype, value, tb = sys.exc_info()
             grpc_handler = GRPCHandler()
-            grpc_handler.log_unhandled_exception(etype, value, tb)
+
+            grpc_handler.log_unhandled_exception(exc)
             await request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))

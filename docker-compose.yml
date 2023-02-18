@@ -40,7 +40,7 @@ services:
   test-database:
     image: library/postgres:11.5
     ports:
-      - "5532:5432"
+      - "5432:5432"
     volumes:
       - django-socio-grpc-data:/var/lib/postgresql/data
     environment:

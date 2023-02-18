@@ -1,3 +1,6 @@
+import json
+
+import mock
 from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     ExceptionControllerStub,
@@ -20,15 +23,22 @@ class TestAsyncException(TestCase):
     def tearDown(self):
         self.fake_grpc.close()
 
-    async def test_async_unary_exception(self):
+    @mock.patch("django_socio_grpc.log.GRPCHandler.emit")
+    async def test_async_unary_exception(self, mock_emit):
+        mock_emit.return_value = mock.MagicMock()
         grpc_stub = self.fake_grpc.get_fake_stub(ExceptionControllerStub)
         request = empty_pb2.Empty()
         with self.assertRaises(RpcError) as error:
             await grpc_stub.UnaryRaiseException(request=request)
 
         self.assertTrue("test" in str(error.exception))
+        mock_emit.assert_called()
+        args = mock_emit.call_args
+        self.assertEqual(json.loads(args[0][0].locals)["test_export_local"], "'var'")
 
-    async def test_async_stream_exception(self):
+    @mock.patch("django_socio_grpc.log.GRPCHandler.emit")
+    async def test_async_stream_exception(self, mock_emit):
+        mock_emit.return_value = mock.MagicMock()
         grpc_stub = self.fake_grpc.get_fake_stub(ExceptionControllerStub)
         request = empty_pb2.Empty()
 
@@ -40,3 +50,6 @@ class TestAsyncException(TestCase):
         self.assertTrue("test" in str(error.exception))
         # INFO - AM - 01/02/2023 we verify that if exception in stream we still receive the firsts message sended in stream
         self.assertEqual(len(response_list), 1)
+        mock_emit.assert_called()
+        args = mock_emit.call_args
+        self.assertEqual(json.loads(args[0][0].locals)["test_export_local"], "'var'")

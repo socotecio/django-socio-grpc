@@ -5,6 +5,7 @@ import asyncio
 import json
 import logging
 import logging.config
+import sys
 import threading
 import traceback
 from datetime import datetime
@@ -44,18 +45,25 @@ class GRPCHandler(logging.Handler):
         except Exception:
             pass
 
-    def log_unhandled_exception(self, etype, value, tb):
+    def log_unhandled_exception(self, exc, value=None, tb=None):
 
-        if old_taceback_function is not None:
-            old_taceback_function(etype=etype, value=value, tb=tb)
-        formatted_exception = traceback.format_exception(etype, value, tb)
+        # INFO - AM - 18/02/2023 - value=value, tb=tb still retro compatible but we prepare the next breaking change. TODO when dropping 2.9 support remove this condition
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+            if old_taceback_function is not None:
+                old_taceback_function(exc)
+            formatted_exception = traceback.format_exception(exc)
+        else:
+            if value is None or tb is None:
+                etype, value, tb = sys.exc_info()
+            if old_taceback_function is not None:
+                old_taceback_function(etype=etype, value=value, tb=tb)
+            formatted_exception = traceback.format_exception(etype=etype, value=value, tb=tb)
+
         msg = "".join(formatted_exception)
         pathname, lineno, funcName = self.extract_exc_info_from_traceback(formatted_exception)
         # INFO - AG - 11/05/2022 - Send locals variables if exist in location where the exception occurs else send None
         try:
-            tb = traceback.TracebackException(
-                exc_type=etype, exc_value=value, exc_traceback=tb, capture_locals=True
-            )
+            tb = traceback.TracebackException.from_exception(exc, capture_locals=True)
         except Exception:
             tb = None
         # INFO - AG - 11/05/2022 - format dict of locals variables
@@ -122,8 +130,11 @@ class GRPCHandler(logging.Handler):
         global old_taceback_function
         old_taceback_function = traceback.print_exception
 
-        def custom_print_exception(etype, value, tb, limit=None, file=None, chain=True):
-            self.log_unhandled_exception(etype=etype, value=value, tb=tb)
+        # INFO - AM - Compatibility with python 3.5 -> 3.9, Before 3.10 exec is e_type. Be carreful when working with it. TODO whe dropping <3.10 support replace value and tb by exc
+        def custom_print_exception(
+            exc, value=None, tb=None, limit=None, file=None, chain=True
+        ):
+            self.log_unhandled_exception(exc, value=value, tb=tb)
 
         traceback.print_exception = custom_print_exception
 

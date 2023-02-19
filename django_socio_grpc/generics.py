@@ -115,7 +115,8 @@ class GenericService(services.Service):
         Defaults to using the lookup_field parameter to filter the base
         queryset.
         """
-        queryset = await self.afilter_queryset(self.get_queryset())
+        queryset = await sync_to_async(self.get_queryset)()
+        queryset = await self.afilter_queryset(queryset)
         lookup_request_field = self.get_lookup_request_field(queryset)
         assert hasattr(self.request, lookup_request_field), (
             "Expected service %s to be called with request that has a field "

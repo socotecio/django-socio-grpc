@@ -53,6 +53,7 @@ class GRPCHandler(logging.Handler):
                 old_taceback_function(exc)
             formatted_exception = traceback.format_exception(exc)
         else:
+            etype = None
             if value is None or tb is None:
                 etype, value, tb = sys.exc_info()
             if old_taceback_function is not None:

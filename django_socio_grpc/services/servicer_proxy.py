@@ -238,10 +238,15 @@ class ServicerProxy(MiddlewareCapable):
 
         return self.get_handler(action)
 
+    def _abort_from_grpc_exception(self, exc: GRPCException, request: GRPCRequestContainer):
+        logger.error(
+            f"[{self.service_class.get_controller_name()}/{request.action}]:{exc.default_code} {exc}"
+        )
+        return request.context.abort(exc.code(), exc.details())
+
     def process_exception(self, exc, request: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
-            logger.error(exc)
-            request.context.abort(exc.status_code, exc.get_full_details())
+            self._abort_from_grpc_exception(exc, request)
         elif isinstance(exc, grpc.RpcError) or request.context._state.aborted:
             raise exc
         else:
@@ -251,8 +256,7 @@ class ServicerProxy(MiddlewareCapable):
 
     async def async_process_exception(self, exc, request: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
-            logger.error(exc)
-            await request.context.abort(exc.status_code, exc.get_full_details())
+            await self._abort_from_grpc_exception(exc, request)
         elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
             raise exc
         else:

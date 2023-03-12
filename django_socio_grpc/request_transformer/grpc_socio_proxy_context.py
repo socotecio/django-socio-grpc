@@ -52,9 +52,10 @@ class SocioProxyHttpRequest:
         metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key, None)
         if not metadata_key:
             return self.grpc_request_metadata
+        user_custom_headers = self.grpc_request_metadata.pop(metadata_key, "{}")
         return {
             **self.grpc_request_metadata,
-            **json.loads(self.grpc_request_metadata.get(metadata_key, "{}")),
+            **json.loads(user_custom_headers),
         }
 
     def convert_metadata_to_dict(self, invocation_metadata):

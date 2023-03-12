@@ -11,7 +11,9 @@ import logging
 
 from asgiref.sync import sync_to_async
 from django import db
+from django.utils import translation
 from django.utils.decorators import sync_and_async_middleware
+from django.utils.translation import get_language_from_request
 
 from django_socio_grpc.services.servicer_proxy import GRPCRequestContainer
 from django_socio_grpc.settings import grpc_settings
@@ -77,6 +79,25 @@ def log_requests_middleware(get_response):
 
         def middleware(request: GRPCRequestContainer):
             _log_requests(request)
+            return get_response(request)
+
+    return middleware
+
+
+@sync_and_async_middleware
+def locale_middleware(get_response):
+    if asyncio.iscoroutinefunction(get_response):
+
+        async def middleware(request: GRPCRequestContainer):
+            language = get_language_from_request(request.context)
+            translation.activate(language)
+            return await safe_async_response(get_response, request)
+
+    else:
+
+        def middleware(request: GRPCRequestContainer):
+            language = get_language_from_request(request.context)
+            translation.activate(language)
             return get_response(request)
 
     return middleware

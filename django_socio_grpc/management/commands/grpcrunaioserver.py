@@ -80,7 +80,11 @@ class Command(BaseCommand):
                 interceptors=grpc_settings.SERVER_INTERCEPTORS,
                 options=grpc_settings.SERVER_OPTIONS,
             )
-            await sync_to_async(grpc_settings.ROOT_HANDLERS_HOOK)(server)
+            # INFO - AM - 05/04/202 - Make sure that ROOT_HANDLERS_HOOK is called with correct context to be able to use SynchronousOnlyOperation in it
+            if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
+                await grpc_settings.ROOT_HANDLERS_HOOK(server)
+            else:
+                await sync_to_async(grpc_settings.ROOT_HANDLERS_HOOK)(server)
             server.add_insecure_port(self.address)
             await server.start()
             await server.wait_for_termination()

@@ -160,7 +160,7 @@ class NotFound(GRPCException):
 
 class AlreadyExist(GRPCException):
     status_code = StatusCode.ALREADY_EXISTS
-    default_detail = _("Alrerady exist.")
+    default_detail = _("Already exists.")
     default_code = "already_exist"
 
 

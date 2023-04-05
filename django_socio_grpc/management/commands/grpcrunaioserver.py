@@ -6,6 +6,7 @@ import sys
 from concurrent import futures
 
 import grpc
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import autoreload
@@ -79,7 +80,7 @@ class Command(BaseCommand):
                 interceptors=grpc_settings.SERVER_INTERCEPTORS,
                 options=grpc_settings.SERVER_OPTIONS,
             )
-            grpc_settings.ROOT_HANDLERS_HOOK(server)
+            await sync_to_async(grpc_settings.ROOT_HANDLERS_HOOK)(server)
             server.add_insecure_port(self.address)
             await server.start()
             await server.wait_for_termination()

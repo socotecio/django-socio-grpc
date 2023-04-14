@@ -1,0 +1,72 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-04-14 15:56+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: django_socio_grpc/exceptions.py:112
+msgid "A server error occurred."
+msgstr ""
+
+#: django_socio_grpc/exceptions.py:145
+msgid "Authentication credentials were not provided."
+msgstr ""
+
+#: django_socio_grpc/exceptions.py:151
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: django_socio_grpc/exceptions.py:157
+msgid "Not found."
+msgstr ""
+
+#: django_socio_grpc/exceptions.py:163
+msgid "Alrerady exist."
+msgstr ""
+
+#: django_socio_grpc/exceptions.py:169
+msgid "Invalid argument."
+msgstr ""
+
+#: django_socio_grpc/exceptions.py:175
+msgid "Unimplemented."
+msgstr ""
+
+#: django_socio_grpc/proto_serializers.py:161
+#, python-brace-format
+msgid "Ensure this field has no more than {max_length} characters."
+msgstr ""
+
+#: django_socio_grpc/tests/fakeapp/services/basic_service.py:134
+msgid "Test translation"
+msgstr "Test traduction français"
+
+#: examples/doc_example/generate_proto_doc/models.py:9
+msgid "Start Date"
+msgstr ""
+
+#: examples/doc_example/generate_proto_doc/models.py:10
+msgid "Rate"
+msgstr ""
+
+#: examples/doc_example/generate_proto_doc/models.py:13
+msgid "Somethings"
+msgstr ""
+
+#: examples/doc_example/generate_proto_doc/models.py:14
+msgid "Something"
+msgstr ""

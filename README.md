@@ -40,18 +40,25 @@ For more informations follow the quickstart: [https://socotecio.github.io/django
 ## Launch dev environnement
 
 ```python
-    docker-compose up --build
-    docker-compose exec django-socio-grpc python test_utils/migrate.py
-    docker-compose exec django-socio-grpc poetry run tests
+    docker compose up --build
+    docker compose exec django-socio-grpc python test_utils/migrate.py
+    docker compose exec django-socio-grpc poetry run tests
     # single test launch
-    docker-compose exec django-socio-grpc poetry run tests django_socio_grpc/tests/test_proto_generation.py
+    docker compose exec django-socio-grpc poetry run tests django_socio_grpc/tests/test_proto_generation.py
 ```
+
+## Regenerate proto used for unit test:
+
+```
+docker compose exec django-socio-grpc python test_utils/generateproto.py
+```
+
 ## Contribute to documentation
 
 Launch in local:
 ```bash
-docker-compose exec django-socio-grpc mkdocs serve -a localhost:6001
-# Or just docker-compose up and navigate to localhost:6001
+docker compose exec django-socio-grpc mkdocs serve -a localhost:6001
+# Or just docker compose up and navigate to localhost:6001
 ```
 
 Deploy Documentation:

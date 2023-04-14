@@ -354,14 +354,22 @@ class ProtoMessage:
         return messages
 
     def set_indices(self, indices: Dict[int, str]) -> None:
+        """
+        Set the field index that is writed in the proto file while trying to keep the same order that the one passed in the incides parameter
+        :param indices: dictionnary mapping the field number with the field name that we want to keep order too. Usually it come from the lecture of the previous proto file before it is generated again
+        """
         curr_idx = 0
         if indices:
+            # INFO - AM - 14/04/2023 - We filter the indices to only keep the ones we still have in self.fields[name]. See __getitem__ to understand why self is self.fields[name].
             indices = {idx: field for idx, field in indices.items() if field in self}
             for idx, field in indices.items():
                 self[field].index = idx
 
-            curr_idx = max(indices.keys())
+            # INFO - AM - 14/04/2023 - Sometimes all the fields have changed and so max(indices.keys()) is not working
+            if indices.keys():
+                curr_idx = max(indices.keys())
 
+        # INFO - AM - 14/04/2023 - We set index for all the fiels of the current ProtoMessage taht was not already in the previous ProtoMessage. Note that it is set only if index is not set.
         for field in self.fields:
             if not field.index:
                 curr_idx += 1

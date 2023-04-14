@@ -56,11 +56,13 @@ class RegistryToProtoGenerator:
         messages: List[ProtoMessage] = []
         imports = set()
 
+        # INFO - AM - 14/04/2023 - split all the messages in the registry in two categories. Ones is the messages imported from an other proto file and Seconds are the one to write in the current proto file we are going to generate
         for mess in registry.get_all_messages().values():
             if mess.imported_from:
                 imports.add(mess.imported_from)
             else:
                 messages.append(mess)
+                # INFO - AM - 14/04/2023 - indices is used to keep the same field number between two proto generation to avoid breaking changes
                 indices = {}
                 if previous_messages and (ex_message := previous_messages.get(mess.name)):
                     indices = {f.number: f.name for f in ex_message.fields}

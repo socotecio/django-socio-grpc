@@ -5,7 +5,10 @@ from django_socio_grpc.settings import grpc_settings
 
 class SocioProxyHttpRequest:
     HEADERS_KEY = "HEADERS"
-    MAP_HEADERS = {"AUTHORIZATION": "HTTP_AUTHORIZATION"}
+    MAP_HEADERS = {
+        "AUTHORIZATION": "HTTP_AUTHORIZATION",
+        "ACCEPT-LANGUAGE": "HTTP_ACCEPT_LANGUAGE",
+    }
     FILTERS_KEY = "FILTERS"
     PAGINATION_KEY = "PAGINATION"
 
@@ -26,7 +29,8 @@ class SocioProxyHttpRequest:
         )
         self.headers = self.get_from_metadata(self.HEADERS_KEY)
         self.META = {
-            self.MAP_HEADERS.get(key.upper()): value for key, value in self.headers.items()
+            self.MAP_HEADERS.get(key.upper(), key.upper()): value
+            for key, value in self.headers.items()
         }
 
         # INFO - A.D.B - 04/01/2021 - Not implemented for now
@@ -48,7 +52,11 @@ class SocioProxyHttpRequest:
         metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key, None)
         if not metadata_key:
             return self.grpc_request_metadata
-        return json.loads(self.grpc_request_metadata.get(metadata_key, "{}"))
+        user_custom_headers = self.grpc_request_metadata.pop(metadata_key, "{}")
+        return {
+            **self.grpc_request_metadata,
+            **json.loads(user_custom_headers),
+        }
 
     def convert_metadata_to_dict(self, invocation_metadata):
         grpc_request_metadata = {}

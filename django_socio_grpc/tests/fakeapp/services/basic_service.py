@@ -1,3 +1,5 @@
+from django.utils.translation import gettext as _
+from fakeapp.grpc import fakeapp_pb2
 from fakeapp.serializers import (
     BaseProtoExampleSerializer,
     BasicProtoListChildSerializer,
@@ -122,3 +124,12 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         serializer = BasicProtoListChildSerializer(message=request, many=True)
         serializer.is_valid(raise_exception=True)
         return serializer.message
+
+    @grpc_action(
+        request=[],
+        response=[{"name": "text", "type": "string"}],
+    )
+    async def FetchTranslatedKey(self, request, context):
+        # INFO - AM - 14/04/2023 - Test translation here
+        message = fakeapp_pb2.BasicFetchTranslatedKeyResponse(text=_("Test translation"))
+        return message

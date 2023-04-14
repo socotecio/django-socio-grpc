@@ -1,12 +1,14 @@
 from boot_django import boot_django
-from django.core.management import call_command
-from django.test import override_settings
-
-from django_socio_grpc.protobuf.registry_singleton import RegistrySingleton
-from django_socio_grpc.tests.test_proto_generation import OVERRIDEN_SETTINGS
 
 # call the django setup routine
 boot_django()
+
+
+from django.core.management import call_command  # noqa E402
+from django.test import override_settings  # noqa E402
+
+from django_socio_grpc.protobuf.registry_singleton import RegistrySingleton  # noqa E402
+from django_socio_grpc.tests.test_proto_generation import OVERRIDEN_SETTINGS  # noqa E402
 
 args = []
 opts = {}

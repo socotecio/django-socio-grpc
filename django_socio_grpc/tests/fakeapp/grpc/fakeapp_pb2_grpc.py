@@ -16,57 +16,62 @@ class BasicControllerStub(object):
             channel: A grpc.Channel.
         """
         self.BasicList = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/BasicList',
+                '/myproject.fakeapp.BasicController/BasicList',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.FromString,
                 )
         self.Create = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/Create',
+                '/myproject.fakeapp.BasicController/Create',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceResponse.FromString,
                 )
         self.FetchDataForUser = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/FetchDataForUser',
+                '/myproject.fakeapp.BasicController/FetchDataForUser',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchDataForUserRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceResponse.FromString,
                 )
+        self.FetchTranslatedKey = channel.unary_unary(
+                '/myproject.fakeapp.BasicController/FetchTranslatedKey',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchTranslatedKeyResponse.FromString,
+                )
         self.GetMultiple = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/GetMultiple',
+                '/myproject.fakeapp.BasicController/GetMultiple',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceListResponse.FromString,
                 )
         self.ListIds = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/ListIds',
+                '/myproject.fakeapp.BasicController/ListIds',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicListIdsResponse.FromString,
                 )
         self.ListName = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/ListName',
+                '/myproject.fakeapp.BasicController/ListName',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicListNameResponse.FromString,
                 )
         self.MixParam = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/MixParam',
+                '/myproject.fakeapp.BasicController/MixParam',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomMixParamForListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamListResponse.FromString,
                 )
         self.MixParamWithSerializer = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/MixParamWithSerializer',
+                '/myproject.fakeapp.BasicController/MixParamWithSerializer',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.FromString,
                 )
         self.MyMethod = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/MyMethod',
+                '/myproject.fakeapp.BasicController/MyMethod',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForResponse.FromString,
                 )
         self.TestBaseProtoSerializer = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/TestBaseProtoSerializer',
+                '/myproject.fakeapp.BasicController/TestBaseProtoSerializer',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleListResponse.FromString,
                 )
         self.TestEmptyMethod = channel.unary_unary(
-                '/fakeproject.fakeapp.BasicController/TestEmptyMethod',
+                '/myproject.fakeapp.BasicController/TestEmptyMethod',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
@@ -88,6 +93,12 @@ class BasicControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def FetchDataForUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def FetchTranslatedKey(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -159,6 +170,11 @@ def add_BasicControllerServicer_to_server(servicer, server):
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchDataForUserRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceResponse.SerializeToString,
             ),
+            'FetchTranslatedKey': grpc.unary_unary_rpc_method_handler(
+                    servicer.FetchTranslatedKey,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchTranslatedKeyResponse.SerializeToString,
+            ),
             'GetMultiple': grpc.unary_unary_rpc_method_handler(
                     servicer.GetMultiple,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
@@ -201,7 +217,7 @@ def add_BasicControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.BasicController', rpc_method_handlers)
+            'myproject.fakeapp.BasicController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -220,7 +236,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/BasicList',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/BasicList',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicProtoListChildListResponse.FromString,
             options, channel_credentials,
@@ -237,7 +253,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/Create',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/Create',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceResponse.FromString,
             options, channel_credentials,
@@ -254,9 +270,26 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/FetchDataForUser',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/FetchDataForUser',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchDataForUserRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def FetchTranslatedKey(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/FetchTranslatedKey',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicFetchTranslatedKeyResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -271,7 +304,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/GetMultiple',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/GetMultiple',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicServiceListResponse.FromString,
             options, channel_credentials,
@@ -288,7 +321,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/ListIds',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/ListIds',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicListIdsResponse.FromString,
             options, channel_credentials,
@@ -305,7 +338,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/ListName',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/ListName',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicListNameResponse.FromString,
             options, channel_credentials,
@@ -322,7 +355,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/MixParam',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/MixParam',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomMixParamForListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamListResponse.FromString,
             options, channel_credentials,
@@ -339,7 +372,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/MixParamWithSerializer',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/MixParamWithSerializer',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicParamWithSerializerListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BasicMixParamWithSerializerListResponse.FromString,
             options, channel_credentials,
@@ -356,7 +389,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/MyMethod',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/MyMethod',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomNameForResponse.FromString,
             options, channel_credentials,
@@ -373,7 +406,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/TestBaseProtoSerializer',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/TestBaseProtoSerializer',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.BaseProtoExampleListResponse.FromString,
             options, channel_credentials,
@@ -390,7 +423,7 @@ class BasicController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.BasicController/TestEmptyMethod',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.BasicController/TestEmptyMethod',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -407,12 +440,12 @@ class ExceptionControllerStub(object):
             channel: A grpc.Channel.
         """
         self.StreamRaiseException = channel.unary_stream(
-                '/fakeproject.fakeapp.ExceptionController/StreamRaiseException',
+                '/myproject.fakeapp.ExceptionController/StreamRaiseException',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ExceptionStreamRaiseExceptionResponse.FromString,
                 )
         self.UnaryRaiseException = channel.unary_unary(
-                '/fakeproject.fakeapp.ExceptionController/UnaryRaiseException',
+                '/myproject.fakeapp.ExceptionController/UnaryRaiseException',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
@@ -448,7 +481,7 @@ def add_ExceptionControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.ExceptionController', rpc_method_handlers)
+            'myproject.fakeapp.ExceptionController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -467,7 +500,7 @@ class ExceptionController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/fakeproject.fakeapp.ExceptionController/StreamRaiseException',
+        return grpc.experimental.unary_stream(request, target, '/myproject.fakeapp.ExceptionController/StreamRaiseException',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ExceptionStreamRaiseExceptionResponse.FromString,
             options, channel_credentials,
@@ -484,7 +517,7 @@ class ExceptionController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.ExceptionController/UnaryRaiseException',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.ExceptionController/UnaryRaiseException',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -501,12 +534,12 @@ class ForeignModelControllerStub(object):
             channel: A grpc.Channel.
         """
         self.List = channel.unary_unary(
-                '/fakeproject.fakeapp.ForeignModelController/List',
+                '/myproject.fakeapp.ForeignModelController/List',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelListResponse.FromString,
                 )
         self.Retrieve = channel.unary_unary(
-                '/fakeproject.fakeapp.ForeignModelController/Retrieve',
+                '/myproject.fakeapp.ForeignModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelRetrieveCustomRetrieveRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelRetrieveCustomResponse.FromString,
                 )
@@ -542,7 +575,7 @@ def add_ForeignModelControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.ForeignModelController', rpc_method_handlers)
+            'myproject.fakeapp.ForeignModelController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -561,7 +594,7 @@ class ForeignModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.ForeignModelController/List',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.ForeignModelController/List',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelListResponse.FromString,
             options, channel_credentials,
@@ -578,7 +611,7 @@ class ForeignModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.ForeignModelController/Retrieve',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.ForeignModelController/Retrieve',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelRetrieveCustomRetrieveRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ForeignModelRetrieveCustomResponse.FromString,
             options, channel_credentials,
@@ -595,7 +628,7 @@ class ImportStructEvenInArrayModelControllerStub(object):
             channel: A grpc.Channel.
         """
         self.Create = channel.unary_unary(
-                '/fakeproject.fakeapp.ImportStructEvenInArrayModelController/Create',
+                '/myproject.fakeapp.ImportStructEvenInArrayModelController/Create',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ImportStructEvenInArrayModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ImportStructEvenInArrayModelResponse.FromString,
                 )
@@ -620,7 +653,7 @@ def add_ImportStructEvenInArrayModelControllerServicer_to_server(servicer, serve
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.ImportStructEvenInArrayModelController', rpc_method_handlers)
+            'myproject.fakeapp.ImportStructEvenInArrayModelController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -639,7 +672,7 @@ class ImportStructEvenInArrayModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.ImportStructEvenInArrayModelController/Create',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.ImportStructEvenInArrayModelController/Create',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ImportStructEvenInArrayModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.ImportStructEvenInArrayModelResponse.FromString,
             options, channel_credentials,
@@ -656,32 +689,32 @@ class RelatedFieldModelControllerStub(object):
             channel: A grpc.Channel.
         """
         self.Create = channel.unary_unary(
-                '/fakeproject.fakeapp.RelatedFieldModelController/Create',
+                '/myproject.fakeapp.RelatedFieldModelController/Create',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
                 )
         self.Destroy = channel.unary_unary(
-                '/fakeproject.fakeapp.RelatedFieldModelController/Destroy',
+                '/myproject.fakeapp.RelatedFieldModelController/Destroy',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.List = channel.unary_unary(
-                '/fakeproject.fakeapp.RelatedFieldModelController/List',
+                '/myproject.fakeapp.RelatedFieldModelController/List',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListResponse.FromString,
                 )
         self.PartialUpdate = channel.unary_unary(
-                '/fakeproject.fakeapp.RelatedFieldModelController/PartialUpdate',
+                '/myproject.fakeapp.RelatedFieldModelController/PartialUpdate',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelPartialUpdateRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
                 )
         self.Retrieve = channel.unary_unary(
-                '/fakeproject.fakeapp.RelatedFieldModelController/Retrieve',
+                '/myproject.fakeapp.RelatedFieldModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelRetrieveRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
                 )
         self.Update = channel.unary_unary(
-                '/fakeproject.fakeapp.RelatedFieldModelController/Update',
+                '/myproject.fakeapp.RelatedFieldModelController/Update',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
                 )
@@ -761,7 +794,7 @@ def add_RelatedFieldModelControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.RelatedFieldModelController', rpc_method_handlers)
+            'myproject.fakeapp.RelatedFieldModelController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -780,7 +813,7 @@ class RelatedFieldModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.RelatedFieldModelController/Create',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.RelatedFieldModelController/Create',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
             options, channel_credentials,
@@ -797,7 +830,7 @@ class RelatedFieldModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.RelatedFieldModelController/Destroy',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.RelatedFieldModelController/Destroy',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -814,7 +847,7 @@ class RelatedFieldModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.RelatedFieldModelController/List',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.RelatedFieldModelController/List',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelListResponse.FromString,
             options, channel_credentials,
@@ -831,7 +864,7 @@ class RelatedFieldModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.RelatedFieldModelController/PartialUpdate',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.RelatedFieldModelController/PartialUpdate',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelPartialUpdateRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
             options, channel_credentials,
@@ -848,7 +881,7 @@ class RelatedFieldModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.RelatedFieldModelController/Retrieve',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.RelatedFieldModelController/Retrieve',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelRetrieveRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
             options, channel_credentials,
@@ -865,7 +898,7 @@ class RelatedFieldModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.RelatedFieldModelController/Update',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.RelatedFieldModelController/Update',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.RelatedFieldModelResponse.FromString,
             options, channel_credentials,
@@ -882,32 +915,32 @@ class SpecialFieldsModelControllerStub(object):
             channel: A grpc.Channel.
         """
         self.Create = channel.unary_unary(
-                '/fakeproject.fakeapp.SpecialFieldsModelController/Create',
+                '/myproject.fakeapp.SpecialFieldsModelController/Create',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
                 )
         self.Destroy = channel.unary_unary(
-                '/fakeproject.fakeapp.SpecialFieldsModelController/Destroy',
+                '/myproject.fakeapp.SpecialFieldsModelController/Destroy',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.List = channel.unary_unary(
-                '/fakeproject.fakeapp.SpecialFieldsModelController/List',
+                '/myproject.fakeapp.SpecialFieldsModelController/List',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListResponse.FromString,
                 )
         self.PartialUpdate = channel.unary_unary(
-                '/fakeproject.fakeapp.SpecialFieldsModelController/PartialUpdate',
+                '/myproject.fakeapp.SpecialFieldsModelController/PartialUpdate',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelPartialUpdateRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
                 )
         self.Retrieve = channel.unary_unary(
-                '/fakeproject.fakeapp.SpecialFieldsModelController/Retrieve',
+                '/myproject.fakeapp.SpecialFieldsModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomRetrieveResponseSpecialFieldsModelResponse.FromString,
                 )
         self.Update = channel.unary_unary(
-                '/fakeproject.fakeapp.SpecialFieldsModelController/Update',
+                '/myproject.fakeapp.SpecialFieldsModelController/Update',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
                 )
@@ -987,7 +1020,7 @@ def add_SpecialFieldsModelControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.SpecialFieldsModelController', rpc_method_handlers)
+            'myproject.fakeapp.SpecialFieldsModelController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -1006,7 +1039,7 @@ class SpecialFieldsModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/Create',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SpecialFieldsModelController/Create',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
             options, channel_credentials,
@@ -1023,7 +1056,7 @@ class SpecialFieldsModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/Destroy',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SpecialFieldsModelController/Destroy',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -1040,7 +1073,7 @@ class SpecialFieldsModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/List',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SpecialFieldsModelController/List',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelListResponse.FromString,
             options, channel_credentials,
@@ -1057,7 +1090,7 @@ class SpecialFieldsModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/PartialUpdate',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SpecialFieldsModelController/PartialUpdate',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelPartialUpdateRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
             options, channel_credentials,
@@ -1074,7 +1107,7 @@ class SpecialFieldsModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/Retrieve',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SpecialFieldsModelController/Retrieve',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRetrieveRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.CustomRetrieveResponseSpecialFieldsModelResponse.FromString,
             options, channel_credentials,
@@ -1091,7 +1124,7 @@ class SpecialFieldsModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SpecialFieldsModelController/Update',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SpecialFieldsModelController/Update',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SpecialFieldsModelResponse.FromString,
             options, channel_credentials,
@@ -1108,12 +1141,12 @@ class StreamInControllerStub(object):
             channel: A grpc.Channel.
         """
         self.StreamIn = channel.stream_unary(
-                '/fakeproject.fakeapp.StreamInController/StreamIn',
+                '/myproject.fakeapp.StreamInController/StreamIn',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamInRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamInListResponse.FromString,
                 )
         self.StreamToStream = channel.stream_stream(
-                '/fakeproject.fakeapp.StreamInController/StreamToStream',
+                '/myproject.fakeapp.StreamInController/StreamToStream',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamResponse.FromString,
                 )
@@ -1149,7 +1182,7 @@ def add_StreamInControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.StreamInController', rpc_method_handlers)
+            'myproject.fakeapp.StreamInController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -1168,7 +1201,7 @@ class StreamInController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/fakeproject.fakeapp.StreamInController/StreamIn',
+        return grpc.experimental.stream_unary(request_iterator, target, '/myproject.fakeapp.StreamInController/StreamIn',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamInRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamInListResponse.FromString,
             options, channel_credentials,
@@ -1185,7 +1218,7 @@ class StreamInController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/fakeproject.fakeapp.StreamInController/StreamToStream',
+        return grpc.experimental.stream_stream(request_iterator, target, '/myproject.fakeapp.StreamInController/StreamToStream',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamResponse.FromString,
             options, channel_credentials,
@@ -1202,42 +1235,42 @@ class SyncUnitTestModelControllerStub(object):
             channel: A grpc.Channel.
         """
         self.Create = channel.unary_unary(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/Create',
+                '/myproject.fakeapp.SyncUnitTestModelController/Create',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Destroy = channel.unary_unary(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/Destroy',
+                '/myproject.fakeapp.SyncUnitTestModelController/Destroy',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.List = channel.unary_unary(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/List',
+                '/myproject.fakeapp.SyncUnitTestModelController/List',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListResponse.FromString,
                 )
         self.ListWithExtraArgs = channel.unary_unary(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/ListWithExtraArgs',
+                '/myproject.fakeapp.SyncUnitTestModelController/ListWithExtraArgs',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SyncUnitTestModelListWithExtraArgsRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.FromString,
                 )
         self.PartialUpdate = channel.unary_unary(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/PartialUpdate',
+                '/myproject.fakeapp.SyncUnitTestModelController/PartialUpdate',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Retrieve = channel.unary_unary(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/Retrieve',
+                '/myproject.fakeapp.SyncUnitTestModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRetrieveRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Stream = channel.unary_stream(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/Stream',
+                '/myproject.fakeapp.SyncUnitTestModelController/Stream',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelStreamRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Update = channel.unary_unary(
-                '/fakeproject.fakeapp.SyncUnitTestModelController/Update',
+                '/myproject.fakeapp.SyncUnitTestModelController/Update',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
@@ -1339,7 +1372,7 @@ def add_SyncUnitTestModelControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.SyncUnitTestModelController', rpc_method_handlers)
+            'myproject.fakeapp.SyncUnitTestModelController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -1358,7 +1391,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/Create',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SyncUnitTestModelController/Create',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1375,7 +1408,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/Destroy',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SyncUnitTestModelController/Destroy',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -1392,7 +1425,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/List',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SyncUnitTestModelController/List',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListResponse.FromString,
             options, channel_credentials,
@@ -1409,7 +1442,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/ListWithExtraArgs',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SyncUnitTestModelController/ListWithExtraArgs',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.SyncUnitTestModelListWithExtraArgsRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.FromString,
             options, channel_credentials,
@@ -1426,7 +1459,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/PartialUpdate',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SyncUnitTestModelController/PartialUpdate',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1443,7 +1476,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/Retrieve',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SyncUnitTestModelController/Retrieve',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRetrieveRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1460,7 +1493,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/Stream',
+        return grpc.experimental.unary_stream(request, target, '/myproject.fakeapp.SyncUnitTestModelController/Stream',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelStreamRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1477,7 +1510,7 @@ class SyncUnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.SyncUnitTestModelController/Update',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.SyncUnitTestModelController/Update',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1494,42 +1527,42 @@ class UnitTestModelControllerStub(object):
             channel: A grpc.Channel.
         """
         self.Create = channel.unary_unary(
-                '/fakeproject.fakeapp.UnitTestModelController/Create',
+                '/myproject.fakeapp.UnitTestModelController/Create',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Destroy = channel.unary_unary(
-                '/fakeproject.fakeapp.UnitTestModelController/Destroy',
+                '/myproject.fakeapp.UnitTestModelController/Destroy',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.List = channel.unary_unary(
-                '/fakeproject.fakeapp.UnitTestModelController/List',
+                '/myproject.fakeapp.UnitTestModelController/List',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListResponse.FromString,
                 )
         self.ListWithExtraArgs = channel.unary_unary(
-                '/fakeproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
+                '/myproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.FromString,
                 )
         self.PartialUpdate = channel.unary_unary(
-                '/fakeproject.fakeapp.UnitTestModelController/PartialUpdate',
+                '/myproject.fakeapp.UnitTestModelController/PartialUpdate',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Retrieve = channel.unary_unary(
-                '/fakeproject.fakeapp.UnitTestModelController/Retrieve',
+                '/myproject.fakeapp.UnitTestModelController/Retrieve',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRetrieveRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Stream = channel.unary_stream(
-                '/fakeproject.fakeapp.UnitTestModelController/Stream',
+                '/myproject.fakeapp.UnitTestModelController/Stream',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelStreamRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
         self.Update = channel.unary_unary(
-                '/fakeproject.fakeapp.UnitTestModelController/Update',
+                '/myproject.fakeapp.UnitTestModelController/Update',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
                 )
@@ -1631,7 +1664,7 @@ def add_UnitTestModelControllerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'fakeproject.fakeapp.UnitTestModelController', rpc_method_handlers)
+            'myproject.fakeapp.UnitTestModelController', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -1650,7 +1683,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/Create',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/Create',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1667,7 +1700,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/Destroy',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/Destroy',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
@@ -1684,7 +1717,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/List',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/List',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListResponse.FromString,
             options, channel_credentials,
@@ -1701,7 +1734,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/ListWithExtraArgs',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListWithExtraArgsRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelListExtraArgsResponse.FromString,
             options, channel_credentials,
@@ -1718,7 +1751,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/PartialUpdate',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/PartialUpdate',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelPartialUpdateRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1735,7 +1768,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/Retrieve',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/Retrieve',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRetrieveRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1752,7 +1785,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/fakeproject.fakeapp.UnitTestModelController/Stream',
+        return grpc.experimental.unary_stream(request, target, '/myproject.fakeapp.UnitTestModelController/Stream',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelStreamRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,
@@ -1769,7 +1802,7 @@ class UnitTestModelController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fakeproject.fakeapp.UnitTestModelController/Update',
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/Update',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
             options, channel_credentials,

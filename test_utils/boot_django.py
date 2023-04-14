@@ -12,7 +12,7 @@ FAKE_APP_DIR = os.path.join(BASE_DIR, "django_socio_grpc", "tests")
 sys.path.append(BASE_DIR)
 sys.path.append(FAKE_APP_DIR)
 
-os.environ["DJANGO_SETTINGS_MODULE"] = "fakeproject.settings"
+os.environ["DJANGO_SETTINGS_MODULE"] = "myproject.settings"
 
 
 def boot_django():
@@ -43,5 +43,6 @@ def boot_django():
         ),
         TIME_ZONE="UTC",
         USE_TZ=True,
+        LOCALE_PATHS=[os.path.join(FAKE_APP_DIR, "fakeapp", "locale")],
     )
     django.setup()

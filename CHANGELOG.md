@@ -1,5 +1,17 @@
 ## Changelog
 
+#### version 0.18.0
+
+- Fix typo in AlreadyExist Exception
+- Add locale middleware support
+- Merge ROOT metadata key into HEADERS proxy context without needed to use HEADERS metadat key
+- Force ROOT_HANDLERS_HOOK to be called in sync mode if not coroutine to be able to make db call inside it
+- Fix exception in logging for python 3.11 & use github action with multiple python version to verify integrity in multiple python version
+- Refactor proto generation to support optional
+- Deprecate the use of cardinality keywork in "type" key in grpc action decorator and introduce the new "cardinality" key.
+- Add async function like afilter_queryset, aget_object, aget_serializer, amessage & acheck_object_permissions
+- Support first middleware logic
+
 #### version 0.10.21
 
 - Fix the reuse old number that was not working because of `__custom__` field

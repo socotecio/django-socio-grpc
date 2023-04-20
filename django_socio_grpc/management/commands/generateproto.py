@@ -1,6 +1,8 @@
+import asyncio
 import os
 from pathlib import Path
 
+from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -8,8 +10,7 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
-import asyncio
-from asgiref.sync import sync_to_async, async_to_sync
+
 
 class Command(BaseCommand):
     help = "Generates proto."

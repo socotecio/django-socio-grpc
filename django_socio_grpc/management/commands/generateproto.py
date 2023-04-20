@@ -1,6 +1,8 @@
+import asyncio
 import os
 from pathlib import Path
 
+from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -53,10 +55,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        # ------------------------------------------
-        # ---- extract protog Gen Parameters     ---
-        # ------------------------------------------
-        grpc_settings.ROOT_HANDLERS_HOOK(None)
+        if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
+            async_to_sync(grpc_settings.ROOT_HANDLERS_HOOK)(None)
+        else:
+            grpc_settings.ROOT_HANDLERS_HOOK(None)
         self.project_name = options["project"]
         if not self.project_name:
             if not os.environ.get("DJANGO_SETTINGS_MODULE"):

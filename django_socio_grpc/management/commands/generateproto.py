@@ -8,7 +8,8 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
-
+import asyncio
+from asgiref.sync import sync_to_async, async_to_sync
 
 class Command(BaseCommand):
     help = "Generates proto."
@@ -53,10 +54,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        # ------------------------------------------
-        # ---- extract protog Gen Parameters     ---
-        # ------------------------------------------
-        grpc_settings.ROOT_HANDLERS_HOOK(None)
+        if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
+            async_to_sync(grpc_settings.ROOT_HANDLERS_HOOK)(None)
+        else:
+            grpc_settings.ROOT_HANDLERS_HOOK(None)
         self.project_name = options["project"]
         if not self.project_name:
             if not os.environ.get("DJANGO_SETTINGS_MODULE"):

@@ -8,6 +8,7 @@ middlewares as sync and async compatible
 
 import asyncio
 import logging
+from typing import Callable
 
 from asgiref.sync import sync_to_async
 from django import db
@@ -31,7 +32,7 @@ def _close_old_connections():
 
 
 @sync_and_async_middleware
-def close_old_connections_middleware(get_response):
+def close_old_connections_middleware(get_response: Callable):
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
@@ -63,12 +64,12 @@ def _log_requests(request: GRPCRequestContainer):
         not in grpc_settings.IGNORE_LOG_FOR_ACTION
     ):
         logger.info(
-            f"Receive action {request.action} on service {request.service.__class__.__name__}"
+            f"Receive action {request.action} on service {request.service.__class__.__name__}",
         )
 
 
 @sync_and_async_middleware
-def log_requests_middleware(get_response):
+def log_requests_middleware(get_response: Callable):
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
@@ -85,7 +86,7 @@ def log_requests_middleware(get_response):
 
 
 @sync_and_async_middleware
-def locale_middleware(get_response):
+def locale_middleware(get_response: Callable):
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
@@ -98,6 +99,30 @@ def locale_middleware(get_response):
         def middleware(request: GRPCRequestContainer):
             language = get_language_from_request(request.context)
             translation.activate(language)
+            return get_response(request)
+
+    return middleware
+
+
+@sync_and_async_middleware
+def auth_without_session_middleware(get_response: Callable):
+    """
+    This middleware is here to replace Django default Authentication Middleware as it look for the user session created by the login django method.
+    This middleware is to use when using other Authenifciation pattern such as Token one.
+
+    This middleware call the perform_authentication of the service. It should be placed before any other middleware that need context.user.
+    If this middleware is not installed the authentication will still perform but after the execution of all the middleware.
+    """
+    if asyncio.iscoroutinefunction(get_response):
+
+        async def middleware(request: GRPCRequestContainer):
+            request.service.perform_authentication()
+            return await safe_async_response(get_response, request)
+
+    else:
+
+        def middleware(request: GRPCRequestContainer):
+            request.service.perform_authentication()
             return get_response(request)
 
     return middleware

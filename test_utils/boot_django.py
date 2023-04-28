@@ -35,6 +35,7 @@ def boot_django():
             }
         },
         INSTALLED_APPS=(
+            "django.contrib.auth",  # INFO - AM - 26/04/2023 - Needed for some test on Auth
             "rest_framework",
             "django.contrib.contenttypes",
             "django_filters",

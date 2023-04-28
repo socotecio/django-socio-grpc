@@ -17,7 +17,7 @@ from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
         "GRPC_ASYNC": True,
     }
 )
-class TestAsyncStreamIn(TestCase):
+class TestLocaleMiddleware(TestCase):
     def tearDown(self):
         self.fake_grpc.close()
 

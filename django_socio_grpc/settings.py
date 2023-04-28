@@ -21,6 +21,8 @@ GRPC_FRAMEWORK = {
     'IGNORE_LOG_FOR_ACTION': ['Service1.Action1', 'Service1.Action1'],
 
     'ROOT_GRPC_FOLDER': 'my_grpc_folder'
+
+    "LOG_EXTRA_CONTEXT_FUNCTION": 'django_socio_grpc.log.default_get_log_extra_context'
 }
 
 This module provides the `grpc_setting` object, that is used to access
@@ -71,6 +73,8 @@ DEFAULTS = {
         "PAGINATION": "PAGINATION",
         "FILTERS": "FILTERS",
     },
+    # Get extra data from service when using log middleware or processing exception in django-socio-grpc
+    "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.default_get_log_extra_context",
 }
 
 
@@ -82,6 +86,7 @@ IMPORT_STRINGS = [
     "DEFAULT_PAGINATION_CLASS",
     "DEFAULT_FILTER_BACKENDS",
     "LOGGING_ACTION",
+    "LOG_EXTRA_CONTEXT_FUNCTION",
 ]
 
 

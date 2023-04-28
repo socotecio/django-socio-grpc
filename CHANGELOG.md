@@ -1,5 +1,15 @@
 ## Changelog
 
+#### version 0.19.0
+
+- Make django middleware working or at least not crashing inside grpc_middleware
+- Adding logic for extra log context if needed.
+- Refactoring some of the internal container/proxy/http classes to have cleaner logic
+
+#### version 0.18.1
+
+- Fix calling root handler with good sync/async context in generateproto
+
 #### version 0.18.0
 
 - Fix typo in AlreadyExist Exception

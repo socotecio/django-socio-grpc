@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from grpc._cython.cygrpc import _Metadatum
 
 from django_socio_grpc.services import Service
+from django_socio_grpc.services.servicer_proxy import get_servicer_context
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.tests.grpc_test_utils.fake_grpc import FakeContext
 
@@ -18,15 +19,8 @@ class FakeAuthentication:
 
 
 class DummyService(Service):
-    pass
-
-
-service = DummyService()
-
-
-def fake_create_service(self, **kwargs):
-    Service.__init__(service, **kwargs)
-    return service
+    def DummyMethod(service, request, context):
+        pass
 
 
 class TestAuthenticationUnitary(TestCase):
@@ -75,33 +69,31 @@ class TestAuthenticationUnitary(TestCase):
             mock_perform_authentication.assert_called_once_with()
 
 
-@mock.patch(
-    "django_socio_grpc.services.servicer_proxy.ServicerProxy.create_service",
-    new=fake_create_service,
-)
 class TestAuthenticationIntegration(TestCase):
     def setUp(self):
-        self.service = DummyService
-        self.servicer = self.service.as_servicer()
+        self.servicer = DummyService.as_servicer()
 
         self.fake_context = FakeContext()
 
-        def dummy_method(service, request, context):
-            pass
-
-        self.service.DummyMethod = dummy_method
-
     def test_user_and_token_none_if_no_auth_class(self):
         self.servicer.DummyMethod(None, self.fake_context)
-        self.assertIsNone(service.context.user)
-        self.assertIsNone(service.context.auth)
+
+        servicer_context = get_servicer_context()
+        self.assertIsNone(servicer_context.service.context.user)
+        self.assertIsNone(servicer_context.service.context.auth)
 
     def test_user_and_token_set(self):
-        self.service.authentication_classes = [FakeAuthentication]
+        DummyService.authentication_classes = [FakeAuthentication]
         metadata = (("headers", json.dumps({"Authorization": "faketoken"})),)
         self.fake_context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
         self.servicer.DummyMethod(None, self.fake_context)
 
-        self.assertEqual(service.context.META, {"HTTP_AUTHORIZATION": "faketoken"})
-        self.assertEqual(service.context.user, {"email": "john.doe@johndoe.com"})
-        self.assertEqual(service.context.auth, "faketoken")
+        servicer_context = get_servicer_context()
+
+        self.assertEqual(
+            servicer_context.service.context.META, {"HTTP_AUTHORIZATION": "faketoken"}
+        )
+        self.assertEqual(
+            servicer_context.service.context.user, {"email": "john.doe@johndoe.com"}
+        )
+        self.assertEqual(servicer_context.service.context.auth, "faketoken")

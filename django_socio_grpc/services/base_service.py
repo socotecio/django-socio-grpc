@@ -9,9 +9,7 @@ from rest_framework.permissions import BasePermission
 
 from django_socio_grpc.exceptions import PermissionDenied, Unauthenticated
 from django_socio_grpc.grpc_actions.actions import GRPCActionMixin
-from django_socio_grpc.request_transformer.grpc_socio_proxy_context import (
-    GRPCSocioProxyContext,
-)
+from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
 from django_socio_grpc.services.servicer_proxy import ServicerProxy
 from django_socio_grpc.settings import grpc_settings
 
@@ -27,11 +25,13 @@ class Service(GRPCActionMixin):
 
     action: str = None
     request: Message = None
-    context: GRPCSocioProxyContext = None
+    context: GRPCInternalProxyContext = None
 
     _app_handler: "AppHandlerRegistry" = None
 
     _servicer_proxy: Type[ServicerProxy] = ServicerProxy
+
+    _is_auth_performed: bool = False
 
     def __init__(self, **kwargs):
         """
@@ -49,18 +49,21 @@ class Service(GRPCActionMixin):
         return f"{cls.get_service_name()}Controller"
 
     def perform_authentication(self):
+        if self._is_auth_performed:
+            return
         user_auth_tuple = None
         try:
             user_auth_tuple = self.resolve_user()
         except Exception as e:
             raise Unauthenticated(detail=e)
+
         if not user_auth_tuple:
             self.context.user = None
             self.context.auth = None
-            return
-
-        self.context.user = user_auth_tuple[0]
-        self.context.auth = user_auth_tuple[1]
+        else:
+            self.context.user = user_auth_tuple[0]
+            self.context.auth = user_auth_tuple[1]
+        self._is_auth_performed = True
 
     def resolve_user(self):
         auth_responses = [
@@ -133,6 +136,9 @@ class Service(GRPCActionMixin):
         if grpc_settings.GRPC_ASYNC:
             return self._async_after_action()
         return self._after_action()
+
+    def get_log_extra_context(self):
+        return grpc_settings.LOG_EXTRA_CONTEXT_FUNCTION(self)
 
     @classmethod
     def as_servicer(cls, **initkwargs):

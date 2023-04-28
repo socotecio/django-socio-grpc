@@ -39,7 +39,7 @@ FakeMiddleware.side_effect = _middleware_factory
         "GRPC_ASYNC": True,
     }
 )
-class TestAsyncStreamIn(TestCase):
+class TestMiddleware(TestCase):
     def setUp(self):
         FakeMiddleware.reset_mock()
 

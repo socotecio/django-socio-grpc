@@ -9,8 +9,12 @@ import sys
 import threading
 import traceback
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from django_socio_grpc.settings import grpc_settings
+
+if TYPE_CHECKING:
+    from django_socio_grpc.generics import GenericService
 
 old_taceback_function = None
 
@@ -127,18 +131,46 @@ class GRPCHandler(logging.Handler):
 
         return (pathname, lineno, func_name)
 
-    def add_custom_print_exception(self):
-        global old_taceback_function
-        old_taceback_function = traceback.print_exception
 
-        # INFO - AM - Compatibility with python 3.5 -> 3.9, Before 3.10 exec is e_type. Be carreful when working with it. TODO whe dropping <3.10 support replace value and tb by exc
-        def custom_print_exception(
-            exc, value=None, tb=None, limit=None, file=None, chain=True
-        ):
-            self.log_unhandled_exception(exc, value=value, tb=tb)
+def default_get_log_extra_context(service: "GenericService"):
+    """
+    This method is the default used for the grpc_settings: LOG_EXTRA_CONTEXT_FUNCTION.
+    It allow logs to have extra data about the current context of the log. Used especially for tracing system.
+    """
+    extra_context = {
+        "grpc_service_name": service.get_service_name(),
+        "grpc_action": service.action,
+    }
+    if hasattr(service.context, "user") and hasattr(service.context.user, "pk"):
+        extra_context["grpc_user_pk"] = service.context.user.pk
+    return extra_context
 
-        traceback.print_exception = custom_print_exception
 
+def set_log_record_factory():
+    """
+    This method is not used by default. You juste have to execute it in your app code. Preferentially at some entrypoint.
+    It will allow to inject the default extra context of each service in the log record if needed.
+    If this method is call before any log you can use grpc_service_name, grpc_action, grpc_user_pk in your log formatter
+    """
+    old_factory = logging.getLogRecordFactory()
 
-grpcHandler = GRPCHandler()
-grpcHandler.add_custom_print_exception()
+    def record_factory(*args, **kwargs):
+        from django_socio_grpc.services.servicer_proxy import get_servicer_context
+
+        servicer_ctx = get_servicer_context()
+
+        record = old_factory(*args, **kwargs)
+
+        record.grpc_service_name = ""
+        record.grpc_action = ""
+        record.grpc_user_pk = ""
+
+        if hasattr(servicer_ctx, "service"):
+            log_extra_context = servicer_ctx.service.get_log_extra_context()
+
+            for key, value in log_extra_context.items():
+                setattr(record, key, value)
+
+        return record
+
+    logging.setLogRecordFactory(record_factory)

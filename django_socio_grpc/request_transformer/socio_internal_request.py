@@ -3,7 +3,12 @@ import json
 from django_socio_grpc.settings import grpc_settings
 
 
-class SocioProxyHttpRequest:
+class InternalHttpRequest:
+    """
+    Class mocking django.http.HttpRequest to make some django behavior like middleware, filtering, authentication, ... still work.
+    TODO - AM - Inherit this directly from django.http.HttpRequest ?
+    """
+
     HEADERS_KEY = "HEADERS"
     MAP_HEADERS = {
         "AUTHORIZATION": "HTTP_AUTHORIZATION",
@@ -23,6 +28,9 @@ class SocioProxyHttpRequest:
     }
 
     def __init__(self, grpc_context, grpc_action):
+
+        self.user = None
+        self.auth = None
 
         self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
@@ -47,6 +55,10 @@ class SocioProxyHttpRequest:
         # It's possible but it will be slow the all thing so we hava to param this behavior with settings.
         # So we are waiting for the need to implement it
         self.GET = self.query_params
+
+        # TODO - AM - 26/04/2023 - Find a way to populate this from context or request ? It is really needed ?
+        self.path = ""
+        self.path_info = ""
 
     def get_from_metadata(self, metadata_key):
         metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key, None)
@@ -75,21 +87,3 @@ class SocioProxyHttpRequest:
 
     def grpc_action_to_http_method_name(self, grpc_action):
         return self.METHOD_MAP.get(grpc_action, None)
-
-
-class GRPCSocioProxyContext:
-    """Proxy context, provide http1 proxy request object
-    and grpc context object"""
-
-    def __init__(self, grpc_context, grpc_action):
-        self.grpc_context = grpc_context
-        self.proxy_http_request = SocioProxyHttpRequest(self, grpc_action)
-
-    def __getattr__(self, attr):
-        try:
-            if hasattr(self.grpc_context, attr):
-                return getattr(self.grpc_context, attr)
-            if hasattr(self.proxy_http_request, attr):
-                return getattr(self.proxy_http_request, attr)
-        except AttributeError:
-            return self.__getattribute__(attr)

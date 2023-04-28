@@ -26,7 +26,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         # INFO - AM - 14/01/2022 - Do something here as filter user with the user name
 
         user_data = {
-            "email": "fake_email@email.com",
+            "email": context.user.email if context.user else "fake_email@email.com",
             "birth_date": "25/01/1996",
             "slogan": "Do it better",
         }

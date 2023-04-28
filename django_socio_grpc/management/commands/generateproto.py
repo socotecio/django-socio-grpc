@@ -2,7 +2,7 @@ import asyncio
 import os
 from pathlib import Path
 
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.core.management.base import BaseCommand
 

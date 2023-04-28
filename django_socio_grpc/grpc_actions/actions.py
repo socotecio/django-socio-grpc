@@ -58,9 +58,7 @@ from django_socio_grpc.protobuf.proto_classes import (
     RequestProtoMessage,
     ResponseProtoMessage,
 )
-from django_socio_grpc.request_transformer.grpc_socio_proxy_context import (
-    GRPCSocioProxyContext,
-)
+from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.tools import rreplace
 from django_socio_grpc.utils.utils import _is_generator, isgeneratorfunction
@@ -79,7 +77,7 @@ RequestResponseType = Union[str, Type[BaseSerializer], Placeholder, List[FieldDi
 
 @dataclass
 class GRPCAction:
-    function: Callable[["Service", Any, GRPCSocioProxyContext], Any]
+    function: Callable[["Service", Any, GRPCInternalProxyContext], Any]
     request: Optional[RequestResponseType] = None
     response: Optional[RequestResponseType] = None
     request_name: Optional[str] = None

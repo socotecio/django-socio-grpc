@@ -681,11 +681,11 @@ def get_proto_type(
     proto_type = None
     field_mro = field.__class__.mro()
     while proto_type is None:
-        proto_type = FIELDS_TO_PROTO_TYPES.get(field.__class__.__name__)
         try:
-            field = field_mro.pop()
+            parent_class_name = field_mro.pop(0).__name__
         except IndexError:
             break
+        proto_type = FIELDS_TO_PROTO_TYPES.get(parent_class_name)
     return proto_type or default
 
 

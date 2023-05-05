@@ -29,6 +29,15 @@ service ImportStructEvenInArrayModelController {
     rpc Create(ImportStructEvenInArrayModel) returns (ImportStructEvenInArrayModel) {}
 }
 
+service RecursiveTestModelController {
+    rpc Create(RecursiveTestModel) returns (RecursiveTestModel) {}
+    rpc Destroy(RecursiveTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RecursiveTestModelListRequest) returns (RecursiveTestModelList) {}
+    rpc PartialUpdate(RecursiveTestModelPartialUpdateRequest) returns (RecursiveTestModel) {}
+    rpc Retrieve(RecursiveTestModelRetrieveRequest) returns (RecursiveTestModel) {}
+    rpc Update(RecursiveTestModel) returns (RecursiveTestModel) {}
+}
+
 service RelatedFieldModelController {
     rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
@@ -214,6 +223,35 @@ message ManyManyModel {
     string uuid = 1;
     string name = 2;
     string test_write_only_on_nested = 3;
+}
+
+message RecursiveTestModel {
+    string uuid = 1;
+    RecursiveTestModel parent = 2;
+    repeated RecursiveTestModel children = 3;
+}
+
+message RecursiveTestModelDestroyRequest {
+    string uuid = 1;
+}
+
+message RecursiveTestModelList {
+    repeated RecursiveTestModel results = 1;
+    int32 count = 2;
+}
+
+message RecursiveTestModelListRequest {
+}
+
+message RecursiveTestModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated string _partial_update_fields = 2;
+    RecursiveTestModel parent = 3;
+    repeated RecursiveTestModel children = 4;
+}
+
+message RecursiveTestModelRetrieveRequest {
+    string uuid = 1;
 }
 
 message RelatedFieldModel {

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package myproject.fakeapp;
+
+import "google/protobuf/empty.proto";
+
+service RecursiveTestModelController {
+    rpc Create(RecursiveTestModelRequest) returns (RecursiveTestModelResponse) {}
+    rpc Destroy(RecursiveTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RecursiveTestModelListRequest) returns (RecursiveTestModelListResponse) {}
+    rpc PartialUpdate(RecursiveTestModelPartialUpdateRequest) returns (RecursiveTestModelResponse) {}
+    rpc Retrieve(RecursiveTestModelRetrieveRequest) returns (RecursiveTestModelResponse) {}
+    rpc Update(RecursiveTestModelRequest) returns (RecursiveTestModelResponse) {}
+}
+
+message RecursiveTestModelDestroyRequest {
+    string uuid = 1;
+}
+
+message RecursiveTestModelListRequest {
+}
+
+message RecursiveTestModelListResponse {
+    repeated RecursiveTestModelResponse results = 1;
+    int32 count = 2;
+}
+
+message RecursiveTestModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated string _partial_update_fields = 2;
+    RecursiveTestModelRequest parent = 3;
+    repeated RecursiveTestModelRequest children = 4;
+}
+
+message RecursiveTestModelRequest {
+    string uuid = 1;
+    RecursiveTestModelRequest parent = 2;
+    repeated RecursiveTestModelRequest children = 3;
+}
+
+message RecursiveTestModelResponse {
+    string uuid = 1;
+    RecursiveTestModelResponse parent = 2;
+    repeated RecursiveTestModelResponse children = 3;
+}
+
+message RecursiveTestModelRetrieveRequest {
+    string uuid = 1;
+}
+

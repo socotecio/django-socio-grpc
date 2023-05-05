@@ -183,7 +183,11 @@ class ProtoField:
 
     @classmethod
     def from_serializer(
-        cls, field: serializers.Serializer, to_message: Callable
+        cls,
+        field: serializers.Serializer,
+        to_message: Callable,
+        parent_serializer: serializers.Serializer = None,
+        name_if_recursive: str = None,
     ) -> "ProtoField":
         """
         Create a ProtoField from a Serializer, which will be converted to a ProtoMessage with `to_message`
@@ -193,6 +197,16 @@ class ProtoField:
         if getattr(field, "many", False):
             cardinality = FieldCardinality.REPEATED
             serializer_class = field.child.__class__
+        if parent_serializer and serializer_class == parent_serializer:
+            if not name_if_recursive:
+                raise ProtoRegistrationError(
+                    "You are trying to define a recursive serializer without a specific name"
+                )
+            return cls(
+                name=field.field_name,
+                field_type=name_if_recursive,
+                cardinality=cardinality,
+            )
 
         return cls(
             name=field.field_name,
@@ -376,11 +390,21 @@ class ProtoMessage:
                 field.index = curr_idx
 
     def append_name(self) -> str:
+        # return self.create_name(self.base_name, self.suffixable, self.prefixable)
         name = self.base_name
         if self.suffixable:
-            name = f"{self.base_name}{self.suffix}"
+            name = f"{name}{self.suffix}"
         if self.prefixable:
             name = f"{self.prefix}{name}"
+        return name
+
+    @classmethod
+    def create_name(cls, base_name: str, suffixable: bool, prefixable: bool) -> str:
+        name = base_name
+        if suffixable:
+            name = f"{name}{cls.suffix}"
+        if prefixable:
+            name = f"{cls.prefix}{name}"
         return name
 
     @classmethod
@@ -462,7 +486,19 @@ class ProtoMessage:
                     continue
 
                 if isinstance(field, serializers.BaseSerializer):
-                    fields.append(ProtoField.from_serializer(field, cls.from_serializer))
+                    fields.append(
+                        ProtoField.from_serializer(
+                            field,
+                            cls.from_serializer,
+                            parent_serializer=serializer,
+                            name_if_recursive=cls.create_name(
+                                base_name=name
+                                or cls.get_base_name_from_serializer(serializer),
+                                suffixable=not name,
+                                prefixable=False,
+                            ),
+                        )
+                    )
                 else:
                     fields.append(ProtoField.from_field(field))
         # INFO - AM - 07/01/2022 - else the serializer needs to implement to_proto_message

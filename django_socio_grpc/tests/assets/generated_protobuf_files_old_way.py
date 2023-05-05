@@ -133,6 +133,14 @@ service SpecialFieldsModelController {
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
+service RecursiveTestModelController {
+    rpc List(RecursiveTestModelListRequest) returns (RecursiveTestModelListResponse) {}
+    rpc Create(RecursiveTestModel) returns (RecursiveTestModel) {}
+    rpc Retrieve(RecursiveTestModelRetrieveRequest) returns (RecursiveTestModel) {}
+    rpc Update(RecursiveTestModel) returns (RecursiveTestModel) {}
+    rpc Destroy(RecursiveTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
 message UnitTestModel {
     int32 id = 1;
     string title = 2;
@@ -247,6 +255,27 @@ message SpecialFieldsModelDestroyRequest {
 message ImportStructEvenInArrayModel {
     string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
+}
+
+message RecursiveTestModel {
+    string uuid = 1;
+    string parent = 2;
+}
+
+message RecursiveTestModelListRequest {
+}
+
+message RecursiveTestModelListResponse {
+    repeated RecursiveTestModel results = 1;
+    int32 count = 2;
+}
+
+message RecursiveTestModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message RecursiveTestModelDestroyRequest {
+    string uuid = 1;
 }
 
 """

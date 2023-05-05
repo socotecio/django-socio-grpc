@@ -197,6 +197,7 @@ class ProtoField:
         if getattr(field, "many", False):
             cardinality = FieldCardinality.REPEATED
             serializer_class = field.child.__class__
+        # INFO - AM - 05/05/2023 - if serializer_class == parent_serializer that mean we are in a recursive serializer and so we need to have a specific behavior to avoid code recursion with the to_message function
         if parent_serializer and serializer_class == parent_serializer:
             if not name_if_recursive:
                 raise ProtoRegistrationError(
@@ -390,7 +391,6 @@ class ProtoMessage:
                 field.index = curr_idx
 
     def append_name(self) -> str:
-        # return self.create_name(self.base_name, self.suffixable, self.prefixable)
         name = self.base_name
         if self.suffixable:
             name = f"{name}{self.suffix}"
@@ -400,6 +400,9 @@ class ProtoMessage:
 
     @classmethod
     def create_name(cls, base_name: str, suffixable: bool, prefixable: bool) -> str:
+        """
+        This method only exist for stopping serializer recursion and using the correct ProtoMessage name
+        """
         name = base_name
         if suffixable:
             name = f"{name}{cls.suffix}"

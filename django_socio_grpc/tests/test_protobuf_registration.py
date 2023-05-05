@@ -43,10 +43,12 @@ class MyIntSerializer(proto_serializers.ModelProtoSerializer):
         fields = "__all__"
 
 
+class MyIntField(serializers.IntegerField):
+    ...
+
+
 class MySerializer(proto_serializers.ProtoSerializer):
-    user_name = serializers.IntegerField(
-        help_text=ProtoComment(["@test=comment1", "@test2=comment2"])
-    )
+    user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
     title = serializers.CharField()
     optional_field = serializers.CharField(allow_null=True)
     list_field = serializers.ListField(child=serializers.CharField())

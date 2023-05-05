@@ -171,6 +171,11 @@ class GenericService(services.Service):
 
     async def afilter_queryset(self, queryset):
         """Given a queryset, filter it, returning a new queryset."""
+
+        # INFO - AM - 05/05/2023 - If user has overriden filter_queryset we use it to be sure to be compatible. Yes if someone has both we use the sync one but this can't be perfect. This need to be user choice to understant and use only the async one if needed
+        if type(self).filter_queryset != GenericService.filter_queryset:
+            return await sync_to_async(self.filter_queryset)(queryset)
+
         for backend in list(self.filter_backends):
             if asyncio.iscoroutinefunction(backend().filter_queryset):
                 queryset = await backend().filter_queryset(self.context, queryset, self)

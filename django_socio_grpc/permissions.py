@@ -8,6 +8,8 @@ if TYPE_CHECKING:
     )
     from django_socio_grpc.services import Service
 
+SAFE_ACTIONS = ("List", "Retrieve", "Stream")
+
 
 class GRPCActionBasePermission(BasePermission):
     """

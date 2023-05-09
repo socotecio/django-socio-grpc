@@ -1,6 +1,6 @@
 import json
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
@@ -26,6 +26,7 @@ class UnitTestModelServiceWithDifferentPagination(UnitTestModelService):
     pagination_class = StandardResultsSetPagination
 
 
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestPagination(TestCase):
     def setUp(self):
         for idx in range(10):

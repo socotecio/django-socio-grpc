@@ -92,7 +92,7 @@ class GenericService(services.Service):
         Defaults to using the lookup_field parameter to filter the base
         queryset.
         """
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.safe_filter_queryset(self.get_queryset())
         lookup_request_field = self.get_lookup_request_field(queryset)
         assert hasattr(self.request, lookup_request_field), (
             "Expected service %s to be called with request that has a field "
@@ -116,7 +116,7 @@ class GenericService(services.Service):
         queryset.
         """
         queryset = await sync_to_async(self.get_queryset)()
-        queryset = await self.afilter_queryset(queryset)
+        queryset = await self.safe_filter_queryset(queryset)
         lookup_request_field = self.get_lookup_request_field(queryset)
         assert hasattr(self.request, lookup_request_field), (
             "Expected service %s to be called with request that has a field "
@@ -158,7 +158,7 @@ class GenericService(services.Service):
             "service": self,
         }
 
-    def filter_queryset(self, queryset):
+    def _filter_queryset(self, queryset):
         """Given a queryset, filter it, returning a new queryset."""
         for backend in list(self.filter_backends):
             if asyncio.iscoroutinefunction(backend().filter_queryset):
@@ -169,12 +169,8 @@ class GenericService(services.Service):
                 queryset = backend().filter_queryset(self.context, queryset, self)
         return queryset
 
-    async def afilter_queryset(self, queryset):
+    async def _afilter_queryset(self, queryset):
         """Given a queryset, filter it, returning a new queryset."""
-
-        # INFO - AM - 05/05/2023 - If user has overriden filter_queryset we use it to be sure to be compatible. Yes if someone has both we use the sync one but this can't be perfect. This need to be user choice to understant and use only the async one if needed
-        if type(self).filter_queryset != GenericService.filter_queryset:
-            return await sync_to_async(self.filter_queryset)(queryset)
 
         for backend in list(self.filter_backends):
             if asyncio.iscoroutinefunction(backend().filter_queryset):
@@ -184,6 +180,34 @@ class GenericService(services.Service):
                     self.context, queryset, self
                 )
         return queryset
+
+    def filter_queryset(self, queryset):
+        if grpc_settings.GRPC_ASYNC:
+            return self._afilter_queryset(queryset)
+        return self._filter_queryset(queryset)
+    
+    def safe_filter_queryset(self, queryset):
+        print("safe_filter_queryset !!!!!!!!!!!")
+        response = self.filter_queryset(queryset)
+
+        print("grpc_settings.GRPC_ASYNC", grpc_settings.GRPC_ASYNC)
+        if grpc_settings.GRPC_ASYNC:
+            if asyncio.iscoroutine(response):
+                print("asyncio.iscoroutine")
+                return response
+            else:
+                print("asyncio not coroutine")
+                async def test():
+                    return response
+                
+                print("test ", test)
+                print("test() ", test())
+                return test()
+        else:
+            if asyncio.iscoroutine(response):
+                return async_to_sync(response)
+            else:
+                return response
 
     @property
     def paginator(self):

@@ -15,6 +15,10 @@ from .basic_mixins import ListIdsMixin, ListNameMixin
 class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
     serializer_class = BasicServiceSerializer
 
+    # INFO - AM - 09/05/2023 - Testing that this method that is not async do not create issue in sync and async code.
+    def filter_queryset(self, queryset):
+        return super()._filter_queryset(queryset)
+
     def _before_registration(service_class):
         service_class._list_name_response = [{"name": "name", "type": "repeated string"}]
 

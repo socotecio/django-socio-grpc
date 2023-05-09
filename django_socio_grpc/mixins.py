@@ -72,7 +72,7 @@ class ListModelMixin(GRPCActionMixin):
 
             This is a server streaming RPC.
         """
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.safe_filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -129,7 +129,7 @@ class StreamModelMixin(GRPCActionMixin):
 
             This is a server streaming RPC.
         """
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = self.safe_filter_queryset(self.get_queryset())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -383,7 +383,7 @@ class AsyncListModelMixin(ListModelMixin):
             This is a server streaming RPC.
         """
         queryset = await sync_to_async(self.get_queryset)()
-        queryset = await self.afilter_queryset(queryset)
+        queryset = await self.safe_filter_queryset(queryset)
         page = await sync_to_async(self.paginate_queryset)(queryset)
         if page is not None:
             serializer = await self.aget_serializer(page, many=True)
@@ -399,7 +399,7 @@ class AsyncListModelMixin(ListModelMixin):
 class AsyncStreamModelMixin(StreamModelMixin):
     async def _get_list_data(self):
         queryset = await sync_to_async(self.get_queryset)()
-        queryset = await self.afilter_queryset(queryset)
+        queryset = await self.safe_filter_queryset(queryset)
 
         page = await sync_to_async(self.paginate_queryset)(queryset)
         if page is not None:

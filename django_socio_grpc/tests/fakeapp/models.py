@@ -182,3 +182,10 @@ class SlugReverseTestModel(models.Model):
     class Meta:
         grpc_messages = {}
         grpc_methods = {}
+
+
+class RecursiveTestModel(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    parent = models.ForeignKey(
+        "self", blank=True, null=True, on_delete=models.CASCADE, related_name="children"
+    )

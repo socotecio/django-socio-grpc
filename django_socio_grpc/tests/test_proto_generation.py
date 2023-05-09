@@ -60,6 +60,12 @@ def reloaded_grpc_handler_hook(server):
     return make_reloaded_grpc_handler("fakeapp", *services)(server)
 
 
+def recursive_handler_hook(server):
+    from fakeapp.services.recursive_test_model_service import RecursiveTestModelService
+
+    return make_reloaded_grpc_handler("fakeapp", RecursiveTestModelService)(server)
+
+
 def service_in_root_grpc_handler_hook(server):
     from fakeapp.services.basic_service import BasicService
 
@@ -115,6 +121,7 @@ OVERRIDEN_SETTINGS = {
     ),
     "NO_MODEL_GENERATED": overide_grpc_framework("basicservice_handler_hook"),
     "SIMPLE_MODEL_GENERATED": overide_grpc_framework("unittestmodel_handler_hook"),
+    "RECURSIVE_MODEL_GENERATED": overide_grpc_framework("recursive_handler_hook"),
 }
 
 
@@ -244,6 +251,27 @@ class TestProtoGeneration(TestCase):
         called_with_data = handle.write.call_args[0][0]
 
         proto_file_content = get_proto_file_content("SIMPLE_MODEL_GENERATED")
+
+        self.assertEqual(called_with_data, proto_file_content)
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
+    )
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["RECURSIVE_MODEL_GENERATED"])
+    def test_generate_one_app_one_model_recursive(self):
+        args = []
+        opts = {"no_generate_pb2": True}
+        with patch_open() as mocked_open:
+            call_command("generateproto", *args, **opts)
+
+        assert mocked_open.mock_calls[0].args[0] == "w+"
+
+        handle = mocked_open()
+
+        called_with_data = handle.write.call_args[0][0]
+
+        proto_file_content = get_proto_file_content("RECURSIVE_MODEL_GENERATED")
 
         self.assertEqual(called_with_data, proto_file_content)
 

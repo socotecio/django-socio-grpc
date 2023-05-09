@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.core.exceptions import ValidationError
@@ -11,6 +12,8 @@ from django_socio_grpc.exceptions import NotFound
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 from django_socio_grpc.utils.tools import rreplace
+
+logger = logging.getLogger("django_socio_grpc")
 
 
 class GenericService(services.Service):
@@ -160,6 +163,13 @@ class GenericService(services.Service):
 
     def filter_queryset(self, queryset):
         """Given a queryset, filter it, returning a new queryset."""
+
+        # INFO - AM - 05/05/2023 - If user has overriden filter_queryset but we are in async context we put a warning message as it can bring filtering issues
+        if type(self).afilter_queryset != GenericService.afilter_queryset:
+            logger.warning(
+                "/!\\ BREAKING WARNING /!\\: You have defined a custom afilter_queryset method but you are using sync mixins. Sync mixin use the method filter_queryset. If you want to keep this filtering logic please rename your method"
+            )
+
         for backend in list(self.filter_backends):
             if asyncio.iscoroutinefunction(backend().filter_queryset):
                 queryset = async_to_sync(backend().filter_queryset)(
@@ -171,6 +181,13 @@ class GenericService(services.Service):
 
     async def afilter_queryset(self, queryset):
         """Given a queryset, filter it, returning a new queryset."""
+
+        # INFO - AM - 05/05/2023 - If user has overriden filter_queryset but we are in async context we put a warning message as it can bring filtering issues
+        if type(self).filter_queryset != GenericService.filter_queryset:
+            logger.warning(
+                "/!\\ BREAKING WARNING /!\\: You have defined a custom filter_queryset method but you are using async mixins. Async mixin use the method afilter_queryset. If you want to keep this filtering logic please rename your method"
+            )
+
         for backend in list(self.filter_backends):
             if asyncio.iscoroutinefunction(backend().filter_queryset):
                 queryset = await backend().filter_queryset(self.context, queryset, self)

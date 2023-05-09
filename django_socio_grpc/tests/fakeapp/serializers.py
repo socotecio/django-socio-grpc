@@ -10,6 +10,7 @@ from .models import (
     ForeignModel,
     ImportStructEvenInArrayModel,
     ManyManyModel,
+    RecursiveTestModel,
     RelatedFieldModel,
     SpecialFieldsModel,
     UnitTestModel,
@@ -177,4 +178,18 @@ class BasicProtoListChildSerializer(proto_serializers.ModelProtoSerializer):
         proto_class = fakeapp_pb2.BasicProtoListChildResponse
         proto_class_list = fakeapp_pb2.BasicProtoListChildListResponse
         list_serializer_class = BasicListProtoSerializer
+        fields = "__all__"
+
+
+class RecursiveTestModelSerializer(proto_serializers.ModelProtoSerializer):
+    def get_fields(self):
+        fields = super().get_fields()
+        fields["children"] = RecursiveTestModelSerializer(many=True, required=False)
+        fields["parent"] = RecursiveTestModelSerializer(required=False)
+        return fields
+
+    class Meta:
+        model = RecursiveTestModel
+        # proto_class = fakeapp_pb2.BasicProtoListChildResponse
+        # proto_class_list = fakeapp_pb2.BasicProtoListChildListResponse
         fields = "__all__"

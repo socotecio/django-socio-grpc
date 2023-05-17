@@ -10,7 +10,7 @@ import asyncio
 import logging
 from typing import Callable
 
-from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync, sync_to_async
 from django import db
 from django.utils import translation
 from django.utils.decorators import sync_and_async_middleware
@@ -116,13 +116,19 @@ def auth_without_session_middleware(get_response: Callable):
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
-            request.service.perform_authentication()
+            if asyncio.iscoroutinefunction(request.service.perform_authentication):
+                await request.service.perform_authentication()
+            else:
+                await sync_to_async(request.service.perform_authentication)()
             return await safe_async_response(get_response, request)
 
     else:
 
         def middleware(request: GRPCRequestContainer):
-            request.service.perform_authentication()
+            if asyncio.iscoroutinefunction(request.service.perform_authentication):
+                async_to_sync(request.service.perform_authentication)()
+            else:
+                request.service.perform_authentication()
             return get_response(request)
 
     return middleware

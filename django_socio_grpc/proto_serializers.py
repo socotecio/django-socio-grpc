@@ -57,10 +57,13 @@ class BaseProtoSerializer(BaseSerializer):
         return self._message
 
     @property
+    async def adata(self):
+        return await sync_to_async(getattr)(self, "data")
+
+    @property
     async def amessage(self):
-        data = await sync_to_async(getattr)(self, "data")
         if not hasattr(self, "_message"):
-            self._message = self.data_to_message(data)
+            self._message = self.data_to_message(await self.adata)
         return self._message
 
     @classmethod

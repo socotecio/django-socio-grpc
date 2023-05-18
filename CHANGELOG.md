@@ -1,5 +1,22 @@
 ## Changelog
 
+#### version 0.19.4
+
+- Add support for serializer adata
+
+#### version 0.19.3
+
+- Fix Auth middleware not async safe
+
+#### version 0.19.2
+
+- Fix recursive serializer
+- Fix some async issue with filter_queryset
+
+#### version 0.19.1
+
+- Add SAFE_ACTIONS Tuple
+
 #### version 0.19.0
 
 - Make django middleware working or at least not crashing inside grpc_middleware

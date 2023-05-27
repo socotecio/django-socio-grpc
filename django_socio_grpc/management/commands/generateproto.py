@@ -106,8 +106,10 @@ class Command(BaseCommand):
 
                 if self.directory:
                     file_path = self.directory / f"{app_name}.proto"
+                    proto_path = self.directory
                 else:
                     file_path = registry.get_proto_path()
+                    proto_path = registry.get_grpc_folder()
                     file_path.parent.mkdir(parents=True, exist_ok=True)
                 self.check_or_write(file_path, proto, registry.app_name)
 
@@ -115,7 +117,7 @@ class Command(BaseCommand):
                     if not settings.BASE_DIR:
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
                     os.system(
-                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {file_path}"
+                        f"python -m grpc_tools.protoc --proto_path={proto_path} --python_out={proto_path} --grpc_python_out={proto_path} {file_path}"
                     )
 
     def check_or_write(self, file: Path, proto, app_name):

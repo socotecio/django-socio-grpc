@@ -17,6 +17,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
+            "--build-interface",
+            "-b",
+            action="store",
+            help="build complete default gRPC interface for an apps, please provide app name",
+        )
+        parser.add_argument(
             "--project",
             "-p",
             help="specify Django project. Use DJANGO_SETTINGS_MODULE by default",
@@ -67,6 +73,12 @@ class Command(BaseCommand):
                 )
             self.project_name = os.environ.get("DJANGO_SETTINGS_MODULE").split(".")[0]
 
+        # if app name is provide, we build the default interface for this app with all services 
+        self.app_interface_to_build = options["build_interface"]
+            # create_handler()
+            # create_serializers()
+            # create_services()
+
         self.dry_run = options["dry_run"]
         self.generate_pb2 = not options["no_generate_pb2"]
         self.check = options["check"]
@@ -76,6 +88,7 @@ class Command(BaseCommand):
             self.directory.mkdir(parents=True, exist_ok=True)
 
         registry_instance = RegistrySingleton()
+        
 
         # ----------------------------------------------
         # --- Proto Generation Process               ---

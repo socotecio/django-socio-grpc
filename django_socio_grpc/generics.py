@@ -167,7 +167,7 @@ class GenericService(services.Service):
         # INFO - AM - 05/05/2023 - If user has overriden filter_queryset but we are in async context we put a warning message as it can bring filtering issues
         if type(self).afilter_queryset != GenericService.afilter_queryset:
             logger.warning(
-                "/!\\ BREAKING WARNING /!\\: You have defined a custom afilter_queryset method but you are using sync mixins. Sync mixin use the method filter_queryset. If you want to keep this filtering logic please rename your method"
+                "You have defined a custom afilter_queryset method but you are using sync mixins. Sync mixin use the method filter_queryset. If you want to keep this filtering logic please rename your method"
             )
 
         for backend in list(self.filter_backends):
@@ -185,7 +185,7 @@ class GenericService(services.Service):
         # INFO - AM - 05/05/2023 - If user has overriden filter_queryset but we are in async context we put a warning message as it can bring filtering issues
         if type(self).filter_queryset != GenericService.filter_queryset:
             logger.warning(
-                "/!\\ BREAKING WARNING /!\\: You have defined a custom filter_queryset method but you are using async mixins. Async mixin use the method afilter_queryset. If you want to keep this filtering logic please rename your method"
+                "You have defined a custom filter_queryset method but you are using async mixins. Async mixin use the method afilter_queryset. If you want to keep this filtering logic please rename your method"
             )
 
         for backend in list(self.filter_backends):

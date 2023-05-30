@@ -1,6 +1,8 @@
+import logging
 import asyncio
 import os
 from pathlib import Path
+from grpc_tools import protoc
 
 from asgiref.sync import async_to_sync
 from django.conf import settings
@@ -132,6 +134,43 @@ class Command(BaseCommand):
                     os.system(
                         f"python -m grpc_tools.protoc --proto_path={proto_path} --python_out={proto_path} --grpc_python_out={proto_path} {file_path}"
                     )
+                    command = ['grpc_tools.protoc']
+                    command.append(f'--proto_path={str(proto_path)}')
+                    command.append(f'--python_out={str(proto_path)}')
+                    command.append(f'--grpc_python_out={str(proto_path)}')
+                    command.append(str(file_path))  #   The proto file
+
+                    # if protoc.main(command) != 0:
+                    #     logging.error(
+                    #         f'Failed to compile .proto code for from file "{file_path}" using the command `{command}`'
+                    #     )
+                    #     return False
+                    # else:
+                    #     logging.info(
+                    #         f'Successfully compiled "{file_path}"'
+                    #     )
+                    # correcting protoc rel. import bug
+                    # 
+                    (pb2_files, _) = os.path.splitext(os.path.basename(file_path))
+                    pb2_file = pb2_files + '_pb2.py'
+                    pb2_module = pb2_files + '_pb2'
+
+                    pb2_grpc_file = pb2_files + '_pb2_grpc.py'
+                    
+                    pb2_file_path = os.path.join(proto_path, pb2_file)
+                    pb2_grpc_file_path = os.path.join(proto_path, pb2_grpc_file)
+                    
+                    with open(pb2_grpc_file_path, 'r', encoding='utf-8') as file_in:
+                        print(f'Correcting imports of {pb2_grpc_file_path}')
+                        
+                        replaced_text = file_in.read()
+
+                        replaced_text = replaced_text.replace(f'import {pb2_module}',
+                                                                f'from . import {pb2_module}')
+                        
+                    with open(pb2_grpc_file_path, 'w', encoding='utf-8') as file_out:
+                        file_out.write(replaced_text)
+
 
     def check_or_write(self, file: Path, proto, app_name):
         """

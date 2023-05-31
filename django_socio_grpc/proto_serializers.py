@@ -56,6 +56,18 @@ class BaseProtoSerializer(BaseSerializer):
             self._message = self.data_to_message(self.data)
         return self._message
 
+    async def asave(self, **kwargs):
+        return await sync_to_async(self.save)(**kwargs)
+
+    async def ais_valid(self, *, raise_exception=False):
+        return await sync_to_async(self.is_valid)(raise_exception=raise_exception)
+
+    async def acreate(self, validated_data):
+        return await sync_to_async(self.create)(validated_data)
+
+    async def aupdate(self, instance, validated_data):
+        return await sync_to_async(self.update)(instance, validated_data)
+
     @property
     async def adata(self):
         return await sync_to_async(getattr)(self, "data")

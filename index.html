@@ -193,7 +193,7 @@ class QuestionService(generics.AsyncModelService):
 </code></pre>
 <h3 id="register-the-service">Register the service</h3>
 <pre><code class="language-python"># quickstart/handlers.py
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 from quickstart.services import QuestionService
 
 
@@ -276,5 +276,5 @@ class QuestionProtoSerializer(proto_serializers.ModelProtoSerializer):
 
 <!--
 MkDocs version : 1.4.2
-Build Date UTC : 2023-02-18 17:23:45.427560+00:00
+Build Date UTC : 2023-06-16 16:11:49.786311+00:00
 -->

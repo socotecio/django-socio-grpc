@@ -82,7 +82,7 @@ class QuestionService(generics.AsyncModelService):
 
 ```python
 # quickstart/handlers.py
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 from quickstart.services import QuestionService
 
 

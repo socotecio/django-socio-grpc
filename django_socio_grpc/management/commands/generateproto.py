@@ -30,6 +30,11 @@ class Command(BaseCommand):
             help="specify Django project. Use DJANGO_SETTINGS_MODULE by default",
         )
         parser.add_argument(
+            "--app-name",
+            "-a",
+            help="specify a Django app for which to create the interface",
+        )
+        parser.add_argument(
             "--dry-run",
             "-dr",
             action="store_true",
@@ -67,6 +72,7 @@ class Command(BaseCommand):
             async_to_sync(grpc_settings.ROOT_HANDLERS_HOOK)(None)
         else:
             grpc_settings.ROOT_HANDLERS_HOOK(None)
+        self.app_name = options["app_name"]
         self.project_name = options["project"]
         if not self.project_name:
             if not os.environ.get("DJANGO_SETTINGS_MODULE"):

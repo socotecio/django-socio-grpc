@@ -28,7 +28,6 @@ class InternalHttpRequest:
     }
 
     def __init__(self, grpc_context, grpc_action):
-
         self.user = None
         self.auth = None
 

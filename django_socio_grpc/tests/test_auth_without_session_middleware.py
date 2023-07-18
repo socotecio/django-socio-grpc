@@ -48,7 +48,6 @@ class TestAuthWithoutSessionMiddleware(TestCase):
         self.fake_grpc.close()
 
     async def test_user_set_in_next_middleware_and_service(self):
-
         self.fake_grpc = FakeFullAIOGRPC(
             add_BasicControllerServicer_to_server, BasicServiceWithAuth.as_servicer()
         )

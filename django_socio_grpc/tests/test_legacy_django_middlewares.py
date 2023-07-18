@@ -80,7 +80,6 @@ class TestLegacyDjangoMiddleware(TestCase):
         self.assertEqual(response.user_name, "test")
 
     async def test_locale_middleware(self):
-
         self.fake_grpc = FakeFullAIOGRPC(
             add_BasicControllerServicer_to_server, BasicService.as_servicer()
         )

@@ -91,7 +91,7 @@ def grpc_handlers(server):
     app_registry.register(QuestionService)
 ```
 
-This Handler will be the entrypoint for the service registration. Set its path as the `ROOT_HANDLERS_HOOK` 
+This Handler will be the entrypoint for the service registration. Set its path as the `ROOT_HANDLERS_HOOK`
 of the `GRPC_FRAMEWORK` settings
 
 ```python

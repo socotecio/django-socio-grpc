@@ -47,7 +47,6 @@ class TestMiddleware(TestCase):
         self.fake_grpc.close()
 
     async def test_middleware_called_with_generator(self):
-
         self.fake_grpc = FakeFullAIOGRPC(
             add_StreamInControllerServicer_to_server, StreamInService.as_servicer()
         )
@@ -67,7 +66,6 @@ class TestMiddleware(TestCase):
         FakeMiddleware.inner_fn.assert_called_once()
 
     async def test_middleware_called_return(self):
-
         self.fake_grpc = FakeFullAIOGRPC(
             add_BasicControllerServicer_to_server, BasicService.as_servicer()
         )

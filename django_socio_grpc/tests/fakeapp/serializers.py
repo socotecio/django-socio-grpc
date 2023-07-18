@@ -18,7 +18,6 @@ from .models import (
 
 
 class ForeignModelRetrieveCustomProtoSerializer(proto_serializers.ProtoSerializer):
-
     name = serializers.CharField()
     custom = serializers.SerializerMethodField()
 
@@ -57,7 +56,6 @@ class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
 
 
 class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
-
     test_write_only_on_nested = serializers.CharField(write_only=True)
 
     class Meta:
@@ -112,7 +110,6 @@ class ImportStructEvenInArrayModelSerializer(proto_serializers.ModelProtoSeriali
 class CustomRetrieveResponseSpecialFieldsModelSerializer(
     proto_serializers.ModelProtoSerializer
 ):
-
     default_method_field = serializers.SerializerMethodField()
 
     custom_method_field = serializers.SerializerMethodField(method_name="custom_method")
@@ -131,7 +128,6 @@ class CustomRetrieveResponseSpecialFieldsModelSerializer(
 
 
 class BasicServiceSerializer(proto_serializers.ProtoSerializer):
-
     user_name = serializers.CharField(
         help_text=ProtoComment(["@test=comment1", "@test2=comment2"])
     )

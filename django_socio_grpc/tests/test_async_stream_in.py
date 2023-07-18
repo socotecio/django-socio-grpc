@@ -22,7 +22,6 @@ class TestAsyncStreamIn(TestCase):
         self.fake_grpc.close()
 
     async def test_async_stream_in(self):
-
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
         stream_caller = grpc_stub.StreamIn()
@@ -37,7 +36,6 @@ class TestAsyncStreamIn(TestCase):
         assert response.count == 3
 
     async def test_stream_raises_timeout_error(self):
-
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
         stream_caller = grpc_stub.StreamIn()
@@ -50,7 +48,6 @@ class TestAsyncStreamIn(TestCase):
             await stream_caller
 
     async def test_async_stream_stream(self):
-
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
         stream_caller = grpc_stub.StreamToStream()

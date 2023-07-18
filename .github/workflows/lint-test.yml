@@ -1,5 +1,5 @@
 name: DSG lint test workflow
-on: 
+on:
   push:
     branches:
       - '*'
@@ -51,7 +51,7 @@ jobs:
       # - name: Install extra dependencies
       #   run: |
       #     sudo apt install -y graphviz graphviz-dev
-      
+
       - name: Install pip dependencies
         if: steps.pip-cache.outputs.cache-hit != 'true'
         run: |

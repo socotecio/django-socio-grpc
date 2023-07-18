@@ -95,7 +95,6 @@ class TestAsyncModelService(TestCase):
     #     self.assertEqual(len(response_list), 10)
 
     def test_async_list_custom_action(self):
-
         with freeze_time(datetime(2022, 1, 21, tzinfo=timezone.utc)):
             grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
             request = fakeapp_pb2.UnitTestModelListWithExtraArgsRequest(archived=False)

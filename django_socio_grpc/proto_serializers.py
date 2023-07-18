@@ -159,7 +159,6 @@ class ModelProtoSerializer(ProtoSerializer, ModelSerializer):
 
 
 class BinaryField(Field):
-
     default_error_messages = {
         "max_length": _("Ensure this field has no more than {max_length} characters."),
     }

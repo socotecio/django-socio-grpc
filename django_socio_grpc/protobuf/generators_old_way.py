@@ -200,7 +200,6 @@ class ModelProtoGeneratorOldWay:
         for grpc_message_name, grpc_message_fields_name in grpc_messages.items():
             # We support the possibility to use "__all__" as parameter for fields
             if grpc_message_fields_name == "__all__":
-
                 # TODO - AM - 22/04/2021 - Add global settings or model settings or both to change this default behavior
                 # Could be by default to include m2m or reverse relaiton
                 # then should use `get_model_fields(model)`

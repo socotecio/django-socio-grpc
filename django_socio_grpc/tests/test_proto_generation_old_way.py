@@ -254,7 +254,6 @@ class TestProtoGenerationOldWay(TestCase):
 
         # this is done to avoid error on different absolute path
         assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert mocked_open.mock_calls[0].args[1] == "r"
 
         handle = mocked_open()
 
@@ -278,7 +277,6 @@ class TestProtoGenerationOldWay(TestCase):
 
         # this is done to avoid error on different absolute path
         assert str(mocked_open.mock_calls[0].args[0]).endswith("fakeapp/grpc/fakeapp.proto")
-        assert mocked_open.mock_calls[0].args[1] == "r"
 
         handle = mocked_open()
 

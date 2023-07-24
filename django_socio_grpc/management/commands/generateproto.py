@@ -54,7 +54,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
             async_to_sync(grpc_settings.ROOT_HANDLERS_HOOK)(None)
         else:
@@ -95,7 +94,6 @@ class Command(BaseCommand):
             self.stdout.write(protos_by_app)
         # if no filepath specified we create it in a grpc directory in the app
         else:
-
             if not protos_by_app.keys():
                 raise ProtobufGenerationException(
                     detail="No Service registered. You should use "

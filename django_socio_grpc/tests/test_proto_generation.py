@@ -5,12 +5,12 @@ from pathlib import Path
 from unittest import mock
 from unittest.mock import patch
 
-import protoparser
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
+from django_socio_grpc.protobuf.protoparser import protoparser
 from django_socio_grpc.services import AppHandlerRegistry
 from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.tests.utils import patch_open

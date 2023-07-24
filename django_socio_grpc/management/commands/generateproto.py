@@ -1,6 +1,8 @@
 import asyncio
 import os
+import logging
 from pathlib import Path
+from grpc_tools import protoc
 
 from asgiref.sync import async_to_sync
 from django.conf import settings
@@ -47,8 +49,13 @@ class Command(BaseCommand):
             help="Number from 1 to 4 indicating the verbose level of the generation",
         )
         parser.add_argument(
-            "--directory",
-            "-d",
+            "--proto-path",
+            default=None,
+            help="Directory where the proto files are located. Default will be in the apps directories",
+        )
+        parser.add_argument(
+            "--proto-output-directory",
+            "-o",
             default=None,
             help="Directory where the proto files will be generated. Default will be in the apps directories",
         )
@@ -69,10 +76,13 @@ class Command(BaseCommand):
         self.dry_run = options["dry_run"]
         self.generate_pb2 = not options["no_generate_pb2"]
         self.check = options["check"]
-        self.directory = options["directory"]
-        if self.directory:
-            self.directory = Path(self.directory)
-            self.directory.mkdir(parents=True, exist_ok=True)
+
+        self.protoc_output_directory = options["proto_output_directory"]
+        if self.protoc_output_directory is not None:
+            self.protoc_output_directory = Path(self.protoc_output_directory)
+            self.protoc_output_directory.mkdir(parents=True, exist_ok=True)
+
+        self.proto_path = options["proto_path"]
 
         registry_instance = RegistrySingleton()
 
@@ -88,7 +98,7 @@ class Command(BaseCommand):
         # ------------------------------------------------------------
         # ---- Produce a proto file on current filesystem and Path ---
         # ------------------------------------------------------------
-        protos_by_app = generator.get_protos_by_app(directory=self.directory)
+        protos_by_app = generator.get_protos_by_app(directory=self.protoc_output_directory)
 
         if self.dry_run and not self.check:
             self.stdout.write(protos_by_app)
@@ -102,21 +112,63 @@ class Command(BaseCommand):
             for app_name, proto in protos_by_app.items():
                 registry = RegistrySingleton().registered_apps[app_name]
 
-                if self.directory:
-                    file_path = self.directory / f"{app_name}.proto"
-                    proto_path = self.directory
+                if self.protoc_output_directory:
+                    
+                    protoc_output_path = self.protoc_output_directory
                 else:
-                    file_path = registry.get_proto_path()
-                    proto_path = registry.get_grpc_folder()
-                    file_path.parent.mkdir(parents=True, exist_ok=True)
-                self.check_or_write(file_path, proto, registry.app_name)
+                   
+                    protoc_output_path = registry.get_grpc_folder()
+                    proto_file_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                if self.proto_path is None:
+                     proto_file_path = registry.get_proto_path()
+                else:
+                    proto_file_path = Path(self.proto_path) / f"{app_name}.proto"
+
+                
+
+                self.check_or_write(proto_file_path, proto, registry.app_name)
 
                 if self.generate_pb2:
                     if not settings.BASE_DIR:
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
-                    os.system(
-                        f"python -m grpc_tools.protoc --proto_path={proto_path} --python_out={proto_path} --grpc_python_out={proto_path} {file_path}"
-                    )
+                    
+                    command = ['grpc_tools.protoc']
+                    command.append(f'--proto_path={str(self.proto_path)}')
+                    command.append(f'--python_out={str( protoc_output_path)}')
+                    command.append(f'--grpc_python_out={str(protoc_output_path)}')
+                    command.append(str(proto_file_path))  #   The proto file
+
+                    if protoc.main(command) != 0:
+                        logging.error(
+                            f'Failed to compile .proto code for from file "{proto_file_path}" using the command `{command}`'
+                        )
+                        return False
+                    else:
+                        logging.info(
+                            f'Successfully compiled "{proto_file_path}"'
+                        )
+
+                    # correcting protoc rel. import bug 
+                    (pb2_files, _) = os.path.splitext(os.path.basename(proto_file_path))
+                    pb2_file = pb2_files + '_pb2.py'
+                    pb2_module = pb2_files + '_pb2'
+
+                    pb2_grpc_file = pb2_files + '_pb2_grpc.py'
+                    
+                    pb2_file_path = os.path.join(proto_path, pb2_file)
+                    pb2_grpc_file_path = os.path.join(proto_path, pb2_grpc_file)
+                    
+                    with open(pb2_grpc_file_path, 'r', encoding='utf-8') as file_in:
+                        print(f'Correcting imports of {pb2_grpc_file_path}')
+                        
+                        replaced_text = file_in.read()
+
+                        replaced_text = replaced_text.replace(f'import {pb2_module}',
+                                                                f'from . import {pb2_module}')
+                        
+                    with open(pb2_grpc_file_path, 'w', encoding='utf-8') as file_out:
+                        file_out.write(replaced_text)
 
     def check_or_write(self, file: Path, proto, app_name):
         """

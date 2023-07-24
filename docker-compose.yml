@@ -38,7 +38,7 @@ services:
       django-socio-grpc-network:
 
   test-database:
-    image: library/postgres:11.5
+    image: library/postgres:15.3
     ports:
       - "5432:5432"
     volumes:

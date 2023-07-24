@@ -82,7 +82,7 @@ class QuestionService(generics.AsyncModelService):
 
 ```python
 # quickstart/handlers.py
-from django_socio_grpc.utils.servicer_register import AppHandlerRegistry
+from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 from quickstart.services import QuestionService
 
 
@@ -91,7 +91,7 @@ def grpc_handlers(server):
     app_registry.register(QuestionService)
 ```
 
-This Handler will be the entrypoint for the service registration. Set its path as the `ROOT_HANDLERS_HOOK` 
+This Handler will be the entrypoint for the service registration. Set its path as the `ROOT_HANDLERS_HOOK`
 of the `GRPC_FRAMEWORK` settings
 
 ```python

@@ -1,8 +1,8 @@
+from typing import MutableSequence
+
 from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
-from google._upb._message import RepeatedCompositeContainer
-from google.protobuf.internal.containers import RepeatedCompositeFieldContainer
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (
@@ -55,6 +55,18 @@ class BaseProtoSerializer(BaseSerializer):
         if not hasattr(self, "_message"):
             self._message = self.data_to_message(self.data)
         return self._message
+
+    async def asave(self, **kwargs):
+        return await sync_to_async(self.save)(**kwargs)
+
+    async def ais_valid(self, *, raise_exception=False):
+        return await sync_to_async(self.is_valid)(raise_exception=raise_exception)
+
+    async def acreate(self, validated_data):
+        return await sync_to_async(self.create)(validated_data)
+
+    async def aupdate(self, instance, validated_data):
+        return await sync_to_async(self.update)(instance, validated_data)
 
     @property
     async def adata(self):
@@ -115,9 +127,7 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             message_list_attr = self.message_list_attr
 
         repeated_message = getattr(message, message_list_attr, "")
-        if not isinstance(repeated_message, RepeatedCompositeContainer) and not isinstance(
-            repeated_message, RepeatedCompositeFieldContainer
-        ):
+        if not isinstance(repeated_message, MutableSequence):
             error_message = self.default_error_messages["not_a_list"].format(
                 input_type=repeated_message.__class__.__name__
             )
@@ -159,7 +169,6 @@ class ModelProtoSerializer(ProtoSerializer, ModelSerializer):
 
 
 class BinaryField(Field):
-
     default_error_messages = {
         "max_length": _("Ensure this field has no more than {max_length} characters."),
     }

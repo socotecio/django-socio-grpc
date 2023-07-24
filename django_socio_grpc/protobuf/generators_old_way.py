@@ -3,7 +3,6 @@ import json
 import logging
 import os
 
-import protoparser
 from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -11,6 +10,7 @@ from rest_framework.utils import model_meta
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.mixins import get_default_grpc_messages, get_default_grpc_methods
+from django_socio_grpc.protobuf.protoparser import protoparser
 from django_socio_grpc.utils.model_extractor import get_model
 
 logger = logging.getLogger("django_socio_grpc")
@@ -200,7 +200,6 @@ class ModelProtoGeneratorOldWay:
         for grpc_message_name, grpc_message_fields_name in grpc_messages.items():
             # We support the possibility to use "__all__" as parameter for fields
             if grpc_message_fields_name == "__all__":
-
                 # TODO - AM - 22/04/2021 - Add global settings or model settings or both to change this default behavior
                 # Could be by default to include m2m or reverse relaiton
                 # then should use `get_model_fields(model)`

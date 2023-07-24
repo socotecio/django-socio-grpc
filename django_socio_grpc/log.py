@@ -50,7 +50,6 @@ class GRPCHandler(logging.Handler):
             pass
 
     def log_unhandled_exception(self, exc, value=None, tb=None):
-
         # INFO - AM - 18/02/2023 - value=value, tb=tb still retro compatible but we prepare the next breaking change. TODO when dropping 2.9 support remove this condition
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
             if old_taceback_function is not None:

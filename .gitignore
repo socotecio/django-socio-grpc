@@ -126,3 +126,5 @@ dmypy.json
 
 .vscode/
 .idea/
+
+.auto_pytabs_cache

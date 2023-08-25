@@ -1,0 +1,11 @@
+Exceptions
+==========
+
+Description
+-----------
+
+Usage
+-----
+
+Example
+-------

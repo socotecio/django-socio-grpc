@@ -1,13 +1,20 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(".."))
+from django.conf import settings  # noqa
+
+settings.configure()
+
 project = "Django Socio gRPC"
 copyright = "2023, Socotec.io"
 
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
-    "sphinx.ext.autodoc",
+    "autodoc2",
     "sphinxcontrib.apidoc",
     "sphinxcontrib.spelling",
-    # "sphinx.ext.napoleon",
     "auto_pytabs.sphinx_ext",
     "sphinx_autodoc_typehints",
     "sphinx_rtd_theme",
@@ -22,27 +29,12 @@ intersphinx_mapping = {
     "rest_framework": ("https://www.django-rest-framework.org/", None),
 }
 
-apidoc_module_dir = "../django_socio_grpc"
-apidoc_excluded_paths = ["*/tests/*"]
-
-
 napoleon_google_docstring = True
 napoleon_include_special_with_doc = True
 napoleon_use_admonition_for_examples = True
 napoleon_use_admonition_for_notes = True
 napoleon_use_admonition_for_references = False
 napoleon_attr_annotations = True
-
-autoclass_content = "class"
-autodoc_class_signature = "separated"
-autodoc_default_options = {
-    "special-members": "__init__",
-    "show-inheritance": True,
-    "members": True,
-}
-autodoc_member_order = "bysource"
-autodoc_typehints_format = "short"
-
 
 auto_pytabs_min_version = (3, 8)
 auto_pytabs_max_version = (3, 11)
@@ -52,7 +44,6 @@ autosectionlabel_prefix_document = True
 
 # suppress_warnings = [
 #     "autosectionlabel.*",
-#     "ref.python",  # TODO: remove when https://github.com/sphinx-doc/sphinx/issues/4961 is fixed
 # ]
 
 html_theme = "sphinx_rtd_theme"
@@ -64,3 +55,8 @@ html_title = "Django Socio gRPC"
 html_theme_options = {
     "display_version": True,
 }
+
+autodoc2_render_plugin = "myst"
+autodoc2_packages = [
+    {"path": "../django_socio_grpc", "exclude_dirs": ["tests"]},
+]

@@ -36,6 +36,7 @@ sphinxcontrib-apidoc = "*"
 sphinxcontrib-spelling = "*"
 sphinx-autobuild = "*"
 myst-parser = "^2.0.0"
+sphinx-autodoc2 = "^0.4.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

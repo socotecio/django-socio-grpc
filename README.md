@@ -1,32 +1,32 @@
 # Django Socio Grpc
 
 ![https://img.shields.io/pypi/v/django-socio-grpc.svg](https://img.shields.io/pypi/v/django-socio-grpc.svg)
-
 ![https://img.shields.io/badge/Maintained%3F-yes-green.svg](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
-
 ![https://img.shields.io/pypi/pyversions/django-socio-grpc](https://img.shields.io/pypi/pyversions/django-socio-grpc)
-
 ![https://img.shields.io/pypi/l/django-socio-grpc](https://img.shields.io/pypi/l/django-socio-grpc)
 
-Django Socio gRPC is a toolkit for building gRPC services, inspired by djangorestframework. It is base on [django-grpc-framework](https://github.com/fengsp/django-grpc-framework) with all the DRF features enable Auth, Filter, Pagination, more complex proto generation...
+Django Socio gRPC is a toolkit for building gRPC services, inspired by Django REST framework. It is based on [django-grpc-framework](https://github.com/fengsp/django-grpc-framework) and includes all the DRF features such as authentication, filtering, pagination, and more complex proto generation.
 
-## DOCUMENTATION
 
-[https://socotecio.github.io/django-socio-grpc/](https://socotecio.github.io/django-socio-grpc/)
+## Documentation
+
+The documentation can be found at [https://socotecio.github.io/django-socio-grpc/](https://socotecio.github.io/django-socio-grpc/).
+
 
 ## Requirements
 
-- Python (>= 3.6)
+- Python (>= 3.8)
 - Django (2.2, >=3.0), Django REST Framework (>=3.10)
-- gRPC, gRPC tools, proto3
+- grpcio-tools (>=1.50.0)
 
 
 ## Installation
 
+Run the following command using pip:
 ```bash
     pip install django-socio-grpc
 ```
-Add ``django_socio_grpc`` to ``INSTALLED_APPS`` setting:
+Then, add ``django_socio_grpc`` to your ``INSTALLED_APPS`` setting:
 
 ```python
     INSTALLED_APPS = [
@@ -35,34 +35,4 @@ Add ``django_socio_grpc`` to ``INSTALLED_APPS`` setting:
     ]
 ```
 
-For more informations follow the quickstart: [https://socotecio.github.io/django-socio-grpc/](https://socotecio.github.io/django-socio-grpc/)
-
-## Launch dev environnement
-
-```python
-    docker compose up --build
-    docker compose exec django-socio-grpc python test_utils/migrate.py
-    docker compose exec django-socio-grpc poetry run tests
-    # single test launch
-    docker compose exec django-socio-grpc poetry run tests django_socio_grpc/tests/test_proto_generation.py
-```
-
-## Regenerate proto used for unit test:
-
-```
-docker compose exec django-socio-grpc python test_utils/generateproto.py
-```
-
-## Contribute to documentation
-
-Launch in local:
-```bash
-docker compose exec django-socio-grpc mkdocs serve -a localhost:6001
-# Or just docker compose up and navigate to localhost:6001
-```
-
-Deploy Documentation:
-
-```bash
-mkdocs gh-deploy -m "[ci skip] auto commit with MKDocs"
-```
+## Contributing

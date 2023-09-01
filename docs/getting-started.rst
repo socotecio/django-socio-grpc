@@ -12,9 +12,7 @@ Prerequisites
 
 You will need to install the following packages:
 
-- Python (>= 3.6)
-- Django (2.2, >=3.0), Django REST Framework (>=3.10)
-- gRPC, gRPC tools, proto3
+- Python (>= 3.8)
 
 
 Installation

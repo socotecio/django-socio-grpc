@@ -182,7 +182,7 @@ Example:
   .. code-block:: python
 
     from django.contrib.auth.models import User
-    from myapp.serializers import UserProtoSerializer
+    from quickstart.serializers import UserProtoSerializer
     from django_socio_grpc import generics
 
     class UserListService(generics.ListCreateAPIView):
@@ -198,9 +198,13 @@ This Handler will be the entrypoint for the service registration.
 Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` settings, 
 please refer to :ref:`Available Settings <Available Settings>` part of this documentation.
 
+Note:
+
+Create this file at the root of the project, here ``tutorial/`` 
+
   .. code-block:: python
 
-    # quickstart/handlers.py
+    # tutorial/handlers.py
     from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
     from quickstart.services import UserService, PostService, CommentService,
 

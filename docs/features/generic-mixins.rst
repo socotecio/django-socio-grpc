@@ -1,6 +1,6 @@
 Generic Mixins
 ==============
-
+.. _Generic Mixins:
 Description
 -----------
 

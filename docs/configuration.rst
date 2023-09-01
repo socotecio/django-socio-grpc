@@ -10,11 +10,12 @@ Configuration
 Available Settings
 ------------------
 
-These are the default settings for Django Socio GRPC, with explanations provided below:
+These are the default settings for Django Socio GRPC, with explanations provided below.
+These settings should be defined under the ``GRPC_FRAMEWORK`` variable in django settings.
 
 .. code-block:: python
 
-  DEFAULTS = {
+  GRPC_FRAMEWORK = {
     "ROOT_HANDLERS_HOOK": None,
     "SERVER_INTERCEPTORS": None,
     "SERVER_OPTIONS": None,
@@ -24,9 +25,7 @@ These are the default settings for Django Socio GRPC, with explanations provided
     "DEFAULT_PERMISSION_CLASSES": [],
     "GRPC_ASYNC": False,
     "GRPC_CHANNEL_PORT": 50051,
-    "LOGGING_ACTION": None,
     "SEPARATE_READ_WRITE_MODEL": True,
-    "IGNORE_LOG_FOR_ACTION": [],
     "GRPC_MIDDLEWARE": [
       "django_socio_grpc.middlewares.log_requests_middleware",
       "django_socio_grpc.middlewares.close_old_connections_middleware",
@@ -37,14 +36,13 @@ These are the default settings for Django Socio GRPC, with explanations provided
       "PAGINATION": "PAGINATION",
       "FILTERS": "FILTERS",
     },
-    "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.default_get_log_extra_context",
   }
 
 
 ROOT_HANDLERS_HOOK
 ^^^^^^^^^^^^^^^^^^
 
-This setting points to the `grpc_handlers` function within a specified module, responsible for registering all gRPC handlers for the project's applications. Each application has its own handler, which in turn registers the gRPC services it employs. As a result, incoming gRPC requests or events trigger the appropriate service using the handlers' map.
+This setting points to the `grpc_handlers` function within a specified module, responsible for registering all gRPC handlers for the project's applications. Each application has its own handler, which in turn registers the gRPC services it employs. As a result, incoming gRPC requests or events trigger the appropriate service using the handlers' map. This function runs just before the start of the server, making it useful for any other kind of initialization
 
 For a project named "my_project" with the `grpc_handlers` function inside `my_project/handlers.py`, the configuration would be:
 
@@ -108,7 +106,7 @@ DEFAULT_FILTER_BACKENDS
 
 This setting designates the default filtering backends that gRPC services should use. Filtering backends allow requests to be filtered based on query parameters.
 
-For instance, to use Django's built-in filter backend:
+For instance, to use django-filter backend (`doc <https://django-filter.readthedocs.io/en/stable/>`_):
 
 .. code-block:: python
 
@@ -146,6 +144,8 @@ GRPC_ASYNC
 
 This setting determines the running mode of the gRPC server. If set to `True`, the server will operate in asynchronous mode. When in asynchronous mode, the server is capable of handling multiple concurrent requests using Python's `asyncio`. 
 
+This setting is overriden to True when running the app with ``grpcrunaioserver``.
+
 .. code-block:: python
 
   "GRPC_ASYNC": False
@@ -159,14 +159,6 @@ This is the default port on which the gRPC server will listen for incoming reque
 
   "GRPC_CHANNEL_PORT": 50051
 
-LOGGING_ACTION
-^^^^^^^^^^^^^^
-
-This setting provides a way to define a specific logging action for your gRPC service. By default, it's set to `None`, which means no particular logging action is specified. If you have a custom logging mechanism, you can set it here.
-
-.. code-block:: python
-
-  "LOGGING_ACTION": None
 
 SEPARATE_READ_WRITE_MODEL
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -181,23 +173,14 @@ For instance, if you have fields in your model that should only be updated but n
 
   "SEPARATE_READ_WRITE_MODEL": True
 
-IGNORE_LOG_FOR_ACTION
-^^^^^^^^^^^^^^^^^^^^^
 
-This setting allows specific gRPC service actions to be excluded from logging. By doing so, it helps in reducing log noise, especially for frequently called services like health checks. Actions should be provided as a list of strings where each string represents a service action in the format of "ServiceName.ActionName".
-
-For example, to prevent logging of health checks and another hypothetical routine action:
-
-.. code-block:: python
-
-  "IGNORE_LOG_FOR_ACTION": ["HealthService.Check", "AnotherService.RoutineAction"]
-
-GRPC_MIDDLEWARE
+GRPC_MIDDLEWARE 
 ^^^^^^^^^^^^^^^
 
 This setting defines a list of middleware classes specifically tailored for the gRPC framework. Middleware in gRPC can be seen as a series of processing units that handle both incoming requests and outgoing responses. They can be used for various tasks like logging, authentication, data enrichment, and more.
 
 Middlewares are processed in the order they are defined. Each middleware should adhere to the gRPC middleware structure, having methods to process requests and responses.
+More details about :ref:`middlewares<middleware>`.
 
 For instance, you could have a generic logging middleware that logs every gRPC request and a middleware to handle connection issues:
 
@@ -208,10 +191,11 @@ For instance, you could have a generic logging middleware that logs every gRPC r
       "your_project.middlewares.ConnectionHandlingMiddleware",
   ]
 
-ROOT_GRPC_FOLDER
+ROOT_GRPC_FOLDER 
 ^^^^^^^^^^^^^^^^
 
-This setting specifies the root directory for external gRPC handlers. By designating a folder for gRPC handlers, it centralizes and organizes the codebase, making it easier to manage the gRPC-related components of a project. This folder can house various gRPC files, including those related to functionalities such as health checks or permissions checking.
+This setting specifies the root directory name where all the generated proto files of external services are outputted. This folder can house various gRPC files, including those related to functionalities such as health checks or permissions checking.
+More details about :ref:`how to define proto and service in a shared library<define-proto-and-service-in-a-shared-library>`.
 
 For instance, if a project places all its gRPC handlers in a directory named "grpc_folder":
 
@@ -235,16 +219,3 @@ For a standard configuration, you might have:
   }
 
 This means that when the framework encounters metadata, it knows to look for a "HEADERS" key to retrieve headers, a "PAGINATION" key to fetch pagination data, and a "FILTERS" key for filtering details.
-
-LOG_EXTRA_CONTEXT_FUNCTION
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This setting determines a function that retrieves additional contextual data for logging purposes within the Django Socio gRPC framework. This extra context can be useful for enhancing traceability and understanding the circumstances under which specific log entries were made.
-
-For instance, the default function provided:
-
-.. code-block:: python
-
-  "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.default_get_log_extra_context"
-
-gathers information such as the gRPC service name and action. Depending on the nature of your application and your logging needs, you can customize this function to fetch other relevant data to enrich your logs.

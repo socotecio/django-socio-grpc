@@ -18,12 +18,16 @@ Adding a New App
 
 Defining models
 ~~~~~~~~~~~~~~~~~~~~~~~
+Models are created in the same way as in Django (`Django documentation <https://docs.djangoproject.com/fr/4.2/topics/db/models/>`_) . 
+Each model is assigned to a table in the database.
+It inherits from a Python class django.db.models.Model.
+Each attribute represents a field in the table.
+The API for accessing the database is the same as Django's (`Query creation <https://docs.djangoproject.com/fr/4.2/topics/db/queries/>`_).
 
   .. code-block:: python
 
     #quickstart/models.py
-    from django.db import models
-
+    from django.db import models 
     class User(models.Model):
     full_name = models.CharField(max_length=70)
 
@@ -60,38 +64,12 @@ For more extensive use, you can use all the DRF serializer methods: `Django REST
     from rest_framework import serializers
     from quickstart.models import User, Post, Comment
 
-    # It is a preferable option to import the pb2 response in this way because,
-    # for the moment, django-socio-grpc does not dynamically detect the correct response
-    # from the pb2 files to associate with the serializer.
-    # If a response does not exist, it will raise an exception, and block the generation of proto files.
-    # Catching the exception helps to solve this problem,
-    # and allows django-socio-grpc to generate proto files normally.
-    try:
-        from quickstart.grpc.quickstart_pb2 import (
-            UserResponse,
-            UserListResponse,
-            PostResponse,
-            PostListResponse,
-            CommentResponse,
-            CommentListResponse
-        )
-        except ImportError:
-            UserResponse = None
-            UserListResponse = None
-            PostResponse = None
-            PostListResponse = None
-            CommentResponse = None
-            CommentListResponse = None
-
-
     class UserProtoSerializer(proto_serializers.ModelProtoSerializer):
         # This line is written here as an example,
         # but can be removed as the serializer integrates all the fields in the model
         full_name = serializers.CharField(allow_blank=True)
         class Meta:
             model = User
-            proto_class = UserResponse
-            proto_class_list = UserListResponse
             fields = "__all__"
 
     class PostProtoSerializer(proto_serializers.ModelProtoSerializer):
@@ -105,27 +83,12 @@ For more extensive use, you can use all the DRF serializer methods: `Django REST
 
         class Meta:
             model = Post
-            proto_class = PostResponse
-            proto_class_list = PostListResponse
             fields = "__all__"
 
     class CommentProtoSerializer(proto_serializers.ModelProtoSerializer):
 
-        pub_date = serializers.DateTimeField(read_only=True)
-        content =  serializers.CharField()
-        user = serializers.PrimaryKeyRelatedField(
-            queryset=User.objects.all(),
-            pk_field=serializers.UUIDField(format="hex_verbose"),
-        )
-        post = serializers.PrimaryKeyRelatedField(
-            queryset=Post.objects.all(),
-            pk_field=serializers.UUIDField(format="hex_verbose"),
-        )
-
         class Meta:
             model = Comment
-            proto_class = CommentResponse
-            proto_class_list = CommentListResponse
             fields = "__all__"
 
 
@@ -156,8 +119,7 @@ Please refer to the :ref:`Mixin section <Generic Mixins>` of this documentation 
     from quickstart.serializer import UserProtoSerializer, PostProtoSerializer, CommentProtoSerializer
 
 
-    class UserService(generics.AsyncBaseService):
-
+    class UserService(generics.AsyncModelService):
         pagination_class = PageNumberPagination
         permission_classes = (BasePermission,)
         filter_backends = [DjangoFilterBackend]
@@ -165,11 +127,11 @@ Please refer to the :ref:`Mixin section <Generic Mixins>` of this documentation 
         queryset = User.objects.all()
         serializer_class = UserProtoSerializer
     
-    class PostService(generics.AsyncBaseService):
+    class PostService(generics.AsyncModelService):
         queryset = Post.objects.all()
         serializer_class = PostProtoSerializer
     
-    class CommentService(generics.AsyncBaseService):
+    class CommentService(generics.AsyncModelService):
         queryset = Comment.objects.all()
         serializer_class = CommentProtoSerializer
 
@@ -183,7 +145,7 @@ Example:
 
     from django.contrib.auth.models import User
     from quickstart.serializers import UserProtoSerializer
-    from django_socio_grpc import generics
+    from rest_framework import generics
 
     class UserListService(generics.ListCreateAPIView):
             queryset = User.objects.all()
@@ -195,7 +157,15 @@ Register services
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 This Handler will be the entrypoint for the service registration. 
-Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` settings, 
+Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` settings:
+  .. code-block:: python
+
+    # tutorial/settings.py
+    ...
+    GRPC_FRAMEWORK = {
+        "ROOT_HANDLERS_HOOK" : 'quickstart.handlers.grpc_handlers'
+
+
 please refer to :ref:`Available Settings <Available Settings>` part of this documentation.
 
 Note:
@@ -216,7 +186,7 @@ Create this file at the root of the project, here ``tutorial/``
         app_registry.register(CommentService)
 
 
-Generate the protofile and the client associated to the model
+Generate the app's Protobuf files and gRPC stubs
 ~~~~~~~~~~~~~~~~~~
 
 This command will generate a folder called ``grpc`` at the root of your Django app. It contains the three files needed to generate the services: 
@@ -230,6 +200,59 @@ This command will generate a folder called ``grpc`` at the root of your Django a
     
     python manage.py generateproto
 
+
+Assign newly generated classes
+~~~~~~~~~~~~~~~~~~
+
+In the ``grpc/quickstart.proto`` file, you can find the generation of the structure of responses and requests.
+Their names are generated automatically.
+The structure of the serializer response must be defined by assigning the format of the response class to the proto_class attribute and
+the format for a list query to the proto_class_list attribute.
+
+  .. code-block:: python
+
+    #quickstart/serializers.py
+    from django_socio_grpc import proto_serializers
+    from rest_framework import serializers
+    from quickstart.models import User, Post, Comment
+    from quickstart.grpc.quickstart_pb2 import (
+        UserResponse,
+        UserListResponse,
+        PostResponse,
+        PostListResponse,
+        CommentResponse,
+        CommentListResponse
+    )
+
+    class UserProtoSerializer(proto_serializers.ModelProtoSerializer):
+        full_name = serializers.CharField(allow_blank=True)
+        class Meta:
+            model = User
+            proto_class = UserResponse
+            proto_class_list = UserListResponse
+            fields = "__all__"
+
+    class PostProtoSerializer(proto_serializers.ModelProtoSerializer):
+        pub_date = serializers.DateTimeField(read_only=True)
+        headline = serializers.CharField()
+        content = serializers.CharField()
+        user = serializers.PrimaryKeyRelatedField(
+            queryset=User.objects.all(),
+            pk_field=serializers.UUIDField(format="hex_verbose"),
+        )
+
+        class Meta:
+            model = Post
+            proto_class = PostResponse
+            proto_class_list = PostListResponse
+            fields = "__all__"
+
+    class CommentProtoSerializer(proto_serializers.ModelProtoSerializer):
+        class Meta:
+            model = Comment
+            proto_class = CommentResponse
+            proto_class_list = CommentListResponse
+            fields = "__all__"
 
 
 Running the Server

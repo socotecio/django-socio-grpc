@@ -3,15 +3,18 @@
 Proto generation
 ================
 To be able to generate proto files you need to register your service first. 
-To do so please refer to `Service registration <https://socotecio.github.io/django-socio-grpc/server_and_service_register/#service-registration>`_ 
+To do so please refer to :ref:`getting started <getting_started>` at section service registration
 
 Description
 -----------
 Proto files contain the classes, descriptors and controller logic (``pb2.py`` files) and proto message syntax (``.proto`` file) necessary to run a grpc server.
-In django-socio-grpc, proto files are generated from a ``ProtoSerializer`` class, 
-this serializer class should be declared as either the request or response of a ``grpc_action``, or as a ``serializer_class`` attribute inside a registered service.
-Fields contained in proto messages are mapped from the serializer fields.
-In order to generate these files and its contents, there is a django command to run whenever you add or modify your serializers (or whenever you register a new service that uses an existing serializer)
+In django-socio-grpc, proto files are generated from a ``grpc_action`` request / response contents (see :ref:`grpc action <grpc_action>`).
+
+
+You can also generate proto files from a service that has a ``serializer_class`` attribute (mapped to a ``ProtoSerializer`` class) and inherits from a mixin that automatically generates grpc_actions
+
+
+In order to generate these files and its contents, there is a django command to run whenever you add a ``grpc_action`` or modify your request / response
 
 Usage
 -----
@@ -21,7 +24,6 @@ Usage
 
 Example
 -------
-Example serializer:
 
 .. code-block:: python
 
@@ -51,13 +53,22 @@ Example serializer:
     
     # Service
     from django_socio_grpc import generics
+    from django_socio_grpc.decorators import grpc_action
     from ..models import User
     from ..serializers import UserProtoSerializer
 
-
+    # inherits from AsyncModelService, therefore will register all default CRUD actions.
     class UserService(generics.AsyncModelService):
         queryset = User.objects.all()
         serializer_class = UserProtoSerializer
+
+        @grpc_action
+        async def SomeCustomMethod(
+            request=[{"name": "foo", "type": "string"}],
+            response=[{"name": "bar", "type": "string"}]
+        ):  
+            # logic here
+            pass
 
 At the root of your project, run:
 
@@ -82,6 +93,7 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
         rpc Retrieve(UserRetrieveRequest) returns (UserResponse) {}
         rpc Update(UserRequest) returns (UserResponse) {}
         rpc Destroy(UserDestroyRequest) returns (google.protobuf.Empty) {}
+        rpc SomeCustomMethod(SomeCustomMethodRequest) returns (SomeCustomMethodResponse) {}
     }
 
     message UserResponse {
@@ -108,6 +120,15 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
     message UserDestroyRequest {
         string id = 1;
     }
+
+    message SomeCustomMethodRequest {
+        string foo = 1;
+    }
+
+    message SomeCustomMethodResponse {
+        string bar = 1;
+    }
+
 
 Note: these files are meant for read only purposes, you can use the .proto file as a reference to verify wether
 or not your serializer fields were correctly mapped but you should not try to modify them manually.

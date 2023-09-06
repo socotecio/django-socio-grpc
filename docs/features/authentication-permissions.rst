@@ -19,4 +19,4 @@ will call the service ``perform_authentication()`` method which will inject ``us
 service methods and permission classes.
 
 The distinction is simple however it's worth to note that while django-rest-framework ``BasePermission`` will have ``request, view``` as args,
-django-socio-grpc ``GRPCActionBasePermission`` (that inherits from django-rest-framework ``BasePermission``) will have ``context, service`` args instead
+django-socio-grpc ``GRPCActionBasePermission`` (that inherits from django-rest-framework ``BasePermission``) will have ``context (GRPCInternalProxyContext), service (Service)`` args instead

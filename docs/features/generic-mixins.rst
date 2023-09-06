@@ -6,25 +6,6 @@ Description
 
 Django-Socio-GRPC has built-in mixins for actions. Those mixins are either sync or async.
 
-Here is a list of Synchronous mixins:
-    - CreateModelMixin
-    - ListModelMixin
-    - StreamModelMixin
-    - RetrieveModelMixin
-    - UpdateModelMixin
-    - PartialUpdateModelMixin
-    - DestroyModelMixin
-
-Here is a list of Asynchronous mixins:
-    - AsyncCreateModelMixin
-    - AsyncListModelMixin
-    - AsyncStreamModelMixin
-    - AsyncRetrieveModelMixin
-    - AsyncUpdateModelMixin
-    - AsyncPartialUpdateModelMixin
-    - AsyncDestroyModelMixin
-
-
 Usage
 -----
 
@@ -111,13 +92,13 @@ Use generics.Generic in order to use the different mixins you want :
 
 .. code-block:: python
     
-    class PeriodicityService(
+    class TestService(
         mixins.AsyncListModelMixin,
         mixins.AsyncRetrieveModelMixin,
         generics.GenericService,
     ):
-        queryset = Periodicity.objects.all()
-        serializer_class = PeriodicityProtoSerializer
+        queryset = MyObject.objects.all()
+        serializer_class = MyObjectProtoSerializer
         pagination_class = StandardResultsSetPagination
         permission_classes = (IsAuthenticated, IsSocotecUser | IsServiceAccount)
         filter_backends = [DjangoFilterBackend]

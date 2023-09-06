@@ -7,7 +7,8 @@ Description
 -----------
 
 Middleware functions in Django allow you to process requests and responses globally before they reach the view or after they leave the view. These middleware functions are wrapped with the sync_and_async_middleware decorator, indicating that they are compatible with both synchronous and asynchronous code.
-
+Middlewares in Django-Socio-GRPC are made to be almost compatible with django middlewares, the only difference is the argument being of type django_socio_grpc.request_transformer.GRPCRequestContainer
+For more information see (`here <https://docs.djangoproject.com/en/4.2/topics/http/middleware/>`_).
 
 Usage
 -----
@@ -52,27 +53,15 @@ Each middleware function follows a similar pattern, where it performs its specif
 
 Example
 -------
-In your settings.py, you can include middlewares in GRPC_MIDDLEWARE section:
+In your settings.py, you can include middlewares in GRPC_MIDDLEWARE section. More details here : :ref:`Available Settings <Available Settings>`.
 
 .. code-block:: python
 
     GRPC_FRAMEWORK = {
-        "SERVER_INTERCEPTORS": [aio_server_interceptor()] if ENABLE_TELEMETRY else [],
-        "ROOT_HANDLERS_HOOK": "amosback.handlers.grpc_handlers",
-        "DEFAULT_AUTHENTICATION_CLASSES": [
-            "socotecio_sso.auth.SocotecioKeycloakJWTAuthentication"
-        ],
-        "DEFAULT_PERMISSION_CLASSES": ["socotecio_sso.permissions.IsAuthenticated"],
-        "SEPARATE_READ_WRITE_MODEL": True,
-        "GRPC_ASYNC": True,
-        "LOG_EXTRA_CONTEXT_FUNCTION": "socio_core.monitoring.log_utils.get_socio_log_extra_context",
+        ...
         "GRPC_MIDDLEWARE": [
             "django_socio_grpc.middlewares.close_old_connections_middleware",
             "django_socio_grpc.middlewares.auth_without_session_middleware",
-            "socio_core.monitoring.middlewares.add_extra_socio_info_in_span",
             "django_socio_grpc.middlewares.log_requests_middleware",
-        ],
-        "SERVER_OPTIONS": [
-            ("grpc.keepalive_time_ms", 60000),
         ],
     }

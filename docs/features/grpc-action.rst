@@ -7,7 +7,16 @@ Description
 With Django-Socio-GRPC you can declare a grpc action related to your app service with the decorator grpc_action. 
 Once your service registered, it will create a new request and response in your .proto file after the proto generation.$
 
+A gRPC action is a representation of an RPC inside the service wher it's declared which is composed of a request and a response :
+
+.. code-block:: python
+
+    rpc BasicList(BasicProtoListChildListRequest) returns (BasicProtoListChildListResponse) {}
+
+It can also use a stream as a request/response.
+
 The decorator signature is:
+
 .. code-block:: python
 
     def grpc_action(request=None, response=None, request_name=None, response_name=None, request_stream=False, response_stream=False, use_request_list=False, use_response_list=False)
@@ -38,18 +47,18 @@ The request argument can be:
         - type: type of the parameter (string, int32, float, bool...)
         - cardinality: 
             - repeated: used when the parameter is a list 
-            - optionnal: used when the parameter is optionnal
+            - optional: used when the parameter is optional
     - a serializer
     - a ProtoRequest name
 
 The response argument can be:
-    - "google.protobuf.Empty" (for an empty response)
+    - "google.protobuf.Empty" (for an empty response) which is equivalent to []
     - a list of dict:
         - name: name of the parameter
         - type: type of the parameter (string, int32, float, bool...)
         - cardinality: 
             - repeated: used when the parameter is a list 
-            - optionnal: used when the parameter is optionnal
+            - optional: used when the parameter is optional
     - a serializer
     - a ProtoResponse name
 
@@ -76,34 +85,92 @@ You need to use it if you return a serializer message with many=True at initiali
 Examples
 ^^^^^^^^
 
+==========
+Example 1:
+==========
+
 .. code-block:: python
 
     @grpc_action(request=ActionInputProtoSerializer, response=ActionProtoSerializer)
     async def Create(self, request, context):
         return await self._create(request)
 
+After the proto generation, you will find in yourapp.proto file:
+
+.. code-block:: python
+
+    message MyAppCreateRequest {
+        string uuid = 1;
+        string foo = 2;
+        int32 bar = 3;
+    }
+
+    message MyAppCreateResponse {
+        string uuid = 1;
+        string foo = 2;
+        int32 bar = 3;
+    }
+
+==========
+Example 2:
+==========
+
 .. code-block:: python
 
     @grpc_action(
-        request="ObservationStatementListRequest",
-        response=FlatObservationStatementProtoSerializer,
+        request="TestListRequest",
+        response=TestListProtoSerializer,
         use_response_list=True,
     )
-    async def FlatList(self, request, context):
+    async def List(self, request, context):
         return await super().List(request, context)
+
+After the proto generation, you will find in yourapp.proto file:
+
+.. code-block:: python
+
+    message MyAppListRequest {
+        repeated string uuids = 1;
+    }
+
+    message MyAppListResponse {
+        repeated TestListResponse results = 1;
+        int32 count = 2;
+    }
+
+==========
+Example 3:
+==========
 
 .. code-block:: python
 
     @grpc_action(
         request=[
             {"name": "uuid", "type": "string"},
-            {"name": "risk_assessment", "type": "string"},
+            {"name": "test_data", "type": "string"},
         ],
-        response=ObservationAggregateProtoSerializer,
+        response=SetTestDataProtoSerializer,
     )
-    async def SetRiskLevel(self, request, context):
-        observation = await self.aget_object()
-        observation.risk_assessment_id = request.risk_assessment
-        await observation.asave()
-        response_serializer = self.get_serializer(observation)
+    async def SetTestData(self, request, context):
+        data = await self.aget_object()
+        data.test = request.test
+        await data.asave()
+        response_serializer = self.get_serializer(data)
         return await agetattr(response_serializer, "message")
+
+After the proto generation, you will find in yourapp.proto file:
+
+.. code-block:: python
+
+    message SetTestDataRequest {
+        string uuid = 1;
+        string test_data = 2:
+    }
+
+    message SetTestDataResponse {
+        string uuid = 1;
+        string test_data = 2:
+        int32 foo = 3;
+        int32 bar = 4;
+        ...
+    }

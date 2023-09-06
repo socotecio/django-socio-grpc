@@ -3,6 +3,7 @@ Configuration
 
 Available Settings
 ------------------
+.. _Available Settings:
 
 These are the default settings for Django Socio GRPC, with explanations provided below.
 These settings should be defined under the ``GRPC_FRAMEWORK`` variable in django settings.

@@ -77,9 +77,46 @@ Finally migrate the database:
   python manage.py migrate
 
 
-.. _define-grpc-service:
 
-Defining a gRPC Service
+
+Defining models
+~~~~~~~~~~~~~~~~~~~~~~~
+Models are created in the same way as in Django (`Django documentation <https://docs.djangoproject.com/fr/4.2/topics/db/models/>`_) . 
+Each model is assigned to a table in the database.
+It inherits from a Python class django.db.models.Model.
+Each attribute represents a field in the table.
+The API for accessing the database is the same as Django's (`Query creation <https://docs.djangoproject.com/fr/4.2/topics/db/queries/>`_).
+
+  .. code-block:: python
+
+    #quickstart/models.py
+    from django.db import models 
+    class User(models.Model):
+    full_name = models.CharField(max_length=70)
+
+        def __str__(self):
+            return self.full_name
+    
+    class Post(models.Model):
+        pub_date = models.DateField()
+        headline = models.CharField(max_length=200)
+        content = models.TextField()
+        user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+        def __str__(self):
+            return self.headline 
+    
+    class Comment(models.Model):
+        pub_date = models.DateField()
+        content = models.TextField()
+        user = models.ForeignKey(User, on_delete=models.CASCADE)
+        post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    
+        def __str__(self):
+            return self.pub_date 
+
+
+Defining serializers
 ~~~~~~~~~~~~~~~~~~~~~~~
 In this example, our serializers inherit from ModelProtoSerializer, which is simply an inheritance of DRF's ModelSerializer.
 For more extensive use, you can use all the DRF serializer methods: `Django REST framework serializers <https://www.django-rest-framework.org/api-guide/serializers/>`_.
@@ -120,6 +157,8 @@ For more extensive use, you can use all the DRF serializer methods: `Django REST
 
 Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
+.. _define-grpc-service:
+
 Django Socio gRPC uses the name Service instead of View or Viewset.
 With the exception of the name and the internal layer, a gRPC service works in the same way as a generic DRF View.
 
@@ -129,9 +168,11 @@ You can refer to the part of the documentation describing the two types of metho
 
 Following the same logic as DRF, Django Socio gRPC uses class-based services.
 
-Here we implement pagination, permissions and filters by way of example.
-You can write a mixin including these parameters and make an inheritance on the service class.
-Please refer to the :ref:`Mixin section <Generic Mixins>` of this documentation to do this.
+A series of mixins is available, all of which inherit from `GenericService` class defining the basic methods and a class defining one of the CRUD actions. 
+The following three services show different examples of inheritance. The `AsyncModelService` service implements all the CRUD actions.
+Please refer to the :ref:`Mixin section <Generic Mixins>` for more information.
+
+Here we implement pagination, permissions and filters by way of example, to show that you can override the various methods.
 
   .. code-block:: python
 
@@ -144,8 +185,7 @@ Please refer to the :ref:`Mixin section <Generic Mixins>` of this documentation 
     from quickstart.models import User, Post, Comment
     from quickstart.serializer import UserProtoSerializer, PostProtoSerializer, CommentProtoSerializer
 
-
-    class UserService(generics.AsyncModelService):
+    class UserService(generics.AsyncReadOnlyModelService):
         pagination_class = PageNumberPagination
         permission_classes = (BasePermission,)
         filter_backends = [DjangoFilterBackend]
@@ -157,7 +197,7 @@ Please refer to the :ref:`Mixin section <Generic Mixins>` of this documentation 
         queryset = Post.objects.all()
         serializer_class = PostProtoSerializer
     
-    class CommentService(generics.AsyncModelService):
+    class CommentService(generics.AsyncListCreateService):
         queryset = Comment.objects.all()
         serializer_class = CommentProtoSerializer
 

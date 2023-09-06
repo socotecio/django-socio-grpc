@@ -4,56 +4,82 @@ Getting Started
 Quickstart Guide
 ----------------
 
+We are going to create a simple blog application with a gRPC service.
+The blog application will have the following models: ``User``, ``Post`` and ``Comment``.
+
 Prerequisites
 ~~~~~~~~~~~~~
+
+You will need to install the following packages:
+
+- Python (>= 3.8)
+
 
 Installation
 ~~~~~~~~~~~~
 
+Install the package via pip:
+
+.. code-block:: bash
+
+  pip install django-socio-grpc
+
+
 Creating a New Project
 ~~~~~~~~~~~~~~~~~~~~~~
+
+Now you can create the project by running the following command :
+
+.. code-block:: bash
+
+  django-admin startproject tutorial
+
+Add now the following lines to the ``INSTALLED_APPS`` section of your ``tutorial/settings.py`` file:
+
+.. code-block:: python
+
+  INSTALLED_APPS = [
+    ...
+    'django_socio_grpc',
+  ]
+
 
 Adding a New App
 ~~~~~~~~~~~~~~~~
 
-Defining models
-~~~~~~~~~~~~~~~~~~~~~~~
-Models are created in the same way as in Django (`Django documentation <https://docs.djangoproject.com/fr/4.2/topics/db/models/>`_) . 
-Each model is assigned to a table in the database.
-It inherits from a Python class django.db.models.Model.
-Each attribute represents a field in the table.
-The API for accessing the database is the same as Django's (`Query creation <https://docs.djangoproject.com/fr/4.2/topics/db/queries/>`_).
+Then create a new app. First, cd into the project directory:
 
-  .. code-block:: python
+.. code-block:: bash
 
-    #quickstart/models.py
-    from django.db import models 
-    class User(models.Model):
-    full_name = models.CharField(max_length=70)
+  cd tutorial
 
-        def __str__(self):
-            return self.full_name
-    
-    class Post(models.Model):
-        pub_date = models.DateField()
-        headline = models.CharField(max_length=200)
-        content = models.TextField()
-        user = models.ForeignKey(User, on_delete=models.CASCADE)
-    
-        def __str__(self):
-            return self.headline 
-    
-    class Comment(models.Model):
-        pub_date = models.DateField()
-        content = models.TextField()
-        user = models.ForeignKey(User, on_delete=models.CASCADE)
-        post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    
-        def __str__(self):
-            return self.pub_date 
+Create the new app:
+
+.. code-block:: bash
+
+  python manage.py startapp quickstart
+
+This will create a new directory called ``quickstart`` inside your project directory including python files.
+
+Add the new app to the ``INSTALLED_APPS`` section of your ``tutorial/settings.py`` file:
+
+.. code-block:: python
+
+  INSTALLED_APPS = [
+    ...
+    'quickstart',
+  ]
+
+Finally migrate the database:
+
+.. code-block:: bash
+
+  python manage.py migrate
 
 
-Defining serializers
+.. _define-grpc-service:
+
+Defining a gRPC Service
 ~~~~~~~~~~~~~~~~~~~~~~~
 In this example, our serializers inherit from ModelProtoSerializer, which is simply an inheritance of DRF's ModelSerializer.
 For more extensive use, you can use all the DRF serializer methods: `Django REST framework serializers <https://www.django-rest-framework.org/api-guide/serializers/>`_.

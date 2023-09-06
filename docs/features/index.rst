@@ -12,3 +12,4 @@ Features
    exceptions
    authentication-permissions
    streaming
+   commands

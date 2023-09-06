@@ -1,3 +1,4 @@
+.. _grpc_action:
 GRPCAction
 ==========
 

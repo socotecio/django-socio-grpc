@@ -7,7 +7,7 @@
 
    introduction
    getting-started
-   configuration
+   settings
    features/index
    how-to/index
    testing

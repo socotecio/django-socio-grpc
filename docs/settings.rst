@@ -1,4 +1,4 @@
-Configuration
+Settings
 =============
 
 Available Settings
@@ -137,7 +137,7 @@ For a hypothetical project that uses JWT for authentication:
 GRPC_ASYNC
 ^^^^^^^^^^
 
-This setting determines the running mode of the gRPC server. If set to `True`, the server will operate in asynchronous mode. When in asynchronous mode, the server is capable of handling multiple concurrent requests using Python's `asyncio`. 
+This setting determines the running mode of the gRPC server. If set to `True`, the server will operate in asynchronous mode. When in asynchronous mode, the server is capable of handling multiple concurrent requests using Python's `asyncio`.
 
 This setting is overriden to True when running the app with ``grpcrunaioserver``.
 
@@ -169,7 +169,7 @@ For instance, if you have fields in your model that should only be updated but n
   "SEPARATE_READ_WRITE_MODEL": True
 
 
-GRPC_MIDDLEWARE 
+GRPC_MIDDLEWARE
 ^^^^^^^^^^^^^^^
 
 This setting defines a list of middleware classes specifically tailored for the gRPC framework. Middleware in gRPC can be seen as a series of processing units that handle both incoming requests and outgoing responses. They can be used for various tasks like logging, authentication, data enrichment, and more.
@@ -186,22 +186,24 @@ For instance, you could have a generic logging middleware that logs every gRPC r
       "your_project.middlewares.ConnectionHandlingMiddleware",
   ]
 
-ROOT_GRPC_FOLDER 
+ROOT_GRPC_FOLDER
 ^^^^^^^^^^^^^^^^
 
-This setting specifies the root directory name where all the generated proto files of external services are outputted. This folder can house various gRPC files, including those related to functionalities such as health checks or permissions checking.
-More details about :ref:`how to define proto and service in a shared library<define-proto-and-service-in-a-shared-library>`.
-
-For instance, if a project places all its gRPC handlers in a directory named "grpc_folder":
+This setting specifies the root directory name where all the
+generated proto files of external services are outputted.
+More details about
+:ref:`how to define proto and service in a shared library<define-proto-and-service-in-a-shared-library>`.
 
 .. code-block:: python
 
-  "ROOT_GRPC_FOLDER": "grpc_folder"
+  "ROOT_GRPC_FOLDER": "my_root_grpc_folder"
 
 MAP_METADATA_KEYS
 ^^^^^^^^^^^^^^^^^
 
-This setting defines where the framework should look within the metadata for specific pieces of information like headers, pagination data, and filters. Essentially, it provides mapping keys that indicate where to extract certain types of metadata.
+This setting defines where the framework should look within the metadata for
+specific pieces of information like headers, pagination data, and filters.
+Essentially, it provides mapping keys that indicate where to extract certain types of metadata.
 
 For a standard configuration, you might have:
 
@@ -213,4 +215,6 @@ For a standard configuration, you might have:
       "FILTERS": "FILTERS",
   }
 
-This means that when the framework encounters metadata, it knows to look for a "HEADERS" key to retrieve headers, a "PAGINATION" key to fetch pagination data, and a "FILTERS" key for filtering details.
+This means that when the framework encounters metadata, it knows to look for a ``HEADERS``
+key to retrieve headers, a ``PAGINATION`` key to fetch pagination data, and a ``FILTERS`` key
+for filtering details.

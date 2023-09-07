@@ -1,4 +1,5 @@
 .. _getting_started:
+
 Getting Started
 ===============
 
@@ -82,7 +83,7 @@ Finally migrate the database:
 
 Defining models
 ~~~~~~~~~~~~~~~~~~~~~~~
-Models are created in the same way as in Django (`Django documentation <https://docs.djangoproject.com/fr/4.2/topics/db/models/>`_) . 
+Models are created in the same way as in Django (`Django documentation <https://docs.djangoproject.com/fr/4.2/topics/db/models/>`_) .
 Each model is assigned to a table in the database.
 It inherits from a Python class django.db.models.Model.
 Each attribute represents a field in the table.
@@ -91,36 +92,22 @@ The API for accessing the database is the same as Django's (`Query creation <htt
   .. code-block:: python
 
     #quickstart/models.py
-    from django.db import models 
+    from django.db import models
     class User(models.Model):
     full_name = models.CharField(max_length=70)
 
-        def __str__(self):
-            return self.full_name
-    
     class Post(models.Model):
         pub_date = models.DateField()
         headline = models.CharField(max_length=200)
         content = models.TextField()
         user = models.ForeignKey(User, on_delete=models.CASCADE)
-    
-        def __str__(self):
-            return self.headline 
-    
-    class Comment(models.Model):
-        pub_date = models.DateField()
-        content = models.TextField()
-        user = models.ForeignKey(User, on_delete=models.CASCADE)
-        post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    
-        def __str__(self):
-            return self.pub_date 
 
 
 Defining serializers
 ~~~~~~~~~~~~~~~~~~~~~~~
 In this example, our serializers inherit from ModelProtoSerializer, which is simply an inheritance of DRF's ModelSerializer.
 For more extensive use, you can use all the DRF serializer methods: `Django REST framework serializers <https://www.django-rest-framework.org/api-guide/serializers/>`_.
+
   .. code-block:: python
 
     #quickstart/serializers.py
@@ -138,8 +125,6 @@ For more extensive use, you can use all the DRF serializer methods: `Django REST
 
     class PostProtoSerializer(proto_serializers.ModelProtoSerializer):
         pub_date = serializers.DateTimeField(read_only=True)
-        headline = serializers.CharField()
-        content = serializers.CharField()
         user = serializers.PrimaryKeyRelatedField(
             queryset=User.objects.all(),
             pk_field=serializers.UUIDField(format="hex_verbose"),
@@ -149,64 +134,66 @@ For more extensive use, you can use all the DRF serializer methods: `Django REST
             model = Post
             fields = "__all__"
 
-    class CommentProtoSerializer(proto_serializers.ModelProtoSerializer):
-
-        class Meta:
-            model = Comment
-            fields = "__all__"
-
 
 Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. _define-grpc-service:
 
-Django Socio gRPC uses the name Service instead of View or Viewset.
-With the exception of the name and the internal layer, a gRPC service works in the same way as a generic DRF View.
+Whereas DRF uses APIView, Django Socio gRPC uses Service.
+With the exception of the gRPC internal layer, a Service
+is made to work in the same way as a generic DRF APIView.
 
-Django Socio gRPC Framework actually support both async and sync mode for gRPC.
-
-You can refer to the part of the documentation describing the two types of method. In this example we are using an asynchronous service.
+Django Socio gRPC Framework also supports both sync and async.
+In this quickstart, we will make an asynchronous service.
 
 Following the same logic as DRF, Django Socio gRPC uses class-based services.
 
-A series of mixins is available, all of which inherit from `GenericService` class defining the basic methods and a class defining one of the CRUD actions. 
-The following three services show different examples of inheritance. The `AsyncModelService` service implements all the CRUD actions.
+DSG mixins make it easy to declare one or several of the CRUD actions.
 Please refer to the :ref:`Mixin section <Generic Mixins>` for more information.
 
-Here we implement pagination, permissions and filters by way of example, to show that you can override the various methods.
+In the the following example we will create 2 services.
+
+- `UserService`, will be a read-only service (`AsyncReadOnlyModelService`), meaning that
+  it will have 2 gRPC actions: `List` and `Retrieve`.
+- `PostService`, will be a read-write service (`AsyncModelService`), meaning that
+  it will have 6: `List`, `Retrieve`, `Create`, `Update`, `PartialUpdate`, `Destroy`.
 
   .. code-block:: python
 
     #quickstart/services.py
     from django_filters.rest_framework import DjangoFilterBackend
     from rest_framework.pagination import PageNumberPagination
-    from rest_framework.permissions import BasePermission
     from django_socio_grpc import generics
 
     from quickstart.models import User, Post, Comment
     from quickstart.serializer import UserProtoSerializer, PostProtoSerializer, CommentProtoSerializer
 
     class UserService(generics.AsyncReadOnlyModelService):
-        pagination_class = PageNumberPagination
-        permission_classes = (BasePermission,)
-        filter_backends = [DjangoFilterBackend]
-
         queryset = User.objects.all()
         serializer_class = UserProtoSerializer
-    
+
     class PostService(generics.AsyncModelService):
         queryset = Post.objects.all()
         serializer_class = PostProtoSerializer
-    
-    class CommentService(generics.AsyncListCreateService):
-        queryset = Comment.objects.all()
-        serializer_class = CommentProtoSerializer
+
 
 **Note:**
 
-You have the flexibility to revert to using the classic APIVIEW class or to reuse mixins or base classes to adapt to your needs. 
+DSG Generic services and mixins are based on DRF Generic views and mixins.
 
-Example:
+In DSG :
+
+  .. code-block:: python
+
+    from django.contrib.auth.models import User
+    from quickstart.serializers import UserProtoSerializer
+    from django_socio_grpc import generics
+
+    class MyListService(generics.ListCreateService):
+            queryset = User.objects.all()
+            serializer_class = UserProtoSerializer
+
+In DRF :
 
   .. code-block:: python
 
@@ -214,7 +201,7 @@ Example:
     from quickstart.serializers import UserProtoSerializer
     from rest_framework import generics
 
-    class UserListService(generics.ListCreateAPIView):
+    class MyListService(generics.ListCreateAPIView):
             queryset = User.objects.all()
             serializer_class = UserProtoSerializer
 
@@ -223,25 +210,13 @@ Example:
 Register services
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-This Handler will be the entrypoint for the service registration. 
-Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` settings:
-  .. code-block:: python
-
-    # tutorial/settings.py
-    ...
-    GRPC_FRAMEWORK = {
-        "ROOT_HANDLERS_HOOK" : 'quickstart.handlers.grpc_handlers'
-
-
-please refer to :ref:`Available Settings <Available Settings>` part of this documentation.
-
-Note:
-
-Create this file at the root of the project, here ``tutorial/`` 
+You need to register your services in a handler function.
+This handler will be the entrypoint for your whole app.
+In this quickstart, we will register our services in the ``quickstart/handlers.py`` file.
 
   .. code-block:: python
 
-    # tutorial/handlers.py
+    # quickstart/handlers.py
     from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
     from quickstart.services import UserService, PostService, CommentService,
 
@@ -252,80 +227,78 @@ Create this file at the root of the project, here ``tutorial/``
         app_registry.register(PostService)
         app_registry.register(CommentService)
 
+Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`settings <Available Settings>`:
+
+  .. code-block:: python
+
+    # quickstart/settings.py
+    ...
+    GRPC_FRAMEWORK = {
+        "ROOT_HANDLERS_HOOK" : 'quickstart.handlers.grpc_handlers',
+        ...
+    }
+
 
 Generate the app's Protobuf files and gRPC stubs
 ~~~~~~~~~~~~~~~~~~
 
-This command will generate a folder called ``grpc`` at the root of your Django app. It contains the three files needed to generate the services: 
-
-    * quickstart_pb2_grpc.py
-    * quickstart_pb2.py
-    * quickstart.proto
-
+Run this command :
 
 .. code-block:: python
-    
+
     python manage.py generateproto
+
+This will generate a folder called ``grpc`` at the root of your Django app.
+It contains the three files describing your new gRPC service:
+
+- `quickstart_pb2_grpc.py`
+- `quickstart_pb2.py`
+- `quickstart.proto`
+
 
 
 Assign newly generated classes
 ~~~~~~~~~~~~~~~~~~
 
-In the ``grpc/quickstart.proto`` file, you can find the generation of the structure of responses and requests.
-Their names are generated automatically.
-The structure of the serializer response must be defined by assigning the format of the response class to the proto_class attribute and
-the format for a list query to the proto_class_list attribute.
+In the ``quickstart/grpc/quickstart.proto`` file,
+you can find the generation of the structure of responses and requests.
+For each serializer, you will find the basic Response message name and the ListResponse message name.
+Serializers need to be assigned to these gRPC messages, which are defined in the ``pb2`` file.
+You need to import the messages in the ``serializers.py`` file and assign them to the serializers.
+
 
   .. code-block:: python
 
     #quickstart/serializers.py
-    from django_socio_grpc import proto_serializers
-    from rest_framework import serializers
-    from quickstart.models import User, Post, Comment
+    ...
     from quickstart.grpc.quickstart_pb2 import (
         UserResponse,
         UserListResponse,
         PostResponse,
         PostListResponse,
-        CommentResponse,
-        CommentListResponse
     )
 
     class UserProtoSerializer(proto_serializers.ModelProtoSerializer):
-        full_name = serializers.CharField(allow_blank=True)
+        ...
         class Meta:
-            model = User
+            ...
             proto_class = UserResponse
             proto_class_list = UserListResponse
-            fields = "__all__"
 
     class PostProtoSerializer(proto_serializers.ModelProtoSerializer):
-        pub_date = serializers.DateTimeField(read_only=True)
-        headline = serializers.CharField()
-        content = serializers.CharField()
-        user = serializers.PrimaryKeyRelatedField(
-            queryset=User.objects.all(),
-            pk_field=serializers.UUIDField(format="hex_verbose"),
-        )
-
+        ...
         class Meta:
-            model = Post
+            ...
             proto_class = PostResponse
             proto_class_list = PostListResponse
-            fields = "__all__"
-
-    class CommentProtoSerializer(proto_serializers.ModelProtoSerializer):
-        class Meta:
-            model = Comment
-            proto_class = CommentResponse
-            proto_class_list = CommentListResponse
-            fields = "__all__"
-
 
 Running the Server
 ~~~~~~~~~~~~~~~~~~
 
+You can now run the server with the following command:
+
 .. code-block:: python
-    
+
     python manage.py grpcrunaioserver --dev
 
+The server is now running on port `50051` by default.

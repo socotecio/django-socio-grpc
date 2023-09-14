@@ -5,22 +5,16 @@ GRPCAction
 Description
 -----------
 
-With Django-Socio-GRPC you can declare a grpc action related to your app service with the decorator grpc_action. 
-Once your service registered, it will create a new request and response in your .proto file after the proto generation.$
+With Django-Socio-GRPC you can declare a grpc action related to your app service with the decorator grpc_action.
+Once your service registered, it will create the RPC and its messages in your .proto file after the proto generation.
 
-A gRPC action is a representation of an RPC inside the service wher it's declared which is composed of a request and a response :
+A gRPC action is a representation of an RPC inside the service where it's declared which is composed of a request and a response :
 
-.. code-block:: python
+.. code-block:: proto
 
-    rpc BasicList(BasicProtoListChildListRequest) returns (BasicProtoListChildListResponse) {}
+    rpc BasicList(BasicRequest) returns (BasicResponse) {}
 
 It can also use a stream as a request/response.
-
-The decorator signature is:
-
-.. code-block:: python
-
-    def grpc_action(request=None, response=None, request_name=None, response_name=None, request_stream=False, response_stream=False, use_request_list=False, use_response_list=False)
 
 Usage
 -----
@@ -29,149 +23,356 @@ Usage
 Import
 ======
 
-First of all, you need to import grpc_action
+First of all, you need to import the ``grpc_action`` decorator:
 
 .. code-block:: python
 
-    from django_socio_grpc.decorators import grpc_action 
+    from django_socio_grpc.decorators import grpc_action
 
 This decorator can now be used for each action of your service.
 
 ========================
-Request and Response arg
+``request`` ``response``
 ========================
 
-The request argument can be:
-    - an empty list if the request is empty
-    - a list of dict:
-        - name: name of the parameter
-        - type: type of the parameter (string, int32, float, bool...)
-        - cardinality: 
-            - repeated: used when the parameter is a list 
-            - optional: used when the parameter is optional
-    - a serializer
-    - a ProtoRequest name
+.. code-block:: python
 
-The response argument can be:
-    - "google.protobuf.Empty" (for an empty response) which is equivalent to []
-    - a list of dict:
-        - name: name of the parameter
-        - type: type of the parameter (string, int32, float, bool...)
-        - cardinality: 
-            - repeated: used when the parameter is a list 
-            - optional: used when the parameter is optional
-    - a serializer
-    - a ProtoResponse name
+    class FieldCardinality(str, Enum):
+        NONE = ""
+        OPTIONAL = "optional"
+        REPEATED = "repeated"
+
+    class FieldDict(TypedDict):
+        name: str
+        type: str
+        cardinality: NotRequired[FieldCardinality]
+        comment: NotRequired[Union[str, List[str]]]
+
+    RequestResponseType = Union[List[FieldDict], Type[BaseSerializer], str, Placeholder]
+
+
+The ``request`` and ``response`` arguments can be:
+    - a `list` of ``FieldDict``: the fields of the message,
+      if empty, the message will of type ``google.protobuf.Empty``.
+    - a ``Serializer``: the serializer describing the message.
+    - a ``str``: the name of the message if already defined in the proto file.
+    - a ``Placeholder``: a placeholder to use in the proto file
+      (see :ref:`placeholder`).
+
+
 
 ==================================
-request_name and response_name arg
+``request_name`` ``response_name``
 ==================================
 
-Those arguments are used to force a name for the request/response message
+By default, the name of the request/response message is generated from the name of the action,
+the name of the serializer if a serializer is used, and the service name.
+Those arguments are used to override this name.
 
 ======================================
-request_stream and response_stream arg
+``request_stream`` ``response_stream``
 ======================================
 
-Those arguments are used to mark the request/response as a stream in the protobuf file
+Those arguments are used to mark the RPC request/response as a stream.
 
 ==========================================
-use_request_list and use_response_list arg
+``use_request_list`` ``use_response_list``
 ==========================================
 
 Those arguments are used to encapsulate the message inside a List message.
-You need to use it if you return a serializer message with many=True at initialisation
+It is useful when returning a list of object with a serializer.
 
+Use Cases
+---------
 
-Examples
-^^^^^^^^
-
-==========
-Example 1:
-==========
-
-.. code-block:: python
-
-    @grpc_action(request=ActionInputProtoSerializer, response=ActionProtoSerializer)
-    async def Create(self, request, context):
-        return await self._create(request)
-
-After the proto generation, you will find in yourapp.proto file:
+=========================================
+Basic ``FieldDict`` request and response:
+=========================================
 
 .. code-block:: python
 
-    message MyAppCreateRequest {
-        string uuid = 1;
-        string foo = 2;
-        int32 bar = 3;
+    class Service(GenericService):
+        ...
+
+        @grpc_action(
+            request=[
+                {
+                    "name": "uuid",
+                    "type": "string",
+                }
+            ],
+            response=[
+                {
+                    "name": "username",
+                    "type": "string",
+                },
+                {
+                    "name": "items",
+                    "type": "string",
+                    "cardinality": "repeated",
+                },
+            ],
+        )
+        async def Retrieve(self, request, context):
+            ...
+
+This is equivalent to:
+
+.. code-block:: proto
+
+    service Service {
+        rpc Retrieve(RetrieveRequest) returns (RetrieveResponse) {}
     }
 
-    message MyAppCreateResponse {
+    message RetrieveRequest {
         string uuid = 1;
-        string foo = 2;
-        int32 bar = 3;
     }
 
-==========
-Example 2:
-==========
+    message RetrieveResponse {
+        string username = 1;
+        repeated string items = 2;
+    }
+
+=======================
+Serializers as messages
+=======================
 
 .. code-block:: python
 
-    @grpc_action(
-        request="TestListRequest",
-        response=TestListProtoSerializer,
-        use_response_list=True,
-    )
-    async def List(self, request, context):
-        return await super().List(request, context)
+    class UserProtoSerializer(BaseSerializer):
+        username = serializers.CharField()
 
-After the proto generation, you will find in yourapp.proto file:
+    class Service(GenericService):
+        ...
 
-.. code-block:: python
+        pagination_class = PageNumberPagination
 
-    message MyAppListRequest {
+        @grpc_action(
+            request=[],
+            response=UserProtoSerializer,
+            use_response_list=True,
+        )
+        async def List(self, request, context):
+            ...
+
+This is equivalent to:
+
+.. code-block:: proto
+
+    service Service {
+        rpc List(google.protobuf.Empty) returns (ListResponse) {}
+    }
+
+    message UserResponse {
         repeated string uuids = 1;
     }
 
-    message MyAppListResponse {
-        repeated TestListResponse results = 1;
+    message UserListResponse {
+        repeated UserResponse results = 1;
         int32 count = 2;
     }
 
-==========
-Example 3:
-==========
+Note that in the ``UserListResponse`` message, the ``results`` field is a ``UserResponse`` message,
+it is the message generated from the ``UserProtoSerializer``.
+There is also a ``count`` field which is the total number of results, it is present only
+if the pagination is enabled.
+
+
+
+=========
+Streaming
+=========
 
 .. code-block:: python
 
-    @grpc_action(
-        request=[
-            {"name": "uuid", "type": "string"},
-            {"name": "test_data", "type": "string"},
-        ],
-        response=SetTestDataProtoSerializer,
-    )
-    async def SetTestData(self, request, context):
-        data = await self.aget_object()
-        data.test = request.test
-        await data.asave()
-        response_serializer = self.get_serializer(data)
-        return await agetattr(response_serializer, "message")
+        @grpc_action(
+            request="google.protobuf.Empty",
+            response=[{"name": "str", "type": "string"}],
+            response_stream=True,
+        )
+        async def Stream(self, request, context):
+            ...
 
-After the proto generation, you will find in yourapp.proto file:
+This is equivalent to:
+
+.. code-block:: proto
+
+    rpc Stream(google.protobuf.Empty) returns (stream StreamResponse) {}
+
+
+.. _placeholder:
+
+============
+Placeholders
+============
+
+Placeholders are objects that will be replaced in the service registration step.
+They are useful when you want to use arguments that you want to override in subclasses.
+
+They define a ``resolve`` method that will be called with
+the service instance as argument.
 
 .. code-block:: python
 
-    message SetTestDataRequest {
-        string uuid = 1;
-        string test_data = 2:
+    # This placeholder always resolves to "MyRequest"
+    class RequestNamePlaceholder(Placeholder):
+        def resolve(self, service: GenericService):
+            return "MyRequest"
+
+
+In a service class, you can use placeholders in any of the ``grpc_action`` arguments:
+
+
+.. code-block:: python
+
+    class SuperService(GenericService):
+
+        @grpc_action(
+            request=AttrPlaceholder("_request"),
+            request_name=RequestNamePlaceholder,
+            response=SelfSerializer,
+            response_name = "MyResponse",
+        )
+        def Route(self, request, context):
+            raise NotImplementedError
+
+    class SubService(SuperService):
+
+        serializer_class = MySerializer
+        _request = []
+
+        def Route(self, request, context):
+            ...
+
+
+This is equivalent to:
+
+.. code-block:: proto
+
+    service SubService {
+        rpc Route(MyRequest) returns (MyResponse) {}
     }
 
-    message SetTestDataResponse {
-        string uuid = 1;
-        string test_data = 2:
-        int32 foo = 3;
-        int32 bar = 4;
+    // The name of the message is "MyRequest" because of the placeholder
+    message MyRequest {
+        // This message is empty because _request is an empty list
+    }
+
+    message MyResponse {
         ...
+        // Defined by MySerializer
+    }
+
+
+There are a few predefined placeholders:
+
+``FnPlaceholder``
+~~~~~~~~~~~~~~~~~
+
+Resolves to the result of a function.
+
+.. code-block:: python
+
+    def fn(service) -> str:
+        return "Ok"
+
+    FnPlaceholder(fn) == "Ok"
+
+
+``AttrPlaceholder``
+~~~~~~~~~~~~~~~~~~~
+
+Resolves to a named class attribute of the service.
+
+.. code-block:: python
+
+    AttrPlaceholder("my_attribute") == service.my_attribute
+
+``SelfSerializer``
+~~~~~~~~~~~~~~~~~~
+
+Resolves to the serializer_class of the service.
+
+
+.. code-block:: python
+
+    SelfSerializer == service.serializer_class
+
+
+``StrTemplatePlaceholder``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Resolves to a string template with either service attributes names or
+functions as parameter. It uses ``str.format`` to inject the values.
+
+.. code-block:: python
+
+    def fn(service) -> str:
+        return "Ok"
+
+    StrTemplatePlaceholder("{}Request{}", "My", fn) == "MyRequestOk"
+
+
+``LookupField``
+~~~~~~~~~~~~~~~
+
+Resolves to the service lookup field message.
+
+
+.. code-block:: python
+
+    class Serializer(BaseSerializer):
+        uuid = serializers.CharField()
+
+    class Service(GenericService):
+        serializer_class = Serializer
+        lookup_field = "uuid"
+
+    LookupField == [{
+        "name": "uuid",
+        "type": "string", # This is the type of the field in the serializer
+    }]
+
+
+========
+Comments
+========
+
+You can add comments to your request/response fields by using the
+``comment`` key when using ``FieldDict``
+
+
+.. code-block:: python
+
+    class Service(GenericService):
+        ...
+
+        @grpc_action(
+            request=[],
+            response=[
+                {
+                    "name": "username",
+                    "type": "string",
+                    "comment": "This is a comment",
+                },
+            ],
+        )
+        async def Retrieve(self, request, context):
+            ...
+
+
+This is equivalent to:
+
+.. code-block:: proto
+
+    service Service {
+        rpc Retrieve(RetrieveRequest) returns (RetrieveResponse) {}
+    }
+
+    message RetrieveRequest {
+    }
+
+    message RetrieveResponse {
+        // This is another comment
+        string username = 1;
     }

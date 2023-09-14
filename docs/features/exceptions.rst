@@ -4,10 +4,10 @@ Exceptions
 Description
 -----------
 
-In Django, exceptions are raised when something unexpected or erroneous occurs during the execution of a web application. 
+In Django, exceptions are raised when something unexpected or erroneous occurs during the execution of a web application.
 Those exceptions are related to a specific status_code. you can find more information (`here <https://grpc.github.io/grpc/core/md_doc_statuscodes.html>`_).
 Django provides a set of built-in exceptions and allows you to create custom exceptions as needed.
-Django-Socio-GRPC provides gRPC exceptions which are essential for handling gRPC errors and providing informative responses to users. 
+Django-Socio-GRPC provides gRPC exceptions which are essential for handling gRPC errors and providing informative responses to users.
 
 
 Usage
@@ -79,42 +79,17 @@ Overall, these custom exceptions and utilities allow for more precise and struct
 Example
 -------
 
-
-.. code-block:: python
-
-    from django_socio_grpc.exceptions import NotFound
-
-    @grpc_action(
-        request=[{"name": "project_uuid", "type": "string"}],
-        request_name="RetrieveProjectPerimeterRequest",
-        response=PerimeterProtoSerializer,
-    )
-    async def RetrieveProjectPerimeter(self, request, context):
-        try:
-            perimeter = await Perimeter.objects.aget(project=request.project_uuid)
-        except Perimeter.DoesNotExist:
-            raise NotFound()
-
-        serializer = PerimeterProtoSerializer(perimeter)
-        return await serializer.amessage
-
 .. code-block:: python
 
     from django_socio_grpc.exceptions import GRPCException
 
-    class AsyncDestroyIfNotExistInReportMixin(mixins.AsyncDestroyModelMixin):
-        async def aperform_destroy(self, instance):
-            instance = await self.aget_object()
-            request_filter = {"status": "SENT", "related_objects": [str(instance.uuid)]}
-            report_grpc_api = ReportGrpcApi()
-            exists = await report_grpc_api.check_exists(request_filter=request_filter)
+    class CustomError(GRPCException):
+        status_code = grpc.StatusCode.INVALID_ARGUMENT
+        default_detail = "Custom error message"
+        default_code = "custom_error_code"
 
-            if exists:
-                raise GRPCException(
-                    {
-                        "code": "exists_in_report",
-                        "message": "The asset can't be deleted beacause it's already sent in a report",
-                    }
-                )
+    class RaiseCustomErrorService(GenericService):
 
-            return await super().aperform_destroy(instance)
+        @grpc_action()
+        async def RaiseError(self, request, context):
+            raise CustomError()

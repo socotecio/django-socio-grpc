@@ -2,7 +2,7 @@ Features
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    grpc-action
    middlewares

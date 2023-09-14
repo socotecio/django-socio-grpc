@@ -85,13 +85,13 @@ Example
 How to import mixins ?
 
 .. code-block:: python
-    
+
     from django_socio_grpc import generics, mixins
 
-Use generics.Generic in order to use the different mixins you want :
+You can add the mixins you want to use in your service class.
 
 .. code-block:: python
-    
+
     class TestService(
         mixins.AsyncListModelMixin,
         mixins.AsyncRetrieveModelMixin,
@@ -102,3 +102,12 @@ Use generics.Generic in order to use the different mixins you want :
         pagination_class = StandardResultsSetPagination
         permission_classes = (IsAuthenticated, IsSocotecUser | IsServiceAccount)
         filter_backends = [DjangoFilterBackend]
+
+This will generate the following service and RPCs:
+
+.. code-block:: proto
+
+    service TestService {
+        rpc List (ListRequest) returns (MyObjectProto) {}
+        rpc Retrieve (RetrieveRequest) returns (MyObjectProto) {}
+    }

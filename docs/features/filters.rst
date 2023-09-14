@@ -12,7 +12,7 @@ Usage
 To enable queryset filtering, you need to import generics from Django-Socio-GRPC.
 
 .. code-block:: python
-    
+
     from django_socio_grpc import generics, mixins
 
 You can now create your own filter class.
@@ -41,7 +41,7 @@ Example
 -------
 
 Let's look at a service example:
- 
+
 
 .. code-block:: python
 
@@ -49,9 +49,6 @@ Let's look at a service example:
         generics.AsyncModelService,
     ):
         queryset = MyObject.objects.all()
-        serializer_class = MyObjectProtoSerializer
-        pagination_class = StandardResultsSetPagination
-        permission_classes = (IsAuthenticated, IsSocotecUser | IsServiceAccount)
         filter_backends = [DjangoFilterBackend]
         filterset_class = MyObjectFilterSet
         lookup_field = "uuid"

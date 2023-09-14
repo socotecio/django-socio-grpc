@@ -2,7 +2,7 @@
 
 Proto generation
 ================
-To be able to generate proto files you need to register your service first. 
+To be able to generate proto files you need to register your service first.
 To do so please refer to :ref:`getting started <getting_started>` at section service registration
 
 Description
@@ -28,7 +28,7 @@ Example
 .. code-block:: python
 
     # quickstart/models.py
-    from django.db import models 
+    from django.db import models
 
 
     class User(models.Model):
@@ -50,7 +50,7 @@ Example
         class Meta:
             model = User
             fields = "__all__"
-    
+
     # Service
     from django_socio_grpc import generics
     from django_socio_grpc.decorators import grpc_action
@@ -65,8 +65,9 @@ Example
         @grpc_action
         async def SomeCustomMethod(
             request=[{"name": "foo", "type": "string"}],
-            response=[{"name": "bar", "type": "string"}]
-        ):  
+            response=[{"name": "bar", "type": "string"}],
+            response_stream=True
+        ):
             # logic here
             pass
 
@@ -93,7 +94,7 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
         rpc Retrieve(UserRetrieveRequest) returns (UserResponse) {}
         rpc Update(UserRequest) returns (UserResponse) {}
         rpc Destroy(UserDestroyRequest) returns (google.protobuf.Empty) {}
-        rpc SomeCustomMethod(SomeCustomMethodRequest) returns (SomeCustomMethodResponse) {}
+        rpc SomeCustomMethod(SomeCustomMethodRequest) returns (stream SomeCustomMethodResponse) {}
     }
 
     message UserResponse {

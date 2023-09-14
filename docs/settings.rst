@@ -87,7 +87,7 @@ Defines the list of authentication classes the gRPC server uses to validate inco
 
 Example:
 
-If you want to set the maximum size for sending and receiving messages to 100MB, you can configure the SERVER_OPTIONS as:
+If you want to set the maximum size for sending and receiving messages to 100MB, you can configure the DEFAULT_AUTHENTICATION_CLASSES as:
 
 .. code-block:: python
 

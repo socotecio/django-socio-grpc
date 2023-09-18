@@ -7,7 +7,7 @@ Quickstart Guide
 ----------------
 
 We are going to create a simple blog application with a gRPC service.
-The blog application will have the following models: ``User``, ``Post`` and ``Comment``.
+The blog application will have the following models: ``User`` and ``Post``.
 
 Prerequisites
 ~~~~~~~~~~~~~
@@ -113,7 +113,7 @@ For more extensive use, you can use all the DRF serializer methods: `Django REST
     #quickstart/serializers.py
     from django_socio_grpc import proto_serializers
     from rest_framework import serializers
-    from quickstart.models import User, Post, Comment
+    from quickstart.models import User, Post
 
     class UserProtoSerializer(proto_serializers.ModelProtoSerializer):
         # This line is written here as an example,
@@ -165,8 +165,8 @@ In the the following example we will create 2 services.
     from rest_framework.pagination import PageNumberPagination
     from django_socio_grpc import generics
 
-    from quickstart.models import User, Post, Comment
-    from quickstart.serializer import UserProtoSerializer, PostProtoSerializer, CommentProtoSerializer
+    from quickstart.models import User, Post
+    from quickstart.serializer import UserProtoSerializer, PostProtoSerializer
 
     class UserService(generics.AsyncReadOnlyModelService):
         queryset = User.objects.all()
@@ -218,14 +218,13 @@ In this quickstart, we will register our services in the ``quickstart/handlers.p
 
     # quickstart/handlers.py
     from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
-    from quickstart.services import UserService, PostService, CommentService,
+    from quickstart.services import UserService, PostService
 
 
     def grpc_handlers(server):
         app_registry = AppHandlerRegistry("quickstart", server)
         app_registry.register(UserService)
         app_registry.register(PostService)
-        app_registry.register(CommentService)
 
 Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`settings <Available Settings>`:
 
@@ -255,7 +254,7 @@ It contains the three files describing your new gRPC service:
 - `quickstart_pb2.py`
 - `quickstart.proto`
 
-
+**DSG generate all the file needed by gRPC. Meaning that you don't need to deal with protofile manually.**
 
 Assign newly generated classes
 ~~~~~~~~~~~~~~~~~~
@@ -301,4 +300,4 @@ You can now run the server with the following command:
 
     python manage.py grpcrunaioserver --dev
 
-The server is now running on port `50051` by default.
+The server is now running on port `50051` by default. See :ref:`How To <How To>` to see how to call this server with python or web client.

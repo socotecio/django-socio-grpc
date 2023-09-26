@@ -1,8 +1,10 @@
 import json
 
-from django_socio_grpc.settings import grpc_settings
-from django.utils.encoding import escape_uri_path, iri_to_uri
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.encoding import escape_uri_path, iri_to_uri
+
+from django_socio_grpc.settings import grpc_settings
 
 
 class InternalHttpRequest:
@@ -128,4 +130,3 @@ class InternalHttpRequest:
 
     def is_secure(self):
         return self.scheme == "https"
-

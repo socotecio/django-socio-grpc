@@ -35,15 +35,15 @@ Before seeing each arguments of this function let see its definition:
 
 .. code-block:: python
 
-    def grpc_action(
-        request=None,
-        response=None,
-        request_name=None,
-        response_name=None,
-        request_stream=False,
-        response_stream=False,
-        use_request_list=False,
-        use_response_list=False,
+grpc_action(
+        request: RequestResponseType | None = None,
+        response: RequestResponseType | None = None,
+        request_name: str | None = None,
+        response_name: str | None = None,
+        request_stream: bool = False,
+        response_stream: bool = False,
+        use_request_list: bool = False,
+        use_response_list: bool = False,
     )
 
 ========================

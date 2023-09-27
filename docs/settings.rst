@@ -192,7 +192,7 @@ This setting defines a list of middleware classes specifically tailored for the 
 Middlewares are processed in the order they are defined. Each middleware should adhere to the gRPC middleware structure, having methods to process requests and responses.
 More details about :ref:`middlewares<middleware>`.
 
-The difference with interceptor is that interceptor occur at grpc request level and middleware after grpc request have been transformed into django compatible ones.
+The difference with a gRPC Interceptor is that the middlewares occur at the Django level, meaning the request has already been wrapped into a Django-like request. Interceptors handle pure gRPC calls.
 
 For instance, you could have a generic logging middleware that logs every gRPC request and a middleware to handle connection issues:
 

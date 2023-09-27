@@ -19,7 +19,7 @@ It is also designed to be easy to use, and it provides a number of features that
 Some of these features include:
 
 - **Performance**: gRPC is designed to be fast and efficient. It uses HTTP/2,
-  which bring decrease in latency by header data compression, multiplexing and more.
+  which brings lower latency by header data compression, multiplexing and more.
 - **Bidirectional streaming**: gRPC supports bidirectional streaming,
   it allows you to build services that can keep a connection open and send messages back and forth.
 - **Protobuf**: gRPC uses Protobuf (*Protocol Buffers*) as its serialization format.

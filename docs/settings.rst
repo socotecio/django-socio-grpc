@@ -62,7 +62,7 @@ Consider you have two interceptors, LoggingInterceptor and AuthenticationInterce
 
 With this configuration, every gRPC method invocation will first pass through the LoggingInterceptor and then the AuthenticationInterceptor before the actual gRPC method is executed.
 
-See `the intercpetor documentation for python <https://grpc.github.io/grpc/python/grpc_asyncio.html#grpc.aio.ServerInterceptor>_`.
+See the ServerInterceptor documentation for Python : `sync <https://grpc.github.io/grpc/python/grpc.html#grpc.ServerInterceptor>_` and `async <https://grpc.github.io/grpc/python/grpc_asyncio.html#grpc.aio.ServerInterceptor>_`.
 
 SERVER_OPTIONS
 ^^^^^^^^^^^^^^

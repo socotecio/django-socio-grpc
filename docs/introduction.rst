@@ -19,7 +19,7 @@ It is also designed to be easy to use, and it provides a number of features that
 Some of these features include:
 
 - **Performance**: gRPC is designed to be fast and efficient. It uses HTTP/2,
-  which is a binary protocol that is more efficient than HTTP/1.1.
+  which brings lower latency by header data compression, multiplexing and more.
 - **Bidirectional streaming**: gRPC supports bidirectional streaming,
   it allows you to build services that can keep a connection open and send messages back and forth.
 - **Protobuf**: gRPC uses Protobuf (*Protocol Buffers*) as its serialization format.
@@ -35,6 +35,9 @@ If you're building a Django application and need to create gRPC services,
 Django Socio Grpc is an excellent choice. It provides a familiar and consistent way
 to define services and methods, making it easy to get started quickly with Django and DRF experience.
 DSG is also natively supports async Django.
+
+DSG also automatically generate all the protofiles by parsing the python serializers. 
+Allowing developper to completly abstract protobuf complexity. 
 
 
 How does it work ?

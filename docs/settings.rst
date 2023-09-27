@@ -7,6 +7,7 @@ Available Settings
 
 These are the default settings for Django Socio GRPC, with explanations provided below.
 These settings should be defined under the ``GRPC_FRAMEWORK`` variable in django settings.
+See the documentation on django settings if your not familiar with it: `Django settings documentation <https://docs.djangoproject.com/en/4.2/topics/settings/>`_.
 
 .. code-block:: python
 
@@ -39,6 +40,8 @@ ROOT_HANDLERS_HOOK
 
 This setting points to the `grpc_handlers` function within a specified module, responsible for registering all gRPC handlers for the project's applications. Each application has its own handler, which in turn registers the gRPC services it employs. As a result, incoming gRPC requests or events trigger the appropriate service using the handlers' map. This function runs just before the start of the server, making it useful for any other kind of initialization
 
+See Register services section in the Getting Started documentation to see an example of grpc_handlers method.
+
 For a project named "my_project" with the `grpc_handlers` function inside `my_project/handlers.py`, the configuration would be:
 
 .. code-block:: python
@@ -58,6 +61,8 @@ Consider you have two interceptors, LoggingInterceptor and AuthenticationInterce
   "SERVER_INTERCEPTORS": [LoggingInterceptor(), AuthenticationInterceptor()],
 
 With this configuration, every gRPC method invocation will first pass through the LoggingInterceptor and then the AuthenticationInterceptor before the actual gRPC method is executed.
+
+See the ServerInterceptor documentation for Python : `sync <https://grpc.github.io/grpc/python/grpc.html#grpc.ServerInterceptor>_` and `async <https://grpc.github.io/grpc/python/grpc_asyncio.html#grpc.aio.ServerInterceptor>_`.
 
 SERVER_OPTIONS
 ^^^^^^^^^^^^^^
@@ -95,6 +100,7 @@ If you want to set the maximum size for sending and receiving messages to 100MB,
     "your_project.auth.JWTAuthentication"
   ]
 
+For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/authentication/#setting-the-authentication-scheme>`_.
 
 DEFAULT_FILTER_BACKENDS
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -119,6 +125,8 @@ Example configuration to use the `StandardResultsSetPagination` class:
 
   "DEFAULT_PAGINATION_CLASS": "core.pagination.StandardResultsSetPagination"
 
+For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/pagination/>`_.
+
 
 DEFAULT_PERMISSION_CLASSES
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -134,12 +142,17 @@ For a hypothetical project that uses JWT for authentication:
       "your_project.permissions.HasServiceAccess",
   ]
 
+For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/permissions/>`_.
+
+
 GRPC_ASYNC
 ^^^^^^^^^^
 
 This setting determines the running mode of the gRPC server. If set to `True`, the server will operate in asynchronous mode. When in asynchronous mode, the server is capable of handling multiple concurrent requests using Python's `asyncio`.
 
 This setting is overriden to True when running the app with ``grpcrunaioserver``.
+
+Please consider to always use async as it may become the only accepted behavior in DSG 1.0.
 
 .. code-block:: python
 
@@ -164,6 +177,8 @@ By enabling this option (set to `True`), it ensures that specific fields in a mo
 
 For instance, if you have fields in your model that should only be updated but never retrieved in a response, you can mark them as `write_only`. Similarly, fields that should be displayed but never modified can be marked as `read_only`.
 
+Please consider to always use async as it may become the only accepted behavior in DSG 1.0.
+
 .. code-block:: python
 
   "SEPARATE_READ_WRITE_MODEL": True
@@ -176,6 +191,8 @@ This setting defines a list of middleware classes specifically tailored for the 
 
 Middlewares are processed in the order they are defined. Each middleware should adhere to the gRPC middleware structure, having methods to process requests and responses.
 More details about :ref:`middlewares<middleware>`.
+
+The difference with a gRPC Interceptor is that the middlewares occur at the Django level, meaning the request has already been wrapped into a Django-like request. Interceptors handle pure gRPC calls.
 
 For instance, you could have a generic logging middleware that logs every gRPC request and a middleware to handle connection issues:
 

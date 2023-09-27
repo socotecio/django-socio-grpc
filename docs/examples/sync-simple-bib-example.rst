@@ -4,7 +4,7 @@ Sync Example
 Overview
 --------
 
-This example demonstrates the socio-grpc framework (in synchronous mode).
+This simple example demonstrates the socio-grpc framework (in synchronous mode).
 
 We will generate a simple bibliographic service, that illustrates many aspects of socio-grpc.
 

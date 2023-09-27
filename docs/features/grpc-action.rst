@@ -31,7 +31,7 @@ First of all, you need to import the ``grpc_action`` decorator:
 
 This decorator can now be used for each action of your service.
 
-Before seeing each arguments of this function let see it's definition:
+Before seeing each arguments of this function let see its definition:
 
 .. code-block:: python
 

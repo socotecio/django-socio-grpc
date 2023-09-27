@@ -37,13 +37,14 @@ from django.db import models
 
 # Author class
 class Author(models.Model):
+    author_id = models.UUIDField(primary_key=True)
     name_first = models.CharField(max_length=100)
     name_last = models.CharField(max_length=100)
     birth_date = models.DateField()
 
-# publisher class
 
 class Publisher(models.Model):
+    publisher_id = models.UUIDField(primary_key=True)
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -53,9 +54,9 @@ class Publisher(models.Model):
 
 
 class Book(models.Model):
+    book_id = models.UUIDField(primary_key=True)
     title = models.CharField(max_length=100)
     authors = models.ManyToManyField(Author)
-
     isbn = models.CharField(max_length=20)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)
     publication_date = models.DateField()

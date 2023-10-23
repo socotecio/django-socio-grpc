@@ -11,7 +11,7 @@ def camel_to_snake(name):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
 
 
-async def safe_async_response(fn, request: "GRPCRequestContainer", process_exceptions=None):
+async def safe_async_response(fn, request: "GRPCRequestContainer", process_exceptions=None, log_exceptions=None):
     """Allows to use async generator as response."""
     response = fn(request)
 
@@ -22,6 +22,8 @@ async def safe_async_response(fn, request: "GRPCRequestContainer", process_excep
                 async for item in response:
                     yield item
             except Exception as e:
+                if log_exceptions:
+                    log_exceptions(e)
                 if process_exceptions:
                     await process_exceptions(e, request)
                 else:
@@ -32,6 +34,8 @@ async def safe_async_response(fn, request: "GRPCRequestContainer", process_excep
     try:
         return await response
     except Exception as e:
+        if log_exceptions:
+            log_exceptions(e)
         if process_exceptions:
             await process_exceptions(e, request)
         else:

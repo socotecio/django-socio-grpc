@@ -10,8 +10,6 @@ from django_socio_grpc.services.servicer_proxy import get_servicer_context
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.tests.grpc_test_utils.fake_grpc import FakeContext
 
-logger = logging.getLogger()
-
 
 class FakeAuthentication:
     def authenticate(self, context):

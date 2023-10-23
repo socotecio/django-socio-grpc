@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from typing import TYPE_CHECKING, List, Type
 
 from asgiref.sync import sync_to_async
@@ -15,8 +14,6 @@ from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
     from django_socio_grpc.protobuf import AppHandlerRegistry
-
-logger = logging.getLogger("django_socio_grpc")
 
 
 class Service(GRPCActionMixin):

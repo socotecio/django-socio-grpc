@@ -111,6 +111,7 @@ class GRPCException(Exception):
     status_code = StatusCode.INTERNAL
     default_detail = _("A server error occurred.")
     default_code = "error"
+    logging_level = "WARNING"
 
     def __init__(self, detail=None, code=None):
         if detail is None:

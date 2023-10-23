@@ -164,9 +164,7 @@ class ServicerProxy(MiddlewareCapable):
             await request_container.service.before_action()
             response = await safe_async_response(
                 wrapped_action,
-                request_container,
-                self.async_process_exception,
-                self.log_exception
+                request_container
             )
             socio_response = GRPCInternalProxyResponse(response)
             response_container = GRPCResponseContainer(socio_response)
@@ -184,7 +182,7 @@ class ServicerProxy(MiddlewareCapable):
                 request, proxy_context, action, service_instance
             )
             async for response in await safe_async_response(
-                self._middleware_chain, request_container, self.async_process_exception, self.log_exception
+                self._middleware_chain, request_container
             ):
                 yield response.grpc_response
 
@@ -199,11 +197,15 @@ class ServicerProxy(MiddlewareCapable):
             request_container = GRPCRequestContainer(
                 request, proxy_context, action, service_instance
             )
-            response = await safe_async_response(
-                self._middleware_chain, request_container, self.async_process_exception, self.log_exception
-            )
-            self.log_request_success(response)
-            return response.grpc_response
+            try:
+                response = await safe_async_response(
+                    self._middleware_chain, request_container
+                )
+                self.log_request_success(response, request_container)
+                return response.grpc_response
+            except Exception as e:
+                self.log_exception(e, request_container)
+                await self.async_process_exception(e, context)
 
         return handler
 
@@ -222,7 +224,7 @@ class ServicerProxy(MiddlewareCapable):
                 return response.grpc_response
             except Exception as e:
                 self.process_exception(e, request_container)
-                self.log_exception(e)
+                self.log_exception(e, request_container)
 
         return handler
 
@@ -270,46 +272,37 @@ class ServicerProxy(MiddlewareCapable):
     def process_exception(self, exc, request_container: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
             request_container.context.abort(exc.status_code, exc.get_full_details())
-            raise exc
-        elif isinstance(exc, grpc.RpcError) or request_container.context._state.aborted:
-            raise exc
         else:
             request_container.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
-    async def async_process_exception(self, exc, request_container: GRPCRequestContainer):
+    async def async_process_exception(self, exc, context):
         if isinstance(exc, GRPCException):
-            await request_container.context.abort(exc.status_code, exc.get_full_details())
-            raise exc
-        elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
-            raise exc
+            await context.abort(exc.status_code, exc.get_full_details())
         else:
-            await request_container.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
+            await context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
-    def log_request_success(self, response):
+    def log_request_success(self, response, request_container):
         request_logger.info(
-            f"{type(response).__name__} : {response}",
-            exc_info=response,
+            f"{type(request_container.service).__name__}.{request_container.service.action} : {response.http_response.status_code}"
         )
 
-    def log_exception(self, exception):
+    def log_exception(self, exception, request_container):
         if isinstance(exception, GRPCException):
             if exception.logging_level == "INFO":
                 request_logger.info(
-                    f"{type(exception).__name__} : {exception}",
+                    f"{type(request_container.service).__name__}.{request_container.service.action} : {exception.status_code.name}",
                     exc_info=exception,
                 )
             if exception.logging_level == "WARNING":
                 request_logger.warning(
-                    f"{type(exception).__name__} : {exception}",
+                    f"{type(request_container.service).__name__}.{request_container.service.action} : {exception.status_code.name}",
                     exc_info=exception,
                 )
             if exception.logging_level == "ERROR":
                 request_logger.error(
-                    f"{type(exception).__name__} : {exception}",
+                    f"{type(request_container.service).__name__}.{request_container.service.action} : {exception.status_code.name}",
                     exc_info=exception,
                 )
-        elif isinstance(exception, (grpc.RpcError, grpc.aio.AbortError)):
-            pass
         else:
             request_logger.error(
                 f"{type(exception).__name__} : {exception}",

@@ -140,6 +140,17 @@ class GRPCException(Exception):
         """
         return _get_full_details(self.detail)
 
+    def log_exception(self, logger, message):
+        if self.logging_level == "INFO":
+            logger.info(message, exc_info=self)
+        if self.logging_level == "WARNING":
+            logger.warning(message, exc_info=self)
+        if self.logging_level == "ERROR":
+            logger.error(message, exc_info=self)
+        if self.logging_level == "CRITICAL":
+            logger.critical(message, exc_info=self)
+        raise ("Unsupported login level")
+
 
 class Unauthenticated(GRPCException):
     status_code = StatusCode.UNAUTHENTICATED

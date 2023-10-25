@@ -287,6 +287,7 @@ class ServicerProxy(MiddlewareCapable):
     def log_exception(self, exception, request_container):
         if isinstance(exception, GRPCException):
             logger_message = f"{type(request_container.service).__name__}.{request_container.service.action} : {exception.status_code.name}"
+            print(exception.logging_level)
             exception.log_exception(request_logger, logger_message)
         else:
             request_logger.error(

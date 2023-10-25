@@ -143,13 +143,14 @@ class GRPCException(Exception):
     def log_exception(self, logger, message):
         if self.logging_level == "INFO":
             logger.info(message, exc_info=self)
-        if self.logging_level == "WARNING":
+        elif self.logging_level == "WARNING":
             logger.warning(message, exc_info=self)
-        if self.logging_level == "ERROR":
+        elif self.logging_level == "ERROR":
             logger.error(message, exc_info=self)
-        if self.logging_level == "CRITICAL":
+        elif self.logging_level == "CRITICAL":
             logger.critical(message, exc_info=self)
-        raise ("Unsupported login level")
+        else:
+            raise Exception("Unsupported login level")
 
 
 class Unauthenticated(GRPCException):

@@ -25,7 +25,7 @@ from django_socio_grpc.utils.utils import isgeneratorfunction, safe_async_respon
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
 
-logger = logging.getLogger("django_socio_grpc")
+middleware_logger = logging.getLogger("django_socio_grpc.middlewares")
 request_logger = logging.getLogger("django_socio_grpc.request")
 
 
@@ -80,9 +80,9 @@ class MiddlewareCapable(metaclass=abc.ABCMeta):
             except MiddlewareNotUsed as exc:
                 if settings.DEBUG:
                     if str(exc):
-                        logger.debug("MiddlewareNotUsed(%r): %s", middleware_path, exc)
+                        middleware_logger.debug("MiddlewareNotUsed(%r): %s", middleware_path, exc)
                     else:
-                        logger.debug("MiddlewareNotUsed: %r", middleware_path)
+                        middleware_logger.debug("MiddlewareNotUsed: %r", middleware_path)
                 continue
             else:
                 handler = adapted_handler
@@ -181,10 +181,14 @@ class ServicerProxy(MiddlewareCapable):
             request_container = GRPCRequestContainer(
                 request, proxy_context, action, service_instance
             )
-            async for response in await safe_async_response(
-                self._middleware_chain, request_container
-            ):
-                yield response.grpc_response
+            try:
+                async for response in await safe_async_response(
+                    self._middleware_chain, request_container
+                ):
+                    yield response.grpc_response
+            except Exception as e:
+                self.log_exception(e, request_container)
+                await self.async_process_exception(e, context)
 
         return handler
 
@@ -201,7 +205,6 @@ class ServicerProxy(MiddlewareCapable):
                 response = await safe_async_response(
                     self._middleware_chain, request_container
                 )
-                self.log_request_success(response, request_container)
                 return response.grpc_response
             except Exception as e:
                 self.log_exception(e, request_container)
@@ -220,7 +223,6 @@ class ServicerProxy(MiddlewareCapable):
             )
             try:
                 response = self._middleware_chain(request_container)
-                self.log_request_success(response)
                 return response.grpc_response
             except Exception as e:
                 self.process_exception(e, request_container)
@@ -242,6 +244,7 @@ class ServicerProxy(MiddlewareCapable):
                     yield response.grpc_response
             except Exception as e:
                 self.process_exception(e, request_container)
+                self.log_exception(e, request_container)
 
         return handler
 
@@ -280,11 +283,6 @@ class ServicerProxy(MiddlewareCapable):
             await context.abort(exc.status_code, exc.get_full_details())
         else:
             await context.abort(grpc.StatusCode.UNKNOWN, str(exc))
-
-    def log_request_success(self, response, request_container):
-        request_logger.info(
-            f"{type(request_container.service).__name__}.{request_container.service.action} : {response.http_response.status_code}"
-        )
 
     def log_exception(self, exception, request_container):
         if isinstance(exception, GRPCException):

@@ -22,14 +22,20 @@ async def safe_async_response(fn, request: "GRPCRequestContainer", process_excep
                 async for item in response:
                     yield item
             except Exception as e:
-                raise e
+                if process_exceptions:
+                    await process_exceptions(e, request)
+                else:
+                    raise e
 
         return async_generator()
 
     try:
         return await response
     except Exception as e:
-        raise e
+        if process_exceptions:
+            await process_exceptions(e, request)
+        else:
+            raise e
 
 
 _is_generator = object()

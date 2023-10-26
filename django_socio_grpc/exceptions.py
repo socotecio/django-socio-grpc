@@ -150,7 +150,7 @@ class GRPCException(Exception):
         elif self.logging_level == "CRITICAL":
             logger.critical(message, exc_info=self, extra=extra)
         else:
-            logger.warning(Exception("Unsupported login level. Defaulting to Warning"))
+            logger.warning("Unsupported login level. Defaulting to Warning")
             logger.warning(message, exc_info=self, extra=extra)
 
 

@@ -294,7 +294,7 @@ class ServicerProxy(MiddlewareCapable):
             exception.log_exception(request_logger, logger_message, extra=extra)
         else:
             request_logger.error(
-                f"{type(exception).__name__} : {exception}",
+                f"{type(exception).__name__} : {type(request_container.service).__name__}/{request_container.service.action}",
                 exc_info=exception,
                 extra=extra
             )

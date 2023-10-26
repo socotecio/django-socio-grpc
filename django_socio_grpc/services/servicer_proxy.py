@@ -285,11 +285,16 @@ class ServicerProxy(MiddlewareCapable):
             await context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
     def log_exception(self, exception, request_container):
+        extra = {
+            "request": request_container.grpc_request,
+            "status_code": request_container.context.code(),
+        }
         if isinstance(exception, GRPCException):
             logger_message = f"{type(request_container.service).__name__}.{request_container.service.action} : {exception.status_code.name}"
-            exception.log_exception(request_logger, logger_message)
+            exception.log_exception(request_logger, logger_message, extra=extra)
         else:
             request_logger.error(
                 f"{type(exception).__name__} : {exception}",
                 exc_info=exception,
+                extra=extra
             )

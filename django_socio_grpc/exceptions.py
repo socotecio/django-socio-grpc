@@ -140,15 +140,15 @@ class GRPCException(Exception):
         """
         return _get_full_details(self.detail)
 
-    def log_exception(self, logger, message):
+    def log_exception(self, logger, message, extra={}):
         if self.logging_level == "INFO":
-            logger.info(message, exc_info=self)
+            logger.info(message, exc_info=self, extra=extra)
         elif self.logging_level == "WARNING":
-            logger.warning(message, exc_info=self)
+            logger.warning(message, exc_info=self, extra=extra)
         elif self.logging_level == "ERROR":
-            logger.error(message, exc_info=self)
+            logger.error(message, exc_info=self, extra=extra)
         elif self.logging_level == "CRITICAL":
-            logger.critical(message, exc_info=self)
+            logger.critical(message, exc_info=self, extra=extra)
         else:
             raise Exception("Unsupported login level")
 

@@ -6,11 +6,15 @@ But with the grpc code: https://grpc.github.io/grpc/python/grpc.html#grpc-status
 This file will grown to support all the gRPC exception when needed
 """
 import json
+from logging import Logger, getLogger
+from typing import Literal
 
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 from grpc import StatusCode
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
+
+exception_logger = getLogger("django_socio_grpc.exceptions")
 
 
 def _get_error_details(data, default_code=None):
@@ -102,16 +106,19 @@ class ProtobufGenerationException(Exception):
         return f"Error on protobuf generation on model {self.model_name} on app {self.app_name}: {self.detail}"
 
 
+LOGGING_LEVEL = Literal["INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
 class GRPCException(Exception):
     """
     Base class for Socio gRPC framework runtime exceptions.
     Subclasses should provide `.status_code` and `.default_detail` properties.
     """
 
-    status_code = StatusCode.INTERNAL
-    default_detail = _("A server error occurred.")
-    default_code = "error"
-    logging_level = "WARNING"
+    status_code: StatusCode = StatusCode.INTERNAL
+    default_detail: str = _("A server error occurred.")
+    default_code: str = "error"
+    logging_level: LOGGING_LEVEL = "WARNING"
 
     def __init__(self, detail=None, code=None):
         if detail is None:
@@ -140,18 +147,15 @@ class GRPCException(Exception):
         """
         return _get_full_details(self.detail)
 
-    def log_exception(self, logger, message, extra={}):
-        if self.logging_level == "INFO":
-            logger.info(message, exc_info=self, extra=extra)
-        elif self.logging_level == "WARNING":
-            logger.warning(message, exc_info=self, extra=extra)
-        elif self.logging_level == "ERROR":
-            logger.error(message, exc_info=self, extra=extra)
-        elif self.logging_level == "CRITICAL":
-            logger.critical(message, exc_info=self, extra=extra)
-        else:
-            logger.warning("Unsupported login level. Defaulting to Warning")
-            logger.warning(message, exc_info=self, extra=extra)
+    def log_exception(self, logger: Logger, message: str, extra={}):
+        try:
+            log_level = getattr(logger, self.logging_level.lower())
+        except AttributeError:
+            exception_logger.warning(
+                f"Unsupported logging level {self.logging_level}. Defaulting to Warning"
+            )
+            log_level = logger.warning
+        log_level(message, exc_info=self, extra=extra)
 
 
 class Unauthenticated(GRPCException):

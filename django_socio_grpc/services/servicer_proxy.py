@@ -186,8 +186,8 @@ class ServicerProxy(MiddlewareCapable):
                 ):
                     yield response.grpc_response
             except Exception as e:
-                await self.async_process_exception(e, context)
                 self.log_exception(e, request_container)
+                await self.async_process_exception(e, context)
 
         return handler
 
@@ -204,8 +204,8 @@ class ServicerProxy(MiddlewareCapable):
                 response = await safe_async_response(self._middleware_chain, request_container)
                 return response.grpc_response
             except Exception as e:
-                await self.async_process_exception(e, context)
                 self.log_exception(e, request_container)
+                await self.async_process_exception(e, context)                
 
         return handler
 
@@ -222,8 +222,8 @@ class ServicerProxy(MiddlewareCapable):
                 response = self._middleware_chain(request_container)
                 return response.grpc_response
             except Exception as e:
-                self.process_exception(e, request_container)
                 self.log_exception(e, request_container)
+                self.process_exception(e, request_container)
 
         return handler
 
@@ -240,8 +240,8 @@ class ServicerProxy(MiddlewareCapable):
                 for response in self._middleware_chain(request_container):
                     yield response.grpc_response
             except Exception as e:
-                self.process_exception(e, request_container)
                 self.log_exception(e, request_container)
+                self.process_exception(e, request_container)
 
         return handler
 

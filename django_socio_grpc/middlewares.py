@@ -20,7 +20,7 @@ from django_socio_grpc.services.servicer_proxy import GRPCRequestContainer
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.utils import safe_async_response
 
-logger = logging.getLogger("django_socio_grpc.request")
+logger = logging.getLogger("django_socio_grpc.middlewares")
 
 
 def _close_old_connections():

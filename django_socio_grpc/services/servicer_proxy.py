@@ -181,13 +181,16 @@ class ServicerProxy(MiddlewareCapable):
                 request, proxy_context, action, service_instance
             )
             try:
+                exc = None
                 async for response in await safe_async_response(
                     self._middleware_chain, request_container
                 ):
                     yield response.grpc_response
             except Exception as e:
-                self.log_exception(e, request_container)
+                exc = e
                 await self.async_process_exception(e, context)
+            finally:
+                self.log_response(exc, request_container)
 
         return handler
 
@@ -201,11 +204,14 @@ class ServicerProxy(MiddlewareCapable):
                 request, proxy_context, action, service_instance
             )
             try:
+                exc = None
                 response = await safe_async_response(self._middleware_chain, request_container)
                 return response.grpc_response
             except Exception as e:
-                self.log_exception(e, request_container)
-                await self.async_process_exception(e, context)                
+                exc = e
+                await self.async_process_exception(e, context)
+            finally:
+                self.log_response(exc, request_container)
 
         return handler
 
@@ -219,11 +225,14 @@ class ServicerProxy(MiddlewareCapable):
                 request, proxy_context, action, service_instance
             )
             try:
+                exc = None
                 response = self._middleware_chain(request_container)
                 return response.grpc_response
             except Exception as e:
-                self.log_exception(e, request_container)
+                exc = e
                 self.process_exception(e, request_container)
+            finally:
+                self.log_response(exc, request_container)
 
         return handler
 
@@ -237,11 +246,14 @@ class ServicerProxy(MiddlewareCapable):
                 request, proxy_context, action, service_instance
             )
             try:
+                exc = None
                 for response in self._middleware_chain(request_container):
                     yield response.grpc_response
             except Exception as e:
-                self.log_exception(e, request_container)
+                exc = e
                 self.process_exception(e, request_container)
+            finally:
+                self.log_response(exc, request_container)
 
         return handler
 
@@ -272,6 +284,7 @@ class ServicerProxy(MiddlewareCapable):
     def process_exception(self, exc, request_container: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
             request_container.context.abort(exc.status_code, exc.get_full_details())
+            print(exc)
         else:
             request_container.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
@@ -281,14 +294,20 @@ class ServicerProxy(MiddlewareCapable):
         else:
             await context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
-    def log_exception(self, exception, request_container):
+    def log_response(self, exception, request_container):
         extra = {
             "request": request_container.grpc_request,
             "status_code": request_container.context.code(),
         }
         path = f"{self.service_class.get_service_name()}/{request_container.action}"
-        message = f"{type(exception).__name__} : {path}"
-        if isinstance(exception, GRPCException):
-            exception.log_exception(request_logger, message, extra=extra)
+
+        if not exception:
+            if grpc_settings.LOG_OK_RESPONSE or settings.DEBUG:
+                message = f"Response OK: {path}"
+                request_logger.info(message, extra=extra)
         else:
-            request_logger.error(message, exc_info=exception, extra=extra)
+            message = f"{type(exception).__name__} : {path}"
+            if isinstance(exception, GRPCException):
+                exception.log_exception(request_logger, message, extra=extra)
+            else:
+                request_logger.error(message, exc_info=exception, extra=extra)

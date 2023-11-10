@@ -284,7 +284,6 @@ class ServicerProxy(MiddlewareCapable):
     def process_exception(self, exc, request_container: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
             request_container.context.abort(exc.status_code, exc.get_full_details())
-            print(exc)
         else:
             request_container.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 

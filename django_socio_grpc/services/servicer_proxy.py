@@ -302,7 +302,7 @@ class ServicerProxy(MiddlewareCapable):
 
         if not exception:
             if grpc_settings.LOG_OK_RESPONSE or settings.DEBUG:
-                message = f"OK: {path}"
+                message = f"OK : {path}"
                 request_logger.info(message, extra=extra)
         else:
             message = f"{type(exception).__name__} : {path}"

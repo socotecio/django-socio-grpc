@@ -1,6 +1,6 @@
 import asyncio
 from typing import TYPE_CHECKING, List, Type
-
+from warnings import deprecated
 from asgiref.sync import sync_to_async
 from django.db.models.query import QuerySet
 from google.protobuf.message import Message
@@ -134,6 +134,7 @@ class Service(GRPCActionMixin):
             return self._async_after_action()
         return self._after_action()
 
+    @deprecated("")
     def get_log_extra_context(self):
         return grpc_settings.LOG_EXTRA_CONTEXT_FUNCTION(self)
 

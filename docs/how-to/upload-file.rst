@@ -3,14 +3,14 @@ Upload file
 
 Description
 -----------
-When it comes to file uploads in gRPC, bidirectional streaming can be used. 
-This allows the client and server to send a stream of messages to each other. 
-This means that the client can send chunks of a file to the server as a stream, and the server can process these chunks in real-time.
+When it comes to file uploads in gRPC, bidirectional or unidirectional streaming can be used. 
+With bidirectional, the client and server sends a stream of messages to each other. This means that the client can send chunks of a file to the server as a stream, and the server can process these chunks in real-time.
+With unidirectional, the client send a stream to the server. This means that the client send chunks of a file to the server as a stream, and the server can process these chunks when the stream is over.
 
-Usage
------
+Usage in unidirectional context
+-------------------------------
 
-Define a grpc_action with the ``request_stream="True"`` attribute.
+Define a grpc_action with the ``request_stream=True`` attribute.
 The client will sends a stream of messages as request to the server and the server will responds with a single message (along with its status details and optional trailing metadata), after it has received all the client’s messages.
 
 .. code-block:: python
@@ -23,7 +23,7 @@ The client will sends a stream of messages as request to the server and the serv
             request_name="FileChunk",
             response=[{"name": "success", "type": "bool"}],
             response_name="UploadStatus"
-            request_stream="True",
+            request_stream=True,
         )
         async def UploadFile(self, request, context):
             ...
@@ -43,10 +43,6 @@ This is equivalent to:
     message UploadStatus {
         bool success = 1;
     }
-
-
-`In gRPC, the bytes type is one of the supported scalar types used for representing binary data. It is a sequence of bytes and is often used to handle binary payloads, such as images, files, or any other raw binary data.`
-`In Protocol Buffers (protobuf), which is the interface definition language used by gRPC, the bytes type is used to represent variable-length binary data. The serialized form of a bytes field is the binary representation of the actual data.`
 
 
 Example
@@ -115,6 +111,5 @@ On the server side:
                     success=True
                 )
 
-            except Exception as err:
-                LOGGER.exception(err)
-                LOGGER.exception("Document upload has failed…")
+            except Exception:
+                LOGGER.exception()

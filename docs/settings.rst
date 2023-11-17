@@ -235,3 +235,12 @@ For a standard configuration, you might have:
 This means that when the framework encounters metadata, it knows to look for a ``HEADERS``
 key to retrieve headers, a ``PAGINATION`` key to fetch pagination data, and a ``FILTERS`` key
 for filtering details.
+
+LOG_OK_RESPONSE
+^^^^^^^^^^^^^^^
+
+This setting enables the logging of requests that return an OK.
+
+.. code-block:: python
+
+  "LOG_OK_RESPONSE": True

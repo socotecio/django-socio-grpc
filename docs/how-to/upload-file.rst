@@ -112,4 +112,5 @@ On the server side:
                 )
 
             except Exception:
-                LOGGER.exception()
+                LOGGER.exception("Document upload has failed…")
+                return FileUpload_pb2.UploadStatus(success=False)

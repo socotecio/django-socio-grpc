@@ -9,7 +9,7 @@ Django-Socio-GRPC has a built-in way to handle the logging of the errors of your
 Usage
 -----
 
-Django-Socio-GRPC uses a system of logging based on the one used by Django.
+Django-Socio-GRPC uses a system of logging based on the one used by Django. `Documentation <https://docs.djangoproject.com/fr/4.2/topics/logging/#topic-logging-parts-loggers>`_.
 
 Here's a short reminder on the system it uses.
 
@@ -118,8 +118,7 @@ Django-Socio-GRPC by default log requests only when something goes wrong just li
     - If your service raises a GRPCException, it will result by default to a Warning.
       You can define your own GRPCException and set the log_level as you wish to change this.
     - If your service raises another Exception, it will result in an Error.
-    - Lastly, if you want to log requests even if they are ok, you can launch django in DEBUG mode
-      or you can enable LOG_OK_RESPONSE in your settings.
+    - Logging incoming request is only activated when in DEBUG mode or if LOG_OK_RESPONSE settings is set to True
 
 Example
 -------
@@ -137,9 +136,6 @@ Here's an example of logging setup.
             "classic": {
                 "format": "[django]-[%(levelname)s]-[%(asctime)s]-[%(name)s:%(lineno)s] %(message)s"
             },
-            "fmt": {
-                "format": 'level=%(levelname)s name=%(name)s line=%(pathname)s:%(lineno)s message="%(message)s" socio_service_name="%(socio_service_name)s" socio_action="%(socio_action)s" time=%(asctime)s levelno=%(levelno)s socio_usermanagement_uuid="%(socio_usermanagement_uuid)s" socio_user_roles="%(socio_user_roles)s" socio_client_id="%(socio_client_id)s" funcName=%(funcName)s',
-            },
         },
         "handlers": {
             "null": {"level": "DEBUG", "class": "logging.NullHandler"},
@@ -147,7 +143,7 @@ Here's an example of logging setup.
                 "level": logging.DEBUG if DEBUG else logging.INFO,
                 "class": "logging.StreamHandler",
                 "stream": sys.stdout,
-                "formatter": "fmt",
+                "formatter": "classic",
             },
         },
         "loggers": {
@@ -183,7 +179,5 @@ With services like this :
 It will result in logs like this :
 
 .. code-block::
-    level=WARNING name=django_socio_grpc.request line=/opt/code/django_socio_grpc/services/servicer_proxy.py:283 message="NotFound : test log from testgrpc in test-infra-back: RaiseGRPCException"
-    socio_service_name="Something" socio_action="RaiseGrpcException" time=2023-11-17T10:32:58.099154 levelno=40 socio_usermanagement_uuid="098410fd-56ed-4efa-bfa8-394439827c6f" socio_user_roles="" socio_client_id="" funcName=async_process_exception
-    level=ERROR name=django_socio_grpc line=/opt/code/django_socio_grpc/services/servicer_proxy.py:291 message="ValueError : test log from testgrpc in test-infra-back: RaiseException"
-    socio_service_name="Something" socio_action="RaiseException" time=2023-11-17T10:37:57.276262 levelno=40 socio_usermanagement_uuid="098410fd-56ed-4efa-bfa8-394439827c6f" socio_user_roles="" socio_client_id="" funcName=async_process_exception
+    [django]-[WARNING]-[2023-11-17T10:32:58.099154]-[django_socio_grpc.request:283] NotFound : test log from testgrpc in test-infra-back: RaiseGRPCException
+    [django]-[ERROR]-[2023-11-17T10:37:57.276262]-[django_socio_grpc.request:291] ValueError : test log from testgrpc in test-infra-back: RaiseException

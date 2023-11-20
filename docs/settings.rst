@@ -240,6 +240,7 @@ LOG_OK_RESPONSE
 ^^^^^^^^^^^^^^^
 
 This setting enables the logging of requests that return an OK.
+Default is False. Being in DEBUG mode enables it.
 
 .. code-block:: python
 

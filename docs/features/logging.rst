@@ -24,7 +24,7 @@ Django-Socio-GRPC by default log requests only when something goes wrong just li
     - If your service raises another Exception, it will result in an Error.
     - Logging incoming request is only activated when in DEBUG mode or if LOG_OK_RESPONSE settings is set to True
 
-These messages have the additionnal context : 
+These messages have the additional context : 
 
     - status_code: The Grpc_Response code associated with the request.
     - request: The request object.

@@ -121,7 +121,6 @@ class GRPCException(Exception):
     logging_level: LOGGING_LEVEL = "WARNING"
 
     def __init__(self, code=None, detail=None):
-        print("GRPCException _init_", code, detail)
         if detail is None:
             detail = self.default_detail
         if code is None:

@@ -12,6 +12,8 @@ import grpc
 from asgiref.sync import async_to_sync, sync_to_async
 from grpc._cython.cygrpc import _Metadatum
 
+from django_socio_grpc.exceptions import GRPCException, _get_error_details
+
 
 class FakeServer:
     def __init__(self):
@@ -37,16 +39,17 @@ class FakeServer:
         pass
 
 
-class FakeRpcError(RuntimeError, grpc.RpcError):
+class FakeRpcError(RuntimeError, grpc.RpcError, GRPCException):
     def __init__(self, code, details):
         self._code = code
-        self._details = details
+        self._detail = details
+        self.detail = _get_error_details(details, code)
 
     def code(self):
         return self._code
 
     def details(self):
-        return self._details
+        return self._detail
 
 
 class _BaseFakeContext:
@@ -96,6 +99,9 @@ class _BaseFakeContext:
 
     def _read_client(self):
         return self.stream_pipe_server.get_nowait()
+
+    def code(self):
+        return ""
 
 
 class FakeState:

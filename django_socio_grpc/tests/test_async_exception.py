@@ -49,7 +49,7 @@ class TestAsyncException(TestCase):
             self.assertEqual(cm.records[1].levelno, logging.ERROR)
             self.assertEqual(cm.records[1].grpc_action, "UnaryRaiseException")
             self.assertEqual(cm.records[1].grpc_service_name, "Exception")
-            self.assertEqual(cm.records[1].msg, "Exception : test")
+            self.assertEqual(cm.records[1].msg, "Exception : Exception/UnaryRaiseException")
             self.assertIsNotNone(cm.records[1].exc_info)
 
     async def test_async_stream_exception(self):
@@ -79,5 +79,5 @@ class TestAsyncException(TestCase):
             self.assertEqual(cm.records[1].levelno, logging.ERROR)
             self.assertEqual(cm.records[1].grpc_action, "StreamRaiseException")
             self.assertEqual(cm.records[1].grpc_service_name, "Exception")
-            self.assertEqual(cm.records[1].msg, "Exception : test")
+            self.assertEqual(cm.records[1].msg, "Exception : Exception/StreamRaiseException")
             self.assertIsNotNone(cm.records[1].exc_info)

@@ -51,6 +51,8 @@ def _get_full_details(detail):
         full_details = [_get_full_details(item) for item in detail]
     elif isinstance(detail, dict):
         full_details = {key: _get_full_details(value) for key, value in detail.items()}
+    elif isinstance(detail, str):
+        full_details = detail
     else:
         full_details = {"message": detail, "code": detail.code}
     return json.dumps(full_details)

@@ -1,5 +1,4 @@
 import json
-import logging
 from unittest import mock
 
 from django.test import TestCase, override_settings

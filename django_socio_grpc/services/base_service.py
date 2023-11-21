@@ -1,6 +1,6 @@
 import asyncio
 from typing import TYPE_CHECKING, List, Type
-from warnings import deprecated
+
 from asgiref.sync import sync_to_async
 from django.db.models.query import QuerySet
 from google.protobuf.message import Message

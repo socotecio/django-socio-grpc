@@ -16,7 +16,7 @@ Logging GRPC Services
 You'll want to be able to log information about your grpc services.
 Django-Socio-GRPC is built-in with existing loggers to get information from GRPC services
 
-If you want to add information to your logs from grpc. You will need to define these two functions and call set_log_record_factory in your settings.
+If you want to add information to your logs from grpc. You will need to define these two functions and call set_log_record_factory in your settings before any log using your formatter is called.
 
 .. code-block:: python
     def default_get_log_extra_context(service: "GenericService"):

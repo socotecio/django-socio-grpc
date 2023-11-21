@@ -15,6 +15,10 @@ from django_socio_grpc.settings import grpc_settings
 if TYPE_CHECKING:
     from django_socio_grpc.protobuf import AppHandlerRegistry
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 
 class Service(GRPCActionMixin):
     authentication_classes = grpc_settings.DEFAULT_AUTHENTICATION_CLASSES
@@ -135,6 +139,10 @@ class Service(GRPCActionMixin):
         return self._after_action()
 
     def get_log_extra_context(self):
+        logger.warning(
+            "Using this method is deprecated."
+            "Refer to the logging documentation to see how to add extra context."
+        )
         return grpc_settings.LOG_EXTRA_CONTEXT_FUNCTION(self)
 
     @classmethod

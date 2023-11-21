@@ -149,8 +149,6 @@ class ServicerProxy(MiddlewareCapable):
             socio_response = GRPCInternalProxyResponse(response)
             response_container = GRPCResponseContainer(socio_response)
             return response_container
-        except Exception as e:
-            self.process_exception(e, request_container)
         finally:
             request_container.service.after_action()
 

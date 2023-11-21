@@ -18,18 +18,12 @@ async def safe_async_response(fn, request: "GRPCRequestContainer"):
     if inspect.isasyncgen(response):
 
         async def async_generator():
-            try:
-                async for item in response:
-                    yield item
-            except Exception as e:
-                raise e
+            async for item in response:
+                yield item
 
         return async_generator()
 
-    try:
-        return await response
-    except Exception as e:
-        raise e
+    return await response
 
 
 _is_generator = object()

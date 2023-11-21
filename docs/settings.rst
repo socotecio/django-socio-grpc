@@ -239,7 +239,7 @@ for filtering details.
 LOG_OK_RESPONSE
 ^^^^^^^^^^^^^^^
 
-This setting enables the logging of requests that return an OK.
+This setting enables the logging of requests that return an OK. (see :ref:`logging <logging>`)
 Default is False. Being in DEBUG mode enables it.
 
 .. code-block:: python

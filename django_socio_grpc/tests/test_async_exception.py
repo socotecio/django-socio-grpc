@@ -32,7 +32,7 @@ class TestAsyncException(TestCase):
             with self.assertRaises(RpcError) as error:
                 await grpc_stub.UnaryRaiseException(request=request)
 
-            self.assertTrue("test" in str(error.exception))
+            self.assertTrue("Exception" in str(error.exception))
 
             self.assertEqual(len(cm.records), 2)
 
@@ -62,7 +62,7 @@ class TestAsyncException(TestCase):
                 async for response in grpc_stub.StreamRaiseException(request=request):
                     response_list.append(response)
 
-            self.assertTrue("test" in str(error.exception))
+            self.assertTrue("Exception" in str(error.exception))
             # INFO - AM - 01/02/2023 we verify that if exception in stream we still receive the firsts message sended in stream
             self.assertEqual(len(response_list), 1)
 

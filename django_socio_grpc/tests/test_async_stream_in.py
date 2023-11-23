@@ -44,7 +44,7 @@ class TestAsyncStreamIn(TestCase):
             request = fakeapp_pb2.StreamInStreamInRequest(name=name)
             await stream_caller.write(request)
 
-        with self.assertRaisesMessage(RpcError, "Context read timeout"):
+        with self.assertRaisesMessage(RpcError, "TimeoutError"):
             await stream_caller
 
     async def test_async_stream_stream(self):

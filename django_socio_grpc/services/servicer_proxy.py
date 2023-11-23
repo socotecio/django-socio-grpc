@@ -283,13 +283,19 @@ class ServicerProxy(MiddlewareCapable):
         if isinstance(exc, GRPCException):
             request_container.context.abort(exc.status_code, exc.get_full_details())
         else:
-            request_container.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
+            details = type(exc).__name__
+            if settings.DEBUG:
+                details = str(exc)
+            request_container.context.abort(grpc.StatusCode.UNKNOWN, details)
 
     async def async_process_exception(self, exc, context):
         if isinstance(exc, GRPCException):
             await context.abort(exc.status_code, exc.get_full_details())
         else:
-            await context.abort(grpc.StatusCode.UNKNOWN, str(exc))
+            details = type(exc).__name__
+            if settings.DEBUG:
+                details = str(exc)
+            await context.abort(grpc.StatusCode.UNKNOWN, details)
 
     def log_response(self, exception, request_container):
         extra = {

@@ -3,90 +3,79 @@
 Logging
 =======
 
-Description
------------
-
-Django-Socio-GRPC has a built-in way to handle the logging of the errors of your services.
+Django-Socio-GRPC has a built-in way to handle the logging of your services.
 
 Usage
 -----
 
-Django-Socio-GRPC uses a system of logging based on the one used by Django. `Documentation <https://docs.djangoproject.com/en/4.2/topics/logging/#topic-logging-parts-loggers>`_.
+Django-Socio-GRPC uses the `standard Django logging system <https://docs.djangoproject.com/en/4.2/topics/logging/#topic-logging-parts-loggers>`_. You can configure it in your settings.py file.
+
+=======
+Loggers
+=======
 
 
-=====================
-Logging GRPC Requests
-=====================
+django_socio_grpc.request
+##############
 
-Django-Socio-GRPC by default log requests using the logger "django_socio_grpc.request" only when something goes wrong just like Django does.
-    - If your service raises a GRPCException, it will result by default to a Warning.
-      You can define your own GRPCException and set the log_level as you wish to change this.
-    - If your service raises another Exception, it will result in an Error.
-    - Logging incoming request is only activated when in DEBUG mode or if LOG_OK_RESPONSE settings is set to True
+Log messages related to the handling of gRPC requests.
 
-These messages have the additional context :
+- If your service raises a `GRPCException`, it will result in a **WARNING** message.
+  You can define your own `GRPCException` and set the `log_level` as you wish to change this.
+- If your service raises another Exception, it will result in an **ERROR** message.
+- Logging of **OK** responses is only activated when in `DEBUG` mode or if `LOG_OK_RESPONSE` settings is set to True
 
-    - status_code: The Grpc_Response code associated with the request.
-    - request: The request object.
+Messages to this logger have the following extra context:
+
+- status_code: The **grpc.StatusCode** returned.
+- request: The `GRPCRequestContainer` object that generated the logging message.
 
 Example
 -------
 
-Let's set up a simple logging process and see the results
-
-Here's an example of logging setup.
+With the following service :
 
 .. code-block:: python
+
+    class SomethingService(Service):
+
+        @grpc_action(request=[], response=[])
+            async def RaiseUncaughtException(self, request, context):
+            raise ValueError("test log")
+
+        @grpc_action(request=[], response=[])
+            async def RaiseGrpcException(self, request, context):
+            raise NotFound("test log")
+
+With the following logging settings :
+
+.. code-block:: python
+
     LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "filters": {"require_debug_false": {"()": "django.utils.log.RequireDebugFalse"}},
+        ...,
         "formatters": {
+            ...,
             "classic": {
-                "format": "[django]-[%(levelname)s]-[%(asctime)s]-[%(name)s:%(lineno)s] %(message)s"
+                "format": "{levelname} {message}",
             },
         },
         "handlers": {
-            "null": {"level": "DEBUG", "class": "logging.NullHandler"},
-            "console": {
-                "level": logging.DEBUG if DEBUG else logging.INFO,
+            ...,
+            "request": {
+                "level": "INFO",
                 "class": "logging.StreamHandler",
-                "stream": sys.stdout,
-                "formatter": "classic",
+                "formatter": "simple",
             },
         },
         "loggers": {
-            "django.db.backends": {"handlers": ["console"], "propagate": False},
-            "django.utils.autoreload": {"handlers": ["console"]},
-            "django.security.DisallowedHost": {"handlers": ["null"], "propagate": False},
-            "django": {"handlers": ["console"], "propagate": True},
-            "": {"handlers": ["console"], "level": "DEBUG", "propagate": True},
+            ...,
+            "django_socio_grpc.request": {"handlers": ["request"], "level": "WARNING", "propagate": False},
         },
     }
 
-With services like this :
-
-.. code-block:: python
-
-    class SomethingService(generics.AsyncModelService):
-        queryset = Something.objects.all()
-        serializer_class = SomethingProtoSerializer
-
-    @grpc_action(request=[], response=[])
-    async def LogError(self, request, context):
-        logger.error("test log from testgrpc in test-infra-back: LogError")
-        return empty_pb2.Empty()
-
-    @grpc_action(request=[], response=[])
-        async def RaiseException(self, request, context):
-        raise ValueError("test log from testgrpc in test-infra-back: RaiseException")
-
-    @grpc_action(request=[], response=[])
-        async def RaiseGrpcException(self, request, context):
-        raise NotFound("test log from testgrpc in test-infra-back: RaiseGRPCException")
-
-It will result in logs like this :
+You will get the following logs :
 
 .. code-block::
-    [django]-[WARNING]-[2023-11-17T10:32:58.099154]-[django_socio_grpc.request:283] NotFound : test log from testgrpc in test-infra-back: RaiseGRPCException
-    [django]-[ERROR]-[2023-11-17T10:37:57.276262]-[django_socio_grpc.request:291] ValueError : test log from testgrpc in test-infra-back: RaiseException
+
+    WARNING NotFound : SomethingService/RaiseGRPCException
+    ERROR ValueError : SomethingService/RaiseUncaughtException

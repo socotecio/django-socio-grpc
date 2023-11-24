@@ -11,5 +11,6 @@ Features
    proto-generation
    exceptions
    authentication-permissions
+   logging
    streaming
    commands

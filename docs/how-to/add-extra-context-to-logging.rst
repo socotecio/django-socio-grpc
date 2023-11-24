@@ -5,7 +5,7 @@ Description
 -----------
 
 Here's how you can add extra context to your logging in Django-Socio-GRPC
-    
+
 Usage
 -----
 
@@ -14,22 +14,23 @@ Logging GRPC Services
 =====================
 
 You'll want to be able to log information about your grpc services.
-Django-Socio-GRPC is built-in with existing loggers to get information from GRPC services
+Django-Socio-GRPC is built-in with :ref:`existing loggers<logging>` to get information from GRPC services
 
 If you want to add information to your logs from grpc. You will need to define something like these two functions and call set_log_record_factory in your settings before any log using your formatter is called.
 
 .. code-block:: python
+
     def default_get_log_extra_context(service: "GenericService"):
-    """
-    It allow logs to have extra data about the current context of the log. Used especially for tracing system.
-    """
-    extra_context = {
-        "grpc_service_name": service.get_service_name(),
-        "grpc_action": service.action,
-    }
-    if hasattr(service.context, "user") and hasattr(service.context.user, "pk"):
-        extra_context["grpc_user_pk"] = service.context.user.pk
-        return extra_context
+        """
+        It allow logs to have extra data about the current context of the log. Used especially for tracing system.
+        """
+        extra_context = {
+            "grpc_service_name": service.get_service_name(),
+            "grpc_action": service.action,
+        }
+        if hasattr(service.context, "user") and hasattr(service.context.user, "pk"):
+            extra_context["grpc_user_pk"] = service.context.user.pk
+            return extra_context
 
 
     def set_log_record_factory():
@@ -63,9 +64,10 @@ If you want to add information to your logs from grpc. You will need to define s
 
         logging.setLogRecordFactory(record_factory)
 
-In this example it will enable you to define formatters like this for example.
+In this example it will enable you to define formatters like these:
 
 .. code-block:: python
+
     "formatters": {
         "django_socio_grpc_formatter": {
             "format": "[django]-[%(levelname)s]-[%(asctime)s]-[%(name)s:%(lineno)s] [{grpc_service_name} {grpc_action} {grpc_user_pk}] %(message)s",
@@ -74,4 +76,3 @@ In this example it will enable you to define formatters like this for example.
             "format": "[django]-[%(levelname)s]-[%(asctime)s]-[%(name)s:%(lineno)s] %(message)s",
         },
     }
-

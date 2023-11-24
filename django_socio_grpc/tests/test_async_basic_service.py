@@ -7,13 +7,13 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.services.basic_service import BasicService
 from google.protobuf import json_format
 
-from .grpc_test_utils.fake_grpc import FakeAIOGRPC
+from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestAsyncModelService(TestCase):
     def setUp(self):
-        self.fake_grpc = FakeAIOGRPC(
+        self.fake_grpc = FakeFullAIOGRPC(
             add_BasicControllerServicer_to_server, BasicService.as_servicer()
         )
 

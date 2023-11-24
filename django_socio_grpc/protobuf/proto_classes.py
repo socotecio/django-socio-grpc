@@ -35,7 +35,7 @@ from django_socio_grpc.utils.tools import rreplace
 from .exceptions import ProtoRegistrationError
 from .typing import FieldCardinality, FieldDict
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.generation")
 
 
 class ProtoComment:

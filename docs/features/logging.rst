@@ -7,7 +7,7 @@ Description
 -----------
 
 Django-Socio-GRPC has a built-in way to handle the logging of the errors of your services.
-    
+
 Usage
 -----
 
@@ -18,13 +18,13 @@ Django-Socio-GRPC uses a system of logging based on the one used by Django. `Doc
 Logging GRPC Requests
 =====================
 
-Django-Socio-GRPC by default log requests only when something goes wrong just like Django does.
+Django-Socio-GRPC by default log requests using the logger "django_socio_grpc.request" only when something goes wrong just like Django does.
     - If your service raises a GRPCException, it will result by default to a Warning.
       You can define your own GRPCException and set the log_level as you wish to change this.
     - If your service raises another Exception, it will result in an Error.
     - Logging incoming request is only activated when in DEBUG mode or if LOG_OK_RESPONSE settings is set to True
 
-These messages have the additional context : 
+These messages have the additional context :
 
     - status_code: The Grpc_Response code associated with the request.
     - request: The request object.

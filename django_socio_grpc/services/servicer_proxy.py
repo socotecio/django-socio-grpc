@@ -299,7 +299,7 @@ class ServicerProxy(MiddlewareCapable):
 
     def log_response(self, exception, request_container):
         extra = {
-            "request": request_container.grpc_request,
+            "request": request_container,
             "status_code": request_container.context.code(),
         }
         path = f"{self.service_class.get_service_name()}/{request_container.action}"

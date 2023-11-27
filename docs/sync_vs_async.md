@@ -69,6 +69,7 @@ class BuildingService(RetrieveService):
 
 ```python
 from django_socio_grpc.generics import GenericService
+from django_socio_grpc.decorators import grpc_action
 
 from buildings.models import Building
 from buildings.serializers import TemperatureSerializer
@@ -119,6 +120,7 @@ class BuildingService(AsyncRetrieveService):
 
 ```python
 from django_socio_grpc.generics import GenericService
+from django_socio_grpc.decorators import grpc_action
 
 from buildings.models import Building
 from buildings.serializers import TemperatureSerializer

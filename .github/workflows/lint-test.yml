@@ -2,7 +2,8 @@ name: DSG lint test workflow
 on:
   push:
     branches:
-      - '*'
+      - "*"
+  pull_request:
 
 env:
   DB_NAME: postgres

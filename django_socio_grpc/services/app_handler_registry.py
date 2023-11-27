@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from django_socio_grpc.services import Service
 
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.registration")
 
 
 @dataclass
@@ -56,6 +56,11 @@ class AppHandlerRegistry:
     def get_service_class_from_service_name(
         self, service_name, service_file_path=None
     ) -> Type["Service"]:
+        logger.warning(
+            "Using the service name to import the service is deprecated."
+            "Please import your service manually and pass the class instead of the name"
+        )
+
         is_manual_service_path = service_file_path is not None
 
         try:

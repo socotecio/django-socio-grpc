@@ -57,6 +57,5 @@ class TestAuthWithoutSessionMiddleware(TestCase):
         response = await grpc_stub.FetchDataForUser(request=request)
 
         user_data_dict = json_format.MessageToDict(response.user_data)
-        print(user_data_dict)
 
         self.assertEqual(user_data_dict["email"], "john.doe@johndoe.com")

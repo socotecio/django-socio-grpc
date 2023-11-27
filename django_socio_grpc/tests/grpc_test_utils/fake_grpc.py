@@ -37,18 +37,6 @@ class FakeServer:
         pass
 
 
-class FakeRpcError(RuntimeError, grpc.RpcError):
-    def __init__(self, code, details):
-        self._code = code
-        self._details = details
-
-    def code(self):
-        return self._code
-
-    def details(self):
-        return self._details
-
-
 class _BaseFakeContext:
     def __init__(self, stream_pipe=None, auto_eof=True):
         # INFO - FB - 11/10/2022 - When you run Stream to Stream, you have to write on different Queue
@@ -68,6 +56,8 @@ class _BaseFakeContext:
             self.stream_pipe_server.put(grpc.aio.EOF)
 
         self._invocation_metadata = []
+        self._code = grpc.StatusCode.OK
+        self._details = None
 
     def __iter__(self):
         return self
@@ -79,8 +69,16 @@ class _BaseFakeContext:
         else:
             return response
 
+    def set_code(self, code):
+        self._code = code
+
+    def set_details(self, details):
+        self._details = details
+
     def abort(self, code, details):
-        raise FakeRpcError(code, details)
+        self.set_code(code)
+        self.set_details(details)
+        raise grpc.RpcError(code, details)
 
     def invocation_metadata(self):
         return self._invocation_metadata
@@ -96,6 +94,12 @@ class _BaseFakeContext:
 
     def _read_client(self):
         return self.stream_pipe_server.get_nowait()
+
+    def code(self):
+        return self._code
+
+    def details(self):
+        return self._details
 
 
 class FakeState:

@@ -6,11 +6,15 @@ But with the grpc code: https://grpc.github.io/grpc/python/grpc.html#grpc-status
 This file will grown to support all the gRPC exception when needed
 """
 import json
+from logging import Logger, getLogger
+from typing import Literal
 
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 from grpc import StatusCode
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
+
+exception_logger = getLogger("django_socio_grpc.exceptions")
 
 
 def _get_error_details(data, default_code=None):
@@ -47,6 +51,8 @@ def _get_full_details(detail):
         full_details = [_get_full_details(item) for item in detail]
     elif isinstance(detail, dict):
         full_details = {key: _get_full_details(value) for key, value in detail.items()}
+    elif isinstance(detail, str):
+        full_details = detail
     else:
         full_details = {"message": detail, "code": detail.code}
     return json.dumps(full_details)
@@ -102,17 +108,21 @@ class ProtobufGenerationException(Exception):
         return f"Error on protobuf generation on model {self.model_name} on app {self.app_name}: {self.detail}"
 
 
+LOGGING_LEVEL = Literal["INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
 class GRPCException(Exception):
     """
     Base class for Socio gRPC framework runtime exceptions.
     Subclasses should provide `.status_code` and `.default_detail` properties.
     """
 
-    status_code = StatusCode.INTERNAL
-    default_detail = _("A server error occurred.")
-    default_code = "error"
+    status_code: StatusCode = StatusCode.INTERNAL
+    default_detail: str = _("A server error occurred.")
+    default_code: str = "error"
+    logging_level: LOGGING_LEVEL = "WARNING"
 
-    def __init__(self, detail=None, code=None):
+    def __init__(self, code=None, detail=None):
         if detail is None:
             detail = self.default_detail
         if code is None:
@@ -138,6 +148,16 @@ class GRPCException(Exception):
         Eg. {"name": [{"message": "This field is required.", "code": "required"}]}
         """
         return _get_full_details(self.detail)
+
+    def log_exception(self, logger: Logger, message: str, extra={}):
+        try:
+            log_level = getattr(logger, self.logging_level.lower())
+        except AttributeError:
+            exception_logger.warning(
+                f"Unsupported logging level {self.logging_level}. Defaulting to Warning"
+            )
+            log_level = logger.warning
+        log_level(message, exc_info=self, extra=extra)
 
 
 class Unauthenticated(GRPCException):

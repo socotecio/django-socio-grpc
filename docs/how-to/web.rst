@@ -14,15 +14,16 @@ It works the same as traditional gRPC, except that a proxy is charged with trans
 
 Depending on the backend you use, `you may even not need a proxy but just some middleware <https://github.com/grpc/grpc-web#ecosystem>`_. But in Python, it's still needed for now. The goal is that gRPC-web supports directly in language-specific web framework following `their roadmap <https://github.com/grpc/grpc-web/blob/master/doc/roadmap.md>`_.
 
-If you are considering a production deployment on a Kubernetes cluster, please read :ref:`Istio config`. For local development, follow the next steps.
+If you are considering a production deployment on a Kubernetes cluster, please read :ref:`Istio Config`. For local development, follow the next steps.
 
+.. _Understanding differences in the grpc-web ecosystem:
 
 Understanding differences in the grpc-web ecosystem
 ---------------------------------------------------
 
 The first step is to understand the differences between the concepts.
 
-#. Protocol for gRPC in the browser
+1. Protocol for gRPC in the browser
 
   The protocol is the technical way to encapsulate gRPC request/response into compatible browser requests that are then converted by a proxy to HTTP/2 gRPC requests/response.
 
@@ -31,7 +32,7 @@ The first step is to understand the differences between the concepts.
   * `gRPC-WEB <https://github.com/grpc/grpc-web>`_: the first one created to make gRPC API work in the browser
   * `BUF Connect <https://connectrpc.com/>`_: The new kid on the block that implements its own protocol that aims to include all the different protocols automatically in one. It now supports Go, Node & Browser, Swift, Kotlin. So we can't use it with DSG for now.
 
-#. The Protocol buffer compiler plugins for the browser
+2. The Protocol buffer compiler plugins for the browser
 
   One of the gRPC framework core functionalities is the generation of the client code from the proto file in different languages to make the RPC work.
 
@@ -45,7 +46,7 @@ The first step is to understand the differences between the concepts.
     * @connectrpc/protoc-gen-connect-es `The BUF plugin for generating Service <https://github.com/connectrpc/connect-es>`_
     * @bufbuild/protoc-gen-es `The buf plugin for request and message <https://github.com/bufbuild/protobuf-es>`_
 
-#. The Import style of the client generation
+3. The Import style of the client generation
 
   In Browser JS, the ecosystem is wild, and there are a lot of different import systems like: `ESM <https://nodejs.org/api/esm.html>`_, `CommonJs <https://nodejs.org/api/modules.html>`, `Closure <https://github.com/google/closure-library/wiki/goog.module:-an-ES6-module-like-alternative-to-goog.provide>`. And you also have the Typescript/Javascript difference depending on your project.
 
@@ -58,7 +59,7 @@ The first step is to understand the differences between the concepts.
 
   Note: `Vite <https://vitejs.dev/>`_ does not support commonjs as it aims to increase the speed of js compilation by using only ESM module. `See <https://github.com/grpc/grpc-web/issues/1242>`_.
 
-#. The client
+4. The client
 
   To use the generated files, there are multiple options:
 
@@ -68,7 +69,7 @@ The first step is to understand the differences between the concepts.
 
   Improbable works with grpc-web generated files, BUF connect works with BUF CLI generated files
 
-#. The DSG recommendation
+5. The DSG recommendation
 
   Regarding the progress in the grpc ecosystem lately, here is what we recommend as the DSG core team:
 
@@ -125,6 +126,8 @@ However, there are some details that can be confusing:
 * If API fields use snake_case, they should be set and get by camelCase when using the `createGrpcWebTransport` as grpc-web automatically converts fields.
 
 See `our DSG example for a more explicit example <https://github.com/socotecio/django-socio-grpc-example/src/components/APIExample.vue>`_.
+
+.. _Istio Config:
 
 Istio Config
 -------------

@@ -1,7 +1,8 @@
 import abc
 import asyncio
+import json
 import logging
-from typing import TYPE_CHECKING, AsyncIterable, Awaitable, Callable, Type
+from typing import TYPE_CHECKING, AsyncIterable, Awaitable, Callable, Tuple, Type
 
 import grpc
 from asgiref.local import Local
@@ -11,8 +12,9 @@ from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
 from django.core.handlers.base import BaseHandler
 from django.utils.module_loading import import_string
 from google.protobuf.message import Message
+from rest_framework.exceptions import APIException
 
-from django_socio_grpc.exceptions import GRPCException, Unimplemented
+from django_socio_grpc.exceptions import HTTP_CODE_TO_GRPC_CODE, GRPCException, Unimplemented
 from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
     GRPCRequestContainer,
@@ -27,6 +29,7 @@ if TYPE_CHECKING:
 
 middleware_logger = logging.getLogger("django_socio_grpc.middlewares")
 request_logger = logging.getLogger("django_socio_grpc.request")
+exception_logger = logging.getLogger("django_socio_grpc.exceptions")
 
 
 _ServicerCtx = Local()
@@ -228,7 +231,7 @@ class ServicerProxy(MiddlewareCapable):
                 return response.grpc_response
             except Exception as e:
                 exc = e
-                self.process_exception(e, request_container)
+                self.process_exception(e, context)
             finally:
                 self.log_response(exc, request_container)
 
@@ -249,7 +252,7 @@ class ServicerProxy(MiddlewareCapable):
                     yield response.grpc_response
             except Exception as e:
                 exc = e
-                self.process_exception(e, request_container)
+                self.process_exception(e, context)
             finally:
                 self.log_response(exc, request_container)
 
@@ -279,23 +282,41 @@ class ServicerProxy(MiddlewareCapable):
 
         return self.get_handler(action)
 
-    def process_exception(self, exc, request_container: GRPCRequestContainer):
-        if isinstance(exc, GRPCException):
-            request_container.context.abort(exc.status_code, exc.get_full_details())
+    def _get_status_code_and_details(self, exc: Exception) -> Tuple[grpc.StatusCode, str]:
+        if isinstance(exc, APIException):
+            status_code = exc.status_code
+            if not isinstance(status_code, grpc.StatusCode):
+                status_code = HTTP_CODE_TO_GRPC_CODE.get(status_code, grpc.StatusCode.UNKNOWN)
+            return status_code, json.dumps(exc.get_full_details())
         else:
             details = type(exc).__name__
             if settings.DEBUG:
                 details = str(exc)
-            request_container.context.abort(grpc.StatusCode.UNKNOWN, details)
+            return grpc.StatusCode.UNKNOWN, details
 
-    async def async_process_exception(self, exc, context):
-        if isinstance(exc, GRPCException):
-            await context.abort(exc.status_code, exc.get_full_details())
-        else:
-            details = type(exc).__name__
-            if settings.DEBUG:
-                details = str(exc)
-            await context.abort(grpc.StatusCode.UNKNOWN, details)
+    def process_exception(self, exc: Exception, context: grpc.ServicerContext):
+        status_code, details = self._get_status_code_and_details(exc)
+        context.abort(status_code, details)
+
+    async def async_process_exception(self, exc: Exception, context: grpc.aio.ServicerContext):
+        status_code, details = self._get_status_code_and_details(exc)
+        await context.abort(status_code, details)
+
+    def log_exception(self, exception: Exception, message: str, extra={}):
+        logging_level = "ERROR"
+        if isinstance(exception, GRPCException):
+            logging_level = exception.logging_level
+        elif isinstance(exception, APIException) and exception.status_code < 500:
+            logging_level = "WARNING"
+
+        try:
+            log_level = getattr(request_logger, logging_level.lower())
+        except AttributeError:
+            exception_logger.warning(
+                f"Unsupported logging level {logging_level}. Defaulting to Warning"
+            )
+            log_level = request_logger.warning
+        log_level(message, exc_info=exception, extra=extra)
 
     def log_response(self, exception, request_container):
         extra = {
@@ -310,7 +331,4 @@ class ServicerProxy(MiddlewareCapable):
                 request_logger.info(message, extra=extra)
         else:
             message = f"{type(exception).__name__} : {path}"
-            if isinstance(exception, GRPCException):
-                exception.log_exception(request_logger, message, extra=extra)
-            else:
-                request_logger.error(message, exc_info=exception, extra=extra)
+            self.log_exception(exception, message, extra=extra)

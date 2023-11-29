@@ -439,6 +439,16 @@ class ExceptionControllerStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.APIException = channel.unary_unary(
+                '/myproject.fakeapp.ExceptionController/APIException',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+        self.GRPCException = channel.unary_unary(
+                '/myproject.fakeapp.ExceptionController/GRPCException',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
         self.StreamRaiseException = channel.unary_stream(
                 '/myproject.fakeapp.ExceptionController/StreamRaiseException',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -453,6 +463,18 @@ class ExceptionControllerStub(object):
 
 class ExceptionControllerServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def APIException(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GRPCException(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def StreamRaiseException(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -469,6 +491,16 @@ class ExceptionControllerServicer(object):
 
 def add_ExceptionControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'APIException': grpc.unary_unary_rpc_method_handler(
+                    servicer.APIException,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'GRPCException': grpc.unary_unary_rpc_method_handler(
+                    servicer.GRPCException,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
             'StreamRaiseException': grpc.unary_stream_rpc_method_handler(
                     servicer.StreamRaiseException,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
@@ -488,6 +520,40 @@ def add_ExceptionControllerServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class ExceptionController(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def APIException(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.ExceptionController/APIException',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GRPCException(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.ExceptionController/GRPCException',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def StreamRaiseException(request,

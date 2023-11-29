@@ -37,6 +37,23 @@ class FakeServer:
         pass
 
 
+class _InactiveRpcError(grpc.RpcError):
+    """
+    From `grpc._channel._InactiveRpcError`
+    """
+
+    def __init__(self, code, details):
+        super().__init__(code, details)
+        self._code = code
+        self._details = details
+
+    def code(self):
+        return self._code
+
+    def details(self):
+        return self._details
+
+
 class _BaseFakeContext:
     def __init__(self, stream_pipe=None, auto_eof=True):
         # INFO - FB - 11/10/2022 - When you run Stream to Stream, you have to write on different Queue
@@ -78,7 +95,7 @@ class _BaseFakeContext:
     def abort(self, code, details):
         self.set_code(code)
         self.set_details(details)
-        raise grpc.RpcError(code, details)
+        raise _InactiveRpcError(code=code, details=details)
 
     def invocation_metadata(self):
         return self._invocation_metadata

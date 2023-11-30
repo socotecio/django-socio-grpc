@@ -11,11 +11,11 @@ Description
 
 Proto files contain the classes, descriptors and controller logic (``pb2.py`` files) and proto message syntax (``.proto`` file) necessary to run a grpc server.
 
-In django-socio-grpc, proto files are generated from  from a service that has a ``serializer_class`` attribute (mapped to a ``ProtoSerializer`` class) and inherits from a mixin that automatically generates grpc_actions (see see :ref:`Generic Mixins <Generic Mixins>`)
+In django-socio-grpc, proto files are generated from a ``grpc_action`` request / response contents (see :ref:`grpc action <grpc_action>` for more use cases).
 
-You can also generate proto files from ``grpc_action`` request / response contents (see :ref:`grpc action <grpc_action>`).
+To simplify usage ``grpc_action`` are automatically generated from the :ref:`Proto Serializer <proto-serializer>` when using :ref:`Generic Mixins <Generic Mixins>`.
 
-In order to generate these files and its contents, there is a django command to run whenever you add a ``grpc_action`` or modify your request / response
+In order to generate these files and its contents, there is a :ref:`django command <commands>` to run whenever you add a ``grpc_action``, a Service or modify your request / response
 
 Usage
 -----
@@ -107,6 +107,14 @@ Example
         ):
             # logic here
             pass
+    
+    # quickstart/handlers.py
+    from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
+    from quickstart.services import UserService
+
+    def grpc_handlers(server):
+        app_registry = AppHandlerRegistry("quickstart", server)
+        app_registry.register(UserService)
 
 At the root of your project, run:
 
@@ -171,224 +179,4 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
 Note: these files are meant for read only purposes, you can use the .proto file as a reference to verify wether
 or not your serializer fields were correctly mapped but you should not try to modify them manually.
 
-Force Message for Know Method
-=============================
-
-You can use the :ref:`grpc action <grpc_action>` decorator on the `know` method to override the default message that comes from :ref:`mixins <Generic Mixins>`.
-
-.. code-block:: python
-
-    class SomethingService(generics.AsyncModelService):
-        queryset = SpecialFieldsModel.objects.all().order_by("uuid")
-        serializer_class = SpecialFieldsModelSerializer
-
-        @grpc_action(
-            request=[{"name": "thing", "type": "string"}],
-            response=[{"name": "anything", "type": "string"}],
-        )
-        async def Retrieve(self, request, context):
-            pass
-
-Generated Proto:
-
-.. code-block:: proto
-
-    import "google/protobuf/empty.proto";
-
-    service SomethingController {
-        ...
-        rpc Retrieve(SomethingRetrieveRequest) returns (SomethingRetrieveResponse) {}
-        ...
-    }
-
-    ...
-
-    message SomethingRetrieveRequest {
-        string thing = 1;
-    }
-
-    message SomethingRetrieveResponse {
-        string anything = 1;
-    }
-
-Read-Only and Write-Only Props
-==============================
-
-If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, Django Socio gRPC will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., `editable=False`).
-
-Example:
-
-.. code-block:: python
-
-    class BasicServiceSerializer(proto_serializers.ProtoSerializer):
-
-        user_name = serializers.CharField(read_only=True)
-        email = serializers.CharField()
-        password = serializers.CharField(write_only=True)
-
-        class Meta:
-            fields = ["user_name", "email", "password"]
-
-Generated Message:
-
-.. code-block:: proto
-
-    message BasicServiceRequest {
-        string user_name = 1;
-        string password = 2;
-    }
-
-    message BasicServiceResponse {
-        string user_name = 1;
-        string email = 2;
-    }
-
-Nested Serializer
-================
-
-Django Socio gRPC supports nested serializers without any extra work. Just try it.
-
-.. code-block:: python
-
-    class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
-        foreign_obj = ForeignModelSerializer(read_only=True)
-        many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
-
-        class Meta:
-            model = RelatedFieldModel
-            fields = ["uuid", "foreign_obj", "many_many_obj"]
-
-Generated Proto:
-
-.. code-block:: proto
-
-    message RelatedFieldModelResponse {
-        string uuid = 1;
-        ForeignModelResponse foreign_obj = 2;
-        repeated ManyManyModelResponse many_many_obj = 3;
-    }
-
-Special Case of BaseProtoSerializer
-====================================
-
-As `BaseProtoSerializer` doesn't have fields but only `to_representation` and `to_internal_value`, we can't automatically introspect code to find the correct proto type.
-
-To address this issue, you have to manually declare the name and protobuf type of the `BaseProtoSerializer` in a `to_proto_message` method.
-
-This `to_proto_message` needs to return a list of dictionaries in the same format as :ref:`grpc action <grpc_action>` request or response as a list input.
-
-.. code-block:: python
-
-    class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
-        def to_representation(self, el):
-            return {
-                "uuid": str(el.uuid),
-                "number_of_elements": el.number_of_elements,
-                "is_archived": el.is_archived,
-            }
-
-        def to_proto_message(self):
-            return [
-                {"name": "uuid", "type": "string"},
-                {"name": "number_of_elements", "type": "int32"},
-                {"name": "is_archived", "type": "bool"},
-            ]
-
-Generated Proto:
-
-.. code-block:: proto
-
-    message BaseProtoExampleResponse {
-        string uuid = 1;
-        int32 number_of_elements = 2;
-        bool is_archived = 3;
-    }
-
-Special Case of MethodSerializerField
-=====================================
-
-DRF `MethodSerializerField` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field. To circumvent this problem, Django Socio gRPC introduces function introspection where we are looking for return annotation in the method to find the prototype.
-
-.. code-block:: python
-
-    from typing import List, Dict
-
-    class ExampleSerializer(proto_serializers.ProtoSerializer):
-
-        default_method_field = serializers.SerializerMethodField()
-        custom_method_field = serializers.SerializerMethodField(method_name="custom_method")
-
-        def get_default_method_field(self, obj) -> int:
-            return 3
-
-        def custom_method(self, obj) -> List[Dict]:
-            return [{"test": "test"}]
-
-        class Meta:
-            fields = ["default_method_field", "custom_method_field"]
-
-Generated Proto:
-
-.. code-block:: proto
-
-    message ExampleResponse {
-        int32 default_method_field = 2;
-        repeated google.protobuf.Struct custom_method_field = 3;
-    }
-
-Customizing the Name of the Field in the ListResponse
-=====================================================
-
-By default, the name of the field used for the list response is `results`. You can override it in the meta of your serializer:
-
-.. code-block:: python
-
-    class ExampleSerializer(proto_serializers.ProtoSerializer):
-
-        uuid = serializers.CharField()
-        name = serializers.CharField()
-
-        class Meta:
-            message_list_attr = "list_custom_field_name"
-            fields = ["uuid", "name"]
-
-Generated Proto:
-
-.. code-block:: proto
-
-    message ExampleResponse {
-        string uuid = 1;
-        string name = 2;
-    }
-
-    message ExampleListResponse {
-        repeated ExampleResponse list_custom_field_name = 1;
-        int32 count = 2;
-    }
-
-Adding Comments to Fields
-========================
-
-You could specify comments for fields in your model (proto message) via `help_text` attribute and `django_socio_grpc.utils.tools.ProtoComment` class:
-
-.. code-block:: python
-
-    class ExampleSerializer(proto_serializers.ProtoSerializer):
-
-        name = serializers.CharField(help_text=ProtoComment(["Comment for the name field"]))
-        value = serializers.CharField(help_text=ProtoComment(["Multiline comment", "for the value field"]))
-
-        class Meta:
-            fields = ["name", "value"]
-
-Generated Proto:
-
-.. code-block:: proto
-
-    message ExampleResponse {
-        // Comment for the name field
-        string name = 1;
-        // Multiline comment
-        // for the value field
-        string value = 2;
-    }
+For more example and use case go to :ref:`Generic Mixins <Generic Mixins>` and :ref:`grpc action <grpc_action>`

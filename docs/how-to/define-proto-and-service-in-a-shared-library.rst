@@ -21,9 +21,7 @@ To ensure the service can be shared, you must use the `to_root_grpc` argument in
 as shown in the example below.
 
 This argument allows the proto generation to create a .proto and pb2 file in a special folder at the root of the library, with the path defined 
-in grpc_settings.ROOT_GRPC_FOLDER from django-socio-grpc. (by default, the name of this folder will be grpc_folder at the root of your application)
-
-:ref:`settings<_root_grpc_folder_settings>`.
+in :ref:`grpc_settings.ROOT_GRPC_FOLDER <_root_grpc_folder_settings>` from django-socio-grpc. (by default, the name of this folder will be grpc_folder at the root of your application).
 
 Example
 -------
@@ -34,11 +32,11 @@ In this specific case, my_external_library is an external library.
 
   from my_external_library import ExternalService
 
-    def handler(server):
-        registry = AppHandlerRegistry(
-            app_name="my_external_library", server=server, to_root_grpc=True
-        )
-        app_registry.register(ExternalService)
+  def handler(server):
+      registry = AppHandlerRegistry(
+          app_name="my_external_library", server=server, to_root_grpc=True
+      )
+      app_registry.register(ExternalService)
 
 By defining here, "to_root_grpc=True", when you generate your protos, they will be added in a folder with the name and path defined in your 
 setting grpc_settings.ROOT_GRPC_FOLDER. (by default grpc_folder at the root of your application).

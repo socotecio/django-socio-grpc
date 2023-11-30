@@ -171,218 +171,224 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
 Note: these files are meant for read only purposes, you can use the .proto file as a reference to verify wether
 or not your serializer fields were correctly mapped but you should not try to modify them manually.
 
-## Force message for know method
+Force Message for Know Method
+=============================
 
-You can use `grpc_action` decorator on know method to override default message.
+You can use the :ref:`grpc action <grpc_action>` decorator on the `know` method to override the default message that comes from :ref:`mixins <Generic Mixins>`.
 
-```python
-class SomethingService(generics.AsyncModelService):
-    queryset = SpecialFieldsModel.objects.all().order_by("uuid")
-    serializer_class = SpecialFieldsModelSerializer
+.. code-block:: python
 
-    @grpc_action(
-        request=[{"name": "thing", "type": "string"}],
-        response=[{"name": "anything", "type": "string"}],
-    )
-    async def Retrieve(self, request, context):
-        pass
-```
+    class SomethingService(generics.AsyncModelService):
+        queryset = SpecialFieldsModel.objects.all().order_by("uuid")
+        serializer_class = SpecialFieldsModelSerializer
 
-Generate:
+        @grpc_action(
+            request=[{"name": "thing", "type": "string"}],
+            response=[{"name": "anything", "type": "string"}],
+        )
+        async def Retrieve(self, request, context):
+            pass
 
-```proto
+Generated Proto:
 
-import "google/protobuf/empty.proto";
+.. code-block:: proto
 
-service SomethingController {
+    import "google/protobuf/empty.proto";
+
+    service SomethingController {
+        ...
+        rpc Retrieve(SomethingRetrieveRequest) returns (SomethingRetrieveResponse) {}
+        ...
+    }
+
     ...
-    rpc Retrieve(SomethingRetrieveRequest) returns (SomethingRetrieveResponse) {}
-    ...
-}
 
-...
+    message SomethingRetrieveRequest {
+        string thing = 1;
+    }
 
-message SomethingRetrieveRequest {
-    string thing = 1;
-}
+    message SomethingRetrieveResponse {
+        string anything = 1;
+    }
 
-message SomethingRetrieveResponse {
-    string anything = 1;
-}
+Read-Only and Write-Only Props
+==============================
 
-...
-```
-
-## Read Only and write only props
-
-If the settings `SEPARATE_READ_WRITE_MODEL` is true. Django Socio gRPC will automatically use read_only and write_only field kwargs to generate field only in request or response message.
-This is also true for django field with specific value (editable=False or similar)
+If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, Django Socio gRPC will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., `editable=False`).
 
 Example:
 
-```python
-class BasicServiceSerializer(proto_serializers.ProtoSerializer):
+.. code-block:: python
 
-    user_name = serializers.CharField(read_only=True)
-    email = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+    class BasicServiceSerializer(proto_serializers.ProtoSerializer):
 
-    class Meta:
-        fields = ["user_name", "email", "password"]
-```
+        user_name = serializers.CharField(read_only=True)
+        email = serializers.CharField()
+        password = serializers.CharField(write_only=True)
 
-Generate a message like:
+        class Meta:
+            fields = ["user_name", "email", "password"]
 
-```proto
-message BasicServiceRequest {
-    string user_name = 1;
-    string password = 2;
-}
+Generated Message:
 
-message BasicServiceResponse {
-    string user_name = 1;
-    string email = 2;
-}
-```
+.. code-block:: proto
 
-## Nested serializer
+    message BasicServiceRequest {
+        string user_name = 1;
+        string password = 2;
+    }
 
-Django Socio gRPC support nested serializer without no extra work. Just try it.
+    message BasicServiceResponse {
+        string user_name = 1;
+        string email = 2;
+    }
 
-```python
-class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
-    foreign_obj = ForeignModelSerializer(read_only=True)
-    many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
+Nested Serializer
+================
 
-    class Meta:
-        model = RelatedFieldModel
-        fields = ["uuid", "foreign_obj", "many_many_obj"]
-```
+Django Socio gRPC supports nested serializers without any extra work. Just try it.
 
-```proto
-message RelatedFieldModelResponse {
-    string uuid = 1;
-    ForeignModelResponse foreign_obj = 2;
-    repeated ManyManyModelResponse many_many_obj = 3;
-}
-```
+.. code-block:: python
 
-## Special case of BaseProtoSerializer
+    class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
+        foreign_obj = ForeignModelSerializer(read_only=True)
+        many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
 
-As BaseProtoSerializer doesn't have fields but only to_representation and to_internal_value we can't automatically instropect code to find the correct proto type.
+        class Meta:
+            model = RelatedFieldModel
+            fields = ["uuid", "foreign_obj", "many_many_obj"]
 
-To address this issue you have to manually declare the name and protobuf type of the BaseProtoSerializer in a `to_proto_message` method.
+Generated Proto:
 
-This `to_proto_message` need to return a list of dict in the same format that `grpc_action` request or response as list input.
+.. code-block:: proto
 
-```python
-class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
-    def to_representation(self, el):
-        return {
-            "uuid": str(el.uuid),
-            "number_of_elements": el.number_of_elements,
-            "is_archived": el.is_archived,
-        }
+    message RelatedFieldModelResponse {
+        string uuid = 1;
+        ForeignModelResponse foreign_obj = 2;
+        repeated ManyManyModelResponse many_many_obj = 3;
+    }
 
-    def to_proto_message(self):
-        return [
-            {"name": "uuid", "type": "string"},
-            {"name": "number_of_elements", "type": "int32"},
-            {"name": "is_archived", "type": "bool"},
-        ]
-```
+Special Case of BaseProtoSerializer
+====================================
 
-```proto
-message BaseProtoExampleResponse {
-    string uuid = 1;
-    int32 number_of_elements = 2;
-    bool is_archived = 3;
-}
-```
+As `BaseProtoSerializer` doesn't have fields but only `to_representation` and `to_internal_value`, we can't automatically introspect code to find the correct proto type.
 
-## Special case of MethodSerializerField
+To address this issue, you have to manually declare the name and protobuf type of the `BaseProtoSerializer` in a `to_proto_message` method.
 
-DRF MethodSerializerField class is a field type that return the result of a method. So there is no possibility to automatically find the type of this field.
-To contourn this problem Django Socio gRPC introduce function introspection where we are looking for return annotation in the method to find the prototype
+This `to_proto_message` needs to return a list of dictionaries in the same format as :ref:`grpc action <grpc_action>` request or response as a list input.
 
-```python
-from typing import List, Disct
+.. code-block:: python
 
-class ExampleSerializer(
-    proto_serializers.ProtoSerializer
-):
+    class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
+        def to_representation(self, el):
+            return {
+                "uuid": str(el.uuid),
+                "number_of_elements": el.number_of_elements,
+                "is_archived": el.is_archived,
+            }
 
-    default_method_field = serializers.SerializerMethodField()
-    custom_method_field = serializers.SerializerMethodField(method_name="custom_method")
+        def to_proto_message(self):
+            return [
+                {"name": "uuid", "type": "string"},
+                {"name": "number_of_elements", "type": "int32"},
+                {"name": "is_archived", "type": "bool"},
+            ]
 
-    def get_default_method_field(self, obj) -> int:
-        return 3
+Generated Proto:
 
-    def custom_method(self, obj) -> List[Dict]:
-        return [{"test": "test"}]
+.. code-block:: proto
 
-    class Meta:
-        fields = ["default_method_field", "custom_method_field"]
-```
+    message BaseProtoExampleResponse {
+        string uuid = 1;
+        int32 number_of_elements = 2;
+        bool is_archived = 3;
+    }
 
-```proto
-message ExampleResponse {
-    int32 default_method_field = 2;
-    repeated google.protobuf.Struct custom_method_field = 3;
-}
-```
+Special Case of MethodSerializerField
+=====================================
 
+DRF `MethodSerializerField` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field. To circumvent this problem, Django Socio gRPC introduces function introspection where we are looking for return annotation in the method to find the prototype.
 
-## Customizing the name of the field in the ListResponse
+.. code-block:: python
 
-By default the name of the field used for list response is `results`. You can override it in the meta of your serializer:
+    from typing import List, Dict
 
-```python
-class ExampleSerializer(proto_serializers.ProtoSerializer):
+    class ExampleSerializer(proto_serializers.ProtoSerializer):
 
-    uuid = serializers.CharField()
-    name = serializers.CharField()
+        default_method_field = serializers.SerializerMethodField()
+        custom_method_field = serializers.SerializerMethodField(method_name="custom_method")
 
-    class Meta:
-        message_list_attr = "list_custom_field_name"
-        fields = ["uuid", "name"]
+        def get_default_method_field(self, obj) -> int:
+            return 3
 
-```
+        def custom_method(self, obj) -> List[Dict]:
+            return [{"test": "test"}]
 
-```proto
-message ExampleResponse {
-    string uuid = 1;
-    string name = 2;
-}
+        class Meta:
+            fields = ["default_method_field", "custom_method_field"]
 
-message ExampleListResponse {
-    repeated ExampleResponse list_custom_field_name = 1;
-    int32 count = 2;
-}
-```
+Generated Proto:
 
+.. code-block:: proto
 
-## Add comments to fields
+    message ExampleResponse {
+        int32 default_method_field = 2;
+        repeated google.protobuf.Struct custom_method_field = 3;
+    }
+
+Customizing the Name of the Field in the ListResponse
+=====================================================
+
+By default, the name of the field used for the list response is `results`. You can override it in the meta of your serializer:
+
+.. code-block:: python
+
+    class ExampleSerializer(proto_serializers.ProtoSerializer):
+
+        uuid = serializers.CharField()
+        name = serializers.CharField()
+
+        class Meta:
+            message_list_attr = "list_custom_field_name"
+            fields = ["uuid", "name"]
+
+Generated Proto:
+
+.. code-block:: proto
+
+    message ExampleResponse {
+        string uuid = 1;
+        string name = 2;
+    }
+
+    message ExampleListResponse {
+        repeated ExampleResponse list_custom_field_name = 1;
+        int32 count = 2;
+    }
+
+Adding Comments to Fields
+========================
 
 You could specify comments for fields in your model (proto message) via `help_text` attribute and `django_socio_grpc.utils.tools.ProtoComment` class:
 
-```python
-class ExampleSerializer(proto_serializers.ProtoSerializer):
+.. code-block:: python
 
-    name = serializers.CharField(help_text=ProtoComment(["Comment for the name field"]))
-    value = serializers.CharField(help_text=ProtoComment(["Multiline comment", "for the value field"]))
+    class ExampleSerializer(proto_serializers.ProtoSerializer):
 
-    class Meta:
-        fields = ["name", "value"]
+        name = serializers.CharField(help_text=ProtoComment(["Comment for the name field"]))
+        value = serializers.CharField(help_text=ProtoComment(["Multiline comment", "for the value field"]))
 
-```
+        class Meta:
+            fields = ["name", "value"]
 
-```proto
-message ExampleResponse {
-    // Comment for the name field
-    string name = 1;
-    // Multiline comment
-    // for the value field
-    string value = 2;
-}
-```
+Generated Proto:
+
+.. code-block:: proto
+
+    message ExampleResponse {
+        // Comment for the name field
+        string name = 1;
+        // Multiline comment
+        // for the value field
+        string value = 2;
+    }

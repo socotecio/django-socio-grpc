@@ -1,12 +1,14 @@
 """
-Handled exceptions raised by socio grpc framework.
+This module contains all the exceptions that can be raised by DSG.
 
-this file is almost identical to https://github.com/encode/django-rest-framework/blob/master/rest_framework/exceptions.py
-But with the grpc code: https://grpc.github.io/grpc/python/grpc.html#grpc-status-code
-This file will grown to support all the gRPC exception when needed
+It builds on top of DRF APIException and adds gRPC status codes to the exceptions.
+https://www.django-rest-framework.org/api-guide/exceptions/#apiexception
 """
-from typing import Literal
+import json
+from typing import Literal, Tuple
 
+import grpc
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from grpc import StatusCode
 from rest_framework import status
@@ -79,6 +81,26 @@ class Unimplemented(GRPCException):
     default_code = "unimplemented"
 
 
+def get_exception_status_code_and_details(exc: Exception) -> Tuple[grpc.StatusCode, str]:
+    """
+    Get the gRPC status code and details from the exception.
+    `rest_framework.exceptions.APIException` HTTP status codes are mapped to gRPC status codes.
+    Other exceptions are mapped to `grpc.StatusCode.UNKNOWN`. Their details are the exception class name.
+    In debug mode, the details are the exception message.
+    """
+
+    if isinstance(exc, APIException):
+        status_code = exc.status_code
+        if not isinstance(status_code, grpc.StatusCode):
+            status_code = HTTP_CODE_TO_GRPC_CODE.get(status_code, grpc.StatusCode.UNKNOWN)
+        return status_code, json.dumps(exc.get_full_details())
+    else:
+        details = type(exc).__name__
+        if settings.DEBUG:
+            details = str(exc)
+        return grpc.StatusCode.UNKNOWN, details
+
+
 HTTP_CODE_TO_GRPC_CODE = {
     status.HTTP_400_BAD_REQUEST: StatusCode.INVALID_ARGUMENT,
     status.HTTP_401_UNAUTHORIZED: StatusCode.UNAUTHENTICATED,
@@ -112,3 +134,10 @@ HTTP_CODE_TO_GRPC_CODE = {
     status.HTTP_507_INSUFFICIENT_STORAGE: StatusCode.RESOURCE_EXHAUSTED,
     status.HTTP_511_NETWORK_AUTHENTICATION_REQUIRED: StatusCode.UNAUTHENTICATED,
 }
+"""
+Map HTTP status codes to gRPC status codes. Allows the handling of DRF exceptions.
+DSG must return gRPC status codes to the client.
+
+https://grpc.github.io/grpc/core/md_doc_statuscodes.html
+https://www.rfc-editor.org/rfc/rfc9110.html
+"""

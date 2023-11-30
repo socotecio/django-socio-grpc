@@ -1,8 +1,7 @@
 import abc
 import asyncio
-import json
 import logging
-from typing import TYPE_CHECKING, AsyncIterable, Awaitable, Callable, Tuple, Type
+from typing import TYPE_CHECKING, AsyncIterable, Awaitable, Callable, Optional, Type
 
 import grpc
 from asgiref.local import Local
@@ -14,7 +13,11 @@ from django.utils.module_loading import import_string
 from google.protobuf.message import Message
 from rest_framework.exceptions import APIException
 
-from django_socio_grpc.exceptions import HTTP_CODE_TO_GRPC_CODE, GRPCException, Unimplemented
+from django_socio_grpc.exceptions import (
+    GRPCException,
+    Unimplemented,
+    get_exception_status_code_and_details,
+)
 from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
     GRPCRequestContainer,
@@ -282,27 +285,22 @@ class ServicerProxy(MiddlewareCapable):
 
         return self.get_handler(action)
 
-    def _get_status_code_and_details(self, exc: Exception) -> Tuple[grpc.StatusCode, str]:
-        if isinstance(exc, APIException):
-            status_code = exc.status_code
-            if not isinstance(status_code, grpc.StatusCode):
-                status_code = HTTP_CODE_TO_GRPC_CODE.get(status_code, grpc.StatusCode.UNKNOWN)
-            return status_code, json.dumps(exc.get_full_details())
-        else:
-            details = type(exc).__name__
-            if settings.DEBUG:
-                details = str(exc)
-            return grpc.StatusCode.UNKNOWN, details
-
     def process_exception(self, exc: Exception, context: grpc.ServicerContext):
-        status_code, details = self._get_status_code_and_details(exc)
+        status_code, details = get_exception_status_code_and_details(exc)
         context.abort(status_code, details)
 
     async def async_process_exception(self, exc: Exception, context: grpc.aio.ServicerContext):
-        status_code, details = self._get_status_code_and_details(exc)
+        status_code, details = get_exception_status_code_and_details(exc)
         await context.abort(status_code, details)
 
     def log_exception(self, exception: Exception, message: str, extra={}):
+        """
+        Exception logging levels:
+        - GRPCException: `exception.logging_level`
+        - APIException: WARNING if `status_code` < 500 else ERROR
+        - Other: ERROR
+        """
+
         logging_level = "ERROR"
         if isinstance(exception, GRPCException):
             logging_level = exception.logging_level
@@ -318,7 +316,9 @@ class ServicerProxy(MiddlewareCapable):
             log_level = request_logger.warning
         log_level(message, exc_info=exception, extra=extra)
 
-    def log_response(self, exception, request_container):
+    def log_response(
+        self, exception: Optional[Exception], request_container: GRPCRequestContainer
+    ):
         extra = {
             "request": request_container,
             "status_code": request_container.context.code(),

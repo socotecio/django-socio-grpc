@@ -45,6 +45,7 @@ Add now the following lines to the ``INSTALLED_APPS`` section of your ``tutorial
     'django_socio_grpc',
   ]
 
+See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/tutorial01/>`_ for more information 
 
 Adding a New App
 ~~~~~~~~~~~~~~~~
@@ -78,7 +79,7 @@ Finally migrate the database:
 
   python manage.py migrate
 
-
+See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/tutorial01/>`_ for more information 
 
 
 Defining models
@@ -89,12 +90,13 @@ It inherits from a Python class django.db.models.Model.
 Each attribute represents a field in the table.
 The API for accessing the database is the same as Django's (`Query creation <https://docs.djangoproject.com/fr/4.2/topics/db/queries/>`_).
 
-  .. code-block:: python
+.. code-block:: python
 
     #quickstart/models.py
     from django.db import models
+    
     class User(models.Model):
-    full_name = models.CharField(max_length=70)
+        full_name = models.CharField(max_length=70)
 
     class Post(models.Model):
         pub_date = models.DateField()
@@ -107,6 +109,8 @@ Defining serializers
 ~~~~~~~~~~~~~~~~~~~~~~~
 In this example, our serializers inherit from ModelProtoSerializer, which is simply an inheritance of DRF's ModelSerializer.
 For more extensive use, you can use all the DRF serializer methods: `Django REST framework serializers <https://www.django-rest-framework.org/api-guide/serializers/>`_.
+
+See :ref:`ProtoSerialzer doc page <proto-serializers>` for more information.
 
   .. code-block:: python
 
@@ -135,6 +139,7 @@ For more extensive use, you can use all the DRF serializer methods: `Django REST
             fields = "__all__"
 
 
+
 Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
 .. _define-grpc-service:
@@ -158,7 +163,7 @@ In the the following example we will create 2 services.
 - `PostService`, will be a read-write service (`AsyncModelService`), meaning that
   it will have 6: `List`, `Retrieve`, `Create`, `Update`, `PartialUpdate`, `Destroy`.
 
-  .. code-block:: python
+.. code-block:: python
 
     #quickstart/services.py
     from django_filters.rest_framework import DjangoFilterBackend
@@ -183,27 +188,27 @@ DSG Generic services and mixins are based on DRF Generic views and mixins.
 
 In DSG :
 
-  .. code-block:: python
+.. code-block:: python
 
     from django.contrib.auth.models import User
     from quickstart.serializers import UserProtoSerializer
     from django_socio_grpc import generics
 
     class MyListService(generics.ListCreateService):
-            queryset = User.objects.all()
-            serializer_class = UserProtoSerializer
+        queryset = User.objects.all()
+        serializer_class = UserProtoSerializer
 
 In DRF :
 
-  .. code-block:: python
+.. code-block:: python
 
     from django.contrib.auth.models import User
     from quickstart.serializers import UserProtoSerializer
     from rest_framework import generics
 
     class MyListService(generics.ListCreateAPIView):
-            queryset = User.objects.all()
-            serializer_class = UserProtoSerializer
+        queryset = User.objects.all()
+        serializer_class = UserProtoSerializer
 
 
 
@@ -214,7 +219,7 @@ You need to register your services in a handler function.
 This handler will be the entrypoint for your whole app.
 In this quickstart, we will register our services in the ``quickstart/handlers.py`` file.
 
-  .. code-block:: python
+.. code-block:: python
 
     # quickstart/handlers.py
     from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
@@ -228,7 +233,7 @@ In this quickstart, we will register our services in the ``quickstart/handlers.p
 
 Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`settings <Available Settings>`:
 
-  .. code-block:: python
+.. code-block:: python
 
     # quickstart/settings.py
     ...
@@ -241,6 +246,8 @@ Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`setti
 Generate the app's Protobuf files and gRPC stubs
 ~~~~~~~~~~~~~~~~~~
 
+.. _quickstart-generate-proto:
+
 Run this command :
 
 .. code-block:: python
@@ -248,6 +255,9 @@ Run this command :
     python manage.py generateproto
 
 This will generate a folder called ``grpc`` at the root of your Django app.
+
+See :ref:`Proto generation <proto-generation>`_ for more information.
+
 It contains the three files describing your new gRPC service:
 
 - `quickstart_pb2_grpc.py`
@@ -266,7 +276,7 @@ Serializers need to be assigned to these gRPC messages, which are defined in the
 You need to import the messages in the ``serializers.py`` file and assign them to the serializers.
 
 
-  .. code-block:: python
+.. code-block:: python
 
     #quickstart/serializers.py
     ...
@@ -300,4 +310,11 @@ You can now run the server with the following command:
 
     python manage.py grpcrunaioserver --dev
 
-The server is now running on port `50051` by default. See :ref:`How To <How To>` to see how to call this server with python or web client.
+The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <python-examples>` for sync or asyn examples.
+
+To read more about the grpcrunaioserver please :ref:`read the commands documentation <commands>`
+
+To continue reading consider read:
+- :ref:`Generic Mixins <Generic Mixins>`
+- :ref:`gRPC Action <grpc-action>`
+- :ref:`Proto generation <proto-generation>`

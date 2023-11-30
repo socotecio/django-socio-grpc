@@ -1,3 +1,4 @@
+.. _how-to-web:
 Web
 ===
 

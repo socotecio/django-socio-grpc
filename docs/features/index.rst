@@ -5,6 +5,7 @@ Features
    :maxdepth: 1
 
    grpc-action
+   proto-serializers
    middlewares
    filters
    generic-mixins

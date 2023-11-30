@@ -32,7 +32,7 @@ Documentation
 
 The DSG documentation is divided into several sections:
 
-- :doc:`Installation <introduction>`
+- :doc:`Introduction <introduction>`
 - :doc:`Getting Started <getting-started>`
 - :doc:`Settings <settings>`
 - :doc:`Features <features/index>`

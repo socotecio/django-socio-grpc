@@ -139,10 +139,10 @@ class Service(GRPCActionMixin):
         return self._after_action()
 
     def get_log_extra_context(self):
-        logger.warning(
-            "Using this method is deprecated."
-            "Refer to the logging documentation to see how to add extra context."
-        )
+        """
+        Using this method is deprecated.
+        Refer to the logging documentation to see how to add extra context.
+        """
         return grpc_settings.LOG_EXTRA_CONTEXT_FUNCTION(self)
 
     @classmethod

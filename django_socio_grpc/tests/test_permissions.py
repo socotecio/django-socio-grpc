@@ -150,12 +150,20 @@ class TestPermissionsIntegration(TestCase):
     @mock.patch("django_socio_grpc.tests.test_permissions.FakePermission.has_permission")
     def test_permission_not_ok(self, mock_has_permissions):
         mock_has_permissions.return_value = False
-        with self.assertRaises(grpc.RpcError):
+        with self.assertRaises(grpc.RpcError) as err:
             self.service.permission_classes = [FakePermission]
             self.service.ListDummyMethod = self.dummy_method
             self.servicer.ListDummyMethod(None, self.fake_context)
+        self.assertEqual(err.exception.code(), grpc.StatusCode.PERMISSION_DENIED)
         self.assertEqual(self.fake_context.code(), grpc.StatusCode.PERMISSION_DENIED)
-        self.assertEqual(self.fake_context.details(), '"fake message"')
+        self.assertEqual(
+            '{"message": "fake message", "code": "permission_denied"}',
+            err.exception.details(),
+        )
+        self.assertEqual(
+            self.fake_context.details(),
+            '{"message": "fake message", "code": "permission_denied"}',
+        )
 
     def test_method_map_to_http_list(self):
         self.service.List = self.dummy_method

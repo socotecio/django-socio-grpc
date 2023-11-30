@@ -35,7 +35,7 @@ Before seeing each arguments of this function let see its definition:
 
 .. code-block:: python
 
-grpc_action(
+    grpc_action(
         request: RequestResponseType | None = None,
         response: RequestResponseType | None = None,
         request_name: str | None = None,

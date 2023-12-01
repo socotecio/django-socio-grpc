@@ -34,7 +34,7 @@ See the documentation on django settings if your not familiar with it: `Django s
     },
   }
 
-
+.. _root-handler-hook-setting:
 ROOT_HANDLERS_HOOK
 ^^^^^^^^^^^^^^^^^^
 

@@ -8,17 +8,20 @@ Proto Serializer works exactly the same as `DRF serializer <https://www.django-r
 Mapping between Django REST Framework and Django Socio gRPC
 ----------------------------------------------------------
 
-+----------------------------------------+------------------------------------------+
-| DRF Class                              | DSG class                                |
-+========================================+==========================================+
-| rest_framework.serializers.BaseSerializer | django_socio_grpc.proto_serializers.BaseProtoSerializer |
-+----------------------------------------+------------------------------------------+
-| rest_framework.serializers.Serializer  | django_socio_grpc.proto_serializers.ProtoSerializer |
-+----------------------------------------+------------------------------------------+
-| rest_framework.serializers.ListSerializer | django_socio_grpc.proto_serializers.ListProtoSerializer |
-+----------------------------------------+------------------------------------------+
-| rest_framework.serializers.ModelSerializer | django_socio_grpc.proto_serializers.ModelProtoSerializer |
-+----------------------------------------+------------------------------------------+
+.. list-table:: DRF to DSG Class Mapping
+   :widths: 50 50
+   :header-rows: 1
+
+   * - DRF Class
+     - DSG class
+   * - ``rest_framework.serializers.BaseSerializer``
+     - ``django_socio_grpc.proto_serializers.BaseProtoSerializer``
+   * - ``rest_framework.serializers.Serializer``
+     - ``django_socio_grpc.proto_serializers.ProtoSerializer``
+   * - ``rest_framework.serializers.ListSerializer``
+     - ``django_socio_grpc.proto_serializers.ListProtoSerializer``
+   * - ``rest_framework.serializers.ModelSerializer``
+     - ``django_socio_grpc.proto_serializers.ModelProtoSerializer``
 
 Example with ModelProtoSerializer
 ---------------------------------

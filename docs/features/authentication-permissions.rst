@@ -39,6 +39,7 @@ To specify an Authentication methods there is two ways as in DRF:
 - By service, by settings the authentication_classes attributes:
 
 .. code-block:: python
+
     # oidc_auth packet come from https://github.com/ByteInternet/drf-oidc-auth
     # If you want to use an other auth packet and having issue using it please open an issue we will be happy to help
     from oidc_auth.authentication import JSONWebTokenAuthentication
@@ -48,8 +49,6 @@ To specify an Authentication methods there is two ways as in DRF:
     class ExampleService(AsyncModelService):
         authentication_classes = [JSONWebTokenAuthentication]
         permission_classes = [IsAuthenticated]
-
-TODO JWT EXMAPLE + LINK TO WEB AND PYTHON EXAMPLE TO SHOW HOW TO PASS TOKEN AUTHENTICATION
 
 
 Permission Example
@@ -75,3 +74,58 @@ Permission Example
                 return True
             return context.user.is_superuser
 
+
+Python Client Example
+---------------------
+
+To use the authentication system in our client you need to pass the the value of the headers as you would do in classic DRF in the metadata ``headers`` key:
+
+.. code-block:: python
+    :emphasize-lines: 10,13
+
+    import json
+    import asyncio
+    import grpc
+    from datetime import datetime
+    from myapp.grpc import my_app_pb2_grpc, my_app_pb2
+
+    async def main():
+        async with grpc.aio.insecure_channel("localhost:50051") as channel:
+            my_service_client = my_app_pb2_grpc.MyServiceControllerStub(channel)
+            metadata = (("headers", json.dumps({"Authorization": "faketoken"})),)
+            request = my_app_pb2.MyServiceListRequest()
+
+            response = await my_service_client.List(request, metadata=metadata)
+
+    if __name__ == "__main__":
+        asyncio.run(main())
+
+
+Web Client Example
+------------------
+
+See :ref:`Documentation web page <how-to-web>` for more information.
+
+.. code-block:: Javascript
+    :emphasize-lines: 11,16
+
+    import { MyServiceController } from '../gen/example_bib_app_connect'
+
+    import { createPromiseClient } from "@connectrpc/connect";
+    import { createGrpcWebTransport } from "@connectrpc/connect-web";
+
+    const transport = createGrpcWebTransport({
+        baseUrl: "http://localhost:9001",
+    });
+
+    const authorClient = createPromiseClient(MyServiceController, transport);
+
+    let headers = {"headers": JSON.stringify({"Authorization": "faketoken"})}
+
+    // See https://connectrpc.com/docs/web/headers-and-trailers
+    const res = await authorClient.list(
+        {},
+        {headers: headers}
+    )
+    console.log(res)
+    let items = res.results

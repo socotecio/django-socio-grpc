@@ -35,7 +35,7 @@ Before seeing each arguments of this function let see its definition:
 
 .. code-block:: python
 
-grpc_action(
+    grpc_action(
         request: RequestResponseType | None = None,
         response: RequestResponseType | None = None,
         request_name: str | None = None,
@@ -345,6 +345,47 @@ Resolves to the service lookup field message.
         "name": "uuid",
         "type": "string", # This is the type of the field in the serializer
     }]
+
+=============================
+Force Message for Know Method
+=============================
+
+You can use the :ref:`grpc action <grpc_action>` decorator on the ``known`` method to override the default message that comes from :ref:`mixins <Generic Mixins>`.
+
+.. code-block:: python
+
+    class SomethingService(generics.AsyncModelService):
+        queryset = SpecialFieldsModel.objects.all().order_by("uuid")
+        serializer_class = SpecialFieldsModelSerializer
+
+        @grpc_action(
+            request=[{"name": "thing", "type": "string"}],
+            response=[{"name": "anything", "type": "string"}],
+        )
+        async def Retrieve(self, request, context):
+            pass
+
+Generated Proto:
+
+.. code-block:: proto
+
+    import "google/protobuf/empty.proto";
+
+    service SomethingController {
+        ...
+        rpc Retrieve(SomethingRetrieveRequest) returns (SomethingRetrieveResponse) {}
+        ...
+    }
+
+    ...
+
+    message SomethingRetrieveRequest {
+        string thing = 1;
+    }
+
+    message SomethingRetrieveResponse {
+        string anything = 1;
+    }
 
 
 ========

@@ -206,6 +206,8 @@ For instance, you could have a generic logging middleware that logs every gRPC r
 ROOT_GRPC_FOLDER
 ^^^^^^^^^^^^^^^^
 
+.. _root_grpc_folder_settings:
+
 This setting specifies the root directory name where all the
 generated proto files of external services are outputted.
 More details about

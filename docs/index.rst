@@ -32,13 +32,14 @@ Documentation
 
 The DSG documentation is divided into several sections:
 
-- :doc:`Installation <introduction>`
+- :doc:`Introduction <introduction>`
 - :doc:`Getting Started <getting-started>`
 - :doc:`Settings <settings>`
 - :doc:`Features <features/index>`
 - :doc:`How To <how-to/index>`
+- :doc:`Inner Workings <inner-workings/index>`
 - :doc:`Testing <testing>`
-- :doc:`Examples <examples/index>`
+- :doc:`Examples <examples>`
 - :doc:`Troubleshooting <troubleshooting>`
 - :doc:`API Reference <apidocs/index>`
 - :doc:`Changelog <changelog>`

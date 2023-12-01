@@ -310,7 +310,7 @@ You can now run the server with the following command:
 
     python manage.py grpcrunaioserver --dev
 
-The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <python-examples>` for sync or asyn examples.
+The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <python-examples>` for example repository.
 
 To read more about the grpcrunaioserver please :ref:`read the commands documentation <commands>`
 

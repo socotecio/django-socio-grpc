@@ -79,7 +79,7 @@ All services classes inherit from the same base class **django_socio_grpc.generi
 Async ready methods
 -------------------
 
-Since Django 4.1, Django can run ORM queries asynchronously.
+Since Django 4.1, Django can run Views asynchronously.
 Check Django `documentation <https://docs.djangoproject.com/en/4.1/topics/async/>`_ for more information.
 
 If you use version of Django < 4.1 or for all django ORM methods not supported,
@@ -111,4 +111,4 @@ In Django Socio gRPC we provide a lot of async ready methods.
 Sync support
 ------------
 
-If you want to use the sync mode, you should know that we will no longer support this mode from version 1.0.0 of Django Socio gRPC.
+If you want to use the sync mode, you should know that we are thinking about droping sync support from version 1.0.0 of Django Socio gRPC.

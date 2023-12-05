@@ -4,7 +4,9 @@ Proto generation
 ================
 
 To be able to generate proto files you need to register your service first.
-To do so please refer to :ref:`getting started <getting_started>` at section service registration
+To do so please refer to:
+* :ref:`getting started <getting_started>` at section service registration for quick registration 
+* :ref:`Services Registry <services-registry>` for more understanding
 
 Description
 -----------
@@ -180,3 +182,10 @@ Note: these files are meant for read only purposes, you can use the .proto file 
 or not your serializer fields were correctly mapped but you should not try to modify them manually.
 
 For more example and use case go to :ref:`Generic Mixins <Generic Mixins>` and :ref:`grpc action <grpc_action>`
+
+
+
+Field number attribution
+-------------------------
+
+TODO

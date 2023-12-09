@@ -82,7 +82,7 @@ As you can see in this example, we are using UUIDFilter as a built-in filter fro
 
 Filters can also be specified with a FieldDict, like shown in the example below:
 
-:TODO: please explain the FieldDict and explain, what constreiants are available, e.g. "exact", "contains", "lt", "gt" etc.
+:TODO: please explain the FieldDict and explain, what constraints are available, e.g. "exact", "contains", "lt", "gt" etc.
 
 .. code-block:: python
     # filters.py

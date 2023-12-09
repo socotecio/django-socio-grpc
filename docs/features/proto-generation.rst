@@ -3,6 +3,8 @@
 Proto generation
 ================
 
+The Socio Grpc framework provides an automatic way to generate proto files from your django models and serivces with the  ``generateproto`` command.
+
 To be able to generate proto files you need to register your service first.
 To do so please refer to:
 * :ref:`getting started <getting_started>` at section service registration for quick registration 

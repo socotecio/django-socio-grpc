@@ -37,7 +37,7 @@ to define services and methods, making it easy to get started quickly with Djang
 DSG is also natively supports async Django.
 
 DSG also automatically generate all the protofiles by parsing the python serializers. 
-Allowing developper to completly abstract protobuf complexity. 
+Allowing developers to completely abstract protobuf complexity. 
 
 It implement the following Django/Django REST framework features:
 

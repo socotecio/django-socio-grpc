@@ -32,7 +32,7 @@ class TestFiltering(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = UnitTestModelListRequest()
         filter_as_dict = {"title": "zzzzzzz"}
-        metadata = (("FILTERS", (json.dumps(filter_as_dict))),)
+        metadata = (("filters", (json.dumps(filter_as_dict))),)
         response = await grpc_stub.List(request=request, metadata=metadata)
 
         self.assertEqual(len(response.results), 1)
@@ -43,7 +43,7 @@ class TestFiltering(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = UnitTestModelListRequest()
         filter_as_dict = {"title": "zzzz"}
-        metadata = (("FILTERS", (json.dumps(filter_as_dict))),)
+        metadata = (("filters", (json.dumps(filter_as_dict))),)
         response = await grpc_stub.List(request=request, metadata=metadata)
 
         self.assertEqual(len(response.results), 2)

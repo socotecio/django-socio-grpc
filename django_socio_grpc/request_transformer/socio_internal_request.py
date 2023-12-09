@@ -1,5 +1,9 @@
 import json
 
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.encoding import escape_uri_path, iri_to_uri
+
 from django_socio_grpc.settings import grpc_settings
 
 
@@ -86,3 +90,43 @@ class InternalHttpRequest:
 
     def grpc_action_to_http_method_name(self, grpc_action):
         return self.METHOD_MAP.get(grpc_action, None)
+
+    def get_full_path(self, force_append_slash=False):
+        return self._get_full_path(self.path, force_append_slash)
+
+    def _get_full_path(self, path, force_append_slash):
+        # RFC 3986 requires query string arguments to be in the ASCII range.
+        # Rather than crash if this doesn't happen, we encode defensively.
+        return "%s%s%s" % (
+            escape_uri_path(path),
+            "/" if force_append_slash and not path.endswith("/") else "",
+            ("?" + iri_to_uri(self.META.get("QUERY_STRING", "")))
+            if self.META.get("QUERY_STRING", "")
+            else "",
+        )
+
+    def _get_scheme(self):
+        """
+        Hook for subclasses like WSGIRequest to implement. Return 'http' by
+        default.
+        """
+        return "http"
+
+    @property
+    def scheme(self):
+        if settings.SECURE_PROXY_SSL_HEADER:
+            try:
+                header, secure_value = settings.SECURE_PROXY_SSL_HEADER
+            except ValueError:
+                raise ImproperlyConfigured(
+                    "The SECURE_PROXY_SSL_HEADER setting must be a tuple containing "
+                    "two values."
+                )
+            header_value = self.META.get(header)
+            if header_value is not None:
+                header_value, *_ = header_value.split(",", 1)
+                return "https" if header_value.strip() == secure_value else "http"
+        return self._get_scheme()
+
+    def is_secure(self):
+        return self.scheme == "https"

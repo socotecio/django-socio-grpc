@@ -56,6 +56,11 @@ class AppHandlerRegistry:
     def get_service_class_from_service_name(
         self, service_name, service_file_path=None
     ) -> Type["Service"]:
+        logger.warning(
+            "Using the service name to import the service is deprecated."
+            "Please import your service manually and pass the class instead of the name"
+        )
+
         is_manual_service_path = service_file_path is not None
 
         try:
@@ -113,7 +118,12 @@ class AppHandlerRegistry:
             return
 
         service_class._app_handler = self
+        # INFO - AM - 01/12/2023 - register action find mixins into parent class and call GRPCAction class with the correct argument to populate the proto_service attribute of the class
+        # INFO - AM - 01/12/2023 - custom action using grpc_action decorator are already populated in proto_service attribute as they are call when the code first launch
+        # INFO - AM - 01/12/2023 - to populate the service class the class is passed as argument and then proto_service is just updated in that argument
         service_class.register_actions()
+
+        # INFO - AM - 01/12/2023 - add the instance of ProtoService correspondig to the current service being registered as GRPCAction class populate it.
         self.proto_services.append(service_class.proto_service)
 
         if self.server is None:

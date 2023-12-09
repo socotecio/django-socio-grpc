@@ -1,6 +1,6 @@
 .. _how-to-web:
-Web
-===
+pRPC-Web
+=========
 
 Description
 -----------

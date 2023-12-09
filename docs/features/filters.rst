@@ -1,6 +1,9 @@
 Filters
 ==========
 
+**Filters** are used to filter the queryset of your service. You can use built-in filters from django-filters or create your own filters.
+
+
 Description
 -----------
 
@@ -17,6 +20,8 @@ To enable queryset filtering, you need to import generics from Django-Socio-GRPC
 
 You can now create your own filter class.
 You can also import another module from `django_filters <https://django-filter.readthedocs.io/en/stable/guide/install.html>`_ as it works with Django rest_framework.
+
+# :TODO: please mention, that the *DjangoFilterBackend* can also be globally set in the settings.py file 
 
 .. code-block:: python
 
@@ -55,9 +60,13 @@ Let's look at a service example:
 
 In this case, the filter_set class corresponds to MyObjectFilterSet.
 
+# :TODO: please explain the PerimeterFilterMixin  
+
 .. code-block:: python
 
-    from django_filters.rest_framework import UUIDFilter
+    
+    # filters.py
+    from django_filters.rest_framework import UUIDInFilterSet (?) PerimeterFilterMixin (?)
 
 
     class MyObjectFilterSet(PerimeterFilterMixin, UUIDInFilterSet):
@@ -68,3 +77,29 @@ In this case, the filter_set class corresponds to MyObjectFilterSet.
             fields = ("action_ref",)
 
 As you can see in this example, we are using UUIDFilter as a built-in filter from django-filters
+
+
+
+Filters can also be specified with a FieldDict, like shown in the example below:
+
+:TODO: please explain the FieldDict and explain, what constreiants are available, e.g. "exact", "contains", "lt", "gt" etc.
+
+.. code-block:: python
+    # filters.py
+    from django_filters.rest_framework import FilterSet, CharFilter, DateRangeFilter
+
+    from .models import Data
+
+    class MyObjectFilterSet(FilterSet):
+   
+        class Meta:
+            model = MyModel
+            fields = {
+                'name': ['exact', 'contains'],
+                'title': ['exact', 'contains'],
+                'description': ['exact', 'contains'],
+                'datetime_created': ['lt', 'gt'],
+            }
+
+
+# :TODO: add also "search" example, since it is also supported 

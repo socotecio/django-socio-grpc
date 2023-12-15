@@ -6,6 +6,8 @@ Description
 
 Django-Socio-GRPC has built-in mixins for actions. Those mixins are either sync or async.
 
+!! mind: We recommend using the async mixins as they are more performant and will be the only ones supported in the future.
+
 Usage
 -----
 
@@ -39,14 +41,6 @@ ListModelMixin / AsyncListModelMixin
 - Methods:
     - List: Retrieves a queryset, optionally paginates it, serializes the queryset into a list of proto messages, and returns the list. This method is a server-streaming RPC.
 
-========================================
-StreamModelMixin / AsyncStreamModelMixin
-========================================
-
-- Purpose: Similar to ListModelMixin, but streams the queryset's results one by one to the client.
-- Methods:
-    - Stream: Retrieves a queryset, optionally paginates it, serializes the queryset into proto messages, and streams them to the client. This method is a server-streaming RPC.
-
 ============================================
 RetrieveModelMixin / AsyncRetrieveModelMixin
 ============================================
@@ -77,18 +71,31 @@ DestroyModelMixin / AsyncDestroyModelMixin
     - Destroy: Deletes a specific model instance based on a lookup field (e.g., primary key) and returns an empty response.
 
 
+The above are included, if you use **generics.AsyncModelService** as the base class for your service.
+If you additionally need streaming, you can use the following mixins:
+
+========================================
+StreamModelMixin / AsyncStreamModelMixin
+========================================
+
+- Purpose: Similar to ListModelMixin, but streams the queryset's results one by one to the client.
+- Methods:
+    - Stream: Retrieves a queryset, optionally paginates it, serializes the queryset into proto messages, and streams them to the client. This method is a server-streaming RPC.
+
+
+
 These mixins are designed to be used with Django models to facilitate the creation of gRPC services for performing CRUD (Create, Read, Update, Delete) operations on those models in an API.
 
 Example
 -------
 
-How to import mixins ?
+First import the mixins:
 
 .. code-block:: python
 
     from django_socio_grpc import generics, mixins
 
-You can add the mixins you want to use in your service class.
+Then you can add the mixins you want to use in your service class.
 
 .. code-block:: python
 

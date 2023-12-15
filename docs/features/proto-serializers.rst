@@ -3,7 +3,17 @@
 Proto Serializers
 =================
 
-Proto Serializer works exactly the same as `DRF serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_. You just have to inherit from a different class (see mapping below) and add two meta attributes `proto_class` and `proto_class_list`.
+Proto Serializers are used to convert Django database data into protobuf messages that can be sent via gRPC and vice versa.
+
+There are four types of proto serializers available:
+
+- `BaseProtoSerializer <#baseprotoserializer>`_ : base class for all proto serializers
+- `ProtoSerializer <#protoserializer>`_ :  
+- `ListProtoSerializer <#listprotoserializer>`_ : base class for all proto serializers that use DRF fields and have many=True
+- `ModelProtoSerializer <#modelprotoserializer>`_ : 
+  
+
+They work exactly in the same way as `DRF serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_. You just have to inherit from a different class (see mapping below) and add two meta attributes `proto_class` and `proto_class_list`.
 
 Mapping between Django REST Framework and Django Socio gRPC
 ----------------------------------------------------------
@@ -20,13 +30,83 @@ Mapping between Django REST Framework and Django Socio gRPC
      - ``django_socio_grpc.proto_serializers.ProtoSerializer``
    * - ``rest_framework.serializers.ListSerializer``
      - ``django_socio_grpc.proto_serializers.ListProtoSerializer``
-   * - ``rest_framework.serializers.ModelSerializer``
+   * - ``rest_framework.serializers.ModelProtoSerializer``
      - ``django_socio_grpc.proto_serializers.ModelProtoSerializer``
 
-Example with ModelProtoSerializer
----------------------------------
 
-Example will only focus on ModelProtoSerializer.
+BaseProtoSerializer
+-------------------
+
+BaseProtoSerializer is the base class for all proto serializers. It doesn't have any fields and is used to convert data into a gRPC message.
+
+.. code-block:: python
+
+    class BaseProtoSerializer(proto_serializers.BaseProtoSerializer):
+        def to_representation(self, el):
+            return {
+                "uuid": str(el.uuid),
+                "number_of_elements": el.number_of_elements,
+                "is_archived": el.is_archived,
+            }
+
+        def to_internal_value(self, data):
+            return {
+                "uuid": UUID(data["uuid"]),
+                "number_of_elements": data["number_of_elements"],
+                "is_archived": data["is_archived"],
+            }
+
+        def to_proto_message(self):
+            return [
+                {"name": "uuid", "type": "string"},
+                {"name": "number_of_elements", "type": "int32"},
+                {"name": "is_archived", "type": "bool"},
+            ]
+
+ProtoSerializer
+---------------
+
+# :TODO: please explain
+
+
+
+ListProtoSerializer
+-------------------
+
+The ListProtoSerializer class provides the behavior for serializing and validating multiple objects at once. You won't typically need to use ListProtoSerializer directly, but should instead simply pass many=True when instantiating a serializer.
+
+When a serializer is instantiated and many=True is passed, a ListSerializer instance will be created. The serializer class then becomes a child of the parent ListSerializer
+
+The following argument can also be passed to a ListSerializer field or a serializer that is passed many=True:
+
+allow_empty
+This is True by default, but can be set to False if you want to disallow empty lists as valid input.
+
+max_length
+This is None by default, but can be set to a positive integer if you want to validate that the list contains no more than this number of elements.
+
+min_length
+This is None by default, but can be set to a positive integer if you want to validate that the list contains no fewer than this number of elements.
+
+
+ModelProtoSerializer
+--------------------
+
+Often you'll want serializer classes that map closely to Django model definitions.
+
+The *ModelProtoSerializer class* provides a shortcut that lets you automatically create a Serializer class with fields that correspond to the Model fields.
+
+The *ModelProtoSerializer class* is the same as a regular Serializer class, except that:
+
+ - It will automatically generate a set of fields for you, based on the model.
+ - It will automatically generate validators for the serializer, such as unique_together validators.
+ - It includes simple default implementations of .create() and .update().
+
+
+Example of a  ModelProtoSerializer
+-----------------------------------
+
+This Example will only focus on ModelProtoSerializer.
 
 First, we will use our `Post` model used in the :ref:`Getting started<getting_started>`
 
@@ -103,15 +183,28 @@ Use Cases
 Converting PrimaryKeyRelatedField UUID Field
 =============================================
 
-If you use UUID, you can come across a problem as this type is not automatically converted into string format when used as a Foreign Key.
-To fix this, please use `pk_field <https://www.django-rest-framework.org/api-guide/relations/#primarykeyrelatedfield>`_:
+If you use UUIDs as **primary key** you can come across a problem as this type is not automatically converted into string format when used as a Foreign Key.
+To fix this, please use `pk_field <https://www.django-rest-framework.org/api-guide/relations/#primarykeyrelatedfield>`_ in the `PrimaryKeyRelatedField` :
 
+
+Example:
 .. code-block:: python
+    # serializers.py
+    from rest_framework.serializers import UUIDField, PrimaryKeyRelatedField
 
-    related_object = serializers.PrimaryKeyRelatedField(
-        queryset=Something.objects.all(),
-        pk_field=UUIDField(format="hex_verbose"),
-    )
+    # related_object is a UUIDField of a related object
+    class ExampleProtoSerializer(proto_serializers.ModelProtoSerializer):
+        related_object = PrimaryKeyRelatedField(
+            queryset=Something.objects.all(),
+            pk_field=UUIDField(format="hex_verbose"),
+        )
+        class Meta:
+            model = MyModel
+            proto_class = my_model_pb2.ExampleResponse 
+
+            proto_class_list = my_model_pb2.ExampleListResponse 
+
+            fields = "__all__"
 
 =========================================
 Converting empty string to None
@@ -152,7 +245,7 @@ Example:
 
 .. code-block:: python
 
-    class BasicServiceSerializer(proto_serializers.ProtoSerializer):
+    class BasicLoginServiceSerializer(proto_serializers.ProtoSerializer):
 
         user_name = serializers.CharField(read_only=True)
         email = serializers.CharField()
@@ -161,16 +254,16 @@ Example:
         class Meta:
             fields = ["user_name", "email", "password"]
 
-Generated Message:
+Will result in the following proto after generation:
 
 .. code-block:: proto
 
-    message BasicServiceRequest {
+    message BasicLoginServiceRequest {
         string user_name = 1;
         string password = 2;
     }
 
-    message BasicServiceResponse {
+    message BasicLoginServiceResponse {
         string user_name = 1;
         string email = 2;
     }
@@ -179,7 +272,7 @@ Generated Message:
 Nested Serializer
 =================
 
-Django Socio gRPC supports nested serializers without any extra work. Just try it.
+Django Socio gRPC supports *nested serializers* without any extra work. Just try it.
 
 .. code-block:: python
 
@@ -191,7 +284,7 @@ Django Socio gRPC supports nested serializers without any extra work. Just try i
             model = RelatedFieldModel
             fields = ["uuid", "foreign_obj", "many_many_obj"]
 
-Generated Proto:
+Will result in the following proto after generation:
 
 .. code-block:: proto
 
@@ -333,3 +426,5 @@ Generated Proto:
         // for the value field
         string value = 2;
     }
+
+# :TODO: should a cardinality example be added here?

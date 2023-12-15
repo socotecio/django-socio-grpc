@@ -54,6 +54,9 @@ Example
 
 This is the source code for the ``locale_middleware`` middleware:
 
+# :TODO: please add, where this code should be located, please also add all required imports
+
+
 .. code-block:: python
 
     # This decorator declares the middleware as supporting

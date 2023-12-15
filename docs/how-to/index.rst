@@ -1,6 +1,8 @@
 How To
 ======
 
+Here is a collection of how-to guides for common tasks.
+
 .. toctree::
    :maxdepth: 2
 

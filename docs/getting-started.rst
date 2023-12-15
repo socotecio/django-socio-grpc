@@ -45,7 +45,7 @@ Add now the following lines to the ``INSTALLED_APPS`` section of your ``dsg_tuto
     'django_socio_grpc',
   ]
 
-See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/dsg_tutorial01/>`_ for more information 
+See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/tutorial01/>`_ for more information 
 
 Adding a New App
 ~~~~~~~~~~~~~~~~
@@ -79,7 +79,7 @@ Finally migrate the database:
 
   python manage.py migrate
 
-See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/dsg_tutorial01/>`_ for more information 
+See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/tutorial01/>`_ for more information 
 
 
 Defining models

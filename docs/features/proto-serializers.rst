@@ -30,7 +30,7 @@ Mapping between Django REST Framework and Django Socio gRPC
      - ``django_socio_grpc.proto_serializers.ProtoSerializer``
    * - ``rest_framework.serializers.ListSerializer``
      - ``django_socio_grpc.proto_serializers.ListProtoSerializer``
-   * - ``rest_framework.serializers.ModelProtoSerializer``
+   * - ``rest_framework.serializers.ModelSerializer``
      - ``django_socio_grpc.proto_serializers.ModelProtoSerializer``
 
 

@@ -1,5 +1,5 @@
 .. _how-to-web:
-pRPC-Web
+gRPC-Web
 =========
 
 Description

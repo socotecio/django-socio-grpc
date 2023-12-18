@@ -1,6 +1,5 @@
 import io
 import json
-import logging
 import os
 
 from django.apps import apps
@@ -12,8 +11,6 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.mixins import get_default_grpc_messages, get_default_grpc_methods
 from django_socio_grpc.protobuf.protoparser import protoparser
 from django_socio_grpc.utils.model_extractor import get_model
-
-logger = logging.getLogger("django_socio_grpc")
 
 MAX_SORT_NUMBER = 99
 
@@ -248,7 +245,7 @@ class ModelProtoGeneratorOldWay:
         # Info - AM - 30/04/2021 - this is used for field that belong to model
         else:
             # Info - AM - 30/04/2021 - field_info is type of django.db.models.fields
-            # Info - AM - 30/04/2021 - Seethis page for attr list: https://docs.djangoproject.com/fr/3.1/ref/models/fields/#attributes-for-fields
+            # Info - AM - 30/04/2021 - Seethis page for attr list: https://docs.djangoproject.com/en/5.0/ref/models/fields/#attributes-for-fields
             field_info = model._meta.get_field(field_name)
 
             # Info - AM - 30/04/2021 - Support arrayfield by getting the type of the data in the array field

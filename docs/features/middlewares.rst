@@ -8,7 +8,7 @@ Description
 
 Middleware functions in Django allow you to process requests and responses globally before they reach the view or after they leave the view.
 Middlewares in DSG are made to be compatible with Django ones for most cases, the difference is the argument being of type ``django_socio_grpc.request_transformer.GRPCRequestContainer``
-For more information see (`here <https://docs.djangoproject.com/en/4.2/topics/http/middleware/>`_).
+For more information see (`here <https://docs.djangoproject.com/en/5.0/topics/http/middleware/>`_).
 
 To use a middleware, you need to add it to the `GRPC_MIDDLEWARE` list in your :ref:`DSG Settings <Available Settings>`. The order of the middleware is important, as they will be executed in order.
 
@@ -53,6 +53,9 @@ Example
 -------
 
 This is the source code for the ``locale_middleware`` middleware:
+
+# :TODO: please add, where this code should be located, please also add all required imports
+
 
 .. code-block:: python
 

@@ -39,7 +39,6 @@ from MyService abstract parents. This dict is then registered.
 import abc
 import asyncio
 import functools
-import logging
 from asyncio.coroutines import _is_coroutine
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type, Union
@@ -67,9 +66,6 @@ from .placeholders import Placeholder
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
-
-
-logger = logging.getLogger("django_socio_grpc")
 
 
 RequestResponseType = Union[str, Type[BaseSerializer], Placeholder, List[FieldDict]]

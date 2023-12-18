@@ -1,4 +1,4 @@
-""" https://docs.djangoproject.com/fr/4.1/topics/http/middleware
+""" https://docs.djangoproject.com/en/5.0/topics/http/middleware
 For now only the __call__ method of a middleware is supported
 
 To use async middlewares, you need to use the correct decorator
@@ -20,7 +20,7 @@ from django_socio_grpc.services.servicer_proxy import GRPCRequestContainer
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.utils import safe_async_response
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.middlewares")
 
 
 def _close_old_connections():

@@ -24,7 +24,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "django": ("https://docs.djangoproject.com/en/4.2/", None),
+    "django": ("https://docs.djangoproject.com/en/5.0/", None),
     "grpc": ("https://grpc.github.io/grpc/python/", None),
     "rest_framework": ("https://www.django-rest-framework.org/", None),
 }

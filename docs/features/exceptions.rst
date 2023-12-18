@@ -27,6 +27,7 @@ Example
 -------
 
 .. code-block:: python
+    
     # server
     from django_socio_grpc.exceptions import InvalidArgument
 

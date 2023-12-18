@@ -36,4 +36,5 @@ finally:
 Same as ``grpcrunaioserver`` except this one is for sync mode
 
 .. warning::
-We do not recommend using this command in production. It is provided as a convenience so that you can test your gRPC services locally and will be removed in the future.
+
+    We do not recommend using this command in production. It is provided as a convenience so that you can test your gRPC services locally and will be removed in the future.

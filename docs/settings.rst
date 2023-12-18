@@ -35,6 +35,7 @@ See the documentation on django settings if your not familiar with it: `Django s
   }
 
 .. _root-handler-hook-setting:
+
 ROOT_HANDLERS_HOOK
 ^^^^^^^^^^^^^^^^^^
 
@@ -100,9 +101,10 @@ If you want to set the maximum size for sending and receiving messages to 100MB,
     "your_project.auth.JWTAuthentication"
   ]
 
-For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/authentication/#setting-the-authentication-scheme>`_.
+For more details, see the `DRF documentation on auth as DSG use the same system <https://www.django-rest-framework.org/api-guide/authentication/#setting-the-authentication-scheme>`_.
 
 .. _default_filter_backends_settings:
+
 DEFAULT_FILTER_BACKENDS
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -126,7 +128,7 @@ Example configuration to use the `StandardResultsSetPagination` class:
 
   "DEFAULT_PAGINATION_CLASS": "core.pagination.StandardResultsSetPagination"
 
-For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/pagination/>`_.
+For more details, see the `DRF documentation on doc as DSG use the same system <https://www.django-rest-framework.org/api-guide/pagination/>`_.
 
 
 DEFAULT_PERMISSION_CLASSES
@@ -143,7 +145,7 @@ For a hypothetical project that uses JWT for authentication:
       "your_project.permissions.HasServiceAccess",
   ]
 
-For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/permissions/>`_.
+For more details, see the `DRF documentation on permissions as DSG use the same system <https://www.django-rest-framework.org/api-guide/permissions/>`_.
 
 
 GRPC_ASYNC
@@ -205,6 +207,7 @@ For instance, you could have a generic logging middleware that logs every gRPC r
   ]
 
 .. _root_grpc_folder_settings:
+
 ROOT_GRPC_FOLDER
 ^^^^^^^^^^^^^^^^
 

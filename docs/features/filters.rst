@@ -51,6 +51,7 @@ Another style of filtering might involve restricting the queryset based on some 
 For example with a message like:
 
 .. code-block:: proto
+
     message PostListRequest {
         string user = 1;
     }
@@ -94,6 +95,7 @@ The main inconvenients are:
 
 
 .. code-block:: python
+    
     # server
     #quickstart/services.py
     from django_socio_grpc import generics
@@ -152,6 +154,7 @@ You can register it by service or globally:
 * Register DjangoFilterBackend by service:
 
 .. code-block:: python
+
     #quickstart/services.py
     from django_socio_grpc import generics
     from django_filters.rest_framework import DjangoFilterBackend
@@ -164,13 +167,14 @@ You can register it by service or globally:
 * Register DjangoFilterBackend globally. `See DSG settings DEFAULT_FILTER_BACKENDS<_default_filter_backends_settings>_`:
 
 .. code-block:: python
+
     # settings.py
 
-  GRPC_FRAMEWORK = {
+    GRPC_FRAMEWORK = {
     ...
     "DEFAULT_FILTER_BACKENDS": [DjangoFilterBackend],
     ...
-  }
+    }
 
 
 ======================
@@ -182,6 +186,7 @@ There is two way to defining filter fields.
 * Using filterset_fields service attribute
 
 .. code-block:: python
+
     # server
     #quickstart/services.py
     from django_socio_grpc import generics
@@ -200,6 +205,7 @@ There is two way to defining filter fields.
 * Using filterset_class service attribute. See `here for more details <https://django-filter.readthedocs.io/en/stable/ref/filterset.html>_`
 
 .. code-block:: python
+
     # server
     #quickstart/services.py
     from django_socio_grpc import generics
@@ -231,7 +237,8 @@ We use grpc metadata to make the filters works out of the box.
 
 For more example you can see the `client in DSG example repo <https://github.com/socotecio/django-socio-grpc-example/blob/main/backend/bib_example_filter_client.py>_`
 
-.. code-block:: python    
+.. code-block:: python
+
     # client
     import asyncio
     import grpc
@@ -262,6 +269,7 @@ DSG also support the `DRF SearchFilter <https://www.django-rest-framework.org/ap
 Refer to the DRF doc for implementation details and specific lookup.
 
 .. code-block:: python
+
     # server
     #quickstart/services.py
     from django_socio_grpc import generics
@@ -296,13 +304,14 @@ Refer to the DRF doc for implementation details and specific lookup.
 
 
 OrderingFilter
--------------
+--------------
 
 DSG also support the `DRF OrderingFilter <https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter>_`
 
 Refer to the DRF doc for implementation details and specific lookup.
 
 .. code-block:: python
+
     # server
     #quickstart/services.py
     from django_socio_grpc import generics

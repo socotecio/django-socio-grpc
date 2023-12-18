@@ -1,7 +1,7 @@
 .. _services-registry:
 
 Services Registry
-================
+=================
 
 In the goal of automating most of the gRPC complexity (proto generation and server routing), DSG needs to be aware of all the services your application wants to serve. To achieve this, we require DSG users to register the services. This page describes how this registration is done and how it works.
 

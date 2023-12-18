@@ -16,7 +16,7 @@ Loggers
 
 
 django_socio_grpc.request
-##############
+#########################
 
 Log messages related to the handling of gRPC requests.
 

@@ -43,6 +43,7 @@ The DSG documentation is divided into several sections:
 - :doc:`Troubleshooting <troubleshooting>`
 - :doc:`API Reference <apidocs/index>`
 - :doc:`Changelog <changelog>`
+- :doc:`Contributing <contributing>`
 
 Contributing
 ------------

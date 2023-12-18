@@ -35,9 +35,9 @@ Usage
     :header-rows: 1
 
     * - Option
-     - Shortcut
-     - Default value
-     - Description
+      - Shortcut
+      - Default value
+      - Description
     * - --project   
       - -p   
       - Use DJANGO_SETTINGS_MODULE first folder 

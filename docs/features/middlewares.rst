@@ -13,7 +13,7 @@ For more information see (`here <https://docs.djangoproject.com/en/5.0/topics/ht
 To use a middleware, you need to add it to the `GRPC_MIDDLEWARE` list in your :ref:`DSG Settings <Available Settings>`. The order of the middleware is important, as they will be executed in order.
 
 Available Middlewares
------
+---------------------
 
 ================================
 close_old_connections_middleware

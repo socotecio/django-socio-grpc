@@ -1,6 +1,8 @@
 Generic Mixins
 ==============
+
 .. _Generic Mixins:
+
 Description
 -----------
 
@@ -17,13 +19,14 @@ Requirements
 
 In order to correctly use the different mixins, you will need to use generics.GenericService.
 This class will let you define multiple attributes which will be used in the different mixins:
-    - queryset
-    - serializer_class
-    - lookup_field
-    - lookup_request_field
-    - filter_backends
-    - pagination_class
-    - service_name
+
+- queryset
+- serializer_class
+- lookup_field
+- lookup_request_field
+- filter_backends
+- pagination_class
+- service_name
 
 ========================================
 CreateModelMixin / AsyncCreateModelMixin
@@ -48,6 +51,7 @@ RetrieveModelMixin / AsyncRetrieveModelMixin
 - Purpose: This mixin provides functionality for retrieving a single model instance by its unique identifier.
 - Methods:
     - Retrieve: Retrieves a specific model instance based on a lookup field (e.g., primary key), serializes it, and returns the serialized instance as a proto message.
+
 ========================================
 UpdateModelMixin / AsyncUpdateModelMixin
 ========================================
@@ -55,6 +59,7 @@ UpdateModelMixin / AsyncUpdateModelMixin
 - Purpose: This mixin provides functionality for updating an existing model instance.
 - Methods:
     - Update: Takes a proto message as a request, validates it, updates the object, and returns the updated object as a proto message.
+
 ======================================================
 PartialUpdateModelMixin / AsyncPartialUpdateModelMixin
 ======================================================
@@ -62,6 +67,7 @@ PartialUpdateModelMixin / AsyncPartialUpdateModelMixin
 - Purpose: This mixin provides functionality for partially updating an existing model instance.
 - Methods:
     - PartialUpdate: Similar to UpdateModelMixin, but performs a partial update based on the fields specified in the request message.
+
 ==========================================
 DestroyModelMixin / AsyncDestroyModelMixin
 ==========================================

@@ -16,7 +16,7 @@ There are four types of proto serializers available:
 They work exactly in the same way as `DRF serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_. You just have to inherit from a different class (see mapping below) and add two meta attributes `proto_class` and `proto_class_list`.
 
 Mapping between Django REST Framework and Django Socio gRPC
-----------------------------------------------------------
+-----------------------------------------------------------
 
 .. list-table:: DRF to DSG Class Mapping
    :widths: 50 50
@@ -118,7 +118,7 @@ First, we will use our `Post` model used in the :ref:`Getting started<getting_st
         content = models.TextField()
         user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-Then we generate the proto file for this model. See :ref:`Proto Gneration <proto-generation>`_ for more information. Be sure you completed all the step before the :ref:`Generate proto quickstart step <quickstart-generate-proto>`
+Then we generate the proto file for this model. See `Proto Gneration <proto-generation>`_ for more information. Be sure you completed all the step before the :ref:`Generate proto quickstart step <quickstart-generate-proto>`
 
 You can now define your serializer like this:
 
@@ -188,7 +188,9 @@ To fix this, please use `pk_field <https://www.django-rest-framework.org/api-gui
 
 
 Example:
+
 .. code-block:: python
+
     # serializers.py
     from rest_framework.serializers import UUIDField, PrimaryKeyRelatedField
 
@@ -367,6 +369,7 @@ Generated Proto:
 
 
 .. _customizing-the-name-of-the-field-in-the-listresponse:
+
 =====================================================
 Customizing the Name of the Field in the ListResponse
 =====================================================
@@ -399,9 +402,10 @@ Generated Proto:
     }
 
 .. _adding-comments-to-fields:
-========================
+
+=========================
 Adding Comments to Fields
-========================
+=========================
 
 You could specify comments for fields in your model (proto message) via `help_text` attribute and `django_socio_grpc.utils.tools.ProtoComment` class:
 

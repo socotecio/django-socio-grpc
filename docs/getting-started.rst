@@ -255,7 +255,7 @@ Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`setti
 
 
 Generate the app's Protobuf files and gRPC stubs
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. _quickstart-generate-proto:
 
@@ -268,7 +268,7 @@ you need to run the following command:
 
 This will generate a folder called ``grpc`` at the root of your Django app.
 
-See :ref:`Proto generation <proto-generation>`_ for more information.
+See `Proto generation <proto-generation>`_ for more information.
 
 It contains the three files describing your new gRPC service:
 
@@ -279,7 +279,7 @@ It contains the three files describing your new gRPC service:
 **DSG generate all the file needed by gRPC. Meaning that you don't need to deal with protofile manually.**
 
 Assign newly generated classes
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In the ``quickstart/grpc/quickstart.proto`` file,
 you can find the generation of the structure of responses and requests.

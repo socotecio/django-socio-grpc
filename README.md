@@ -10,7 +10,7 @@ Django Socio gRPC is a toolkit for building gRPC services, inspired by Django RE
 
 ## Documentation
 
-The documentation can be found at [https://socotecio.github.io/django-socio-grpc/](https://socotecio.github.io/django-socio-grpc/).
+The documentation can be found [here](https://django-socio-grpc.readthedocs.io/en/latest/).
 
 
 ## Requirements

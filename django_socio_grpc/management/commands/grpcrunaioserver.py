@@ -50,7 +50,6 @@ class Command(BaseCommand):
         self.address = options["address"]
         self.development_mode = options["development_mode"]
         self.max_workers = options["max_workers"]
-        
 
         # set GRPC_ASYNC to "true" in order to start server asynchronously
         grpc_settings.GRPC_ASYNC = True

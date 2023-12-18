@@ -1,4 +1,4 @@
-""" https://docs.djangoproject.com/fr/4.1/topics/http/middleware
+""" https://docs.djangoproject.com/en/5.0/topics/http/middleware
 For now only the __call__ method of a middleware is supported
 
 To use async middlewares, you need to use the correct decorator

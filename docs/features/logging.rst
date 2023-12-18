@@ -8,7 +8,7 @@ Django-Socio-GRPC has a built-in way to handle the logging of your services.
 Usage
 -----
 
-Django-Socio-GRPC uses the `standard Django logging system <https://docs.djangoproject.com/en/4.2/topics/logging/#topic-logging-parts-loggers>`_. You can configure it in your settings.py file.
+Django-Socio-GRPC uses the `standard Django logging system <https://docs.djangoproject.com/en/5.0/topics/logging/#topic-logging-parts-loggers>`_. You can configure it in your settings.py file.
 
 =======
 Loggers

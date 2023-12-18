@@ -5,7 +5,8 @@ Description
 -----------
 
 In Django, exceptions are raised when something unexpected or erroneous occurs during the execution of a web application.
-Those exceptions are related to a specific status_code. you can find more information (`here <https://grpc.github.io/grpc/core/md_doc_statuscodes.html>`_).
+
+Those exceptions are related to a specific status_code. you can find more information `here <https://grpc.github.io/grpc/core/md_doc_statuscodes.html>`_.
 Django provides a set of built-in exceptions and allows you to create custom exceptions as needed.
 Django-Socio-GRPC provides gRPC exceptions which are essential for handling gRPC errors and providing informative responses to users.
 

@@ -45,7 +45,7 @@ Add now the following lines to the ``INSTALLED_APPS`` section of your ``dsg_tuto
     'django_socio_grpc',
   ]
 
-See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/tutorial01/>`_ for more information 
+See `Django tutorial <https://docs.djangoproject.com/en/5.0/intro/tutorial01/>`_ for more information 
 
 Adding a New App
 ~~~~~~~~~~~~~~~~
@@ -79,16 +79,16 @@ Finally migrate the database:
 
   python manage.py migrate
 
-See `Django tutorial <https://docs.djangoproject.com/en/4.2/intro/tutorial01/>`_ for more information 
+See `Django tutorial <https://docs.djangoproject.com/en/5.0/intro/tutorial01/>`_ for more information 
 
 
 Defining models
 ~~~~~~~~~~~~~~~~~~~~~~~
-Create your models as described in the `Django documentation <https://docs.djangoproject.com/fr/4.2/topics/db/models/>`_ .
+Create your models as described in the `Django documentation <https://docs.djangoproject.com/en/5.0/topics/db/models/>`_ .
 Each model is assigned to a table in the database.
 It inherits from a Python class django.db.models.Model.
 Each attribute represents a field in the table.
-For directly working with the database, use the usual Django API (see `Query creation <https://docs.djangoproject.com/fr/4.2/topics/db/queries/>`_).
+For directly working with the database, use the usual Django API (see `Query creation <https://docs.djangoproject.com/e/5.0/topics/db/queries/>`_).
 
 .. code-block:: python
 

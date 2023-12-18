@@ -7,7 +7,7 @@ Available Settings
 
 These are the default settings for Django Socio GRPC, with explanations provided below.
 These settings should be defined under the ``GRPC_FRAMEWORK`` variable in django settings.
-See the documentation on django settings if your not familiar with it: `Django settings documentation <https://docs.djangoproject.com/en/4.2/topics/settings/>`_.
+See the documentation on django settings if your not familiar with it: `Django settings documentation <https://docs.djangoproject.com/en/5.0/topics/settings/>`_.
 
 .. code-block:: python
 

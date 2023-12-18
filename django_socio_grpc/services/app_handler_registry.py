@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from django_socio_grpc.services import Service
 
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.registration")
 
 
 @dataclass

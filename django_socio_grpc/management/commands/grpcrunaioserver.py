@@ -13,7 +13,7 @@ from django.utils import autoreload
 
 from django_socio_grpc.settings import grpc_settings
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.internal")
 
 
 class Command(BaseCommand):

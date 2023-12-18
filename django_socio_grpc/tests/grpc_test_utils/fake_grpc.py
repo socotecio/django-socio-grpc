@@ -37,8 +37,13 @@ class FakeServer:
         pass
 
 
-class FakeRpcError(RuntimeError, grpc.RpcError):
+class _InactiveRpcError(grpc.RpcError):
+    """
+    From `grpc._channel._InactiveRpcError`
+    """
+
     def __init__(self, code, details):
+        super().__init__(code, details)
         self._code = code
         self._details = details
 
@@ -68,6 +73,8 @@ class _BaseFakeContext:
             self.stream_pipe_server.put(grpc.aio.EOF)
 
         self._invocation_metadata = []
+        self._code = grpc.StatusCode.OK
+        self._details = None
 
     def __iter__(self):
         return self
@@ -79,8 +86,16 @@ class _BaseFakeContext:
         else:
             return response
 
+    def set_code(self, code):
+        self._code = code
+
+    def set_details(self, details):
+        self._details = details
+
     def abort(self, code, details):
-        raise FakeRpcError(code, details)
+        self.set_code(code)
+        self.set_details(details)
+        raise _InactiveRpcError(code=code, details=details)
 
     def invocation_metadata(self):
         return self._invocation_metadata
@@ -96,6 +111,12 @@ class _BaseFakeContext:
 
     def _read_client(self):
         return self.stream_pipe_server.get_nowait()
+
+    def code(self):
+        return self._code
+
+    def details(self):
+        return self._details
 
 
 class FakeState:

@@ -8,7 +8,9 @@ from django_socio_grpc.grpc_actions.placeholders import AttrPlaceholder
 
 
 class ListIdsMixin(GRPCActionMixin):
-    @grpc_action(request=[], response=[{"name": "ids", "type": "repeated int32"}])
+    @grpc_action(
+        request=[], response=[{"name": "ids", "type": "int32", "cardinality": "repeated"}]
+    )
     @sync_to_async
     def ListIds(self, request, context):
         pass

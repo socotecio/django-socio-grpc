@@ -75,6 +75,8 @@ DEFAULTS = {
     },
     # Get extra data from service when using log middleware or processing exception in django-socio-grpc
     "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.default_get_log_extra_context",
+    # Log requests even for response OK
+    "LOG_OK_RESPONSE": False,
 }
 
 

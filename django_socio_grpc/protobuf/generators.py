@@ -14,7 +14,7 @@ from .protoparser import protoparser
 
 MAX_SORT_NUMBER = 9999
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.generation")
 
 
 @dataclass

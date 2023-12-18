@@ -1,21 +1,16 @@
 Make a custom retrieve
 =======================
 
-# :TODO: contet missing
-
 Description
 -----------
 
-A custom retrieve is a request to get an object by searching on one or several fields. 
+A custom retrieve is a request to get an object by searching on one or several fields instead of just the primary key. 
 
-1 - Updating the lookup_field
------
+Updating the lookup_field
+-------------------------
 
 the lookup_field is the field where the retrieve will automaticaly search, the original field is the pk field. 
 You can updating this field in the service
-
-Example
--------
 
 .. code-block:: python
 
@@ -27,13 +22,10 @@ Example
     lookup_field = "name"
 
 
-2 - Overriding the retrieve 
------
+Overriding the retrieve 
+-----------------------
 
 Another way to make a custom retrieve is to override the Retrieve action.
-
-Example
--------
 
 .. code-block:: python
 
@@ -55,13 +47,10 @@ Example
         return await self.format_custom_message(instance)
 
 
-3 - Retrieve a custom object
------
+Retrieve a custom object
+------------------------
 
 If you need a custom object to get more or less field on the object you can pass a custom serializer on the response.
-
-Example
--------
 
 .. code-block:: python
 
@@ -83,7 +72,7 @@ Example
         return await self.format_custom_message(instance)
 
 
-4 - Using lookup_request_field
------
+Using lookup_request_field
+--------------------------
 
 You can use the lookup_request_field in a request to override the lookup_field only on one request. This would be useful if the original lookup_field is needed in another fonction

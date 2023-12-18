@@ -35,4 +35,10 @@ Then, add ``django_socio_grpc`` to your ``INSTALLED_APPS`` setting:
     ]
 ```
 
-## Contributing
+## Local development & documentation
+
+```
+docker compose up 
+```
+
+For local documentation go to http://localhost:6001

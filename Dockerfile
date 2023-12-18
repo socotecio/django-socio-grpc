@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.8
+FROM --platform=linux/amd64 python:3.10 as builder
 
 ENV PYTHONUNBUFFERED 1
 
@@ -18,4 +18,14 @@ RUN poetry config virtualenvs.create false
 COPY pyproject.toml .
 COPY poetry.lock .
 
+
+FROM builder as server
+
 RUN poetry install
+
+FROM builder as docs
+
+RUN apt-get -y install enchant-2 entr
+COPY docs docs
+RUN poetry install --with docs
+RUN cd docs && make html

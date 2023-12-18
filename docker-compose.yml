@@ -31,8 +31,8 @@ services:
     image: django-socio-grpc
     build:
       context: .
-      # dockerfile: Dockerfile
-      # target: docs
+      dockerfile: Dockerfile
+      target: docs
     command: sh -c "cd docs && ls -d ./**/* | entr -r -n make html"
     volumes:
       - .:/opt/code

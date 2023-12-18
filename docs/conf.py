@@ -12,13 +12,13 @@ copyright = "2023, Socotec.io"
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
-    "autodoc2",
-    "sphinxcontrib.apidoc",
+    "sphinx.ext.napoleon",
     "sphinxcontrib.spelling",
     "auto_pytabs.sphinx_ext",
     "sphinx_autodoc_typehints",
     "sphinx_rtd_theme",
     "myst_parser",
+    "autodoc2",
 ]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
@@ -55,7 +55,6 @@ html_title = "Django Socio gRPC"
 html_theme_options = {
     "display_version": True,
 }
-apidoc_module_dir = "test"
 autodoc2_render_plugin = "myst"
 autodoc2_packages = [
     {"path": "../django_socio_grpc", "exclude_dirs": ["tests"]},

@@ -162,7 +162,7 @@ serializer.data vs serializer.message
 
 Django Socio gRPC supports retro compatibility, so `serializer.data` is still accessible and still in dictionary format. However, it's recommended to use `serializer.message` that is in the gRPC message format and should always return `serializer.message` as response data.
 
-Note that async method serializer.adata vs serializer.amessage exist. See :ref:`Sync vs Async page <TODO>`
+Note that async method serializer.adata vs serializer.amessage exist. See :ref:`Sync vs Async page <sync-vs-async>`
 
 Extra kwargs options
 --------------------

@@ -13,11 +13,13 @@ To do so please refer to:
 Description
 -----------
 
+Protobuf is a project on it's own. The following documentation expect you to at least know what is Protobuf and how it work. If you are not familiar with it please read `their documentation <https://protobuf.dev/getting-started/pythontutorial/>_`
+
 Proto files contain the classes, descriptors and controller logic (``pb2.py`` files) and proto message syntax (``.proto`` file) necessary to run a grpc server.
 
 In django-socio-grpc, proto files are generated from a ``grpc_action`` request / response contents (see :ref:`grpc action <grpc_action>` for more use cases).
 
-To simplify usage ``grpc_action`` are automatically generated from the :ref:`Proto Serializer <proto-serializer>` when using :ref:`Generic Mixins <Generic Mixins>`.
+To simplify usage ``grpc_action`` are automatically generated from the :ref:`Proto Serializer <proto-serializers>` when using :ref:`Generic Mixins <Generic Mixins>`.
 
 In order to generate these files and its contents, there is a :ref:`django command <commands>` to run whenever you add a ``grpc_action``, a Service or modify your request / response
 

@@ -237,7 +237,6 @@ In this quickstart, we will register our services in the ``quickstart/handlers.p
     from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
     from quickstart.services import UserService, PostService
 
-
     def grpc_handlers(server):
         app_registry = AppHandlerRegistry("quickstart", server)
         app_registry.register(UserService)
@@ -324,11 +323,11 @@ You can now run the gRPC server with the following command:
 
     python manage.py grpcrunaioserver --dev
 
-The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <python-examples>` for example repository.
+The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <examples>` for example repository.
 
 To read more about the grpcrunaioserver please :ref:`read the commands documentation <commands>`
 
 To continue reading consider read:
 - :ref:`Generic Mixins <Generic Mixins>`
-- :ref:`gRPC Action <grpc-action>`
+- :ref:`gRPC Action <grpc_action>`
 - :ref:`Proto generation <proto-generation>`

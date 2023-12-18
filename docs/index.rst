@@ -39,7 +39,7 @@ The DSG documentation is divided into several sections:
 - :doc:`How To <how-to/index>`
 - :doc:`Inner Workings <inner-workings/index>`
 - :doc:`Testing <testing>`
-- :doc:`Examples <examples>`
+- :doc:`Examples <examples/index>`
 - :doc:`Troubleshooting <troubleshooting>`
 - :doc:`API Reference <apidocs/index>`
 - :doc:`Changelog <changelog>`
@@ -68,8 +68,10 @@ Enjoy using DSG!
    settings
    features/index
    how-to/index
+   inner-workings/index
    testing
    examples/index
    troubleshooting
    apidocs/index
    changelog
+   contributing

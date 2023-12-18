@@ -19,10 +19,12 @@ To make it work, you need to create one instance of ``AppHandlerRegistry`` per a
 As the ``AppHandlerRegistry`` interface is likely to change in the near future, options are not documented. You can `read the source code <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/services/app_handler_registry.py>`_ to understand options or see :ref:`specific how-to if you are trying to register an app from external dependencies <define-proto-and-service-in-a-shared-library>`.
 
 .. code-block:: python
+  
   from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
   def grpc_handlers(server):
     app_registry = AppHandlerRegistry("quickstart", server)
+
 
 ``AppHandlerRegistry`` has a ``register`` method that registers the services. The idea is the same as `django routing` or `DRF router` and will leverage two main actions that will be detailed in specific sub-documentation sections:
 

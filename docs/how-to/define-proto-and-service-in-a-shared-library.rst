@@ -23,7 +23,7 @@ To ensure the service can be shared, you must use the `to_root_grpc` argument in
 as shown in the example below.
 
 This argument allows the proto generation to create a .proto and pb2 file in a special folder at the root of the library, with the path defined 
-in :ref:`grpc_settings.ROOT_GRPC_FOLDER <_root_grpc_folder_settings>` from django-socio-grpc. (by default, the name of this folder will be grpc_folder at the root of your application).
+in :ref:`grpc_settings.ROOT_GRPC_FOLDER <root_grpc_folder_settings>` from django-socio-grpc. (by default, the name of this folder will be grpc_folder at the root of your application).
 
 Example
 -------

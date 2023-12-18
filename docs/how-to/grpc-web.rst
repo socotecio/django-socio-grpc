@@ -75,7 +75,7 @@ The first step is to understand the differences between the concepts.
   Regarding the progress in the grpc ecosystem lately, here is what we recommend as the DSG core team:
 
   * Protocol:             gRPC-web    - Connect does not support python as I write these lines
-  * Generator plugin :    BUF cli     - Support ESM format, the only one compatible with Vite. See :ref:`Generating JS client<Generating JS client>` for usage.
+  * Generator plugin :    BUF cli     - Support ESM format, the only one compatible with Vite. See :ref:`Generating JS client<generating_js_client>` for usage.
   * Import style:         ESM         - As we recommend BUF cli there is only ESM as import style. Choose js or ts depending on your project.
   * Client:               Buf connect - Support gRPC-web protocol but with better message and response manipulation.
 
@@ -98,6 +98,7 @@ To help you understand how to launch it, you can have a look in our example repo
 
 This can also be launched in a production environment, but if the envoy proxy is not located in the same local network it can bring latency. Please consider using `Istio <https://istio.io/>`_ if in a Kubernetes deployment
 
+.. _generating_js_client:
 Generating JS Client
 ---------------------
 

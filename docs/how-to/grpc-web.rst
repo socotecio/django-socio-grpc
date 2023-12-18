@@ -7,7 +7,7 @@ Description
 
 It's possible to use gRPC in a browser, considering some limitations (See `state-of-grpc-web <https://grpc.io/blog/state-of-grpc-web/>`_). Using it allows you to have only one interface for all your customers. It also enables server-side streams that do not exist in classic REST protocols.
 
-All the next steps described here can be found in the `dsg-example repository <https://github.com/socotecio/django-socio-grpc-example>`_ in the `frontend/grpc-web-example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example>`_ directory.
+All the next steps described here can be found in the `dsg-example repository <https://github.com/socotecio/django-socio-grpc-example>`_ in the `frontend/grpc-web-example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example>`_ directory.
 
 We will use `BUF <https://buf.build/>`_ to generate the JS API files. See :ref:`Understanding differences in the grpc-web ecosystem`.
 
@@ -107,14 +107,15 @@ To better understand how it works and to provide a simple example, we will use `
 
 Here are the steps needed:
 
-#. Install dependencies (3 in dev mode and 3 in normal mode). `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/package.json>`_
-#. Create the `buf.gen.yaml` file with at least the `es` and the `connect-es` plugin. Even if it can be anywhere, we recommend putting it at the root of your JS folder or your API folder. The example will only work if at the root of a Vue Vite/Webpack project as it expects an existing `src` folder. `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/buf.gen.yaml>`_
-#. Copy the proto file into a `proto` directory created in the folder of the `buf.gen.yaml` file. `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/proto>`_
+#. Install dependencies (3 in dev mode and 3 in normal mode). `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/package.json>`_
+#. Create the `buf.gen.yaml` file with at least the `es` and the `connect-es` plugin. Even if it can be anywhere, we recommend putting it at the root of your JS folder or your API folder. The example will only work if at the root of a Vue Vite/Webpack project as it expects an existing `src` folder. `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/buf.gen.yaml>`_
+#. Copy the proto file into a `proto` directory created in the folder of the `buf.gen.yaml` file. `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/proto>`_
 #. Launch the command: `npx buf generate proto` `Explanation <https://github.com/socotecio/django-socio-grpc-example/README.md#how-to-update-the-js-file-when-api-update>`_
-#. A `src/gen` folder should be created with two files: `_connect.js` file with the Services/Controllers file and `_pb.js` with request and response message files. `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/src/gen>`_
+#. A `src/gen` folder should be created with two files: `_connect.js` file with the Services/Controllers file and `_pb.js` with request and response message files. `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/src/gen>`_
 
 Once these two files are generated, you are good to go to the next step.
 
+.. _using_js_client:
 Using JS Client
 ----------------
 

@@ -175,8 +175,6 @@ In the the following example we will create 2 services.
 .. code-block:: python
 
     #quickstart/services.py
-    from django_filters.rest_framework import DjangoFilterBackend
-    from rest_framework.pagination import PageNumberPagination
     from django_socio_grpc import generics
 
     from quickstart.models import User, Post

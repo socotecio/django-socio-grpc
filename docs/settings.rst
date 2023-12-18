@@ -102,6 +102,7 @@ If you want to set the maximum size for sending and receiving messages to 100MB,
 
 For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/authentication/#setting-the-authentication-scheme>`_.
 
+.. _default_filter_backends_settings:
 DEFAULT_FILTER_BACKENDS
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -203,10 +204,10 @@ For instance, you could have a generic logging middleware that logs every gRPC r
       "your_project.middlewares.ConnectionHandlingMiddleware",
   ]
 
+.. _root_grpc_folder_settings:
 ROOT_GRPC_FOLDER
 ^^^^^^^^^^^^^^^^
 
-.. _root_grpc_folder_settings:
 
 This setting specifies the root directory name where all the
 generated proto files of external services are outputted.

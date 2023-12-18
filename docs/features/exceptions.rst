@@ -42,13 +42,12 @@ Example
 
     async def main():
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
-            # create Author gRPC client
             my_app_client = my_app_pb2_grpc.RaiseCustomErrorControllerStub(channel)
 
             request = my_app_pb2.RaiseErrorRequest()
 
             try:
-                my_app_client.RaiseError(request)
+                await my_app_client.RaiseError(request)
             except grpc.RpcError as e:
                 print(e.code())
                 print(e.detials())

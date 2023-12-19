@@ -14,12 +14,13 @@ this is why in DSG we left the possibility for users to maintain this behavior.
 This behavior can lead us to have services on an external application or library that we wish to reuse in another. Follow
 this guide to importing external services to your application with DSG.
 
-# :TODO: please explain, where the handler should reside (recommendation / best practice) in the django project structure, e.g. project root, etc.
+See :ref:`Service registry handler positioning recommandation<services-registry-recommendation-for-positioning-handler>` to understand how to work with ``handlers.py`` files.
 
 Usage
 -----
-To define a shared service in a library that can be reused across different projects, you will first need to create your service with its functions.
-To ensure the service can be shared, you must use the `to_root_grpc` argument in the handler and set it to "True,"
+
+To define a shared service in a library that can be reused across different projects, you will first need to create your service with its functions. 
+To ensure the service can be shared, you must use the `to_root_grpc` argument in the handler and set it to "True," 
 as shown in the example below.
 
 This argument allows the proto generation to create a .proto and pb2 file in a special folder at the root of the library, with the path defined
@@ -32,11 +33,11 @@ In this specific case, my_external_library is an external library.
 
 .. code-block:: python
 
-  # :TODO: location of this code ?
+  # my_app/handlers.py
 
   from my_external_library import ExternalService
 
-  def handler(server):
+  def grpc_handlers(server):
       registry = AppHandlerRegistry(
           app_name="my_external_library", server=server, to_root_grpc=True
       )

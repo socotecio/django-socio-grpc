@@ -31,6 +31,73 @@ As the ``AppHandlerRegistry`` interface is likely to change in the near future, 
 * Introspect the Service, Model, and Serializer classes to transform them into ProtoService, ProtoRpc, and ProtoMessage, which are just Python object representations of protobuf file information. They are used by the :ref:`generateproto <proto-generation>` command.
 * Map our Service to the gRPC server. The gRPC pb2 generated file provides a method to map a Servicer with the gRPC server. We automatically import this method and call it with the correct arguments.
 
+.. _services-registry-recommendation-for-positioning-handler:
+
+Recommendation for positioning handler
+--------------------------------------
+
+The method that register all the services is set in the :ref:`ROOT_HANDLERS_HOOK setting<root-handler-hook-setting>`. This can be a method declared anywhere and it can declare service from anywhere.
+
+The recommandation to avoid having complex method structure is to create a ``handlers.py`` file in your django project directory. And in this handlers file importing ``grpc_handlers`` method from ``handlers.py`` of each app of the project. 
+
+Example:
+
+::
+
+    backend
+    ├── my_project
+    │   ├── handlers.py
+    ├── my_first_app
+    │   └── handlers.py
+    ├── my_second_app
+    │   └── handlers.py
+
+
+.. code-block:: python
+
+    # my_first_app.handlers.py
+    from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
+    from my_first_app.service import MyFirstAppService
+
+    def grpc_handlers(server):
+        app_registry = AppHandlerRegistry("my_first_app", server)
+        app_registry.register(MyFirstAppService)
+
+
+.. code-block:: python
+
+    # my_second_app.handlers.py
+    from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
+    from my_second_app.service import MyFirstAppService
+
+    def grpc_handlers(server):
+        app_registry = AppHandlerRegistry("my_second_app", server)
+        app_registry.register(MyFirstAppService)
+
+
+.. code-block:: python
+
+    # my_project.handlers.py
+    from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
+    from my_first_app.handlers import grpc_handlers as my_first_app_grpc_handlers
+    from my_second_app.handlers import grpc_handlers as my_second_app_grpc_handlers
+
+    def grpc_handlers(server):
+        my_first_app_grpc_handlers()
+        my_second_app_grpc_handlers()
+
+
+.. code-block:: python
+
+    # my_project.settings.py
+    ...
+    GRPC_FRAMEWORK = {
+        ...
+        "ROOT_HANDLERS_HOOK": "my_project.handlers.grpc_handlers",
+        ...
+    }
+    ...
+
 Service Introspection
 ---------------------
 

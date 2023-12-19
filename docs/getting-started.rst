@@ -148,11 +148,11 @@ Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Services define the gRPC actions that can be performed, e.g., on your models.
-The gRPC service is the equivalent of the DRF APIView and behaves in a similar way
+The gRPC service is the equivalent of the `DRF APIView <https://www.django-rest-framework.org/api-guide/generic-views/>`_ and behaves in a similar way
 (it only contains an additional internal layer).
-Services used by the DSG command ``generateproto`` to generate the protobuf files and
+Services used by the DSG command :ref:`generateproto<commands-generate-proto>` to generate the protobuf files and
 gRPC stubs.
-If you inherit your service from ``AsyncModelService``, CRUD actions (List, Retrieve, Create, Update, PartialUpdate, Destroy) are automatically generated without any additional code.
+If you inherit your service from :func:`AsyncModelService<django_socio_grpc.generics.AsyncModelService>`, CRUD actions (List, Retrieve, Create, Update, PartialUpdate, Destroy) are automatically generated without any additional code.
 (see :ref:`Proto generation <proto-generation>`).
 
 DSG supports both sync and async, but we recommend using async services, since
@@ -162,15 +162,15 @@ In this quickstart, we will make an asynchronous service.
 
 Following the same logic as DRF, DSG uses class-based services.
 
-DSG mixins make it easy to declare one or several of the CRUD actions.
+:func:`DSG mixins<django_socio_grpc.mixins>` make it easy to declare one or several of the CRUD actions.
 Please refer to the :ref:`Mixin section <Generic Mixins>` for more information.
 
 In the the following example we will create 2 services.
 
-- `UserService`, will be a read-only service (`AsyncReadOnlyModelService`), meaning that
+- ``UserService``, will be a read-only service (:func:`AsyncReadOnlyModelService<django_socio_grpc.generics.AsyncReadOnlyModelService>`), meaning that
   it will have 2 gRPC actions: `List` and `Retrieve`.
-- `PostService`, will be a read-write service (`AsyncModelService`), meaning that
-  it will have 6: `List`, `Retrieve`, `Create`, `Update`, `PartialUpdate`, `Destroy`.
+- ``PostService``, will be a read-write service (:func:`AsyncModelService<django_socio_grpc.generics.AsyncModelService>`), meaning that
+  it will have 6 gRPC actions: `List`, `Retrieve`, `Create`, `Update`, `PartialUpdate`, `Destroy`.
 
 .. code-block:: python
 
@@ -191,36 +191,36 @@ In the the following example we will create 2 services.
         serializer_class = PostProtoSerializer
 
 
-**Note:**
+.. note::
 
-DSG Generic services and mixins are based on DRF Generic views and mixins,
-so you can create your services in a similar way as you would do with DRF, e.g.:
+  DSG Generic services and mixins are based on DRF Generic views and mixins,
+  so you can create your services in a similar way as you would do with DRF, e.g.:
 
 
-In DSG :
+  In DSG :
 
-.. code-block:: python
+  .. code-block:: python
 
-    from django.contrib.auth.models import User
-    from quickstart.serializers import UserProtoSerializer
-    from django_socio_grpc import generics
+      from django.contrib.auth.models import User
+      from quickstart.serializers import UserProtoSerializer
+      from django_socio_grpc import generics
 
-    # This is and example of a custom service
-    class MyListService(generics.ListCreateService):
-        queryset = User.objects.all()
-        serializer_class = UserProtoSerializer
+      # This is and example of a custom service
+      class MyListService(generics.ListCreateService):
+          queryset = User.objects.all()
+          serializer_class = UserProtoSerializer
 
-In DRF :
+  In DRF :
 
-.. code-block:: python
+  .. code-block:: python
 
-    from django.contrib.auth.models import User
-    from quickstart.serializers import UserProtoSerializer
-    from rest_framework import generics
+      from django.contrib.auth.models import User
+      from quickstart.serializers import UserProtoSerializer
+      from rest_framework import generics
 
-    class MyListService(generics.ListCreateAPIView):
-        queryset = User.objects.all()
-        serializer_class = UserProtoSerializer
+      class MyListService(generics.ListCreateAPIView):
+          queryset = User.objects.all()
+          serializer_class = UserProtoSerializer
 
 
 
@@ -254,6 +254,8 @@ Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`setti
         "ROOT_HANDLERS_HOOK" : 'quickstart.handlers.grpc_handlers',
         ...
     }
+
+To better understand the register process and have recommandation about the ``handlers.py`` file for more complex project please read the :ref:`Service Registry documentation<services-registry>`
 
 .. _quickstart-generate-proto:
 

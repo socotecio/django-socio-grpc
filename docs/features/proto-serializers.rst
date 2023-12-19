@@ -211,33 +211,28 @@ Example:
             fields = "__all__"
 
 =========================================
-Converting empty string to None
+Nullable fieds (`optional`)
 =========================================
 
-As gRPC always sends the default value for the type if not sent, some behaviors of DRF, like handling differently None value and empty string, are not working.
-You can design your own system by adding arguments to adapt the behavior, but if you have a field where an empty string means None, as for Datetime, for example, you can use code like this:
+In gRPC, all fields have a default value. For example, if you have a field of type `int32` and you don't set a value, the default value will be `0`.
+To know if this field was set (so its value is actually `0`) or not, the field needs to be declared as `optional` 
+(see `proto3 <https://protobuf.dev/programming-guides/proto3/#field-labels>`_ documentation).
 
-.. code-block:: python
+.. warning::
+    There is no way to differentiate between a field that was not set and a field that was set to `None`.
+    Therefore `{}` and `{"field": None}` will be converted to the same gRPC message.
+    By default, we decided to interpret no presence of a field as `None` to have an intuitive way to use nullable fields which
+    are extensively used in Django (`null=True`) and DRF (`allow_null=True`) options.
+    This behavior has an unintended consequence with default values in `ModelProtoSerializer`, because
+    the value will be `None` instead of being absent.
+    There is an `open issue <https://github.com/socotecio/django-socio-grpc/issues/171>`_ on the subject, with a workaround.
 
-    from django_socio_grpc import proto_serializers
-    from rest_framework.fields import DateTimeField
-    from django.core.exceptions import ObjectDoesNotExist
+There are multiple ways to have proto fields with `optional`:
 
-    class NullableDatetimeField(DateTimeField):
-        def to_internal_value(self, value):
-            if not value:
-                return None
-            return super().to_internal_value()
-
-    class ExampleProtoSerializer(proto_serializers.ModelProtoSerializer):
-        example_datetime = NullableDatetimeField(validators=[])
-
-        class Meta:
-            model = Example
-            proto_class = example_pb2.Example
-            proto_class_list = example_pb2.ExampleListResponse
-            fields = "__all__"
-
+- In `ProtoSerializer`, you can use `allow_null=True` in the field kwargs.
+- In `SerializerMethodField`, you can use the return annotation `Optional[...]` or `... | None` for Python 3.10+.
+- In `ModelProtoSerializer`, model fields with `null=True` will be converted to `optional` fields.
+- In `GRPCAction` you can set `cardinality` to `optional` in the `request` or `response` :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>`.
 
 ==============================
 Read-Only and Write-Only Props

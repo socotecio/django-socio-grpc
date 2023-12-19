@@ -142,10 +142,10 @@ See :ref:`ProtoSerialzer doc page <proto-serializers>` for more information.
             fields = "__all__"
 
 
+.. _define-grpc-service:
 
 Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
-.. _define-grpc-service:
 
 Services define the gRPC actions that can be performed, e.g., on your models.
 The gRPC service is the equivalent of the DRF APIView and behaves in a similar way 
@@ -224,6 +224,8 @@ In DRF :
 
 
 
+.. _quickstart-register-services:
+
 Register services
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -253,11 +255,10 @@ Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`setti
         ...
     }
 
+.. _quickstart-generate-proto:
 
 Generate the app's Protobuf files and gRPC stubs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. _quickstart-generate-proto:
 
 To generate (and update) the .proto files and gRPC stubs from the services defined in service.py, 
 you need to run the following command:

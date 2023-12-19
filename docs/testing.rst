@@ -77,36 +77,37 @@ Testing common functionnalities:
 
 Here are some important test files in the ``sociodjango-socio-grpc`` project:
 
-- `Testing actions <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_actions.py>`_: This file contains tests for the action functionality.
+- `Actions <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_actions.py>`_: Contains tests for the action functionality.
 
-- `Testing basic async service <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_async_basic_service.py>`_: This file tests the basic asynchronous service.
+- `Basic async service <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_async_basic_service.py>`_: Test the basic asynchronous service.
 
-- `Testing async exception <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_async_exception.py>`_: This file contains tests for handling exceptions in asynchronous services.
+- `Async exception <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_async_exception.py>`_: Contains tests for handling exceptions in asynchronous services.
 
-- `Testing basic mixin <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_basic_mixins.py>`_: This file tests the basic mixins used in the project.
+- `Basic mixin <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_basic_mixins.py>`_: Test the basic mixins used in the project.
 
-- `Testing filtering <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_filtering.py>`_: This file contains tests for the filtering functionality.
-- `Testing pagination <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_pagination.py>`_: This file tests the pagination functionality.
+- `Filtering <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_filtering.py>`_: Contains tests for the filtering functionality.
 
-- `Testing permissions <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_permissions.py>`_: This file contains tests for the permissions functionality.
+- `Pagination <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_pagination.py>`_: Test the pagination functionality.
 
-- `Testing placeholders <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_placeholders.py>`_: This file tests the placeholder functionality.
+- `Permissions <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_permissions.py>`_: Contains tests for the permissions functionality.
 
-- `Testing auth <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_authentication.py>`_: This file contains tests for the authentication functionality.
+- `Placeholders <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_placeholders.py>`_: Test the placeholder functionality.
 
-- `Testing auth without session middleware <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_auth_without_session_middleware.py>`_: This file tests the authentication functionality without using session middleware.
+- `Auth <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_authentication.py>`_: Contains tests for the authentication functionality.
 
-- `Testing async stream <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_async_stream_in.py>`_: This file tests the asynchronous streaming functionality.
+- `Auth without session middleware <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_auth_without_session_middleware.py>`_: Test the authentication functionality without using session middleware.
 
-- `Testing local middleware <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_locale_middleware.py>`_: This file tests the locale middleware.
+- `Async stream <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_async_stream_in.py>`_: Test the asynchronous streaming functionality.
 
-- `Testing legacy django middleware <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_legacy_django_middlewares.py>`_: This file tests the legacy Django middleware.
+- `Local middleware <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_locale_middleware.py>`_: Test the locale middleware.
 
-- `Testing proto generation <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_proto_generation.py>`_: This file tests the protobuf generation functionality.
+- `Legacy django middleware <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_legacy_django_middlewares.py>`_: Test the legacy Django middleware.
 
-- `Testing protobuf registration <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_protobuf_registration.py>`_: This file tests the registration of protobufs.
+- `Proto generation <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_proto_generation.py>`_: Test the protobuf generation functionality.
 
-- `Testing app handler registration <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_app_handler_registry.py>`_: This file tests the registration of app handlers.
+- `Protobuf registration <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_protobuf_registration.py>`_: Test the registration of protobufs.
+
+- `App handler registration <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_app_handler_registry.py>`_: Test the registration of app handlers.
 
 Running Tests
 -------------

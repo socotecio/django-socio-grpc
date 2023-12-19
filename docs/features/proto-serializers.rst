@@ -241,6 +241,9 @@ You can design your own system by adding arguments to adapt the behavior, but if
 Read-Only and Write-Only Props
 ==============================
 
+.. warning::
+    This setting is deprecated. In the futur having read/write request separation will be mandatory.
+
 If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, Django Socio gRPC will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., `editable=False`).
 
 Example:

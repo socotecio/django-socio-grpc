@@ -7,7 +7,8 @@ The Socio Grpc framework provides an automatic way to generate proto files from 
 
 To be able to generate proto files you need to register your service first.
 To do so please refer to:
-* :ref:`getting started <getting_started>` at section service registration for quick registration 
+
+* :ref:`Getting started: Register Services <quickstart-register-services>` for quick registration 
 * :ref:`Services Registry <services-registry>` for more understanding
 
 Description

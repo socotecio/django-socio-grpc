@@ -12,7 +12,7 @@ Once your service registered, it will create the RPC and its messages in your .p
 A gRPC action is a representation of an RPC inside the service where it's declared.
 It is composed of a request and a response definitions.
 
-.. note:: 
+.. note::
     The corresponding proto code extracted from the decorator will be **automatically generated** by the `generateproto command <commands-generate-proto>`_. Do not do it manually.
 
 
@@ -22,7 +22,7 @@ Example of a basic RPC command of a generated .proto file:
 
     rpc BasicList(BasicRequest) returns (BasicResponse) {}
 
-It can also use a stream as a request/response. 
+It can also use a stream as a request/response.
 
 Usage
 -----
@@ -61,7 +61,7 @@ Before looking at each argument of this decorator let see its definition:
 The ``request`` and ``response`` arguments can be:
     - a `list` of :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>`: the fields of the message,
       if the list is empty, the message will be of type ``google.protobuf.Empty``. (:ref:`See example<grpc-action-basic-example>`)
-    - a ``Serializer``: the serializer describing the message. (See :ref:`proto-serializers`) 
+    - a ``Serializer``: the serializer describing the message. (See :ref:`proto-serializers`)
     - a ``str``: the name of the message if already defined in the proto file.
     - a ``Placeholder``: a placeholder to use in the proto file
       (See :ref:`placeholder`).
@@ -111,7 +111,7 @@ Use Cases
 Basic :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>` request and response:
 ===========================================================================================
 
-This ExampleService has a Retrieve action (RPC)  
+This ExampleService has a Retrieve action (RPC)
 that takes a uuid as argument and returns a username and a list of items:
 
 .. code-block:: python
@@ -286,7 +286,7 @@ This is equivalent to:
 .. _grpc-action-use-request-and-response-list:
 
 =============================
-Use Request And Response List 
+Use Request And Response List
 =============================
 
 .. code-block:: python
@@ -475,7 +475,7 @@ Resolves to a named class attribute of the service.
 .. code-block:: python
 
     # django_socio_grpc.grpc_actions.placeholders.AttrPlaceholder
-    
+
     AttrPlaceholder("my_attribute") == service.my_attribute
 
 

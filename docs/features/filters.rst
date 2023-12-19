@@ -7,7 +7,7 @@ Filters
 Description
 -----------
 
-This page will explain how to set up filters in your app services. Filter behave the same as `DRF filters <https://www.django-rest-framework.org/api-guide/filtering/>_`. 
+This page will explain how to set up filters in your app services. Filter behave the same as `DRF filters <https://www.django-rest-framework.org/api-guide/filtering/>_`.
 
 This page will reproduce DRF example for DSG and demonstrate how to use `django filters <https://www.django-rest-framework.org/api-guide/filtering/>_`.
 
@@ -90,12 +90,12 @@ The main inconvenients are:
 * The metadata are not binary serialized so passing a lot of data as filters may result in poor performance
 * They not exported in the proto so not documented by default.
 
-.. note:: 
+.. note::
     We are currently looking for filtering best practices. See https://github.com/socotecio/django-socio-grpc/issues/247.
 
 
 .. code-block:: python
-    
+
     # server
     #quickstart/services.py
     from django_socio_grpc import generics
@@ -117,7 +117,7 @@ The main inconvenients are:
             # Next line also working to make REST library working
             # user = self.context.query_params["user"]
             return Post.objects.filter(user=user)
-    
+
     # client
     import asyncio
     import grpc
@@ -132,7 +132,7 @@ The main inconvenients are:
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
-    
+
     if __name__ == "__main__":
         asyncio.run(main())
 
@@ -253,7 +253,7 @@ For more example you can see the `client in DSG example repo <https://github.com
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
-    
+
     if __name__ == "__main__":
         asyncio.run(main())
 
@@ -283,7 +283,7 @@ Refer to the DRF doc for implementation details and specific lookup.
         serializer_class = PostProtoSerializer
         filter_backends = [filters.SearchFilter]
         search_fields = ['user__full_name']
-    
+
     # client
     import asyncio
     import grpc
@@ -298,7 +298,7 @@ Refer to the DRF doc for implementation details and specific lookup.
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
-    
+
     if __name__ == "__main__":
         asyncio.run(main())
 
@@ -325,7 +325,7 @@ Refer to the DRF doc for implementation details and specific lookup.
         serializer_class = PostProtoSerializer
         filter_backends = [filters.OrderingFilter]
         ordering_fields = ['pub_date']
-    
+
     # client
     import asyncio
     import grpc
@@ -340,6 +340,6 @@ Refer to the DRF doc for implementation details and specific lookup.
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
-    
+
     if __name__ == "__main__":
         asyncio.run(main())

@@ -26,7 +26,7 @@ services:
       # - "7000:80"
     networks:
       django-socio-grpc-network:
-    
+
   django-socio-grpc-docs-build:
     image: django-socio-grpc
     build:

@@ -8,15 +8,15 @@ Introduction
 
 By using DSG you can use both sync and async mode for gRPC.
 
-Working in sync or async mode makes almost no difference to the way you develop 
-your APIs. However, there are important differences in the deeper workings of 
-your API. 
+Working in sync or async mode makes almost no difference to the way you develop
+your APIs. However, there are important differences in the deeper workings of
+your API.
 
 Differences
 -----------
 
 The main difference is that async mode will allow you to handle many more requests
-in some cases. Particularly if you're using streaming, where using sync mode can 
+in some cases. Particularly if you're using streaming, where using sync mode can
 block the whole server.
 
 Mixins

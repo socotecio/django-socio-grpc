@@ -6,12 +6,12 @@ Make a custom retrieve
 Description
 -----------
 
-A custom retrieve is a request to get an object by searching on one or several fields instead of just the primary key. 
+A custom retrieve is a request to get an object by searching on one or several fields instead of just the primary key.
 
 Updating the lookup_field
 -------------------------
 
-the lookup_field is the field where the retrieve will automaticaly search, the original field is the pk field. 
+the lookup_field is the field where the retrieve will automaticaly search, the original field is the pk field.
 You can updating this field in the service
 
 .. code-block:: python
@@ -24,7 +24,7 @@ You can updating this field in the service
     lookup_field = "name"
 
 
-Overriding the retrieve 
+Overriding the retrieve
 -----------------------
 
 Another way to make a custom retrieve is to override the Retrieve action.

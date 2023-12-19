@@ -3,7 +3,7 @@ Upload file
 
 Description
 -----------
-When it comes to file uploads in gRPC, bidirectional or unidirectional streaming can be used. 
+When it comes to file uploads in gRPC, bidirectional or unidirectional streaming can be used.
 With bidirectional, the client and server sends a stream of messages to each other. This means that the client can send chunks of a file to the server as a stream, and the server can process these chunks in real-time.
 With unidirectional, the client send a stream to the server. This means that the client send chunks of a file to the server as a stream, and the server can process these chunks when the stream is over.
 

@@ -36,8 +36,8 @@ DSG is an excellent choice. It provides a familiar and consistent way
 to define services and methods, making it easy to get started quickly with Django and DRF experience.
 DSG is also natively supports async Django.
 
-DSG also automatically generate all the protofiles by parsing the python serializers. 
-Allowing developers to completely abstract protobuf complexity. 
+DSG also automatically generate all the protofiles by parsing the python serializers.
+Allowing developers to completely abstract protobuf complexity.
 
 It implement the following Django/Django REST framework features:
 
@@ -46,7 +46,7 @@ It implement the following Django/Django REST framework features:
 * Automatic proto generation
 * Authentication / Permissions
 * Serializers
-* Filters 
+* Filters
 * gRPC Exception mapping
 * Django like logging
 * Django like middleware

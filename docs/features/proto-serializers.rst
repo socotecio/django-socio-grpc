@@ -8,10 +8,10 @@ Proto Serializers are used to convert Django database data into protobuf message
 There are four types of proto serializers available:
 
 - `BaseProtoSerializer <#baseprotoserializer>`_ : base class for all proto serializers
-- `ProtoSerializer <#protoserializer>`_ :  
+- `ProtoSerializer <#protoserializer>`_ :
 - `ListProtoSerializer <#listprotoserializer>`_ : base class for all proto serializers that use DRF fields and have many=True
-- `ModelProtoSerializer <#modelprotoserializer>`_ : 
-  
+- `ModelProtoSerializer <#modelprotoserializer>`_ :
+
 
 They work exactly in the same way as `DRF serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_. You just have to inherit from a different class (see mapping below) and add two meta attributes `proto_class` and `proto_class_list`.
 
@@ -146,7 +146,7 @@ You can now define your serializer like this:
             proto_class = PostResponse
             proto_class_list = PostListResponse
             fields = "__all__"
-            
+
 
 proto_class and proto_class_list
 --------------------------------
@@ -204,9 +204,9 @@ Example:
         )
         class Meta:
             model = MyModel
-            proto_class = my_model_pb2.ExampleResponse 
+            proto_class = my_model_pb2.ExampleResponse
 
-            proto_class_list = my_model_pb2.ExampleListResponse 
+            proto_class_list = my_model_pb2.ExampleListResponse
 
             fields = "__all__"
 
@@ -215,7 +215,7 @@ Nullable fieds (`optional`)
 =========================================
 
 In gRPC, all fields have a default value. For example, if you have a field of type `int32` and you don't set a value, the default value will be `0`.
-To know if this field was set (so its value is actually `0`) or not, the field needs to be declared as `optional` 
+To know if this field was set (so its value is actually `0`) or not, the field needs to be declared as `optional`
 (see `proto3 <https://protobuf.dev/programming-guides/proto3/#field-labels>`_ documentation).
 
 .. warning::

@@ -27,7 +27,7 @@ Example
 -------
 
 .. code-block:: python
-    
+
     # server
     from django_socio_grpc.exceptions import InvalidArgument
 
@@ -52,7 +52,7 @@ Example
             except grpc.RpcError as e:
                 print(e.code())
                 print(e.detials())
-    
+
     if __name__ == "__main__":
         asyncio.run(main())
 
@@ -139,5 +139,3 @@ Subclass of GRPCException representing the UNIMPLEMENTED gRPC status code. It in
 The code also includes utility functions _get_error_details, _get_codes, and _get_full_details for processing error details, error codes, and full error details, respectively.
 
 Overall, these custom exceptions and utilities allow for more precise and structured error handling when dealing with gRPC-related exceptions in the specified Python project.
-
-

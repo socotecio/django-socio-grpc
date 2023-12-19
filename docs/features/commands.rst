@@ -11,7 +11,7 @@ Generate Proto
 --------------
 
 - ``manage.py generateproto`` (see :ref:`proto generation <proto-generation>` )
-  
+
 This command accepts the following arguments:
 
 - ``--project``: Used to specify Django project. Use DJANGO_SETTINGS_MODULE by default

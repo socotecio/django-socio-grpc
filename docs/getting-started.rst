@@ -45,7 +45,7 @@ Add now the following lines to the ``INSTALLED_APPS`` section of your ``dsg_tuto
     'django_socio_grpc',
   ]
 
-See `Django tutorial <https://docs.djangoproject.com/en/5.0/intro/tutorial01/>`_ for more information 
+See `Django tutorial <https://docs.djangoproject.com/en/5.0/intro/tutorial01/>`_ for more information
 
 Adding a New App
 ~~~~~~~~~~~~~~~~
@@ -79,7 +79,7 @@ Finally migrate the database:
 
   python manage.py migrate
 
-See `Django tutorial <https://docs.djangoproject.com/en/5.0/intro/tutorial01/>`_ for more information 
+See `Django tutorial <https://docs.djangoproject.com/en/5.0/intro/tutorial01/>`_ for more information
 
 
 Defining models
@@ -94,7 +94,7 @@ For directly working with the database, use the usual Django API (see `Query cre
 
     #quickstart/models.py
     from django.db import models
-    
+
     class User(models.Model):
         full_name = models.CharField(max_length=70)
 
@@ -148,14 +148,14 @@ Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Services define the gRPC actions that can be performed, e.g., on your models.
-The gRPC service is the equivalent of the DRF APIView and behaves in a similar way 
+The gRPC service is the equivalent of the DRF APIView and behaves in a similar way
 (it only contains an additional internal layer).
-Services used by the DSG command ``generateproto`` to generate the protobuf files and 
+Services used by the DSG command ``generateproto`` to generate the protobuf files and
 gRPC stubs.
 If you inherit your service from ``AsyncModelService``, CRUD actions (List, Retrieve, Create, Update, PartialUpdate, Destroy) are automatically generated without any additional code.
-(see :ref:`Proto generation <proto-generation>`). 
+(see :ref:`Proto generation <proto-generation>`).
 
-DSG supports both sync and async, but we recommend using async services, since 
+DSG supports both sync and async, but we recommend using async services, since
 sync services will be deprecated in the future versions of DSG.
 
 In this quickstart, we will make an asynchronous service.
@@ -193,7 +193,7 @@ In the the following example we will create 2 services.
 
 **Note:**
 
-DSG Generic services and mixins are based on DRF Generic views and mixins, 
+DSG Generic services and mixins are based on DRF Generic views and mixins,
 so you can create your services in a similar way as you would do with DRF, e.g.:
 
 
@@ -260,7 +260,7 @@ Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`setti
 Generate the app's Protobuf files and gRPC stubs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To generate (and update) the .proto files and gRPC stubs from the services defined in service.py, 
+To generate (and update) the .proto files and gRPC stubs from the services defined in service.py,
 you need to run the following command:
 
 .. code-block:: python
@@ -286,7 +286,7 @@ In the ``quickstart/grpc/quickstart.proto`` file,
 you can find the generation of the structure of responses and requests.
 For each serializer, you will find the basic Response message name and the ListResponse message name.
 Serializers need to be assigned to these gRPC messages, which are defined in the ``pb2`` file.
-After code generation with the ``generateproto`` command, you need to import the messages in the ``serializers.py`` 
+After code generation with the ``generateproto`` command, you need to import the messages in the ``serializers.py``
 file and assign them to the serializers, like in the following example:
 
 

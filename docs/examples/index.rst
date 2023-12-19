@@ -3,7 +3,7 @@
 Examples
 ==============
 
-There is a `full example project in github <https://github.com/socotecio/django-socio-grpc-example>` to help you understand how DSG is working. 
+There is a `full example project in github <https://github.com/socotecio/django-socio-grpc-example>` to help you understand how DSG is working.
 
 .. toctree::
    :maxdepth: 2

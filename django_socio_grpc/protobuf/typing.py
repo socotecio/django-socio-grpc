@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from enum import Enum
 
-from typing_extensions import NotRequired, TypedDict
+try:
+    from typing_extensions import NotRequired, TypedDict
+except ImportError:
+    from typing import Optional as NotRequired
+    from typing import TypedDict
 
 
 class FieldCardinality(str, Enum):

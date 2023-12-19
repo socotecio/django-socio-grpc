@@ -187,6 +187,8 @@ Please consider to always use async as it may become the only accepted behavior 
   "SEPARATE_READ_WRITE_MODEL": True
 
 
+.. _settings-grpc-middleware:
+
 GRPC_MIDDLEWARE
 ^^^^^^^^^^^^^^^
 

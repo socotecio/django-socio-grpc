@@ -164,6 +164,8 @@ DSG supports retro compatibility, so `serializer.data` is still accessible and s
 
 Note that async method serializer.adata vs serializer.amessage exist. See :ref:`Sync vs Async page <sync-vs-async>`
 
+.. _proto-serializer-extra-kwargs-options:
+
 Extra kwargs options
 --------------------
 

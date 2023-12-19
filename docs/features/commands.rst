@@ -5,6 +5,7 @@ Commands
 
 DSG lets you add custom commands on top of existing commands available by default in Django (see `Django admin and manage.py <https://docs.djangoproject.com/en/5.0/ref/django-admin/>`_ )
 
+.. _commands-generate-proto:
 
 Generate Proto
 --------------

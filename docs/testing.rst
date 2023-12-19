@@ -4,11 +4,11 @@ Testing
 Overview
 --------
 
-When it comes to testing, ``django-socio-grpc`` follows the same conventions as `Django <https://docs.djangoproject.com/en/5.0/topics/testing/>`_ and DRF. It utilizes the ``unittest`` library, a built-in Python module for testing. This allows for the creation of robust and comprehensive unit tests, ensuring the reliability and stability of the codebase.
+When it comes to testing, DSG follows the same conventions as `Django <https://docs.djangoproject.com/en/5.0/topics/testing/>`_ and `DRF <https://www.django-rest-framework.org/api-guide/testing/>`_. It utilizes the ``unittest`` library, a built-in Python module for testing. This allows for the creation of robust and comprehensive unit tests, ensuring the reliability and stability of the codebase.
 
-To enable unit test of your gRPC services, ``django-socio-grpc`` provides a mock gRPC server that allows you to test your services as if they were being handled by a real gRPC server, replacing the networking calls by function calls. 
+To enable unit test of your gRPC services, DSG provides a mock gRPC server that allows you to test your services as if they were being handled by a real gRPC server, replacing the networking calls by function calls. 
 
-The following sections will guide you through the process of writing and running tests for ``django-socio-grpc``.
+The following sections will guide you through the process of writing and running tests for DSG.
 
 Writing Tests
 -------------
@@ -75,7 +75,7 @@ Now, let's dissect the ``TestPost`` class:
 Testing common functionnalities:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Here are some important test files in the ``sociodjango-socio-grpc`` project:
+Here are some important test files in the ``DSG`` project:
 
 - `Actions <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_actions.py>`_: Contains tests for the action functionality.
 

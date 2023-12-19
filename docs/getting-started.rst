@@ -155,12 +155,12 @@ gRPC stubs.
 If you inherit your service from ``AsyncModelService``, CRUD actions (List, Retrieve, Create, Update, PartialUpdate, Destroy) are automatically generated without any additional code.
 (see :ref:`Proto generation <proto-generation>`). 
 
-Django Socio gRPC Framework supports both sync and async, but we recommend using async services, since 
+DSG supports both sync and async, but we recommend using async services, since 
 sync services will be deprecated in the future versions of DSG.
 
 In this quickstart, we will make an asynchronous service.
 
-Following the same logic as DRF, Django Socio gRPC uses class-based services.
+Following the same logic as DRF, DSG uses class-based services.
 
 DSG mixins make it easy to declare one or several of the CRUD actions.
 Please refer to the :ref:`Mixin section <Generic Mixins>` for more information.

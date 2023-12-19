@@ -6,7 +6,7 @@ Sync VS Async
 Introduction
 ------------
 
-By using Django Socio gRPC you can use both sync and async mode for gRPC.
+By using DSG you can use both sync and async mode for gRPC.
 
 Working in sync or async mode makes almost no difference to the way you develop 
 your APIs. However, there are important differences in the deeper workings of 
@@ -93,7 +93,7 @@ you can use `asgiref <https://asgi.readthedocs.io/en/latest>`_ to wrap sync meth
         async def a_get(self, pk):
             return await sync_to_async(Building.objects.get)(pk=pk)
 
-In Django Socio gRPC we provide a lot of async ready methods.
+In DSG we provide a lot of async ready methods.
 
 #. Services
     * acheck_object_permissions
@@ -111,4 +111,4 @@ In Django Socio gRPC we provide a lot of async ready methods.
 Sync support
 ------------
 
-If you want to use the sync mode, you should know that we are thinking about droping sync support from version 1.0.0 of Django Socio gRPC.
+If you want to use the sync mode, you should know that we are thinking about droping sync support from version 1.0.0 of DSG.

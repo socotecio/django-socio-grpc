@@ -9,10 +9,10 @@ Description
 The objective of this documentation is to demonstrate how to create a service within a library and share it among various applications.
 
 Django, by definition, is a modular system that allows you to divide a project into several applications. This functionality is important to us, 
-this is why in django-socio-grpc we left the possibility for users to maintain this behavior.
+this is why in DSG we left the possibility for users to maintain this behavior.
 
 This behavior can lead us to have services on an external application or library that we wish to reuse in another. Follow
-this guide to importing external services to your application with django-socio-grpc.
+this guide to importing external services to your application with DSG.
 
 # :TODO: please explain, where the handler should reside (recommendation / best practice) in the django project structure, e.g. project root, etc.
 

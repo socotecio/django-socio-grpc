@@ -19,7 +19,7 @@ will call the service ``perform_authentication()`` method which will inject ``us
 service methods and permission classes. The ``perform_authentication`` will then call all the ``authentication_classes`` of the service as in DRF to try to authenticate user.
 
 The distinction is simple however it's worth to note that while django-rest-framework ``BasePermission`` will have ``request, view``` as args,
-django-socio-grpc ``GRPCActionBasePermission`` (that inherits from django-rest-framework ``BasePermission``) will have ``context (GRPCInternalProxyContext), service (Service)`` args instead
+DSG ``GRPCActionBasePermission`` (that inherits from django-rest-framework ``BasePermission``) will have ``context (GRPCInternalProxyContext), service (Service)`` args instead
 
 
 Authentication Example

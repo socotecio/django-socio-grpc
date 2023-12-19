@@ -6,7 +6,7 @@ GRPCAction
 Description
 -----------
 
-With Django-Socio-GRPC you can declare custom gRPC actions related to your app service with the decorator grpc_action.
+With DSG you can declare custom gRPC actions related to your app service with the decorator grpc_action.
 Once your service registered, it will create the RPC and its messages in your .proto file after the proto generation.
 
 A gRPC action is a representation of an RPC inside the service where it's declared.

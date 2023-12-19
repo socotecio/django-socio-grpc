@@ -32,7 +32,7 @@ Why use DSG ?
 ~~~~~~~~~~~~~
 
 If you're building a Django application and need to create gRPC services,
-Django Socio Grpc is an excellent choice. It provides a familiar and consistent way
+DSG is an excellent choice. It provides a familiar and consistent way
 to define services and methods, making it easy to get started quickly with Django and DRF experience.
 DSG is also natively supports async Django.
 
@@ -54,8 +54,8 @@ It implement the following Django/Django REST framework features:
 How does it work ?
 ~~~~~~~~~~~~~~~~~~
 
-Django Socio gRPC works by exposing gRPC services and abstracting away the details of the gRPC protocol.
-When a gRPC request is received, Django Socio Grpc maps the request to the appropriate service and action,
+DSG works by exposing gRPC services and abstracting away the details of the gRPC protocol.
+When a gRPC request is received, DSG maps the request to the appropriate service and action,
 and then returns a gRPC message (or yields multiple ones in a response-streaming route).
 This mapping allows you to interact with the gRPC services in a way that is familiar to Django developers,
 making most of the Django and DRF external libraries compatible with DSG.

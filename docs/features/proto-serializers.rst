@@ -15,8 +15,8 @@ There are four types of proto serializers available:
 
 They work exactly in the same way as `DRF serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_. You just have to inherit from a different class (see mapping below) and add two meta attributes `proto_class` and `proto_class_list`.
 
-Mapping between Django REST Framework and Django Socio gRPC
------------------------------------------------------------
+Mapping between DRF and DSG
+---------------------------
 
 .. list-table:: DRF to DSG Class Mapping
    :widths: 50 50
@@ -160,7 +160,7 @@ If the message received in the request is different than the one used in the res
 serializer.data vs serializer.message
 -------------------------------------
 
-Django Socio gRPC supports retro compatibility, so `serializer.data` is still accessible and still in dictionary format. However, it's recommended to use `serializer.message` that is in the gRPC message format and should always return `serializer.message` as response data.
+DSG supports retro compatibility, so `serializer.data` is still accessible and still in dictionary format. However, it's recommended to use `serializer.message` that is in the gRPC message format and should always return `serializer.message` as response data.
 
 Note that async method serializer.adata vs serializer.amessage exist. See :ref:`Sync vs Async page <sync-vs-async>`
 
@@ -244,7 +244,7 @@ Read-Only and Write-Only Props
 .. warning::
     This setting is deprecated. In the futur having read/write request separation will be mandatory.
 
-If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, Django Socio gRPC will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., `editable=False`).
+If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, DSG will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., `editable=False`).
 
 Example:
 
@@ -277,7 +277,7 @@ Will result in the following proto after generation:
 Nested Serializer
 =================
 
-Django Socio gRPC supports *nested serializers* without any extra work. Just try it.
+DSG supports *nested serializers* without any extra work. Just try it.
 
 .. code-block:: python
 
@@ -341,7 +341,7 @@ Generated Proto:
 Special Case of SerializerMethodField
 =====================================
 
-DRF ``SerializerMethodField`` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field. To circumvent this problem, Django Socio gRPC introduces function introspection where we are looking for return annotation in the method to find the prototype.
+DRF ``SerializerMethodField`` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field. To circumvent this problem, DSG introduces function introspection where we are looking for return annotation in the method to find the prototype.
 
 .. code-block:: python
 

@@ -6,7 +6,7 @@ Generic Mixins
 Description
 -----------
 
-Django-Socio-GRPC has built-in mixins for actions. Those mixins are either sync or async.
+DSG has built-in mixins for actions. Those mixins are either sync or async.
 
 !! mind: We recommend using the async mixins as they are more performant and will be the only ones supported in the future.
 

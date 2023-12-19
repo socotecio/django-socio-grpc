@@ -1,7 +1,7 @@
 Features
 ========
 
-   Here we describe in details the features of the DSG framework.
+   Here we describe in details the features of DSG.
 
 .. toctree::
    :maxdepth: 1

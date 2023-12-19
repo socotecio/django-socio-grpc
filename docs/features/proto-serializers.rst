@@ -39,7 +39,12 @@ BaseProtoSerializer
 
 BaseProtoSerializer is the base class for all proto serializers. It doesn't have any fields and is used to convert data into a gRPC message.
 
+It need to define the method to_proto_message to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action<grpc-action-request-response>` for expected return format.
+
+
 .. code-block:: python
+
+    from django_socio_grpc import proto_serializers
 
     class BaseProtoSerializer(proto_serializers.BaseProtoSerializer):
         def to_representation(self, el):
@@ -66,9 +71,11 @@ BaseProtoSerializer is the base class for all proto serializers. It doesn't have
 ProtoSerializer
 ---------------
 
-# :TODO: please explain
+``ProtoSerializer`` is the same as ``BaseProtoSerializer`` except it inherit from ``rest_framework.Serializer`` instead of ``rest_framework.BaseSerializer``.
 
+You can find more information on the `DRF documentation<https://www.django-rest-framework.org/api-guide/serializers/#baseserializer>`_
 
+It also need to define the method to_proto_message to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action<grpc-action-request-response>` for expected return format.
 
 ListProtoSerializer
 -------------------
@@ -194,6 +201,7 @@ Example:
 .. code-block:: python
 
     # serializers.py
+    from django_socio_grpc import proto_serializers
     from rest_framework.serializers import UUIDField, PrimaryKeyRelatedField
 
     # related_object is a UUIDField of a related object
@@ -210,9 +218,11 @@ Example:
 
             fields = "__all__"
 
-=========================================
+.. _proto-serializers-nullable-fields:
+
+===========================
 Nullable fieds (`optional`)
-=========================================
+===========================
 
 In gRPC, all fields have a default value. For example, if you have a field of type `int32` and you don't set a value, the default value will be `0`.
 To know if this field was set (so its value is actually `0`) or not, the field needs to be declared as `optional` 
@@ -247,6 +257,8 @@ Example:
 
 .. code-block:: python
 
+    from django_socio_grpc import proto_serializers
+
     class BasicLoginServiceSerializer(proto_serializers.ProtoSerializer):
 
         user_name = serializers.CharField(read_only=True)
@@ -278,6 +290,8 @@ DSG supports *nested serializers* without any extra work. Just try it.
 
 .. code-block:: python
 
+    from django_socio_grpc import proto_serializers
+
     class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
         foreign_obj = ForeignModelSerializer(read_only=True)
         many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
@@ -307,6 +321,8 @@ To address this issue, you have to manually declare the name and protobuf type o
 This `to_proto_message` needs to return a list of dictionaries in the same format as :ref:`grpc action <grpc_action>` request or response as a list input.
 
 .. code-block:: python
+
+    from django_socio_grpc import proto_serializers
 
     class BaseProtoExampleSerializer(proto_serializers.BaseProtoSerializer):
         def to_representation(self, el):
@@ -343,6 +359,7 @@ DRF ``SerializerMethodField`` class is a field type that returns the result of a
 .. code-block:: python
 
     from typing import List, Dict
+    from django_socio_grpc import proto_serializers
 
     class ExampleSerializer(proto_serializers.ProtoSerializer):
 
@@ -378,6 +395,8 @@ By default, the name of the field used for the list response is `results`. You c
 
 .. code-block:: python
 
+    from django_socio_grpc import proto_serializers
+
     class ExampleSerializer(proto_serializers.ProtoSerializer):
 
         uuid = serializers.CharField()
@@ -411,6 +430,8 @@ You could specify comments for fields in your model (proto message) via `help_te
 
 .. code-block:: python
 
+    from django_socio_grpc import proto_serializers
+
     class ExampleSerializer(proto_serializers.ProtoSerializer):
 
         name = serializers.CharField(help_text=ProtoComment(["Comment for the name field"]))
@@ -431,4 +452,16 @@ Generated Proto:
         string value = 2;
     }
 
-# :TODO: should a cardinality example be added here?
+===============================
+Choosing cardinality of a field
+===============================
+
+What protobuf call cardinality is the different key words to specify behavior of a fields such as ``optional`` or ``repeated``.
+
+See :func:`FieldCardinality<django_socio_grpc.protobuf.typing.FieldCardinality>` for exhaustive list of cardinality DSG support.
+
+It is actually not possible to specifically choose cardinality for a serializer field for now. 
+``optional`` cardinality is set following what is described :ref:`here<proto-serializers-nullable-fields>`.
+``repeated`` cardinality is set when using ``ListField``, ``ListSerializer`` or ``Serializer`` with ``many=true`` argument.
+
+Reflexion has started about adding more cardinality options and let field set them. You are welcome for contribution in this `issue <https://github.com/socotecio/django-socio-grpc/issues/219>`_.

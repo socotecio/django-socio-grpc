@@ -76,7 +76,7 @@ def _log_requests(request: GRPCRequestContainer):
 @sync_and_async_middleware
 def log_requests_middleware(get_response: Callable):
     """
-    Simple middleware to print wich request being call before starting the action code. 
+    Simple middleware to print wich request being call before starting the action code.
     Sync and Async supported.
     """
     if asyncio.iscoroutinefunction(get_response):

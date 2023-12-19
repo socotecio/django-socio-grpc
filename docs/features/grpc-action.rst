@@ -54,6 +54,8 @@ Before looking at each argument of this decorator let see its definition:
         use_response_list: bool = False,
     )
 
+.. _grpc-action-request-response:
+
 ========================
 ``request`` ``response``
 ========================

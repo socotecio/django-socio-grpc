@@ -228,14 +228,14 @@ Serializers as messages
 Serializers can be used to generate the response message as shown in the example below:
 Here the ``UserProtoSerializer`` is used to generate the response message.
 
-# :TODO: add the right imports in this example that the users can immediately copy/paste it
-
 .. code-block:: python
 
     from django_socio_grpc.decorators import grpc_action
     from django_socio_grpc.proto_serializers import ModelProtoSerializer
+    from django_socio_grpc.generics import GenericService
     from rest_framework import serializers
-    from my_project.models import User 
+    from rest_framework.pagination import PageNumberPagination
+    from django.contrib.auth.models import User
 
     class UserProtoSerializer(ModelProtoSerializer):
         username = serializers.CharField()
@@ -247,6 +247,7 @@ Here the ``UserProtoSerializer`` is used to generate the response message.
     class ExampleService(GenericService):
         ...
 
+        # This is used to have the `count` field in the message. Not needed if setted by default in the settings
         pagination_class = PageNumberPagination
 
         @grpc_action(
@@ -394,6 +395,8 @@ the service instance as argument.
 
 .. code-block:: python
 
+    from django_socio_grpc.grpc_actions.placeholders import Placeholder
+
     # This placeholder always resolves to "MyRequest"
     class RequestNamePlaceholder(Placeholder):
         def resolve(self, service: GenericService):
@@ -402,9 +405,11 @@ the service instance as argument.
 
 In a service class, you can use placeholders in any of the ``grpc_action`` arguments:
 
-# :TODO: please add the right imports in this example that the users can immediately copy/paste it
-
 .. code-block:: python
+
+    from django_socio_grpc.generics import GenericService
+    from django_socio_grpc.grpc_actions.placeholders import AttrPlaceholder, SelfSerializer
+    # RequestNamePlaceholder come from the doc code just above
 
     class ExampleSuperService(GenericService):
 
@@ -415,7 +420,7 @@ In a service class, you can use placeholders in any of the ``grpc_action`` argum
             response_name = "MyResponse",
         )
         def Route(self, request, context):
-            raise NotImplementedError
+            ...
 
     class ExampleSubService(ExampleSuperService):
 
@@ -447,12 +452,14 @@ This is equivalent to:
 
 There are a few predefined placeholders:
 
-``FnPlaceholder``
+:func:`FnPlaceholder<django_socio_grpc.grpc_actions.placeholders.FnPlaceholder>`
 ~~~~~~~~~~~~~~~~~
 
 Resolves to the result of a function.
 
 .. code-block:: python
+
+    # django_socio_grpc.grpc_actions.placeholders.FnPlaceholder
 
     def fn(service) -> str:
         return "Ok"
@@ -460,16 +467,19 @@ Resolves to the result of a function.
     FnPlaceholder(fn) == "Ok"
 
 
-``AttrPlaceholder``
+:func:`AttrPlaceholder<django_socio_grpc.grpc_actions.placeholders.AttrPlaceholder>`
 ~~~~~~~~~~~~~~~~~~~
 
 Resolves to a named class attribute of the service.
 
 .. code-block:: python
 
+    # django_socio_grpc.grpc_actions.placeholders.AttrPlaceholder
+    
     AttrPlaceholder("my_attribute") == service.my_attribute
 
-``SelfSerializer``
+
+:func:`SelfSerializer<django_socio_grpc.grpc_actions.placeholders.SelfSerializer>`
 ~~~~~~~~~~~~~~~~~~
 
 Resolves to the serializer_class of the service.
@@ -477,10 +487,12 @@ Resolves to the serializer_class of the service.
 
 .. code-block:: python
 
+    # django_socio_grpc.grpc_actions.placeholders.SelfSerializer
+
     SelfSerializer == service.serializer_class
 
 
-``StrTemplatePlaceholder``
+:func:`StrTemplatePlaceholder<django_socio_grpc.grpc_actions.placeholders.StrTemplatePlaceholder>`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Resolves to a string template with either service attributes names or
@@ -488,28 +500,37 @@ functions as parameter. It uses ``str.format`` to inject the values.
 
 .. code-block:: python
 
+    # django_socio_grpc.grpc_actions.placeholders.StrTemplatePlaceholder
+
     def fn(service) -> str:
         return "Ok"
 
     StrTemplatePlaceholder("{}Request{}", "My", fn) == "MyRequestOk"
 
 
-``LookupField``
+:func:`LookupField<django_socio_grpc.grpc_actions.placeholders.LookupField>`
 ~~~~~~~~~~~~~~~
 
-Resolves to the service lookup field message.
-
-# :TODO: please explain the concept of a lookup field here (beginners will have not idea, what this is about)
+Resolves to the service lookup field message. For for information about lookup_field or it's implementation see :ref:`make-a-custom-retrieve`
 
 .. code-block:: python
 
+    from django_socio_grpc.generics import GenericService
+
     class Serializer(BaseSerializer):
+        """
+        This is only for LookupField. Use a proto serializer imported from django_socio_grpc.proto_serializer in real code.
+        """
         uuid = serializers.CharField()
 
+    # If declaring a service like this
     class Service(GenericService):
         serializer_class = Serializer
         lookup_field = "uuid"
 
+    # Then if using LookupField placeholder in grpc_action's request or response parameter it will transform at runtime to
+
+    # django_socio_grpc.grpc_actions.placeholders.LookupField
     LookupField == [{
         "name": "uuid",
         "type": "string", # This is the type of the field in the serializer
@@ -523,9 +544,14 @@ You can use the :ref:`grpc action <grpc_action>` decorator on the ``known`` meth
 
 .. code-block:: python
 
-    class ExampleService(generics.AsyncModelService):
-        queryset = SpecialFieldsModel.objects.all().order_by("uuid")
-        serializer_class = SpecialFieldsModelSerializer
+    from django_socio_grpc.decorators import grpc_action
+    from django_socio_grpc.generics import AsyncModelService
+    from my_app.models import MyModel # Replace by your model
+    from my_app.serializers import MyModelProtoSerializer # Replace by your serializer
+
+    class MyModelService(AsyncModelService):
+        queryset = MyModel.objects.all().order_by("uuid")
+        serializer_class = MyModelProtoSerializer
 
         @grpc_action(
             request=[{"name": "my_example_request", "type": "string"}],
@@ -540,7 +566,7 @@ This will result in the following proto code after the proto generation with the
 
     import "google/protobuf/empty.proto";
 
-    service ExampleController {
+    service MyModelController {
         ...
         rpc Retrieve(ExampleRetrieveRequest) returns (ExampleRetrieveResponse) {}
         ...
@@ -567,6 +593,9 @@ The comment will be added to the corresponding field in the proto file.
 
 
 .. code-block:: python
+
+    from django_socio_grpc.generics import GenericService
+    from django_socio_grpc.decorators import grpc_action
 
     class Service(GenericService):
         ...

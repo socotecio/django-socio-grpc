@@ -1,3 +1,5 @@
+.. _make-a-custom-retrieve:
+
 Make a custom retrieve
 =======================
 

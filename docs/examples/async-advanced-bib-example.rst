@@ -16,7 +16,7 @@ The following socio-grpc features are illustrated:
 
  * UUID primary keys
  * serialization of different field types (datetype, char, integer, float, boolean)
- * Foreing key relationship serialization
+ * Foreign key relationship serialization
  * Many-to-many relationships serialization
  * Custom gRPC commands
  * Filtersets

@@ -86,9 +86,9 @@ Defining models
 ~~~~~~~~~~~~~~~~~~~~~~~
 Create your models as described in the `Django documentation <https://docs.djangoproject.com/en/5.0/topics/db/models/>`_ .
 Each model is assigned to a table in the database.
-It inherits from a Python class django.db.models.Model.
+It inherits from ``django.db.models.Model`` Django class.
 Each attribute represents a field in the table.
-For directly working with the database, use the usual Django API (see `Query creation <https://docs.djangoproject.com/e/5.0/topics/db/queries/>`_).
+For directly working with the database, use the usual Django API (see `Query creation <https://docs.djangoproject.com/en/5.0/topics/db/queries/>`_).
 
 .. code-block:: python
 
@@ -147,23 +147,12 @@ See :ref:`ProtoSerialzer doc page <proto-serializers>` for more information.
 Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Services define the gRPC actions that can be performed, e.g., on your models.
+Services define the gRPC actions that can be performed, e.g., on your models. :ref:`Its what is used to 
+generate the protobuf files and gRPC stubs<quickstart-generate-proto>`. So all the gRPC actions that you want in 
+your proto file should be declared or inhetited in your service. 
+
 The gRPC service is the equivalent of the `DRF APIView <https://www.django-rest-framework.org/api-guide/generic-views/>`_ and behaves in a similar way
-(it only contains an additional internal layer).
-Services used by the DSG command :ref:`generateproto<commands-generate-proto>` to generate the protobuf files and
-gRPC stubs.
-If you inherit your service from :func:`AsyncModelService<django_socio_grpc.generics.AsyncModelService>`, CRUD actions (List, Retrieve, Create, Update, PartialUpdate, Destroy) are automatically generated without any additional code.
-(see :ref:`Proto generation <proto-generation>`).
-
-DSG supports both sync and async, but we recommend using async services, since
-sync services will be deprecated in the future versions of DSG.
-
-In this quickstart, we will make an asynchronous service.
-
-Following the same logic as DRF, DSG uses class-based services.
-
-:func:`DSG mixins<django_socio_grpc.mixins>` make it easy to declare one or several of the CRUD actions.
-Please refer to the :ref:`Mixin section <Generic Mixins>` for more information.
+(it only contains an additional internal layer). See additional note after example for comparaison.
 
 In the the following example we will create 2 services.
 
@@ -171,6 +160,8 @@ In the the following example we will create 2 services.
   it will have 2 gRPC actions: `List` and `Retrieve`.
 - ``PostService``, will be a read-write service (:func:`AsyncModelService<django_socio_grpc.generics.AsyncModelService>`), meaning that
   it will have 6 gRPC actions: `List`, `Retrieve`, `Create`, `Update`, `PartialUpdate`, `Destroy`.
+
+See :ref:`Mixin section <Generic Mixins>` and :ref:`Proto generation <proto-generation>` documentation to help you understand how actions are declared.
 
 .. code-block:: python
 
@@ -190,11 +181,15 @@ In the the following example we will create 2 services.
         queryset = Post.objects.all()
         serializer_class = PostProtoSerializer
 
+.. warning::
+
+  DSG supports both sync and async, but we recommend using async services, since
+  sync services will be deprecated in the future versions of DSG.
 
 .. note::
 
   DSG Generic services and mixins are based on DRF Generic views and mixins,
-  so you can create your services in a similar way as you would do with DRF, e.g.:
+  so you can create your services in a similar way as you would do with DRF in a class-based services, e.g.:
 
 
   In DSG :
@@ -255,7 +250,9 @@ Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`setti
         ...
     }
 
-To better understand the register process and have recommandation about the ``handlers.py`` file for more complex project please read the :ref:`Service Registry documentation<services-registry>`
+.. note::
+  
+  To better understand the register process and have recommandation about the ``handlers.py`` file for more complex project please read the :ref:`Service Registry documentation<services-registry>`
 
 .. _quickstart-generate-proto:
 
@@ -269,9 +266,11 @@ you need to run the following command:
 
     python manage.py generateproto
 
-This will generate a folder called ``grpc`` at the root of your Django app.
 
 See `Proto generation <proto-generation>`_ for more information.
+
+
+This will generate a folder called ``grpc`` at the root of your Django app.
 
 It contains the three files describing your new gRPC service:
 
@@ -284,11 +283,14 @@ It contains the three files describing your new gRPC service:
 Assign newly generated classes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In the ``quickstart/grpc/quickstart.proto`` file,
-you can find the generation of the structure of responses and requests.
-For each serializer, you will find the basic Response message name and the ListResponse message name.
-Serializers need to be assigned to these gRPC messages, which are defined in the ``pb2`` file.
-After code generation with the ``generateproto`` command, you need to import the messages in the ``serializers.py``
+In the newly generated ``quickstart/grpc/quickstart.proto`` file,
+you can find  the structure of Service, responses message and requests message.
+
+For each serializer of your app attached to a service, you will find the associated protobuf **message**. If the serializer is used as a list you will also find the associated **list message**.
+
+To let the DSG magic opere you need to manually (for now) reassign this generated message to the Serializer. This message exit in python class in the generated ``pb2`` file.
+
+You only need to import the messages in the ``serializers.py``
 file and assign them to the serializers, like in the following example:
 
 
@@ -326,11 +328,13 @@ You can now run the gRPC server with the following command:
 
     python manage.py grpcrunaioserver --dev
 
-The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <examples>` for example repository.
+The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <examples>` for python client example.
 
-To read more about the grpcrunaioserver please :ref:`read the commands documentation <commands>`
+To read more about the grpcrunaioserver please :ref:`read the commands documentation <commands-aio-run-server>`
 
 To continue reading consider read:
+
 - :ref:`Generic Mixins <Generic Mixins>`
 - :ref:`gRPC Action <grpc_action>`
+- :ref:`Proto Serializers <proto-serializers>`
 - :ref:`Proto generation <proto-generation>`

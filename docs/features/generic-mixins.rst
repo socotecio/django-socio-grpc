@@ -1,14 +1,17 @@
+.. _Generic Mixins:
+
 Generic Mixins
 ==============
 
-.. _Generic Mixins:
 
 Description
 -----------
 
 DSG has built-in mixins for actions. Those mixins are either sync or async.
 
-!! mind: We recommend using the async mixins as they are more performant and will be the only ones supported in the future.
+.. note:: 
+    
+    We recommend using the async mixins as they are more performant and will be the only ones supported in the future.
 
 Usage
 -----

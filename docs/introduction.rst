@@ -4,8 +4,8 @@ Introduction
 Overview
 --------
 
-Django Socio gRPC (*DSG*) is a Python library that allows you to create gRPC services in a Django application.
-It is similar to Django Rest Framework (*DRF*) and provides features for setting up services and data serialization.
+**Django Socio gRPC** (*DSG*) is a Python library that allows you to create gRPC services in a Django application.
+It is similar to `Django Rest Framework <https://www.django-rest-framework.org/>`_ (*DRF*) and provides features for setting up services and data serialization.
 It was forked from django-grpc-framework in 2021 and aims to provide all the features of DRF while adding gRPC-specific features.
 With DSG, you can create high-performance, scalable, and maintainable gRPC services that
 integrate seamlessly with your Django application.
@@ -13,7 +13,7 @@ integrate seamlessly with your Django application.
 Why gRPC ?
 ~~~~~~~~~~
 
-gRPC is a high-performance, open-source RPC framework developed by Google.
+`gRPC <https://grpc.io/>`_ is a high-performance, open-source RPC framework developed by Google.
 
 It is also designed to be easy to use, and it provides a number of features that make it a good choice for building microservices.
 Some of these features include:

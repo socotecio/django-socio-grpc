@@ -21,6 +21,7 @@ This command accepts the following arguments:
 - ``--custom-verbose``: Number from 1 to 4 indicating the verbose level of the generation
 - ``--directory``: Directory where the proto files will be generated. Default will be in the apps directories
 
+.. _commands-aio-run-server:
 
 gRPC Run AIO Server
 -------------------

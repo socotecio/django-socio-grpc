@@ -1,6 +1,0 @@
-.. _python-examples:
-
-
-Examples
-========
-

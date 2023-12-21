@@ -4,14 +4,80 @@ Exceptions
 Description
 -----------
 
-In Django, exceptions are raised when something unexpected or erroneous occurs during the execution of a web application.
-Those exceptions are related to a specific status_code. you can find more information (`here <https://grpc.github.io/grpc/core/md_doc_statuscodes.html>`_).
-Django provides a set of built-in exceptions and allows you to create custom exceptions as needed.
-Django-Socio-GRPC provides gRPC exceptions which are essential for handling gRPC errors and providing informative responses to users.
+In Django and DRF, exceptions are raised when something unexpected or erroneous occurs during the execution of a web application. DSG exceptions handling work like `DRF exceptions <https://www.django-rest-framework.org/api-guide/exceptions/>_`.
+
+DSG services can handle exceptions happening and automatically returning the appropriate grpc status code associated to the exception.
+
+The handled exceptions are:
+
+* Subclasses of GRPCException raised inside DSG.
+* Subclasses of APIException raised inside DRF.
+* Django's Http404 exception.
+* Django's PermissionDenied exception.
+
+In each case, DSG will abort the gRPC context with an appropriate status code and details. The gRPC message returned by the gRPC abort method will have the code and details key populate with the correct data adapted to the exception.
+
+You can find the different gRPC abort status code `here <https://grpc.github.io/grpc/core/md_doc_statuscodes.html>`_.
+
+.. note::
+    As DSG handle Subclasses of DRF APIException that mean you can raise exception imported from DRF as you used to using DRF.
 
 
-Usage
------
+Example
+-------
+
+.. code-block:: python
+
+    # server
+    from django_socio_grpc.exceptions import InvalidArgument
+
+    class RaiseCustomErrorService(GenericService):
+
+        @grpc_action()
+        async def RaiseError(self, request, context):
+            raise InvalidArgument()
+
+    # client
+    import asyncio
+    import grpc
+
+    async def main():
+        async with grpc.aio.insecure_channel("localhost:50051") as channel:
+            my_app_client = my_app_pb2_grpc.RaiseCustomErrorControllerStub(channel)
+
+            request = my_app_pb2.RaiseErrorRequest()
+
+            try:
+                await my_app_client.RaiseError(request)
+            except grpc.RpcError as e:
+                print(e.code())
+                print(e.detials())
+
+    if __name__ == "__main__":
+        asyncio.run(main())
+
+
+Creating custom code and detail error
+-------------------------------------
+
+.. code-block:: python
+
+    from django_socio_grpc.exceptions import GRPCException
+
+    class CustomError(GRPCException):
+        status_code = grpc.StatusCode.INVALID_ARGUMENT
+        default_detail = "Custom error message"
+        default_code = "custom_error_code"
+
+    class RaiseCustomErrorService(GenericService):
+
+        @grpc_action()
+        async def RaiseError(self, request, context):
+            raise CustomError()
+
+
+API Reference
+-------------
 
 Here's an explanation of each exception :
 
@@ -73,23 +139,3 @@ Subclass of GRPCException representing the UNIMPLEMENTED gRPC status code. It in
 The code also includes utility functions _get_error_details, _get_codes, and _get_full_details for processing error details, error codes, and full error details, respectively.
 
 Overall, these custom exceptions and utilities allow for more precise and structured error handling when dealing with gRPC-related exceptions in the specified Python project.
-
-
-
-Example
--------
-
-.. code-block:: python
-
-    from django_socio_grpc.exceptions import GRPCException
-
-    class CustomError(GRPCException):
-        status_code = grpc.StatusCode.INVALID_ARGUMENT
-        default_detail = "Custom error message"
-        default_code = "custom_error_code"
-
-    class RaiseCustomErrorService(GenericService):
-
-        @grpc_action()
-        async def RaiseError(self, request, context):
-            raise CustomError()

@@ -13,7 +13,7 @@ from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 from django_socio_grpc.utils.tools import rreplace
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.services")
 
 
 class GenericService(services.Service):

@@ -51,15 +51,11 @@ DEFAULTS = {
     # Default permission classes
     "DEFAULT_PERMISSION_CLASSES": [],
     # gRPC running mode
-    "GRPC_ASYNC": False,
+    "GRPC_ASYNC": True,
     # Default grpc channel port
     "GRPC_CHANNEL_PORT": 50051,
-    # Default logging action
-    "LOGGING_ACTION": None,
     # Separate request and response message for model to activate read_only, write_only property of serilizer
     "SEPARATE_READ_WRITE_MODEL": True,
-    # List service action that we do not want to be logged (health check for example) to avoid log flooding
-    "IGNORE_LOG_FOR_ACTION": [],
     # List of all middleware classes to be used for gRPC framework
     "GRPC_MIDDLEWARE": [
         "django_socio_grpc.middlewares.log_requests_middleware",
@@ -73,8 +69,12 @@ DEFAULTS = {
         "PAGINATION": "PAGINATION",
         "FILTERS": "FILTERS",
     },
-    # Get extra data from service when using log middleware or processing exception in django-socio-grpc
+    # [DEPRECATED]. See https://django-socio-grpc.readthedocs.io/en/latest/how-to/add-extra-context-to-logging.html. Get extra data from service when using log middleware or processing exception in django-socio-grpc
     "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.default_get_log_extra_context",
+    # Log requests even for response OK
+    "LOG_OK_RESPONSE": False,
+    # List service action that we do not want to be logged (health check for example) to avoid log flooding
+    "IGNORE_LOG_FOR_ACTION": [],
 }
 
 
@@ -85,7 +85,6 @@ IMPORT_STRINGS = [
     "DEFAULT_PERMISSION_CLASSES",
     "DEFAULT_PAGINATION_CLASS",
     "DEFAULT_FILTER_BACKENDS",
-    "LOGGING_ACTION",
     "LOG_EXTRA_CONTEXT_FUNCTION",
 ]
 

@@ -4,8 +4,8 @@ Introduction
 Overview
 --------
 
-Django Socio gRPC (*DSG*) is a Python library that allows you to create gRPC services in a Django application.
-It is similar to Django Rest Framework (*DRF*) and provides features for setting up services and data serialization.
+**Django Socio gRPC** (*DSG*) is a Python library that allows you to create gRPC services in a Django application.
+It is similar to `Django Rest Framework <https://www.django-rest-framework.org/>`_ (*DRF*) and provides features for setting up services and data serialization.
 It was forked from django-grpc-framework in 2021 and aims to provide all the features of DRF while adding gRPC-specific features.
 With DSG, you can create high-performance, scalable, and maintainable gRPC services that
 integrate seamlessly with your Django application.
@@ -13,7 +13,7 @@ integrate seamlessly with your Django application.
 Why gRPC ?
 ~~~~~~~~~~
 
-gRPC is a high-performance, open-source RPC framework developed by Google.
+`gRPC <https://grpc.io/>`_ is a high-performance, open-source RPC framework developed by Google.
 
 It is also designed to be easy to use, and it provides a number of features that make it a good choice for building microservices.
 Some of these features include:
@@ -32,12 +32,12 @@ Why use DSG ?
 ~~~~~~~~~~~~~
 
 If you're building a Django application and need to create gRPC services,
-Django Socio Grpc is an excellent choice. It provides a familiar and consistent way
+DSG is an excellent choice. It provides a familiar and consistent way
 to define services and methods, making it easy to get started quickly with Django and DRF experience.
 DSG is also natively supports async Django.
 
-DSG also automatically generate all the protofiles by parsing the python serializers. 
-Allowing developers to completely abstract protobuf complexity. 
+DSG also automatically generate all the protofiles by parsing the python serializers.
+Allowing developers to completely abstract protobuf complexity.
 
 It implement the following Django/Django REST framework features:
 
@@ -46,7 +46,7 @@ It implement the following Django/Django REST framework features:
 * Automatic proto generation
 * Authentication / Permissions
 * Serializers
-* Filters 
+* Filters
 * gRPC Exception mapping
 * Django like logging
 * Django like middleware
@@ -54,8 +54,8 @@ It implement the following Django/Django REST framework features:
 How does it work ?
 ~~~~~~~~~~~~~~~~~~
 
-Django Socio gRPC works by exposing gRPC services and abstracting away the details of the gRPC protocol.
-When a gRPC request is received, Django Socio Grpc maps the request to the appropriate service and action,
+DSG works by exposing gRPC services and abstracting away the details of the gRPC protocol.
+When a gRPC request is received, DSG maps the request to the appropriate service and action,
 and then returns a gRPC message (or yields multiple ones in a response-streaming route).
 This mapping allows you to interact with the gRPC services in a way that is familiar to Django developers,
 making most of the Django and DRF external libraries compatible with DSG.

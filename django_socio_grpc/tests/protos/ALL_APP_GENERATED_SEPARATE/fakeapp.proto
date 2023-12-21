@@ -21,6 +21,8 @@ service BasicController {
 }
 
 service ExceptionController {
+    rpc APIException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc GRPCException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc StreamRaiseException(google.protobuf.Empty) returns (stream ExceptionStreamRaiseExceptionResponse) {}
     rpc UnaryRaiseException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }

@@ -1,6 +1,6 @@
 import logging
 
-logger = logging.getLogger("django_socio_grpc")
+logger = logging.getLogger("django_socio_grpc.registration")
 
 logger.warning(
     f"This module ({__name__}) is deprecated. Please "

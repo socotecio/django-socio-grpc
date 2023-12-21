@@ -1,5 +1,6 @@
 .. _how-to-web:
-pRPC-Web
+
+gRPC-Web
 =========
 
 Description
@@ -7,7 +8,7 @@ Description
 
 It's possible to use gRPC in a browser, considering some limitations (See `state-of-grpc-web <https://grpc.io/blog/state-of-grpc-web/>`_). Using it allows you to have only one interface for all your customers. It also enables server-side streams that do not exist in classic REST protocols.
 
-All the next steps described here can be found in the `dsg-example repository <https://github.com/socotecio/django-socio-grpc-example>`_ in the `frontend/grpc-web-example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example>`_ directory.
+All the next steps described here can be found in the `dsg-example repository <https://github.com/socotecio/django-socio-grpc-example>`_ in the `frontend/grpc-web-example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example>`_ directory.
 
 We will use `BUF <https://buf.build/>`_ to generate the JS API files. See :ref:`Understanding differences in the grpc-web ecosystem`.
 
@@ -64,9 +65,9 @@ The first step is to understand the differences between the concepts.
 
   To use the generated files, there are multiple options:
 
-  * gRPC-web generated class directly. `Example <https://github.com/grpc/grpc-web#option-using-promises-limited-features>`_
-  * Improbable. `Example <https://github.com/improbable-eng/grpc-web#example>`_
-  * BUF connect. `Example <https://connectrpc.com/docs/web/using-clients/>`_
+  * gRPC-web generated class directly. `Example <https://github.com/grpc/grpc-web#option-using-promises-limited-features>`__
+  * Improbable. `Example <https://github.com/improbable-eng/grpc-web#example>`__
+  * BUF connect. `Example <https://connectrpc.com/docs/web/using-clients/>`__
 
   Improbable works with grpc-web generated files, BUF connect works with BUF CLI generated files
 
@@ -75,7 +76,7 @@ The first step is to understand the differences between the concepts.
   Regarding the progress in the grpc ecosystem lately, here is what we recommend as the DSG core team:
 
   * Protocol:             gRPC-web    - Connect does not support python as I write these lines
-  * Generator plugin :    BUF cli     - Support ESM format, the only one compatible with Vite. See :ref:`Generating JS client<Generating JS client>` for usage.
+  * Generator plugin :    BUF cli     - Support ESM format, the only one compatible with Vite. See :ref:`Generating JS client<generating_js_client>` for usage.
   * Import style:         ESM         - As we recommend BUF cli there is only ESM as import style. Choose js or ts depending on your project.
   * Client:               Buf connect - Support gRPC-web protocol but with better message and response manipulation.
 
@@ -98,6 +99,8 @@ To help you understand how to launch it, you can have a look in our example repo
 
 This can also be launched in a production environment, but if the envoy proxy is not located in the same local network it can bring latency. Please consider using `Istio <https://istio.io/>`_ if in a Kubernetes deployment
 
+.. _generating_js_client:
+
 Generating JS Client
 ---------------------
 
@@ -107,13 +110,15 @@ To better understand how it works and to provide a simple example, we will use `
 
 Here are the steps needed:
 
-#. Install dependencies (3 in dev mode and 3 in normal mode). `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/package.json>`_
-#. Create the `buf.gen.yaml` file with at least the `es` and the `connect-es` plugin. Even if it can be anywhere, we recommend putting it at the root of your JS folder or your API folder. The example will only work if at the root of a Vue Vite/Webpack project as it expects an existing `src` folder. `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/buf.gen.yaml>`_
-#. Copy the proto file into a `proto` directory created in the folder of the `buf.gen.yaml` file. `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/proto>`_
-#. Launch the command: `npx buf generate proto` `Explanation <https://github.com/socotecio/django-socio-grpc-example/README.md#how-to-update-the-js-file-when-api-update>`_
-#. A `src/gen` folder should be created with two files: `_connect.js` file with the Services/Controllers file and `_pb.js` with request and response message files. `Example <https://github.com/socotecio/django-socio-grpc-example/frontend/grpc-web-example/src/gen>`_
+#. Install dependencies (3 in dev mode and 3 in normal mode). `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/package.json>`__
+#. Create the `buf.gen.yaml` file with at least the `es` and the `connect-es` plugin. Even if it can be anywhere, we recommend putting it at the root of your JS folder or your API folder. The example will only work if at the root of a Vue Vite/Webpack project as it expects an existing `src` folder. `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/buf.gen.yaml>`__
+#. Copy the proto file into a `proto` directory created in the folder of the `buf.gen.yaml` file. `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/proto>`__
+#. Launch the command: `npx buf generate proto` `Explanation <https://github.com/socotecio/django-socio-grpc-example/README.md#how-to-update-the-js-file-when-api-update>`__
+#. A `src/gen` folder should be created with two files: `_connect.js` file with the Services/Controllers file and `_pb.js` with request and response message files. `Example <https://github.com/socotecio/django-socio-grpc-example/tree/main/frontend/grpc-web-example/src/gen>`__
 
 Once these two files are generated, you are good to go to the next step.
+
+.. _using_js_client:
 
 Using JS Client
 ----------------
@@ -122,7 +127,7 @@ BUF has already documented this part: `Using clients <https://connectrpc.com/doc
 
 However, there are some details that can be confusing:
 
-* You need to use the `createGrpcWebTransport` protocol. `Example <https://connectrpc.com/docs/web/choosing-a-protocol>`_
+* You need to use the `createGrpcWebTransport` protocol. `Example <https://connectrpc.com/docs/web/choosing-a-protocol>`__
 * If the proto was generated by DSG, then the `_connect.js` file exports the Service name with Controller instead of Service name. In the BUF doc, ElizaService should have been ElizaController.
 * If API fields use snake_case, they should be set and get by camelCase when using the `createGrpcWebTransport` as grpc-web automatically converts fields.
 

@@ -1,13 +1,15 @@
 Settings
 =============
 
-Available Settings
-------------------
 .. _Available Settings:
 
-These are the default settings for Django Socio GRPC, with explanations provided below.
+Available Settings
+------------------
+
+These are the default settings for DSG, with explanations provided below.
 These settings should be defined under the ``GRPC_FRAMEWORK`` variable in django settings.
-See the documentation on django settings if your not familiar with it: `Django settings documentation <https://docs.djangoproject.com/en/4.2/topics/settings/>`_.
+
+See the documentation on django settings if your not familiar with it: `Django settings documentation <https://docs.djangoproject.com/en/5.0/topics/settings/>`_.
 
 .. code-block:: python
 
@@ -32,15 +34,20 @@ See the documentation on django settings if your not familiar with it: `Django s
       "PAGINATION": "PAGINATION",
       "FILTERS": "FILTERS",
     },
+    "LOG_OK_RESPONSE": False,
+    "IGNORE_LOG_FOR_ACTION": []
   }
 
 .. _root-handler-hook-setting:
+
 ROOT_HANDLERS_HOOK
 ^^^^^^^^^^^^^^^^^^
 
-This setting points to the `grpc_handlers` function within a specified module, responsible for registering all gRPC handlers for the project's applications. Each application has its own handler, which in turn registers the gRPC services it employs. As a result, incoming gRPC requests or events trigger the appropriate service using the handlers' map. This function runs just before the start of the server, making it useful for any other kind of initialization
+This setting points to the `grpc_handlers` function responsible for registering all gRPC Services for the project's applications. 
 
-See Register services section in the Getting Started documentation to see an example of grpc_handlers method.
+This function runs just before the start of the server, making it useful for any other kind of initialization
+
+See :ref:`Register services section in the Getting Started documentation<quickstart-register-services>` for quick example of :ref:`Service Registry <services-registry>` for complete understanding and recommandation.
 
 For a project named "my_project" with the `grpc_handlers` function inside `my_project/handlers.py`, the configuration would be:
 
@@ -50,6 +57,11 @@ For a project named "my_project" with the `grpc_handlers` function inside `my_pr
 
 SERVER_INTERCEPTORS
 ^^^^^^^^^^^^^^^^^^^
+
+.. note::
+  
+  ``SERVER_INTERCEPTORS`` settings allow you to make actions at the grpc request level. To have all the DSG functionnalities like ``request.user`` and more please use :ref:`GRPC_MIDDLEWARE setting <settings-grpc-middleware>`
+
 This setting specifies a list of gRPC server interceptors. Interceptors allow you to run custom code before or after a gRPC method gets executed. Common uses for interceptors include logging, authentication, and request/response transformations.
 
 Example:
@@ -62,16 +74,14 @@ Consider you have two interceptors, LoggingInterceptor and AuthenticationInterce
 
 With this configuration, every gRPC method invocation will first pass through the LoggingInterceptor and then the AuthenticationInterceptor before the actual gRPC method is executed.
 
-See the ServerInterceptor documentation for Python : `sync <https://grpc.github.io/grpc/python/grpc.html#grpc.ServerInterceptor>_` and `async <https://grpc.github.io/grpc/python/grpc_asyncio.html#grpc.aio.ServerInterceptor>_`.
+See the ServerInterceptor documentation for Python : `sync <https://grpc.github.io/grpc/python/grpc.html#grpc.ServerInterceptor>`_ and `async <https://grpc.github.io/grpc/python/grpc_asyncio.html#grpc.aio.ServerInterceptor>`_.
 
 SERVER_OPTIONS
 ^^^^^^^^^^^^^^
 
 This setting defines a list of key-value pairs specifying options for the gRPC server. These options help configure server behavior, such as setting limits on the size of incoming or outgoing messages.
 
-Example:
-
-If you want to set the maximum size for sending and receiving messages to 100MB, you can configure the SERVER_OPTIONS as:
+Example if you want to set the maximum size for sending and receiving messages to 100MB, you can configure the SERVER_OPTIONS as:
 
 .. code-block:: python
 
@@ -82,7 +92,7 @@ If you want to set the maximum size for sending and receiving messages to 100MB,
 
 The above configuration allows the gRPC server to send and receive messages up to a size of 100MB.
 
-For more options, see the `documentation <https://grpc.github.io/grpc/core/group__grpc__arg__keys.html>`_.
+For more options, see the `grpc documentation <https://grpc.github.io/grpc/core/group__grpc__arg__keys.html>`_.
 
 
 DEFAULT_AUTHENTICATION_CLASSES
@@ -90,9 +100,7 @@ DEFAULT_AUTHENTICATION_CLASSES
 
 Defines the list of authentication classes the gRPC server uses to validate incoming requests. Requests are authenticated based on the methods provided by these classes, in the order they are listed.
 
-Example:
-
-If you want to set the maximum size for sending and receiving messages to 100MB, you can configure the DEFAULT_AUTHENTICATION_CLASSES as:
+Example if you want to set a custom Authentication class ``your_project.auth.JWTAuthentication``, you can configure the ``DEFAULT_AUTHENTICATION_CLASSES`` as:
 
 .. code-block:: python
 
@@ -100,7 +108,9 @@ If you want to set the maximum size for sending and receiving messages to 100MB,
     "your_project.auth.JWTAuthentication"
   ]
 
-For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/authentication/#setting-the-authentication-scheme>`_.
+For more details, see the `DRF documentation on auth <https://www.django-rest-framework.org/api-guide/authentication/#setting-the-authentication-scheme>`_ as DSG use the same system.
+
+.. _default_filter_backends_settings:
 
 DEFAULT_FILTER_BACKENDS
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -114,18 +124,20 @@ For instance, to use django-filter backend (`doc <https://django-filter.readthed
   "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"]
 
 
+For more details, see the `DRF documentation on filters <https://www.django-rest-framework.org/api-guide/filtering/#setting-filter-backends>`_ as DSG use the same system.
+
 DEFAULT_PAGINATION_CLASS
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Defines the default pagination class for gRPC services. This class will be used to paginate large datasets in the response.
 
-Example configuration to use the `StandardResultsSetPagination` class:
+Example configuration to use the `PageNumberPagination <https://www.django-rest-framework.org/api-guide/pagination/#pagenumberpagination>` class:
 
 .. code-block:: python
 
-  "DEFAULT_PAGINATION_CLASS": "core.pagination.StandardResultsSetPagination"
+  "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination"
 
-For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/pagination/>`_.
+For more details, see the `DRF documentation on doc <https://www.django-rest-framework.org/api-guide/pagination/>`_ as DSG use the same system.
 
 
 DEFAULT_PERMISSION_CLASSES
@@ -142,7 +154,7 @@ For a hypothetical project that uses JWT for authentication:
       "your_project.permissions.HasServiceAccess",
   ]
 
-For more details, see the `DRF documentation as DSG use the same system <https://www.django-rest-framework.org/api-guide/permissions/>`_.
+For more details, see the `DRF documentation on permissions as DSG use the same system <https://www.django-rest-framework.org/api-guide/permissions/>`_.
 
 
 GRPC_ASYNC
@@ -184,6 +196,8 @@ Please consider to always use async as it may become the only accepted behavior 
   "SEPARATE_READ_WRITE_MODEL": True
 
 
+.. _settings-grpc-middleware:
+
 GRPC_MIDDLEWARE
 ^^^^^^^^^^^^^^^
 
@@ -203,10 +217,10 @@ For instance, you could have a generic logging middleware that logs every gRPC r
       "your_project.middlewares.ConnectionHandlingMiddleware",
   ]
 
+.. _root_grpc_folder_settings:
+
 ROOT_GRPC_FOLDER
 ^^^^^^^^^^^^^^^^
-
-.. _root_grpc_folder_settings:
 
 This setting specifies the root directory name where all the
 generated proto files of external services are outputted.
@@ -247,3 +261,13 @@ Default is False. Being in DEBUG mode enables it.
 .. code-block:: python
 
   "LOG_OK_RESPONSE": True
+
+
+IGNORE_LOG_FOR_ACTION
+^^^^^^^^^^^^^^^^^^^^^
+
+If :ref:`LOG_OK_RESPONSE <settings-ignore-log-for-action>` is set to True allow to specify a list of action that we do not want to automatically log.
+
+.. code-block:: python
+
+  "IGNORE_LOG_FOR_ACTION": ["Service1.Action1", "Service1.Action1"]

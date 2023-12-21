@@ -1,3 +1,5 @@
+.. _streaming:
+
 Streaming
 =========
 
@@ -7,20 +9,20 @@ Overview
 Server Streaming - ``unary-stream``
 -----------------------------------
 
-A streaming RPC is similar to a unary RPC, except that the server returns a stream of messages as response. 
-After sending all its messages, the server’s status details (status code and optional status message) and optional trailing metadata are sent to the client. This completes processing on the server side. 
+A streaming RPC is similar to a unary RPC, except that the server returns a stream of messages as response.
+After sending all its messages, the server’s status details (status code and optional status message) and optional trailing metadata are sent to the client. This completes processing on the server side.
 The client completes once it has all the server’s messages.
 
 Client Streaming - ``stream-unary``
 -----------------------------------
 
-A client-streaming RPC is similar to a unary RPC, except that the client sends a stream of messages as request to the server instead of a single message. 
+A client-streaming RPC is similar to a unary RPC, except that the client sends a stream of messages as request to the server instead of a single message.
 The server responds with a single message (along with its status details and optional trailing metadata), typically but not necessarily after it has received all the client’s messages.
 
 Bidirectional Streaming - ``stream-stream``
 -------------------------------------------
 
-In a bidirectional streaming RPC, the call is initiated by the client invoking the method and the server receiving the client metadata, method name, and deadline. 
+In a bidirectional streaming RPC, the call is initiated by the client invoking the method and the server receiving the client metadata, method name, and deadline.
 The server can choose to send back its initial metadata or wait for the client to start streaming messages.
 Client- and server-side stream processing is application specific. Since the two streams are independent, the client and server can read and write messages in any order. For example, a server can wait until it has received all of a client’s messages before writing its messages, or the server and client can play “ping-pong”
 the server gets a request, then sends back a response, then the client sends another request based on the response, and so on.
@@ -28,7 +30,7 @@ the server gets a request, then sends back a response, then the client sends ano
 Example
 -------
 
-Full example in `Django Socio Grpc Example <https://github.com/socotecio/django-socio-grpc-example>`_ 
+Full example in `Django Socio Grpc Example <https://github.com/socotecio/django-socio-grpc-example>`_
 
 Server code:
 

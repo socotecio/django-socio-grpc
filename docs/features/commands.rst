@@ -3,11 +3,15 @@
 Commands
 ===========
 
-Django-socio-grpc lets you add custom commands on top of existing commands available by default in Django (see `Django admin and manage.py <https://docs.djangoproject.com/en/4.2/ref/django-admin/>`_ )
-There are only two django-socio-grpc specific commands:
+DSG lets you add custom commands on top of existing commands available by default in Django (see `Django admin and manage.py <https://docs.djangoproject.com/en/5.0/ref/django-admin/>`_ )
+
+.. _commands-generate-proto:
+
+Generate Proto
+--------------
 
 - ``manage.py generateproto`` (see :ref:`proto generation <proto-generation>` )
-  
+
 This command accepts the following arguments:
 
 - ``--project``: Used to specify Django project. Use DJANGO_SETTINGS_MODULE by default
@@ -17,7 +21,10 @@ This command accepts the following arguments:
 - ``--custom-verbose``: Number from 1 to 4 indicating the verbose level of the generation
 - ``--directory``: Directory where the proto files will be generated. Default will be in the apps directories
 
-and
+.. _commands-aio-run-server:
+
+gRPC Run AIO Server
+-------------------
 
 - ``manage.py grpcrunaioserver``
 
@@ -25,15 +32,17 @@ This command is similar to django's ``manage.py runserver``, except it launches 
 it accepts the following arguments:
 
 - ``address`` : Optional address for which to open a port.
-- ``--max-workers``: Number of maximum worker threads.
+- ``--max-workers``: Number of maximum worker threads. Only needed for migration from sync to async server. Using it will have no effect if server fully async. See `gRPC doc migration_thread_pool argument <https://grpc.github.io/grpc/python/grpc_asyncio.html#grpc.aio.server>_`
 - ``--dev`` Run the server in development mode. This tells Django to use the auto-reloader and run checks.
 
 
-finally:
+gRPC Run Server
+-------------------
 
 - ``manage.py grpcrunserver``
 
-Same as ``grpcrunaioserver`` except this one is for sync mode
+Same as ``grpcrunaioserver`` except this one is for sync mode and --max-workers do really something
 
 .. warning::
-We do not recommend using this command in production. It is provided as a convenience so that you can test your gRPC services locally and will be removed in the future.
+
+    We do not recommend using this command in production. It is provided as a convenience so that you can test your gRPC services locally and will be removed in the future.

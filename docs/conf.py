@@ -12,21 +12,21 @@ copyright = "2023, Socotec.io"
 extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
-    "autodoc2",
-    "sphinxcontrib.apidoc",
+    "sphinx.ext.napoleon",
     "sphinxcontrib.spelling",
     "auto_pytabs.sphinx_ext",
     "sphinx_autodoc_typehints",
     "sphinx_rtd_theme",
     "myst_parser",
+    "autodoc2",
 ]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "django": ("https://docs.djangoproject.com/en/4.2/", None),
+    # "django": ("https://docs.djangoproject.com/en/5.0/", None),
     "grpc": ("https://grpc.github.io/grpc/python/", None),
-    "rest_framework": ("https://www.django-rest-framework.org/", None),
+    # "rest_framework": ("https://www.django-rest-framework.org/", None),
 }
 
 napoleon_google_docstring = True
@@ -48,14 +48,13 @@ autosectionlabel_prefix_document = True
 
 html_theme = "sphinx_rtd_theme"
 html_show_sourcelink = True
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
 html_title = "Django Socio gRPC"
 
 
 html_theme_options = {
     "display_version": True,
 }
-
 autodoc2_render_plugin = "myst"
 autodoc2_packages = [
     {"path": "../django_socio_grpc", "exclude_dirs": ["tests"]},

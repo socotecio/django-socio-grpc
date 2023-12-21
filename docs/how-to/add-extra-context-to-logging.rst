@@ -4,7 +4,7 @@ Logging
 Description
 -----------
 
-Here's how you can add extra context to your logging in Django-Socio-GRPC
+Here's how you can add extra context to your logging in DSG
 
 Usage
 -----
@@ -14,7 +14,7 @@ Logging GRPC Services
 =====================
 
 You'll want to be able to log information about your grpc services.
-Django-Socio-GRPC is built-in with :ref:`existing loggers<logging>` to get information from GRPC services
+DSG is built-in with :ref:`existing loggers<logging>` to get information from GRPC services
 
 If you want to add information to your logs from grpc. You will need to define something like these two functions and call set_log_record_factory in your settings before any log using your formatter is called.
 

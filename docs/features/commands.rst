@@ -23,12 +23,12 @@ This command accepts the following arguments:
 
 .. _commands-aio-run-server:
 
-gRPC Run AIO Server
--------------------
+gRPC Run Async IO Server
+----------------------------
 
 - ``manage.py grpcrunaioserver``
 
-This command is similar to django's ``manage.py runserver``, except it launches the asynchronous gRPC I/O server, hence the name. It is the recommended way to run gRPC services in production.
+This command is similar to django's ``manage.py runserver``, except it launches the *asynchronous* gRPC I/O server, hence the name. It is the recommended way to run gRPC services in production.
 it accepts the following arguments:
 
 - ``address`` : Optional address for which to open a port.
@@ -38,12 +38,12 @@ it accepts the following arguments:
 
 .. _commands-run-server:
 
-gRPC Run Server
--------------------
+gRPC Run Sync Server
+----------------------
 
 - ``manage.py grpcrunserver``
 
-Same as ``grpcrunaioserver`` except this one is for synchronous mode. Mind that --max-workers will have no effect here.
+Same as ``grpcrunaioserver`` except this one is for *synchronous* mode. Mind that --max-workers will have no effect here.
 
 .. warning::
 

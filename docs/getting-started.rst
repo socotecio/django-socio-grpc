@@ -335,6 +335,7 @@ To read more about the grpcrunaioserver please :ref:`read the commands documenta
 
 To continue reading consider read:
 
+- :ref:`Unit testing the quickstart app <testing>`
 - :ref:`Generic Mixins <Generic Mixins>`
 - :ref:`gRPC Action <grpc_action>`
 - :ref:`Proto Serializers <proto-serializers>`

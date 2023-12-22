@@ -1,13 +1,16 @@
 Advanced ASync Example
 =======================
 
+All the example describred here can be found in the `example repository <https://github.com/socotecio/django-socio-grpc-example>`_
+
+This page is still in Work in progress
 
 Overview
 --------
 
-This is an advanced example demonstrates the socio-grpc framework (in asynchronous mode).
+This is an advanced example to demonstrates DSG usages(in asynchronous mode).
 
-We will generate a simple bibliographic service, that illustrates many aspects of socio-grpc.
+We will generate a simple bibliographic service, that illustrates many aspects of DSG.
 
 The service will be a simple CRUD service, with a single entity type, `Book`.
 

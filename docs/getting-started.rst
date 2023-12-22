@@ -81,6 +81,7 @@ Finally migrate the database:
 
 See `Django tutorial <https://docs.djangoproject.com/en/5.0/intro/tutorial01/>`_ for more information
 
+.. _getting-started-defining-models:
 
 Defining models
 ~~~~~~~~~~~~~~~~~~~~~~~

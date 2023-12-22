@@ -14,15 +14,6 @@ The service will be a simple CRUD service, with a single entity type, `Book`.
 
 The following socio-grpc features are illustrated:
 
-<<<<<<< HEAD
- * UUID primary keys
- * serialization of different field types (datetype, char, integer, float, boolean)
- * Foreign key relationship serialization
- * Many-to-many relationships serialization
- * Custom gRPC commands
- * Filtersets
- * Synchronous mode
-=======
 * UUID primary keys
 * serialization of different field types (datetype, char, integer, float, boolean)
 * Foreing key relationship serialization
@@ -30,8 +21,6 @@ The following socio-grpc features are illustrated:
 * Custom gRPC commands
 * Filtersets
 * Synchronous mode
->>>>>>> d39ff27b7424df42b28730c781f03530e0c3a43a
-
 
 
 Django models

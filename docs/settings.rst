@@ -188,6 +188,7 @@ This settigns will only be used if :ref:`grpcrunaioserver<commands-aio-run-serve
 
   "GRPC_CHANNEL_PORT": 50051
 
+.. _grpc-settings-separate-read-write-model:
 
 SEPARATE_READ_WRITE_MODEL
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -198,7 +199,7 @@ By enabling this option (set to `True`), it ensures that specific fields in a mo
 
 For instance, if you have fields in your model that should only be updated but never retrieved in a response, you can mark them as `write_only`. Similarly, fields that should be displayed but never modified can be marked as `read_only`.
 
-Please consider to always separate read/write model as it may become the only accepted behavior in DSG 1.0.
+**Please consider to always separate read/write model as it may become the only accepted behavior in DSG 1.0.**
 
 .. code-block:: python
 

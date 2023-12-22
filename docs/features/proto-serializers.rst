@@ -13,7 +13,7 @@ There are four types of proto serializers available:
 - `ModelProtoSerializer <#modelprotoserializer>`_ :
 
 
-They work exactly in the same way as `DRF serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_. You just have to inherit from a different class (see mapping below) and add two meta attributes `proto_class` and `proto_class_list`.
+They work exactly in the same way as `DRF serializer <https://www.django-rest-framework.org/api-guide/serializers/>`_. You just have to inherit from a the corresponding DSG class (see mapping below) and add two meta attributes `proto_class` and `proto_class_list`(s. examples).
 
 Mapping between DRF and DSG
 ---------------------------
@@ -39,7 +39,7 @@ BaseProtoSerializer
 
 BaseProtoSerializer is the base class for all proto serializers. It doesn't have any fields and is used to convert data into a gRPC message.
 
-It need to define the method to_proto_message to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action<grpc-action-request-response>` for expected return format.
+It needs to define the method *to_proto_message* to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action<grpc-action-request-response>` for expected return format.
 
 
 .. code-block:: python
@@ -110,7 +110,7 @@ The *ModelProtoSerializer class* is the same as a regular Serializer class, exce
  - It includes simple default implementations of .create() and .update().
 
 
-Example of a  ModelProtoSerializer
+Example of a ModelProtoSerializer
 -----------------------------------
 
 This Example will only focus on ModelProtoSerializer.
@@ -249,7 +249,8 @@ Read-Only and Write-Only Props
 ==============================
 
 .. warning::
-    This setting is deprecated. In the futur having read/write request separation will be mandatory.
+    This setting is deprecated. In the future read/write request separation will be mandatory. :TODO: this is not clear to me - maybe explain how the recommended way should look like and mention the deprecated option afterwards. 
+
 
 If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, DSG will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., `editable=False`).
 
@@ -292,7 +293,10 @@ DSG supports *nested serializers* without any extra work. Just try it.
 
     from django_socio_grpc import proto_serializers
 
-    class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
+    class ExampleRelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
+        
+        :TODO: add imports for ForeignModelSerializer and ManyManyModelSerializer - where are they from ?
+
         foreign_obj = ForeignModelSerializer(read_only=True)
         many_many_obj = ManyManyModelSerializer(read_only=True, many=True)
 
@@ -304,7 +308,7 @@ Will result in the following proto after generation:
 
 .. code-block:: proto
 
-    message RelatedFieldModelResponse {
+    message ExampleRelatedFieldModelResponse {
         string uuid = 1;
         ForeignModelResponse foreign_obj = 2;
         repeated ManyManyModelResponse many_many_obj = 3;
@@ -354,7 +358,8 @@ Generated Proto:
 Special Case of SerializerMethodField
 =====================================
 
-DRF ``SerializerMethodField`` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field. To circumvent this problem, DSG introduces function introspection where we are looking for return annotation in the method to find the prototype.
+DRF ``SerializerMethodField`` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field. 
+To circumvent this problem, DSG introduces function introspection where we are looking for return annotation in the method to find the prototype.
 
 .. code-block:: python
 
@@ -362,6 +367,8 @@ DRF ``SerializerMethodField`` class is a field type that returns the result of a
     from django_socio_grpc import proto_serializers
 
     class ExampleSerializer(proto_serializers.ProtoSerializer):
+
+       :TODO: module "serializers" does not exist, please add the correct import
 
         default_method_field = serializers.SerializerMethodField()
         custom_method_field = serializers.SerializerMethodField(method_name="custom_method")
@@ -399,6 +406,9 @@ By default, the name of the field used for the list response is `results`. You c
 
     class ExampleSerializer(proto_serializers.ProtoSerializer):
 
+
+       :TODO: module "serializers" does not exist, please add the correct import
+
         uuid = serializers.CharField()
         name = serializers.CharField()
 
@@ -427,10 +437,12 @@ Adding Comments to Fields
 =========================
 
 You could specify comments for fields in your model (proto message) via `help_text` attribute and `django_socio_grpc.utils.tools.ProtoComment` class:
-
+2
 .. code-block:: python
 
     from django_socio_grpc import proto_serializers
+
+    :TODO: module "serializers" does not exist, please add the correct import
 
     class ExampleSerializer(proto_serializers.ProtoSerializer):
 
@@ -456,6 +468,8 @@ Generated Proto:
 Choosing cardinality of a field
 ===============================
 
+:TODO: this sentence is not clear to me - do you mean: Protobuf has different cardinality options for fields, such as ``optional`` or ``repeated``.  ?
+
 What protobuf call cardinality is the different key words to specify behavior of a fields such as ``optional`` or ``repeated``.
 
 See :func:`FieldCardinality<django_socio_grpc.protobuf.typing.FieldCardinality>` for exhaustive list of cardinality DSG support.
@@ -464,4 +478,4 @@ It is actually not possible to specifically choose cardinality for a serializer 
 ``optional`` cardinality is set following what is described :ref:`here<proto-serializers-nullable-fields>`.
 ``repeated`` cardinality is set when using ``ListField``, ``ListSerializer`` or ``Serializer`` with ``many=true`` argument.
 
-Reflexion has started about adding more cardinality options and let field set them. You are welcome for contribution in this `issue <https://github.com/socotecio/django-socio-grpc/issues/219>`_.
+In the *Reflexion feature branch*  we started adding more cardinality options and let field set them. You are welcome for contribution in this `issue <https://github.com/socotecio/django-socio-grpc/issues/219>`_.

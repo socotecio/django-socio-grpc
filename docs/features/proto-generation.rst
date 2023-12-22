@@ -13,8 +13,10 @@ To do so please refer to:
 
 Description
 -----------
+*Protobuf* is a serialization format developed by Google and used in gRPC. It is a binary format that is optimized to be sent over the network. It is also used to generate code for the client and server side.
 
-Protobuf is a project on it's own. The following documentation expect you to at least know what is Protobuf and how it work. If you are not familiar with it please read `their documentation <https://protobuf.dev/getting-started/pythontutorial/>_`
+This format is developed in a large community in its own project. The following documentation expects that you are at least familiar with the concepts of *Protobuf*. 
+If you are not familiar with it please read `their documentation <https://protobuf.dev/getting-started/pythontutorial/>_` first.
 
 Proto files contain the classes, descriptors and controller logic (``pb2.py`` files) and proto message syntax (``.proto`` file) necessary to run a grpc server.
 
@@ -22,7 +24,7 @@ In DSG, proto files are generated from a ``grpc_action`` request / response cont
 
 To simplify usage ``grpc_action`` are automatically generated from the :ref:`Proto Serializer <proto-serializers>` when using :ref:`Generic Mixins <Generic Mixins>`.
 
-In order to generate these files and its contents, there is a :ref:`django command <commands>` to run whenever you add a ``grpc_action``, a Service or modify your request / response
+In order to generate these files and its contents, there is a :ref:`django command <commands>` to run whenever you add a ``grpc_action``, a Service or modify your request / response:
 
 Usage
 -----
@@ -183,7 +185,8 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
     }
 
 
-Note: these files are meant for read only purposes, you can use the .proto file as a reference to verify wether
+Note: these files are meant to be read only, please do not modify, since they might be overwritten by a next generation call. 
+You can use the .proto file as a reference to verify whether
 or not your serializer fields were correctly mapped but you should not try to modify them manually.
 
 For more example and use case go to :ref:`Generic Mixins <Generic Mixins>` and :ref:`grpc action <grpc_action>`

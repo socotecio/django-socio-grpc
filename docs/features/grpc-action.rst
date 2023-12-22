@@ -6,11 +6,11 @@ GRPCAction
 Description
 -----------
 
-With DSG you can declare custom gRPC actions related to your app service with the decorator grpc_action.
-Once your service registered, it will create the RPC and its messages in your .proto file after the proto generation.
+With **DSG** you can declare custom gRPC actions related to your app service with the **decorator grpc_action**.
+Once your service registered, it will create the RPC and its messages in your ``.proto`` file after the proto generation.
 
 A gRPC action is a representation of an RPC inside the service where it's declared.
-It is composed of a request and a response definitions.
+It is composed of a **request and a response definitions**.
 
 .. note::
     The corresponding proto code extracted from the decorator will be **automatically generated** by the `generateproto command <commands-generate-proto>`_. Do not do it manually.
@@ -22,7 +22,7 @@ Example of a basic RPC command of a generated .proto file:
 
     rpc BasicList(BasicRequest) returns (BasicResponse) {}
 
-It can also use a stream as a request/response.
+It can also use a **stream** as a request/response.
 
 Usage
 -----
@@ -280,9 +280,9 @@ This is equivalent to:
 .. note::
     In the ``UserListResponse`` message, the ``results`` field is a ``UserResponse`` message,
     it is the message generated from the ``UserProtoSerializer``.
-    This field name can be changed using :ref:`message_list_attr<proto-serializer-extra-kwargs-options>`.
-    There is also a ``count`` field which is the total number of results, it is present only
-    if the pagination is enabled.
+    This field name can be changed using :ref:`Serializer Meta attr<customizing-the-name-of-the-field-in-the-listresponse>` or :ref:`serializer kwargs<proto-serializer-extra-kwargs-options>`.
+    There is also a ``count`` field which is the total number of results, it **is present only
+    if the pagination is enabled**.
 
 
 .. _grpc-action-use-request-and-response-list:
@@ -349,10 +349,10 @@ This is equivalent to:
 .. note::
     In the ``UserListResponse`` and ``UserListRequest`` message, the ``results`` field is a ``UserResponse`` or ``UserRequest`` message,
     it is the message generated from the ``UserProtoSerializer``.
-    This field name can be changed using :ref:`message_list_attr<proto-serializer-extra-kwargs-options>`.
+    This field name can be changed using :ref:`Serializer Meta attr<customizing-the-name-of-the-field-in-the-listresponse>` or :ref:`serializer kwargs<proto-serializer-extra-kwargs-options>`.
     It is not possible to change it separatly `for now <https://github.com/socotecio/django-socio-grpc/issues/241>`_.
-    There is also a ``count`` field which is the total number of results, it is present only
-    if the pagination is enabled. This field is not used for ``Request``.
+    There is also a ``count`` field which is the total number of results, it **is present only
+    if the pagination is enabled**. This field is not used for ``Request``.
 
 
 .. _grpc-action-streaming:
@@ -389,8 +389,8 @@ This is equivalent to:
 Placeholders
 ============
 
-Placeholders are objects that will be replaced in the service registration step.
-They are useful when you want to use arguments that you want to override in subclasses.
+Placeholders are objects that will be replaced in the :ref:`service registration<services-registry>` step.
+They are useful when you want to use arguments that you want to override in subclasses (**Meaning when you are coding your own Mixins**).
 
 They define a ``resolve`` method that will be called with
 the service instance as argument.
@@ -411,13 +411,12 @@ In a service class, you can use placeholders in any of the ``grpc_action`` argum
 
     from django_socio_grpc.generics import GenericService
     from django_socio_grpc.grpc_actions.placeholders import AttrPlaceholder, SelfSerializer
-    # RequestNamePlaceholder come from the doc code just above
 
     class ExampleSuperService(GenericService):
 
         @grpc_action(
             request=AttrPlaceholder("_request"),
-            request_name=RequestNamePlaceholder,
+            request_name=RequestNamePlaceholder, # RequestNamePlaceholder come from the doc code just above
             response=SelfSerializer,
             response_name = "MyResponse",
         )
@@ -455,7 +454,7 @@ This is equivalent to:
 There are a few predefined placeholders:
 
 :func:`FnPlaceholder<django_socio_grpc.grpc_actions.placeholders.FnPlaceholder>`
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Resolves to the result of a function.
 
@@ -470,7 +469,7 @@ Resolves to the result of a function.
 
 
 :func:`AttrPlaceholder<django_socio_grpc.grpc_actions.placeholders.AttrPlaceholder>`
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Resolves to a named class attribute of the service.
 
@@ -482,7 +481,7 @@ Resolves to a named class attribute of the service.
 
 
 :func:`SelfSerializer<django_socio_grpc.grpc_actions.placeholders.SelfSerializer>`
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Resolves to the serializer_class of the service.
 
@@ -495,7 +494,7 @@ Resolves to the serializer_class of the service.
 
 
 :func:`StrTemplatePlaceholder<django_socio_grpc.grpc_actions.placeholders.StrTemplatePlaceholder>`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Resolves to a string template with either service attributes names or
 functions as parameter. It uses ``str.format`` to inject the values.
@@ -511,7 +510,7 @@ functions as parameter. It uses ``str.format`` to inject the values.
 
 
 :func:`LookupField<django_socio_grpc.grpc_actions.placeholders.LookupField>`
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Resolves to the service lookup field message. For for information about lookup_field or it's implementation see :ref:`make-a-custom-retrieve`
 

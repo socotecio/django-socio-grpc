@@ -56,7 +56,7 @@ Server code:
         )
         async def Stream(self, request, context):
             async for question in request:
-                yield app_example_pb2.QuestionStreamResponse(response=input("Give response\n"))
+                yield app_example_pb2.QuestionStreamResponse(response=f"{request.question_text}: I don't know i am only a simple stream")
 
 
 Client code:
@@ -70,16 +70,18 @@ Client code:
     async def main():
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             stub = app_example_pb2_grpc.QuestionControllerStub(channel)
-            queue = asyncio.Queue()
 
             async def generate_requests():
-                while True:
-                    yield await queue.get()
+                """
+                You can add more complex logic here like user input or async behavior. 
+                Please consider usind asyncio.queue if you want to populate message from the main thread.
+                """
+                yield app_example_pb2.QuestionStreamRequest(question_text="Do you like gRPC ?")
+                yield app_example_pb2.QuestionStreamRequest(question_text="Do you work ?")
+                yield app_example_pb2.QuestionStreamRequest(question_text="Do you do something ?")
 
-            await queue.put(input("Give question\n"))
-            async for response in stub.Stream(generate_requests()):
-                request = app_example_pb2.QuestionStreamRequest(question_text=input("Give question\n"))
-                await queue.put(request)
+            async for response_message in stub.Stream(generate_requests()):
+                print(f"Server responded: {response_message.response}")
 
 
     if __name__ == "__main__":

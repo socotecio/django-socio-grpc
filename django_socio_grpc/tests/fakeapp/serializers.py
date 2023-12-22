@@ -91,6 +91,14 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
         fields = "__all__"
 
 
+class SimpleRelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = RelatedFieldModel
+        proto_class = fakeapp_pb2.SimpleRelatedFieldModelResponse
+        proto_class_list = fakeapp_pb2.SimpleRelatedFieldModelListResponse
+        fields = "__all__"
+
+
 class SpecialFieldsModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         proto_comment = ProtoComment(["Special Fields Model", "with two lines comment"])

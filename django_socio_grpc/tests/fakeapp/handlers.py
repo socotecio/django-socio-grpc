@@ -5,7 +5,10 @@ from fakeapp.services.import_struct_even_in_array_model_service import (
     ImportStructEvenInArrayModelService,
 )
 from fakeapp.services.recursive_test_model_service import RecursiveTestModelService
-from fakeapp.services.related_field_model_service import RelatedFieldModelService
+from fakeapp.services.related_field_model_service import (
+    RelatedFieldModelService,
+    SimpleRelatedFieldModelService,
+)
 from fakeapp.services.special_fields_model_service import SpecialFieldsModelService
 from fakeapp.services.stream_in_service import StreamInService
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
@@ -23,6 +26,7 @@ def grpc_handlers(server):
     app_registry.register(ForeignModelService)
     app_registry.register(ImportStructEvenInArrayModelService)
     app_registry.register(RelatedFieldModelService)
+    app_registry.register(SimpleRelatedFieldModelService)
     app_registry.register(SpecialFieldsModelService)
     app_registry.register(SyncUnitTestModelService)
     app_registry.register(UnitTestModelService)
@@ -36,6 +40,7 @@ services = (
     ForeignModelService,
     ImportStructEvenInArrayModelService,
     RelatedFieldModelService,
+    SimpleRelatedFieldModelService,
     SpecialFieldsModelService,
     SyncUnitTestModelService,
     UnitTestModelService,

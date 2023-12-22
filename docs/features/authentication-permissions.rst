@@ -34,8 +34,8 @@ To specify an Authentication methods there is two ways as in DRF:
 
     GRPC_FRAMEWORK = {
         ...
-        # oidc_auth packet come from https://github.com/ByteInternet/drf-oidc-auth
-        # If you want to use an other auth packet and having issue using it please open an issue we will be happy to help
+        # oidc_auth package comes from https://github.com/ByteInternet/drf-oidc-auth
+        # If you want to use an other auth package and having issue using it please open an issue we will be happy to help
         "DEFAULT_AUTHENTICATION_CLASSES": ["oidc_auth.authentication.JSONWebTokenAuthentication"],
         ...
     }
@@ -44,8 +44,8 @@ To specify an Authentication methods there is two ways as in DRF:
 
 .. code-block:: python
 
-    # oidc_auth packet come from https://github.com/ByteInternet/drf-oidc-auth
-    # If you want to use an other auth packet and having issue using it please open an issue we will be happy to help
+    # oidc_auth package comes from https://github.com/ByteInternet/drf-oidc-auth
+    # If you want to use an other auth package and having issue using it please open an issue we will be happy to help
     from oidc_auth.authentication import JSONWebTokenAuthentication
     from rest_framework.permissions import IsAuthenticated
     from django_socio_grpc.generics import AsyncModelService

@@ -3,7 +3,7 @@
 Filters
 ==========
 
-**Filters** are used to filter the queryset of your service. You can use built-in filters from `django filters <https://www.django-rest-framework.org/api-guide/filtering/>`_ or create your own filters.
+**Filters** are used to filter the *queryset* of your service. You can use built-in filters from `django filters <https://www.django-rest-framework.org/api-guide/filtering/>`_ or create your own filters.
 
 
 Description
@@ -11,13 +11,13 @@ Description
 
 This page will explain how to set up filters in your app services. Filter behave the same as `DRF filters <https://www.django-rest-framework.org/api-guide/filtering/>`_.
 
-This page will reproduce DRF example for DSG and demonstrate how to use `django filters <https://www.django-rest-framework.org/api-guide/filtering/>`_.
+We will reproduce an DRF example and demonstrate how to use `django filters <https://www.django-rest-framework.org/api-guide/filtering/>`_ in DSG.
 
 
-Filtering against the current user
-----------------------------------
+Filtering against the current user (context.user)
+--------------------------------------------------
 
-You might want to filter the queryset to ensure that only results relevant to the currently authenticated user making the request are returned.
+You might want to filter the *queryset* to ensure that only results relevant to the currently authenticated user making the request are returned.
 
 You can do so by filtering based on the value of context.user.
 
@@ -45,10 +45,10 @@ For example:
             return Post.objects.filter(user=user)
 
 
-Filtering against request fields
---------------------------------
+Filtering against request fields (request.user)
+------------------------------------------------
 
-Another style of filtering might involve restricting the queryset based on some fields of the request.
+Another style of filtering might involve restricting the *queryset* based on some fields of the request.
 
 For example with a message like:
 
@@ -86,9 +86,9 @@ Filtering against metadata
 
 A final example of filtering the initial queryset would be to use the `grpc metadata <https://github.com/grpc/grpc/tree/master/examples/python/metadata>`_
 
-In DSG, metadata is used to replace the query parameters systems. It is very flexible as it's not in the proto file.
+In DSG, metadata is used to replace the query parameters systems. It is very flexible as it's not specified through the proto file.
 
-The main inconvenients are:
+The main inconveniences are:
     * The metadata are not binary serialized so passing a lot of data as filters may result in **poor performance**
     * They not exported in the proto so **not documented** by default.
 
@@ -131,6 +131,7 @@ The main inconvenients are:
 
             request = quickstart_pb2.PostListRequest()
             filter_as_dict = {"user": "be76adbb-73c3-4d65-b823-66b3276df38b"}
+            # json.dumps is used to serialize the dict in the right string format for improved syntax checking
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
@@ -149,7 +150,7 @@ You can also read their `doc for the DRF integration if you are not familiar wit
 Register DjangoFilterBackend
 ============================
 
-You can see full example `in DSG example repo <https://github.com/socotecio/django-socio-grpc-example/blob/main/backend/example_bib_app/services.py>`_.
+You can see a fully working example `in DSG example repo <https://github.com/socotecio/django-socio-grpc-example/blob/main/backend/example_bib_app/services.py>`_.
 
 You can register it **by service** or **globally**:
 
@@ -250,6 +251,7 @@ For more example you can see the `client in DSG example repo <https://github.com
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
             request = quickstart_pb2.PostListRequest()
+            # filters only the user with id "be76adbb-73c3-4d65-b823-66b3276df38b"
             filter_as_dict = {"user": "be76adbb-73c3-4d65-b823-66b3276df38b"}
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
@@ -265,9 +267,9 @@ For web usage see `How to web: Using js client<_using_js_client>_`
 SearchFilter
 -------------
 
-DSG also support the `DRF SearchFilter <https://www.django-rest-framework.org/api-guide/filtering/#searchfilter>`_
+DSG also supports the `DRF SearchFilter <https://www.django-rest-framework.org/api-guide/filtering/#searchfilter>`_
 
-Refer to the DRF doc for implementation details and specific lookup.
+Refer to the DRF docs for implementation details and specific lookup.
 
 .. code-block:: python
 
@@ -295,7 +297,7 @@ Refer to the DRF doc for implementation details and specific lookup.
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
             request = quickstart_pb2.PostListRequest()
-            filter_as_dict = {"search": "test"}
+            filter_as_dict = {"search": "test-user"}  # search for "test-user" in user__full_name
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
@@ -306,6 +308,8 @@ Refer to the DRF doc for implementation details and specific lookup.
 
 OrderingFilter
 --------------
+
+OrderingFilters are used to control the ordering of the results.
 
 DSG also support the `DRF OrderingFilter <https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter>`_
 
@@ -337,6 +341,7 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
             request = quickstart_pb2.PostListRequest()
+            # order by descending pub_date 
             filter_as_dict = {"ordering": "-pub_date"}
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 

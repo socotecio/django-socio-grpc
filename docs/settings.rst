@@ -55,6 +55,9 @@ For a project named "my_project" with the `grpc_handlers` function inside `my_pr
 
   "ROOT_HANDLERS_HOOK": "my_project.handlers.grpc_handlers"
 
+
+.. _settings-server-interceptors:
+
 SERVER_INTERCEPTORS
 ^^^^^^^^^^^^^^^^^^^
 
@@ -143,37 +146,43 @@ For more details, see the `DRF documentation on doc <https://www.django-rest-fra
 DEFAULT_PERMISSION_CLASSES
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This setting defines the list of default authentication classes that will be used for gRPC services. Each class specified in this list will be responsible for verifying the identity of the user making the request.
+This setting defines the list of default permissions classes that will be used for gRPC services. Each class specified in this list will be responsible for verifying the identity of the user making the request.
 
-For a hypothetical project that uses JWT for authentication:
+For a hypothetical project that uses `DRF IsAuthenticated <https://www.django-rest-framework.org/api-guide/permissions/#isauthenticated>`_  and a custom ``HasServiceAccess`` permissions :
 
 .. code-block:: python
 
   "DEFAULT_PERMISSION_CLASSES": [
-      "your_project.permissions.IsAuthenticated",
+      "rest_framework.permissions.IsAuthenticated",
       "your_project.permissions.HasServiceAccess",
   ]
 
-For more details, see the `DRF documentation on permissions as DSG use the same system <https://www.django-rest-framework.org/api-guide/permissions/>`_.
+For more details, see the `DRF documentation on permissions <https://www.django-rest-framework.org/api-guide/permissions/>`_ as DSG use the same system.
+
+.. note::
+  
+  All `DRF permissions <https://www.django-rest-framework.org/api-guide/permissions/>`_ are supported out of the box.
 
 
 GRPC_ASYNC
 ^^^^^^^^^^
 
-This setting determines the running mode of the gRPC server. If set to `True`, the server will operate in asynchronous mode. When in asynchronous mode, the server is capable of handling multiple concurrent requests using Python's `asyncio`.
+This setting determines the running mode of the gRPC server. If set to `True`, the server will operate in asynchronous mode. When in asynchronous mode, the server is capable of handling multiple concurrent requests using Python's ``asyncio``.
 
-This setting is overriden to True when running the app with ``grpcrunaioserver``.
+This setting is overriden to ``True`` when running the project with :ref:`grpcrunaioserver<commands-aio-run-server>` command and to ``False`` when running the project with :ref:`grpcrunaioserver<commands-run-server>`.
 
-Please consider to always use async as it may become the only accepted behavior in DSG 1.0.
+**Please consider to always use async as it may become the only accepted behavior in DSG 1.0.**
 
 .. code-block:: python
 
-  "GRPC_ASYNC": False
+  "GRPC_ASYNC": True
 
 GRPC_CHANNEL_PORT
 ^^^^^^^^^^^^^^^^^
 
 This is the default port on which the gRPC server will listen for incoming requests. You can change this if your server needs to listen on a different port.
+
+This settigns will only be used if :ref:`grpcrunaioserver<commands-aio-run-server>` or :ref:`grpcrunaioserver<commands-run-server>` parameter ``address`` is not used.
 
 .. code-block:: python
 
@@ -189,7 +198,7 @@ By enabling this option (set to `True`), it ensures that specific fields in a mo
 
 For instance, if you have fields in your model that should only be updated but never retrieved in a response, you can mark them as `write_only`. Similarly, fields that should be displayed but never modified can be marked as `read_only`.
 
-Please consider to always use async as it may become the only accepted behavior in DSG 1.0.
+Please consider to always separate read/write model as it may become the only accepted behavior in DSG 1.0.
 
 .. code-block:: python
 
@@ -204,9 +213,9 @@ GRPC_MIDDLEWARE
 This setting defines a list of middleware classes specifically tailored for the gRPC framework. Middleware in gRPC can be seen as a series of processing units that handle both incoming requests and outgoing responses. They can be used for various tasks like logging, authentication, data enrichment, and more.
 
 Middlewares are processed in the order they are defined. Each middleware should adhere to the gRPC middleware structure, having methods to process requests and responses.
-More details about :ref:`middlewares<middleware>`.
+More details about :ref:`middlewares<middlewares>`.
 
-The difference with a gRPC Interceptor is that the middlewares occur at the Django level, meaning the request has already been wrapped into a Django-like request. Interceptors handle pure gRPC calls.
+The difference with a :ref:`gRPC Interceptor<settings-server-interceptors>` is that the middlewares occur at the Django level, meaning the request has already been wrapped into a Django-like request. Interceptors handle pure gRPC calls.
 
 For instance, you could have a generic logging middleware that logs every gRPC request and a middleware to handle connection issues:
 
@@ -251,6 +260,14 @@ For a standard configuration, you might have:
 This means that when the framework encounters metadata, it knows to look for a ``HEADERS``
 key to retrieve headers, a ``PAGINATION`` key to fetch pagination data, and a ``FILTERS`` key
 for filtering details.
+
+.. note::
+
+  See specific documentation for each:
+
+  - HEADERS : :ref:`Authentication<authentication-permissions>`
+  - FILTERS: :ref:`Filters<filters>`
+  - PAGINATION: Coming soon
 
 LOG_OK_RESPONSE
 ^^^^^^^^^^^^^^^

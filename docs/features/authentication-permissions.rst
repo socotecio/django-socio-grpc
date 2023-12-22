@@ -1,3 +1,5 @@
+.. _authentication-permissions:
+
 Authentication/Permissions
 ==========================
 
@@ -14,7 +16,7 @@ please refer to :
 
 However, there are a couple of details that add behavior to default DRF ``Permission`` / ``Authentication`` classes.
 
-For instance, ``auth_without_session_middleware`` (see: :ref:`middleware <middleware>` )
+For instance, ``auth_without_session_middleware`` (see: :ref:`middlewares <middlewares>` )
 will call the service ``perform_authentication()`` method which will inject ``user`` into ``context`` arg accessible to
 service methods and permission classes. The ``perform_authentication`` will then call all the ``authentication_classes`` of the service as in DRF to try to authenticate user.
 

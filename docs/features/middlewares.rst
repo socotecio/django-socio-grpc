@@ -1,4 +1,4 @@
-.. _middleware:
+.. _middlewares:
 
 Middlewares
 ===========

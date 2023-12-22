@@ -36,6 +36,8 @@ it accepts the following arguments:
 - ``--dev`` Run the server in development mode. This tells Django to use the auto-reloader and run checks.
 
 
+.. _commands-run-server:
+
 gRPC Run Server
 -------------------
 

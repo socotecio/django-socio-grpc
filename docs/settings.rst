@@ -97,6 +97,7 @@ The above configuration allows the gRPC server to send and receive messages up t
 
 For more options, see the `grpc documentation <https://grpc.github.io/grpc/core/group__grpc__arg__keys.html>`_.
 
+.. _default_authentication_classes:
 
 DEFAULT_AUTHENTICATION_CLASSES
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -241,6 +242,8 @@ More details about
 
   "ROOT_GRPC_FOLDER": "my_root_grpc_folder"
 
+.. _settings-map-medata-keys:
+
 MAP_METADATA_KEYS
 ^^^^^^^^^^^^^^^^^
 
@@ -269,6 +272,8 @@ for filtering details.
   - HEADERS : :ref:`Authentication<authentication-permissions>`
   - FILTERS: :ref:`Filters<filters>`
   - PAGINATION: Coming soon
+
+.. _settings-log-ok-response:
 
 LOG_OK_RESPONSE
 ^^^^^^^^^^^^^^^

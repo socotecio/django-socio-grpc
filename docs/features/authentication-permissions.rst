@@ -5,8 +5,7 @@ Authentication/Permissions
 
 Description
 -----------
-Authentication and permissions are handled in the same way as in django-rest-framework,
-just as in DRF, you can have project-wide default authentication and authorization classes and / or service-specific ones.
+Authentication and permissions are **handled in the same way** as in DRF. In this in mind you logically can have project-wide default authentication and authorization classes and / or service-specific ones.
 please refer to :
 
 - `DRF Permissions <https://www.django-rest-framework.org/api-guide/permissions/>`_
@@ -16,12 +15,12 @@ please refer to :
 
 However, there are a couple of details that add behavior to default DRF ``Permission`` / ``Authentication`` classes.
 
-For instance, ``auth_without_session_middleware`` (see: :ref:`middlewares <middlewares>` )
-will call the service ``perform_authentication()`` method which will inject ``user`` into ``context`` arg accessible to
-service methods and permission classes. The ``perform_authentication`` will then call all the ``authentication_classes`` of the service as in DRF to try to authenticate user.
+For instance, :func:`auth_without_session_middleware<django_socio_grpc.middlewares.auth_without_session_middleware>` (see: :ref:`middlewares <middlewares>` )
+will call the service :func:`perform_authentication<django_socio_grpc.services.base_service.Service.perform_authentication>` method which will inject ``user`` into ``context`` arg accessible to
+service methods and permission classes. The :func:`perform_authentication<django_socio_grpc.services.base_service.Service.perform_authentication>` will then call all the :func:`authentication_classes<django_socio_grpc.services.base_service.Service.authentication_classes>` of the service as in DRF to try to authenticate user.
 
-The distinction is simple however it's worth to note that while django-rest-framework ``BasePermission`` will have ``request, view``` as args,
-DSG ``GRPCActionBasePermission`` (that inherits from django-rest-framework ``BasePermission``) will have ``context (GRPCInternalProxyContext), service (Service)`` args instead
+The distinction is simple however it's worth to note that while django-rest-framework `BasePermission <https://www.django-rest-framework.org/api-guide/permissions/#custom-permissions>`_ will have ``request, view`` as args,
+DSG ``GRPCActionBasePermission`` (that inherits from django-rest-framework `BasePermission <https://www.django-rest-framework.org/api-guide/permissions/#custom-permissions>`_) will have ``context`` (:func:`GRPCInternalProxyContext<django_socio_grpc.request_transformer.grpc_internal_proxy.GRPCInternalProxyContext>`), ``service`` (:func:`Service<django_socio_grpc.services.base_service.Service>`) args instead
 
 
 Authentication Example
@@ -29,19 +28,19 @@ Authentication Example
 
 To specify an Authentication methods there is two ways as in DRF:
 
-- Globaly, by settings the DEFAULT_AUTHENTICATION_CLASSES settings
+- Globaly, by settings the :ref:`DEFAULT_AUTHENTICATION_CLASSE<default_authentication_classes>` settings
 
 .. code-block:: python
 
     GRPC_FRAMEWORK = {
-    ...
-    # oidc_auth packet come from https://github.com/ByteInternet/drf-oidc-auth
-    # If you want to use an other auth packet and having issue using it please open an issue we will be happy to help
-    "DEFAULT_AUTHENTICATION_CLASSES": ["oidc_auth.authentication.JSONWebTokenAuthentication"],
-    ...
+        ...
+        # oidc_auth packet come from https://github.com/ByteInternet/drf-oidc-auth
+        # If you want to use an other auth packet and having issue using it please open an issue we will be happy to help
+        "DEFAULT_AUTHENTICATION_CLASSES": ["oidc_auth.authentication.JSONWebTokenAuthentication"],
+        ...
     }
 
-- By service, by settings the authentication_classes attributes:
+- By service, by settings the :func:`authentication_classes<django_socio_grpc.services.base_service.Service.authentication_classes>` attributes:
 
 .. code-block:: python
 
@@ -62,6 +61,7 @@ Permission Example
 .. code-block:: python
 
     from django_socio_grpc.permissions import GRPCActionBasePermission
+    from django_socio_grpc.generics import AsyncModelService
     from rest_framework.permissions import SAFE_METHODS
 
     class OnlySafeOrAdminOrOwner(GRPCActionBasePermission):
@@ -79,11 +79,14 @@ Permission Example
                 return True
             return context.user.is_superuser
 
+    class ExampleService(AsyncModelService):
+        permission_classes = [OnlySafeOrAdminOrOwner]
+
 
 Python Client Example
 ---------------------
 
-To use the authentication system in our client you need to pass the the value of the headers as you would do in classic DRF in the metadata ``headers`` key:
+To use the authentication system in our client you need to pass the the value of the headers as you would do in classic DRF in the metadata ``headers`` key (See :ref:`settings for key configuration<settings-map-medata-keys>`):
 
 .. code-block:: python
     :emphasize-lines: 10,13
@@ -109,10 +112,10 @@ To use the authentication system in our client you need to pass the the value of
 Web Client Example
 ------------------
 
-See :ref:`Documentation web page <how-to-web>` for more information.
+See :ref:`gRPC-web Documentation page <how-to-web>` for more information.
 
 .. code-block:: Javascript
-    :emphasize-lines: 11,16
+    :emphasize-lines: 12,17
 
     import { MyServiceController } from '../gen/example_bib_app_connect'
 

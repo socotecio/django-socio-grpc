@@ -1,4 +1,4 @@
-""" https://docs.djangoproject.com/fr/4.1/topics/http/middleware
+""" https://docs.djangoproject.com/en/5.0/topics/http/middleware
 For now only the __call__ method of a middleware is supported
 
 To use async middlewares, you need to use the correct decorator
@@ -33,6 +33,11 @@ def _close_old_connections():
 
 @sync_and_async_middleware
 def close_old_connections_middleware(get_response: Callable):
+    """
+    This middleware allow to correctly close the db old_connection before and after grpc action
+    to avoid using closed connection.
+    Sync and Async supported.
+    """
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
@@ -70,6 +75,10 @@ def _log_requests(request: GRPCRequestContainer):
 
 @sync_and_async_middleware
 def log_requests_middleware(get_response: Callable):
+    """
+    Simple middleware to print wich request being call before starting the action code.
+    Sync and Async supported.
+    """
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
@@ -87,6 +96,11 @@ def log_requests_middleware(get_response: Callable):
 
 @sync_and_async_middleware
 def locale_middleware(get_response: Callable):
+    """
+    Middleware to activate i18n language in django.
+    It will look for an Accept-Language formated metadata in the headers key.
+    metadata = ('headers', ('Accept-Language', 'fr-CH, fr;q=0.9, en;q=0.8, de;'))
+    """
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):

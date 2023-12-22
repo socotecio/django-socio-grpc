@@ -51,7 +51,7 @@ DEFAULTS = {
     # Default permission classes
     "DEFAULT_PERMISSION_CLASSES": [],
     # gRPC running mode
-    "GRPC_ASYNC": True,
+    "GRPC_ASYNC": False,
     # Default grpc channel port
     "GRPC_CHANNEL_PORT": 50051,
     # Separate request and response message for model to activate read_only, write_only property of serilizer

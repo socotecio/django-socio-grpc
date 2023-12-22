@@ -280,11 +280,12 @@ Default is False. Being in DEBUG mode enables it.
 
   "LOG_OK_RESPONSE": True
 
+.. _settings-ignore-log-for-action:
 
 IGNORE_LOG_FOR_ACTION
 ^^^^^^^^^^^^^^^^^^^^^
 
-If :ref:`LOG_OK_RESPONSE <settings-ignore-log-for-action>` is set to True allow to specify a list of action that we do not want to automatically log.
+When using :ref:`Log requests middleware <middlewares-log-requests-middleware>` allow to specify a list of action that we do not want to automatically log.
 
 .. code-block:: python
 

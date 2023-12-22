@@ -6,9 +6,12 @@ Exceptions
 Description
 -----------
 
-In Django and DRF, exceptions are raised when something unexpected or erroneous occurs during the execution of a web application. DSG exceptions handling work like `DRF exceptions <https://www.django-rest-framework.org/api-guide/exceptions/>`_.
+Similar to Django and DRF, DSG provides a set of exceptions that can be used to handle errors in your gRPC services.
 
-DSG services can handle exceptions happening and **automatically returning the appropriate grpc status code associated to the exception**.
+DSG services can handle these exceptions and **automatically return the appropriate gRPC status code associated to the exception**.
+
+DSG exceptions handling works like `DRF exceptions <https://www.django-rest-framework.org/api-guide/exceptions/>`_.
+
 
 The handled exceptions are:
 
@@ -19,10 +22,10 @@ The handled exceptions are:
 
 In each case, DSG will abort the gRPC context with an appropriate status code and details. The gRPC message returned by the gRPC abort method will have the code and details key populate with the correct data adapted to the exception.
 
-You can find the different gRPC abort status code `here <https://grpc.github.io/grpc/core/md_doc_statuscodes.html>`_.
+You can find the different gRPC abort status codes `here <https://grpc.github.io/grpc/core/md_doc_statuscodes.html>`_.
 
 .. note::
-    As DSG handle Subclasses of DRF ``APIException`` that mean you can raise exception imported from DRF as you used to using DRF.
+    As DSG handles Subclasses of DRF ``APIException`` means, you can raise exceptions imported from DRF as you are used to using DRF.
 
 
 Example
@@ -53,14 +56,14 @@ Example
                 await my_app_client.RaiseError(request)
             except grpc.RpcError as e:
                 print(e.code())
-                print(e.detials())
+                print(e.details())
 
     if __name__ == "__main__":
         asyncio.run(main())
 
 
-Creating custom code and detail error
--------------------------------------
+Creating custom Error Code and Error Details
+------------------------------------------------
 
 .. code-block:: python
 
@@ -78,6 +81,6 @@ Creating custom code and detail error
             raise CustomError()
 
 
-**Find all the predefined exceptions and their usad in the** :func:`Exceptions APIReference<django_socio_grpc.exceptions>`
+**Find all the predefined exceptions and their usage in the** :func:`Exceptions APIReference<django_socio_grpc.exceptions>`
 
 Overall, these custom exceptions and utilities allow for more precise and structured error handling when dealing with gRPC-related exceptions in the specified Python project.

@@ -6,7 +6,7 @@ Sync VS Async
 Introduction
 ------------
 
-By using DSG you can use both sync and async mode for gRPC.
+By using DSG you can use both sync and async mode for gRPC. But **sync mode is deprecated** as it can lead to **issue with stream and poor performance**.
 
 Working in sync or async mode makes almost no difference to the way you develop
 your APIs. However, there are important differences in the deeper workings of
@@ -30,20 +30,20 @@ All mixins classes inherit from the same base class **django_socio_grpc.grpc_act
 
    * - Async Class
      - Sync class
-   * - ``django_socio_grpc.mixins.AsyncCreateModelMixin``
-     - ``django_socio_grpc.mixins.CreateModelMixin``
-   * - ``django_socio_grpc.mixins.AsyncListModelMixin``
-     - ``django_socio_grpc.mixins.ListModelMixin``
-   * - ``django_socio_grpc.mixins.AsyncStreamModelMixin``
-     - ``django_socio_grpc.mixins.StreamModelMixin``
-   * - ``django_socio_grpc.mixins.AsyncRetrieveModelMixin``
-     - ``django_socio_grpc.mixins.RetrieveModelMixin``
-   * - ``django_socio_grpc.mixins.AsyncUpdateModelMixin``
-     - ``django_socio_grpc.mixins.UpdateModelMixin``
-   * - ``django_socio_grpc.mixins.AsyncPartialUpdateModelMixin``
-     - ``django_socio_grpc.mixins.PartialUpdateModelMixin``
-   * - ``django_socio_grpc.mixins.AsyncDestroyModelMixin``
-     - ``django_socio_grpcmixins.DestroyModelMixin``
+   * - :func:`django_socio_grpc.mixins.AsyncCreateModelMixin`
+     - :func:`django_socio_grpc.mixins.CreateModelMixin`
+   * - :func:`django_socio_grpc.mixins.AsyncListModelMixin`
+     - :func:`django_socio_grpc.mixins.ListModelMixin`
+   * - :func:`django_socio_grpc.mixins.AsyncStreamModelMixin`
+     - :func:`django_socio_grpc.mixins.StreamModelMixin`
+   * - :func:`django_socio_grpc.mixins.AsyncRetrieveModelMixin`
+     - :func:`django_socio_grpc.mixins.RetrieveModelMixin`
+   * - :func:`django_socio_grpc.mixins.AsyncUpdateModelMixin`
+     - :func:`django_socio_grpc.mixins.UpdateModelMixin`
+   * - :func:`django_socio_grpc.mixins.AsyncPartialUpdateModelMixin`
+     - :func:`django_socio_grpc.mixins.PartialUpdateModelMixin`
+   * - :func:`django_socio_grpc.mixins.AsyncDestroyModelMixin`
+     - :func:`django_socio_grpcmixins.DestroyModelMixin`
 
 
 Services
@@ -57,24 +57,24 @@ All services classes inherit from the same base class **django_socio_grpc.generi
 
    * - Async Class
      - Sync class
-   * - ``django_socio_grpc.generics.AsyncCreateService``
-     - ``django_socio_grpc.generics.CreateService``
-   * - ``django_socio_grpc.generics.AsyncListService``
-     - ``django_socio_grpc.generics.ListService``
-   * - ``django_socio_grpc.generics.AsyncStreamService``
-     - ``django_socio_grpc.generics.StreamService``
-   * - ``django_socio_grpc.generics.AsyncRetrieveService``
-     - ``django_socio_grpc.generics.RetrieveService``
-   * - ``django_socio_grpc.generics.AsyncDestroyService``
-     - ``django_socio_grpc.generics.DestroyService``
-   * - ``django_socio_grpc.generics.AsyncUpdateService``
-     - ``django_socio_grpc.generics.UpdateService``
-   * - ``django_socio_grpc.generics.AsyncListCreateService``
-     - ``django_socio_grpc.generics.ListCreateService``
-   * - ``django_socio_grpc.generics.AsyncReadOnlyModelService``
-     - ``django_socio_grpc.generics.ReadOnlyModelService``
-   * - ``django_socio_grpc.generics.AsyncModelService``
-     - ``django_socio_grpc.generics.class ModelService``
+   * - :func:`django_socio_grpc.generics.AsyncCreateService`
+     - :func:`django_socio_grpc.generics.CreateService`
+   * - :func:`django_socio_grpc.generics.AsyncListService`
+     - :func:`django_socio_grpc.generics.ListService`
+   * - :func:`django_socio_grpc.generics.AsyncStreamService`
+     - :func:`django_socio_grpc.generics.StreamService`
+   * - :func:`django_socio_grpc.generics.AsyncRetrieveService`
+     - :func:`django_socio_grpc.generics.RetrieveService`
+   * - :func:`django_socio_grpc.generics.AsyncDestroyService`
+     - :func:`django_socio_grpc.generics.DestroyService`
+   * - :func:`django_socio_grpc.generics.AsyncUpdateService`
+     - :func:`django_socio_grpc.generics.UpdateService`
+   * - :func:`django_socio_grpc.generics.AsyncListCreateService`
+     - :func:`django_socio_grpc.generics.ListCreateService`
+   * - :func:`django_socio_grpc.generics.AsyncReadOnlyModelService`
+     - :func:`django_socio_grpc.generics.ReadOnlyModelService`
+   * - :func:`django_socio_grpc.generics.AsyncModelService`
+     - :func:`django_socio_grpc.generics.class ModelService`
 
 Async ready methods
 -------------------
@@ -88,25 +88,25 @@ you can use `asgiref <https://asgi.readthedocs.io/en/latest>`_ to wrap sync meth
     .. code-block:: python
 
         from asgiref.sync import sync_to_async
-        from buildings.models import Building
+        from my_app.models import MyModel
 
-        async def a_get(self, pk):
-            return await sync_to_async(Building.objects.get)(pk=pk)
+        async def aget(self, pk):
+            return await sync_to_async(MyModel.objects.get)(pk=pk)
 
 In DSG we provide a lot of async ready methods.
 
-#. Services
-    * acheck_object_permissions
-    * aget_object
-    * aget_queryset
-    * aget_serializer
-#. Serializers
-    * asave
-    * ais_valid
-    * acreate
-    * aupdate
-    * adata
-    * amessage
+#. :func:`Services<django_socio_grpc.services.base_service.Service>`
+    * :func:`acheck_object_permissions<django_socio_grpc.services.base_service.Service.acheck_object_permissions>`
+    * :func:`aget_object<django_socio_grpc.services.base_service.Service.aget_object>`
+    * :func:`aget_queryset<django_socio_grpc.services.base_service.Service.aget_queryset>`
+    * :func:`aget_serializer<django_socio_grpc.services.base_service.Service.aget_serializer>`
+#. :func:`Serializers<django_socio_grpc.proto_serializers.BaseProtoSerializer>`
+    * :func:`asave<django_socio_grpc.proto_serializers.BaseProtoSerializer.asave>`
+    * :func:`ais_valid<django_socio_grpc.proto_serializers.BaseProtoSerializer.ais_valid>`
+    * :func:`acreate<django_socio_grpc.proto_serializers.BaseProtoSerializer.acreate>`
+    * :func:`aupdate<django_socio_grpc.proto_serializers.BaseProtoSerializer.aupdate>`
+    * :func:`adata<django_socio_grpc.proto_serializers.BaseProtoSerializer.adata>`
+    * :func:`amessage<django_socio_grpc.proto_serializers.BaseProtoSerializer.amessage>`
 
 Sync support
 ------------

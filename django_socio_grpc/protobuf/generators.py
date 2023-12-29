@@ -23,6 +23,7 @@ class RegistryToProtoGenerator:
     project_name: str
     verbose: int = 0
     only_messages: List[str] = dataclass_field(default_factory=list)
+    override_fields_number: bool = False
 
     def print(self, message, verbose_level=0):
         # INFO - AM - 07/01/2022 - This is used to debug only one message. This is manual code.
@@ -41,7 +42,10 @@ class RegistryToProtoGenerator:
             self.print(f"GENERATE APP {app_name}", 1)
 
             previous_proto_data = self.parse_proto_file(proto_path)
-            previous_messages = previous_proto_data.messages if previous_proto_data else {}
+            previous_messages = {}
+            if not self.override_fields_number:
+                previous_messages = previous_proto_data.messages if previous_proto_data else {}
+
             proto_by_app[app_name] = self.get_proto(registry, previous_messages)
 
         return OrderedDict(sorted(proto_by_app.items()))

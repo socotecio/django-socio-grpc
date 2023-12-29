@@ -52,6 +52,12 @@ class Command(BaseCommand):
             default=None,
             help="Directory where the proto files will be generated. Default will be in the apps directories",
         )
+        parser.add_argument(
+            "--override-fields-number",
+            "-ofn",
+            action="store_true",
+            help="Do not follow old field number when generating. /!\ this can lead to API breaking change.",
+        )
 
     def handle(self, *args, **options):
         if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
@@ -83,6 +89,7 @@ class Command(BaseCommand):
             registry_instance=registry_instance,
             project_name=self.project_name,
             verbose=options["custom_verbose"] or 0,
+            override_fields_number=options["override_fields_number"]
         )
 
         # ------------------------------------------------------------

@@ -1,20 +1,12 @@
 from unittest import mock
 
+import grpc
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.tests.utils import patch_open
-
-
-class FakeAsyncAioServer:
-    def __init__(self):
-        self.add_secure_port = mock.MagicMock()
-        self.add_insecure_port = mock.MagicMock()
-        self.start = mock.AsyncMock()
-        self.wait_for_termination = mock.AsyncMock()
-        self.add_generic_rpc_handlers = mock.MagicMock()
 
 
 class TestRunServer(TestCase):
@@ -31,7 +23,7 @@ class TestRunServer(TestCase):
         It verifies that all the needed grpc methods are correctly called
         """
         # Mocking
-        fake_async_aio_server = FakeAsyncAioServer()
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
         grpc_aio_server_mock.return_value = fake_async_aio_server
 
         # launch command
@@ -64,7 +56,7 @@ class TestRunServer(TestCase):
         Just testing that grpcrunaioserver also work with a sync handler
         """
         # Mocking
-        fake_async_aio_server = FakeAsyncAioServer()
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
         grpc_aio_server_mock.return_value = fake_async_aio_server
 
         # launch command
@@ -89,13 +81,12 @@ class TestRunServer(TestCase):
         }
     )
     @mock.patch("grpc.aio.server")
-    def test_server_launch_with_interceptor_and_options(self, grpc_aio_server_mock):
+    def test_server_launch_with_interceptors_and_options(self, grpc_aio_server_mock):
         """
-        Testing that the grpc server is lauching in its more easy way.
-        It verify that all the need grpc methods are correctly called
+        Testing that the grpc server is lauching with interceptors and options passed as settings
         """
         # Mocking
-        fake_async_aio_server = FakeAsyncAioServer()
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
         grpc_aio_server_mock.return_value = fake_async_aio_server
 
         # launch command
@@ -116,7 +107,7 @@ class TestRunServer(TestCase):
         GRPC_FRAMEWORK={
             **settings.GRPC_FRAMEWORK,
             "ROOT_HANDLERS_HOOK": mock.AsyncMock(),
-            "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [["server-key.pem", "server.pem"]],
+            "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [("server-key.pem", "server.pem")],
         }
     )
     @mock.patch("grpc.aio.server")
@@ -127,7 +118,7 @@ class TestRunServer(TestCase):
         """
 
         # Mocking
-        fake_async_aio_server = FakeAsyncAioServer()
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
         grpc_aio_server_mock.return_value = fake_async_aio_server
 
         server_credentials_fake_return_value = "Fake"
@@ -175,7 +166,7 @@ class TestRunServer(TestCase):
         GRPC_FRAMEWORK={
             **settings.GRPC_FRAMEWORK,
             "ROOT_HANDLERS_HOOK": mock.AsyncMock(),
-            "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [["server-key.pem", "server.pem"]],
+            "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [("server-key.pem", "server.pem")],
             "ROOT_CERTIFICATES_PATH": "certificates.pem",
             "REQUIRE_CLIENT_AUTH": True,
         }
@@ -186,11 +177,11 @@ class TestRunServer(TestCase):
         self, mock_ssl_server_credentials, grpc_aio_server_mock
     ):
         """
-        Testing that if PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH correctly set then we launch a secure server
+        Testing that if ROOT_CERTIFICATES_PATH and REQUIRE_CLIENT_AUTH correctly set then we set them with the secure server
         """
 
         # Mocking
-        fake_async_aio_server = FakeAsyncAioServer()
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
         grpc_aio_server_mock.return_value = fake_async_aio_server
 
         server_credentials_fake_return_value = "Fake"

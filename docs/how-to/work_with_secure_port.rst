@@ -23,9 +23,10 @@ Usage
 Server:
 
 .. code-block:: python
+    
     # settings.py
     GRPC_FRAMEWORK = {
-        "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [["/path/to/server-key.pem", "/path/to/server.pem"]],
+        "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [("/path/to/server-key.pem", "/path/to/server.pem")],
         "ROOT_CERTIFICATES_PATH": "/path/to/certificates.pem",
         "REQUIRE_CLIENT_AUTH": True,
     }

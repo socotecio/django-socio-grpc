@@ -27,8 +27,6 @@ def get_server_credentials():
     Return None of grpc.ssl_server_credentials(https://grpc.github.io/grpc/python/grpc.html#create-server-credentials) depending of if grpc_settings.PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH is set or no
     """
 
-    print(grpc_settings.PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH)
-
     if not grpc_settings.PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH:
         return None
 

@@ -307,7 +307,7 @@ List of pair of key/server certificate to use gRPC secure port mechanisme. See :
 
 .. code-block:: python
 
-  "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [["/path/to/server-key.pem", "/path/to/server.pem"]]
+  "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [("/path/to/server-key.pem", "/path/to/server.pem")]
 
 .. _settings-root-certificates-path:
 

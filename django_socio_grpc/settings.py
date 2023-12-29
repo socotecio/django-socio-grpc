@@ -59,8 +59,8 @@ DEFAULTS = {
     "LOG_OK_RESPONSE": False,
     # List service action that we do not want to be logged (health check for example) to avoid log flooding. ex: ['Service1.Action1', 'Service1.Action1']
     "IGNORE_LOG_FOR_ACTION": [],
-    # A list of iterables containing pairs path for server certificate. See https://grpc.github.io/grpc/python/grpc.html#create-server-credentials and https://github.com/grpc/grpc/tree/master/examples/python/auth.
-    # Exemple of usage: PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH: [["server-key.pem", "server.pem"]]
+    # An iterable containing pairs path for server certificate. See https://grpc.github.io/grpc/python/grpc.html#create-server-credentials and https://github.com/grpc/grpc/tree/master/examples/python/auth.
+    # Exemple of usage: PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH: [("server-key.pem", "server.pem")]
     "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [],
     # Path to the root certificate pem file. See https://grpc.github.io/grpc/python/grpc.html#grpc.ServerCredentials
     "ROOT_CERTIFICATES_PATH": None,

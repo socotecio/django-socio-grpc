@@ -4,6 +4,7 @@
 ![https://img.shields.io/badge/Maintained%3F-yes-green.svg](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 ![https://img.shields.io/pypi/pyversions/django-socio-grpc](https://img.shields.io/pypi/pyversions/django-socio-grpc)
 ![https://img.shields.io/pypi/l/django-socio-grpc](https://img.shields.io/pypi/l/django-socio-grpc)
+![Read the Docs](https://img.shields.io/readthedocs/django-socio-grpc)
 
 Django Socio gRPC is a toolkit for building gRPC services, inspired by Django REST framework. It is based on [django-grpc-framework](https://github.com/fengsp/django-grpc-framework) and includes all the DRF features such as authentication, filtering, pagination, and more complex proto generation.
 

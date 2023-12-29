@@ -8,11 +8,11 @@ Description
 -----------
 
 
-If you try to authenticate your servers with certificate you may have read the `gRPC Auth documentation <https://grpc.io/docs/guides/auth/>`_ or see the `python example <https://github.com/grpc/grpc/tree/master/examples/python/auth>`_ and wonder how to do the same with DSG.
+If you try to authenticate your servers with certificates you may have read the `gRPC Auth documentation <https://grpc.io/docs/guides/auth/>`_ or the `python example <https://github.com/grpc/grpc/tree/master/examples/python/auth>`_ and wonder how to do the same with DSG.
 
 As DSG is just a wrapper around the gRPC server we expose settings to deal with the options you usualy pass to `grpc.ssl_server_credentials <https://grpc.github.io/grpc/python/grpc.html#create-server-credentials>`_.
 
-To enable it you nedd to fill :ref:`settings-private-key-certificate_chain-pairs-path` setting. This will fill the ``private_key_certificate_chain_pairs`` arguments and enable the usage of `add_secure_port <https://grpc.github.io/grpc/python/grpc.html#grpc.Server.add_secure_port>`_ isntead of `add_insecure_port <https://grpc.github.io/grpc/python/grpc.html#grpc.Server.add_insecure_port>`_.
+To enable it you need to fill the :ref:`settings-private-key-certificate_chain-pairs-path` setting. This will fill the ``private_key_certificate_chain_pairs`` arguments and enable the usage of `add_secure_port <https://grpc.github.io/grpc/python/grpc.html#grpc.Server.add_secure_port>`_ instead of `add_insecure_port <https://grpc.github.io/grpc/python/grpc.html#grpc.Server.add_insecure_port>`_.
 
 In the same logic :ref:`settings-root-certificates-path` and :ref:`settings-require-client-auth` allow you to fill ``root_certificates`` and  ``require_client_auth`` args
 

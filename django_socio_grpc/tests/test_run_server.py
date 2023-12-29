@@ -27,8 +27,8 @@ class TestRunServer(TestCase):
     @mock.patch("grpc.aio.server")
     def test_server_launch(self, grpc_aio_server_mock):
         """
-        Testing that the grpc server is lauching in its more easy way.
-        It verify that all the need grpc methods are correctly called
+        Testing that the grpc server is lauching in its more basic way.
+        It verifies that all the needed grpc methods are correctly called
         """
         # Mocking
         fake_async_aio_server = FakeAsyncAioServer()

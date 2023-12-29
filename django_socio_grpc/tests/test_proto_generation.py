@@ -233,6 +233,8 @@ class TestProtoGeneration(TestCase):
 
         self.assertEqual(called_with_data, proto_file_content)
 
+        assert False
+
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
         mock.MagicMock(return_value=None),

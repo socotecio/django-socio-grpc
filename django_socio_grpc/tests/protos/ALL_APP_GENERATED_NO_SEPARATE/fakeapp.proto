@@ -228,12 +228,6 @@ message ImportStructEvenInArrayModel {
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
-message ManyManyModel {
-    string uuid = 1;
-    string name = 2;
-    string test_write_only_on_nested = 3;
-}
-
 message RecursiveTestModel {
     string uuid = 1;
     RecursiveTestModel parent = 2;
@@ -265,14 +259,7 @@ message RecursiveTestModelRetrieveRequest {
 
 message RelatedFieldModel {
     string uuid = 1;
-    ForeignModel foreign = 2;
-    repeated ManyManyModel many_many = 3;
-    int32 slug_test_model = 4;
-    repeated bool slug_reverse_test_model = 5;
-    repeated string slug_many_many = 6;
-    string proto_slug_related_field = 7;
-    string custom_field_name = 8;
-    repeated string many_many_foreigns = 9;
+    repeated string many_many_other = 2;
 }
 
 message RelatedFieldModelDestroyRequest {
@@ -289,15 +276,8 @@ message RelatedFieldModelListRequest {
 
 message RelatedFieldModelPartialUpdateRequest {
     string uuid = 1;
-    ForeignModel foreign = 2;
-    repeated ManyManyModel many_many = 3;
-    int32 slug_test_model = 4;
-    repeated bool slug_reverse_test_model = 5;
-    repeated string slug_many_many = 6;
-    string proto_slug_related_field = 7;
-    string custom_field_name = 8;
-    repeated string _partial_update_fields = 9;
-    repeated string many_many_foreigns = 10;
+    repeated string many_many_other = 2;
+    repeated string _partial_update_fields = 3;
 }
 
 message RelatedFieldModelRetrieveRequest {

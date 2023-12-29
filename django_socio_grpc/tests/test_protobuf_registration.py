@@ -202,6 +202,17 @@ class TestFields:
         assert proto_field.name == "smf_with_list_serializer"
         assert proto_field.field_type.name == "BasicServiceResponse"
         assert proto_field.cardinality == FieldCardinality.REPEATED
+        
+    def test_from_field_serializer_method_field_with_list_serializer_child_serializer(self):
+        ser = MySerializer()
+        field = ser.fields["smf_with_list_serializer"]
+
+        proto_field = ProtoField.from_field(field, ProtoMessage.from_serializer, parent_serializer=MySerializer, name_if_recursive="Fake")
+
+        assert proto_field.name == "smf_with_list_serializer"
+        assert proto_field.field_type.name == "BasicServiceResponse"
+        assert proto_field.cardinality == FieldCardinality.REPEATED
+        assert False
 
     def test_from_field_serializer_choice_field(self):
         ser = MyIntSerializer()

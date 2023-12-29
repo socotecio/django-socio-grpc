@@ -63,6 +63,7 @@ from django_socio_grpc.utils.tools import rreplace
 from django_socio_grpc.utils.utils import _is_generator, isgeneratorfunction
 
 from .placeholders import Placeholder
+from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -159,12 +160,21 @@ class GRPCAction:
         assert not isinstance(message, Placeholder)
         try:
             prefix = service.get_service_name()
+
+            # PROTO_DEBUG - 30 - create_proto_message - 29/12/2023 - allow to print the message brut before generation only for what we need
+            ProtoGeneratorPrintHelper.set_info_proto_message(prefix=prefix, message_class=message_class)
+            ProtoGeneratorPrintHelper.print("going to transform ", message, " to proto_message")
+            # INFO - AM - 29/12/2023 - this is the next method that introspect serializer to register data to then generate proto
             proto_message = message_class.create(
                 message,
                 base_name=message_name or action_name,
                 appendable_name=not message_name,
                 prefix=prefix,
             )
+            # PROTO_DEBUG - 90 - create_proto_message - 29/12/2023 - allow to print the proto message only for what we need
+            # create_proto_message is call once for request and once for response so checking for proto_message.name for suffix allow to print only once
+            # create_proto_message is call for each method so checking for action_name assure to have only one print for specific message
+            ProtoGeneratorPrintHelper.print("proto_message generated:", proto_message.name, len(proto_message.fields), proto_message)
             if as_list:
                 try:
                     list_field_name = proto_message.serializer.Meta.message_list_attr
@@ -252,6 +262,10 @@ class GRPCAction:
         )
 
     def register(self, owner: Type["Service"], action_name: str):
+        # PROTO_DEBUG - 10 - register - 29/12/2023 - allow to print the service and action being registered before displaying the proto
+        ProtoGeneratorPrintHelper.reset()
+        ProtoGeneratorPrintHelper.set_service_and_action(service_name=owner.__name__, action_name=action_name)
+        ProtoGeneratorPrintHelper.print("register ", owner.__name__, action_name)
         try:
             self.resolve_placeholders(owner, action_name)
 

@@ -51,5 +51,9 @@ def _ConvertScalarFieldValue(value, *args, **kwargs):
     return _BaseConvertScalarFieldValue(value, *args, **kwargs)
 
 
+# TODO: We'll have to find a better way not relying on private functions
+#       to allow UUIDs in conversion.
+#       Future rework of Serializers should solve this.
+
 _BaseConvertScalarFieldValue = json_format._ConvertScalarFieldValue
 json_format._ConvertScalarFieldValue = _ConvertScalarFieldValue

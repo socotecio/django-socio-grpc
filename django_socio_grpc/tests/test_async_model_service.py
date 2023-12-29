@@ -190,6 +190,11 @@ class TestAsyncRelatedFieldModelService(TestCase):
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
 class TestSimpleRelatedFieldModelService(TestCase):
+    """
+    This tests the behavior of PrimaryKeyRelatedField with UUIDField
+    when dealing with serializers converting to/from proto.
+    """
+
     def setUp(self):
         self.fake_grpc = FakeFullAIOGRPC(
             add_SimpleRelatedFieldModelControllerServicer_to_server,

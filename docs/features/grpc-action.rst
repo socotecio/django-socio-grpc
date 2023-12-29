@@ -68,7 +68,7 @@ The ``request`` and ``response`` arguments can be:
     - a ``Placeholder``: a placeholder to use in the proto file
       (See :ref:`placeholder`).
 
-This 4 possibilies are typed like this (to help you understand where the differents options and class come from. To see example refer to :ref:`Use Cases section<grpc-action-use-cases>`):
+This 4 possibilies are typed like this (to help you understand where the different options and class come from. To see examples refer to :ref:`Use Cases section<grpc-action-use-cases>`):
 
 .. code-block:: python
 
@@ -170,7 +170,7 @@ Overriding the request and response proto name
 ===============================================
 
 This ExampleService has a Retrieve action (RPC). By default the name of the proto message will be ``RetrieveRequest`` and ``RetrieveResponse``.
-This is possible to change it using ``request_name`` and ``response_name`` arguments:
+It is possible to change it by using ``request_name`` and ``response_name`` arguments:
 
 
 .. code-block:: python
@@ -249,7 +249,7 @@ Here the ``UserProtoSerializer`` is used to generate the response message.
     class ExampleService(GenericService):
         ...
 
-        # This is used to have the `count` field in the message. Not needed if setted by default in the settings
+        # This is used to have the `count` field in the message. Not needed if set by default in the settings
         pagination_class = PageNumberPagination
 
         @grpc_action(
@@ -260,7 +260,7 @@ Here the ``UserProtoSerializer`` is used to generate the response message.
         async def List(self, request, context):
             ...
 
-This is equivalent to:
+This is corresponds to the following proto code after the proto generation with the ``generateproto`` command:
 
 .. code-block:: proto
 
@@ -287,9 +287,9 @@ This is equivalent to:
 
 .. _grpc-action-use-request-and-response-list:
 
-=============================
-Use Request And Response List
-=============================
+===================================
+Usage of Request And Response List
+===================================
 
 .. code-block:: python
 
@@ -317,7 +317,7 @@ Use Request And Response List
         return await self._bulk_create(request, context)
 
 
-This is equivalent to:
+This corresponds to the generated proto code:
 
 .. code-block:: proto
 
@@ -350,7 +350,7 @@ This is equivalent to:
     In the ``UserListResponse`` and ``UserListRequest`` message, the ``results`` field is a ``UserResponse`` or ``UserRequest`` message,
     it is the message generated from the ``UserProtoSerializer``.
     This field name can be changed using :ref:`Serializer Meta attr<customizing-the-name-of-the-field-in-the-listresponse>` or :ref:`serializer kwargs<proto-serializer-extra-kwargs-options>`.
-    It is not possible to change it separatly `for now <https://github.com/socotecio/django-socio-grpc/issues/241>`_.
+    It is not possible to change them separately `for now <https://github.com/socotecio/django-socio-grpc/issues/241>`_.
     There is also a ``count`` field which is the total number of results, it **is present only
     if the pagination is enabled**. This field is not used for ``Request``.
 
@@ -390,13 +390,14 @@ Placeholders
 ============
 
 Placeholders are objects that will be replaced in the :ref:`service registration<services-registry>` step.
-They are useful when you want to use arguments that you want to override in subclasses (**Meaning when you are coding your own Mixins**).
+They are useful when you want to use arguments that should be overwritten in subclasses (**Meaning when you are coding your own Mixins**).
 
 They define a ``resolve`` method that will be called with
 the service instance as argument.
 
 .. code-block:: python
 
+    # service.py
     from django_socio_grpc.grpc_actions.placeholders import Placeholder
 
     # This placeholder always resolves to "MyRequest"
@@ -409,6 +410,7 @@ In a service class, you can use placeholders in any of the ``grpc_action`` argum
 
 .. code-block:: python
 
+    # service.py
     from django_socio_grpc.generics import GenericService
     from django_socio_grpc.grpc_actions.placeholders import AttrPlaceholder, SelfSerializer
 
@@ -416,7 +418,7 @@ In a service class, you can use placeholders in any of the ``grpc_action`` argum
 
         @grpc_action(
             request=AttrPlaceholder("_request"),
-            request_name=RequestNamePlaceholder, # RequestNamePlaceholder come from the doc code just above
+            request_name=RequestNamePlaceholder, # RequestNamePlaceholder comes from the doc code just above
             response=SelfSerializer,
             response_name = "MyResponse",
         )
@@ -432,7 +434,7 @@ In a service class, you can use placeholders in any of the ``grpc_action`` argum
             ...
 
 
-This is equivalent to:
+This is gets transformed into the following proto code after the proto generation with the ``generateproto`` command:
 
 .. code-block:: proto
 
@@ -537,14 +539,15 @@ Resolves to the service lookup field message. For for information about lookup_f
         "type": "string", # This is the type of the field in the serializer
     }]
 
-=============================
-Force Message for Know Method
-=============================
+===============================
+Force Message for Known Method
+===============================
 
 You can use the :ref:`grpc action <grpc_action>` decorator on the ``known`` method to override the default message that comes from :ref:`mixins <Generic Mixins>`.
 
 .. code-block:: python
 
+    # service.py
     from django_socio_grpc.decorators import grpc_action
     from django_socio_grpc.generics import AsyncModelService
     from my_app.models import MyModel # Replace by your model
@@ -607,7 +610,7 @@ The comment will be added to the corresponding field in the proto file.
                 {
                     "name": "username",
                     "type": "string",
-                    "comment": "This is a comment",
+                    "comment": "This is my proto comment",
                 },
             ],
         )
@@ -615,7 +618,7 @@ The comment will be added to the corresponding field in the proto file.
             ...
 
 
-This is equivalent to:
+This will result in the following generated proto code:
 
 .. code-block:: proto
 
@@ -627,6 +630,6 @@ This is equivalent to:
     }
 
     message RetrieveResponse {
-        // This is another comment
+        // This is my proto comment
         string username = 1;
     }

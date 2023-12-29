@@ -3,7 +3,7 @@
 Commands
 ===========
 
-DSG lets you add custom commands on top of existing commands available by default in Django (see `Django admin and manage.py <https://docs.djangoproject.com/en/5.0/ref/django-admin/>`_ )
+DSG extends the set of default commands available in Django (see `Django admin and manage.py <https://docs.djangoproject.com/en/5.0/ref/django-admin/>`_ )
 
 .. _commands-generate-proto:
 
@@ -23,12 +23,12 @@ This command accepts the following arguments:
 
 .. _commands-aio-run-server:
 
-gRPC Run AIO Server
--------------------
+gRPC Run Async IO Server
+----------------------------
 
 - ``manage.py grpcrunaioserver``
 
-This command is similar to django's ``manage.py runserver``, except it launches a grpcaioserver in async mode.
+This command is similar to django's ``manage.py runserver``, except it launches the *asynchronous* gRPC I/O server, hence the name. It is the recommended way to run gRPC services in production.
 it accepts the following arguments:
 
 - ``address`` : Optional address for which to open a port.
@@ -38,12 +38,12 @@ it accepts the following arguments:
 
 .. _commands-run-server:
 
-gRPC Run Server
--------------------
+gRPC Run Sync Server
+----------------------
 
 - ``manage.py grpcrunserver``
 
-Same as ``grpcrunaioserver`` except this one is for sync mode and --max-workers do really something
+Same as ``grpcrunaioserver`` except this one is for *synchronous* mode. Mind that --max-workers will have no effect here.
 
 .. warning::
 

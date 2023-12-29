@@ -7,11 +7,11 @@ Generic Mixins
 Description
 -----------
 
-DSG has built-in mixins for actions. Those mixins are either sync or async.
+DSG has built-in mixins for actions, both for synchronous and asynchronous services.
 
 .. note:: 
     
-    We recommend using the async mixins as they are more performant and will be the only ones supported in the future.
+    We recommend using the **async mixins** as they are more performant and will be the only ones supported in the future.
 
 Usage
 -----
@@ -81,21 +81,22 @@ DestroyModelMixin / AsyncDestroyModelMixin
 
 .. note::
     All the mixins above are included, if you use :func:`AsyncModelService<django_socio_grpc.generics.AsyncModelService>` as the base class for your service.
-    The following mixins are not included by defautl but can be added.
+    The following mixins are not included by default but can be added.
 
 ========================================
 StreamModelMixin / AsyncStreamModelMixin
 ========================================
 
-- **Purpose:** Similar to ListModelMixin, but streams the queryset's results one by one to the client.
+- **Purpose:** Similar to ListModelMixin, but streams the *queryset's* results one by one to the client.
 - Methods:
-    - **Stream:** Retrieves a queryset, optionally paginates it, serializes the queryset into proto messages, and streams them to the client. This method is a server-streaming RPC.
+    - **Stream:** Retrieves a *queryset*, optionally paginates it, serializes the *queryset* into proto messages, and streams them to the client. This method is a server-streaming RPC.
 
 
 These mixins are designed to be used with **Django models** to facilitate the creation of **gRPC services for performing CRUD** (Create, Read, Update, Delete) operations on those models in an API.
 
-Example
--------
+
+Example of a custom service using mixins
+------------------------------------------
 
 First import the mixins:
 
@@ -107,6 +108,7 @@ Then you can add the mixins you want to use in your service class.
 
 .. code-block:: python
 
+    # services.py
     class TestService(
         mixins.AsyncListModelMixin,
         mixins.AsyncRetrieveModelMixin,

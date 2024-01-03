@@ -97,12 +97,16 @@ message BasicProtoListChildRequest {
     int32 id = 1;
     string title = 2;
     optional string text = 3;
+    int32 count = 4;
+    bool is_validated = 5;
 }
 
 message BasicProtoListChildResponse {
     int32 id = 1;
     string title = 2;
     optional string text = 3;
+    int32 count = 4;
+    bool is_validated = 5;
 }
 
 message BasicServiceListResponse {

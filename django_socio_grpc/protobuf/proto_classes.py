@@ -20,7 +20,7 @@ from typing import (
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from rest_framework import serializers
-from rest_framework.fields import HiddenField
+from rest_framework.fields import HiddenField, empty
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
@@ -89,7 +89,9 @@ class ProtoField:
 
     @classmethod
     def _get_cardinality(self, field: serializers.Field):
-        return FieldCardinality.OPTIONAL if field.allow_null else FieldCardinality.NONE
+        if field.allow_null or field.default not in [None, empty]:
+            return FieldCardinality.OPTIONAL
+        return FieldCardinality.NONE
 
     @classmethod
     def from_field_dict(cls, field_dict: FieldDict) -> "ProtoField":

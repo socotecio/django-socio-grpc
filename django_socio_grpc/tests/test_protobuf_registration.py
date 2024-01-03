@@ -83,6 +83,7 @@ class MySerializer(proto_serializers.ProtoSerializer):
     user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
     title = serializers.CharField()
     optional_field = serializers.CharField(allow_null=True)
+    default_char = serializers.CharField(default="value")
     list_field = serializers.ListField(child=serializers.CharField())
     list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
 
@@ -261,6 +262,16 @@ class TestFields:
         assert proto_field.field_type == "int32"
         assert proto_field.cardinality == FieldCardinality.NONE
 
+    def test_from_field_default(self):
+        ser = MySerializer()
+        field_char = ser.fields["default_char"]
+
+        proto_field_char = ProtoField.from_field(field_char)
+
+        assert proto_field_char.name == "default_char"
+        assert proto_field_char.field_type == "string"
+        assert proto_field_char.cardinality == FieldCardinality.OPTIONAL
+
     # FROM_SERIALIZER
 
     def test_from_serializer(self):
@@ -395,26 +406,26 @@ class TestProtoMessage:
         proto_message = ProtoMessage.from_serializer(MySerializer, name="My")
 
         assert proto_message.name == "My"
-        assert len(proto_message.fields) == 11
+        assert len(proto_message.fields) == 12
 
     def test_from_serializer_request(self):
         proto_message = RequestProtoMessage.from_serializer(MySerializer, name="MyRequest")
 
         assert proto_message.name == "MyRequest"
-        assert len(proto_message.fields) == 6
+        assert len(proto_message.fields) == 7
 
         assert "write_only_field" in proto_message
 
         proto_message = RequestProtoMessage.from_serializer(MySerializer, "CustomName")
 
         assert proto_message.name == "CustomName"
-        assert len(proto_message.fields) == 6
+        assert len(proto_message.fields) == 7
 
     def test_from_serializer_response(self):
         proto_message = ResponseProtoMessage.from_serializer(MySerializer, name="MyResponse")
 
         assert proto_message.name == "MyResponse"
-        assert len(proto_message.fields) == 10
+        assert len(proto_message.fields) == 11
 
     def test_from_serializer_nested(self):
         proto_message = ResponseProtoMessage.from_serializer(
@@ -426,7 +437,7 @@ class TestProtoMessage:
         assert proto_message.comments == ["serializer comment"]
 
         assert proto_message.fields[0].name == "serializer"
-        assert len(proto_message.fields[0].field_type.fields) == 10
+        assert len(proto_message.fields[0].field_type.fields) == 11
 
 
 class TestGrpcActionProto(TestCase):

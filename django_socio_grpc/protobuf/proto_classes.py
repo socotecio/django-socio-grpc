@@ -157,10 +157,7 @@ class ProtoField:
         """
         cardinality = cls._get_cardinality(field)
 
-        if hasattr(field, "proto_type"):
-            pass  # TODO ask leni why pass here and not return
-
-        elif isinstance(field, serializers.SerializerMethodField):
+        if isinstance(field, serializers.SerializerMethodField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is SerializerMethodField")
             return cls._from_serializer_method_field(field)
 
@@ -180,7 +177,7 @@ class ProtoField:
         if isinstance(field, serializers.ListField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ListField")
             cardinality = FieldCardinality.REPEATED
-            if issubclass(field.child.__class__, serializers.BaseSerializer):
+            if isinstance(field.child, serializers.BaseSerializer):
                 ProtoGeneratorPrintHelper.print(
                     f"{field.field_name} ListField child is a serializer"
                 )

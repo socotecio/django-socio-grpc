@@ -133,10 +133,6 @@ See :ref:`ProtoSerialzer doc page <proto-serializers>` for more information.
 
     class PostProtoSerializer(proto_serializers.ModelProtoSerializer):
         pub_date = serializers.DateTimeField(read_only=True)
-        user = serializers.PrimaryKeyRelatedField(
-            queryset=User.objects.all(),
-            pk_field=serializers.UUIDField(format="hex_verbose"),
-        )
 
         class Meta:
             model = Post

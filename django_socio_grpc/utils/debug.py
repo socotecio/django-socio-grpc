@@ -1,25 +1,24 @@
-from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type, Union
-
-if TYPE_CHECKING:
-    from django_socio_grpc.protobuf.proto_classes import (
-        FieldCardinality,
-        FieldDict,
-        ProtoField,
-        ProtoMessage,
-        ProtoRpc,
-        ProtoService,
-        RequestProtoMessage,
-        ResponseProtoMessage,
-    )
 from django_socio_grpc.protobuf.registry_singleton import SingletonMeta
-from dataclasses import dataclass
 
+"""
+Example of usage:
+
+from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
+
+ENABLE_PROTO_DEBUG = True
 SERVICE_TO_DEBUG = "RelatedFieldModelService"
 ACTION_TO_DEBUG = "Retrieve"
 PREFIX_TO_DEBUG = "RelatedFieldModel"
 SUFFIX_TO_DEBUG = RESPONSE_SUFFIX
-FIELD_TO_DEBUG = "many_many_other"
+FIELD_TO_DEBUG = "many_many"
+"""
+ENABLE_PROTO_DEBUG = False
+SERVICE_TO_DEBUG = ""
+ACTION_TO_DEBUG = ""
+PREFIX_TO_DEBUG = ""
+SUFFIX_TO_DEBUG = ""
+FIELD_TO_DEBUG = ""
+
 
 class ProtoGeneratorPrintHelper(metaclass=SingletonMeta):
     service_name: str = ""
@@ -37,7 +36,6 @@ class ProtoGeneratorPrintHelper(metaclass=SingletonMeta):
         cls.prefix = ""
         cls.message_class = None
         cls.field_name = ""
-
 
     @classmethod
     def set_service_and_action(cls, service_name: str, action_name: str):
@@ -58,7 +56,15 @@ class ProtoGeneratorPrintHelper(metaclass=SingletonMeta):
 
     @classmethod
     def print(cls, *args, **kwargs):
-        if cls.check_service() and cls.check_prefix() and cls.check_message_suffix() and cls.check_action_name() and cls.check_field_name():
+        if not ENABLE_PROTO_DEBUG:
+            return
+        if (
+            cls.check_service()
+            and cls.check_prefix()
+            and cls.check_message_suffix()
+            and cls.check_action_name()
+            and cls.check_field_name()
+        ):
             print(*args, **kwargs)
 
     @classmethod
@@ -67,37 +73,36 @@ class ProtoGeneratorPrintHelper(metaclass=SingletonMeta):
         # If code as not yet registered the element we display all too
         if not SERVICE_TO_DEBUG or not cls.service_name:
             return True
-        return cls.service_name == SERVICE_TO_DEBUG 
-    
+        return cls.service_name == SERVICE_TO_DEBUG
+
     @classmethod
     def check_prefix(cls):
         # INFO - AM - 29/12/2023 - if dev not specified the element to debug we dispaly all
         # If code as not yet registered the element we display all too
         if not PREFIX_TO_DEBUG or not cls.prefix:
             return True
-        return cls.prefix == PREFIX_TO_DEBUG 
-    
+        return cls.prefix == PREFIX_TO_DEBUG
+
     @classmethod
     def check_message_suffix(cls):
         # INFO - AM - 29/12/2023 - if dev not specified the element to debug we dispaly all
         # If code as not yet registered the element we display all too
         if not SUFFIX_TO_DEBUG or not cls.message_class:
             return True
-        return cls.message_class.suffix == SUFFIX_TO_DEBUG 
-    
+        return cls.message_class.suffix == SUFFIX_TO_DEBUG
+
     @classmethod
     def check_action_name(cls):
         # INFO - AM - 29/12/2023 - if dev not specified the element to debug we dispaly all
         # If code as not yet registered the element we display all too
         if not ACTION_TO_DEBUG or not cls.action_name:
             return True
-        return cls.action_name == ACTION_TO_DEBUG 
-    
+        return cls.action_name == ACTION_TO_DEBUG
+
     @classmethod
     def check_field_name(cls):
         # INFO - AM - 29/12/2023 - if dev not specified the element to debug we dispaly all
         # If code as not yet registered the element we display all too
         if not FIELD_TO_DEBUG or not cls.field_name:
             return True
-        return cls.field_name == FIELD_TO_DEBUG 
-    
+        return cls.field_name == FIELD_TO_DEBUG

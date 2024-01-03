@@ -60,38 +60,35 @@ class ManyManyModelSerializer(proto_serializers.ModelProtoSerializer):
 
     class Meta:
         model = ManyManyModel
-        # proto_class = fakeapp_pb2.ManyManyModelResponse
+        proto_class = fakeapp_pb2.ManyManyModelResponse
         fields = ["uuid", "name", "test_write_only_on_nested"]
 
+
 class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
-    # foreign = ForeignModelSerializer(read_only=True)
-    # many_many = ManyManyModelSerializer(many=True)
+    foreign = ForeignModelSerializer(read_only=True)
+    many_many = ManyManyModelSerializer(many=True)
 
-    # testing https://github.com/socotecio/django-socio-grpc/issues/169, source args is not mandatory here but allow better understanding
-    many_many_other = serializers.ListField(child=ManyManyModelSerializer())
+    slug_test_model = serializers.SlugRelatedField(slug_field="special_number", read_only=True)
+    slug_reverse_test_model = serializers.SlugRelatedField(
+        slug_field="is_active", read_only=True, many=True
+    )
+    slug_many_many = serializers.SlugRelatedField(slug_field="name", read_only=True, many=True)
 
-    # slug_test_model = serializers.SlugRelatedField(slug_field="special_number", read_only=True)
-    # slug_reverse_test_model = serializers.SlugRelatedField(
-    #     slug_field="is_active", read_only=True, many=True
-    # )
-    # slug_many_many = serializers.SlugRelatedField(slug_field="name", read_only=True, many=True)
+    proto_slug_related_field = proto_serializers.SlugRelatedConvertedField(
+        source="foreign",
+        slug_field="uuid",
+        convert_type=str,
+        read_only=True,
+    )
 
-    # proto_slug_related_field = proto_serializers.SlugRelatedConvertedField(
-    #     source="foreign",
-    #     slug_field="uuid",
-    #     convert_type=str,
-    #     read_only=True,
-    # )
-
-    # custom_field_name = serializers.CharField()
+    custom_field_name = serializers.CharField()
 
     class Meta:
         model = RelatedFieldModel
         proto_class = fakeapp_pb2.RelatedFieldModelResponse
         proto_class_list = fakeapp_pb2.RelatedFieldModelListResponse
         message_list_attr = "list_custom_field_name"
-        # fields = "__all__"
-        fields = ["uuid", "many_many_other"]
+        fields = "__all__"
 
 
 class SimpleRelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):

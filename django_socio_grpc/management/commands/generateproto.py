@@ -56,7 +56,7 @@ class Command(BaseCommand):
             "--override-fields-number",
             "-ofn",
             action="store_true",
-            help="Do not follow old field number when generating. /!\ this can lead to API breaking change.",
+            help="Do not follow old field number when generating. /!\\ this can lead to API breaking change.",
         )
 
     def handle(self, *args, **options):
@@ -89,7 +89,7 @@ class Command(BaseCommand):
             registry_instance=registry_instance,
             project_name=self.project_name,
             verbose=options["custom_verbose"] or 0,
-            override_fields_number=options["override_fields_number"]
+            override_fields_number=options["override_fields_number"],
         )
 
         # ------------------------------------------------------------

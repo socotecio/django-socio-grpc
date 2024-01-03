@@ -82,7 +82,6 @@ class RelatedFieldModel(models.Model):
         related_name="related",
     )
     many_many = models.ManyToManyField(ManyManyModel, blank=True, related_name="relateds")
-    many_many_other = models.ManyToManyField(ManyManyModel, blank=True, related_name="relateds_other")
 
     slug_test_model = models.ForeignKey(
         SlugTestModel,

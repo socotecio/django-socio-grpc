@@ -29,12 +29,12 @@ from django_socio_grpc.utils.constants import (
     REQUEST_SUFFIX,
     RESPONSE_SUFFIX,
 )
+from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 from django_socio_grpc.utils.model_meta import get_model_pk
 from django_socio_grpc.utils.tools import rreplace
 
 from .exceptions import ProtoRegistrationError
 from .typing import FieldCardinality, FieldDict
-from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 
 logger = logging.getLogger("django_socio_grpc.generation")
 
@@ -145,19 +145,20 @@ class ProtoField:
         )
 
     @classmethod
-    def from_field(cls, 
-            field: serializers.Field,
-            to_message: Callable = None,
-            parent_serializer: serializers.Serializer = None,
-            name_if_recursive: str = None
-        ) -> "ProtoField":
+    def from_field(
+        cls,
+        field: serializers.Field,
+        to_message: Callable = None,
+        parent_serializer: serializers.Serializer = None,
+        name_if_recursive: str = None,
+    ) -> "ProtoField":
         """
         to_message, parent_serializer, name_if_recursive only used if field is ListSerializer with a child being a Serializer
         """
         cardinality = cls._get_cardinality(field)
 
         if hasattr(field, "proto_type"):
-            pass # TODO ask leni why pass here and not return
+            pass  # TODO ask leni why pass here and not return
 
         elif isinstance(field, serializers.SerializerMethodField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is SerializerMethodField")
@@ -179,14 +180,18 @@ class ProtoField:
         if isinstance(field, serializers.ListField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ListField")
             cardinality = FieldCardinality.REPEATED
-            ProtoGeneratorPrintHelper.print(f"{field.child} child ", isinstance(field.child, type), issubclass(field.child.__class__, serializers.BaseSerializer))
             if issubclass(field.child.__class__, serializers.BaseSerializer):
-                ProtoGeneratorPrintHelper.print(f"{field.field_name} ListField child is a serializer")
-                proto_field = cls.from_serializer(field.child, to_message, parent_serializer, name_if_recursive)
-                ProtoGeneratorPrintHelper.print("icicic", proto_field)
+                ProtoGeneratorPrintHelper.print(
+                    f"{field.field_name} ListField child is a serializer"
+                )
+                proto_field = cls.from_serializer(
+                    field.child, to_message, parent_serializer, name_if_recursive
+                )
                 field_type = proto_field.field_type
             else:
-                ProtoGeneratorPrintHelper.print(f"{field.field_name} ListField child is a simple field")
+                ProtoGeneratorPrintHelper.print(
+                    f"{field.field_name} ListField child is a simple field"
+                )
                 field_type = get_proto_type(field.child)
         else:
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is simple type")
@@ -512,8 +517,6 @@ class ProtoMessage:
 
                 ProtoGeneratorPrintHelper.set_field_name(field.field_name)
 
-                # print(field, field.name)
-
                 if cls.skip_field(field, pk_name):
                     ProtoGeneratorPrintHelper.print(f"field {field.field_name} is skipped")
                     continue
@@ -534,7 +537,9 @@ class ProtoMessage:
                         )
                     )
                 else:
-                    ProtoGeneratorPrintHelper.print(f"field {field.field_name} is simple field")
+                    ProtoGeneratorPrintHelper.print(
+                        f"field {field.field_name} is simple field"
+                    )
                     fields.append(
                         ProtoField.from_field(
                             field,

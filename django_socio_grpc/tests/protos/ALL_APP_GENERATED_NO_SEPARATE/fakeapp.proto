@@ -153,6 +153,8 @@ message BasicProtoListChild {
     int32 id = 1;
     string title = 2;
     optional string text = 3;
+    int32 count = 4;
+    bool is_validated = 5;
 }
 
 message BasicProtoListChildList {
@@ -395,6 +397,8 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     optional string text = 3;
+    optional int32 count = 4;
+    bool is_validated = 5;
 }
 
 message UnitTestModelDestroyRequest {
@@ -424,6 +428,8 @@ message UnitTestModelPartialUpdateRequest {
     string title = 2;
     optional string text = 3;
     repeated string _partial_update_fields = 4;
+    optional int32 count = 5;
+    bool is_validated = 6;
 }
 
 message UnitTestModelRetrieveRequest {

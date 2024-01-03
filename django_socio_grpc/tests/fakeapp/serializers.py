@@ -39,11 +39,13 @@ class ForeignModelSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
+    count = serializers.IntegerField(default=10)
+
     class Meta:
         model = UnitTestModel
         proto_class = fakeapp_pb2.UnitTestModelResponse
         proto_class_list = fakeapp_pb2.UnitTestModelListResponse
-        fields = ("id", "title", "text")
+        fields = "__all__"
 
 
 class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):

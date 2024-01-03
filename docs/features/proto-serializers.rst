@@ -149,10 +149,6 @@ You can now define your serializer like this:
 
     class PostProtoSerializer(proto_serializers.ModelProtoSerializer):
         pub_date = serializers.DateTimeField(read_only=True)
-        user = serializers.PrimaryKeyRelatedField(
-            queryset=User.objects.all(),
-            pk_field=serializers.UUIDField(format="hex_verbose"),
-        )
 
         class Meta:
             model = Post
@@ -195,37 +191,6 @@ Extra kwargs options are used like this: ``serializer_instance = SerializerClass
 
 Use Cases
 ---------
-
-=============================================
-Converting PrimaryKeyRelatedField UUID Field
-=============================================
-
-If you use UUIDs as **primary key** you can come across a problem as this type is not automatically converted into string format when used as a Foreign Key.
-To fix this, please use `pk_field arg of PrimaryKeyRelatedField <https://www.django-rest-framework.org/api-guide/relations/#primarykeyrelatedfield>`_  :
-
-
-Example:
-
-.. code-block:: python
-    :emphasize-lines: 9
-
-    # serializers.py
-    from django_socio_grpc import proto_serializers
-    from rest_framework.serializers import UUIDField, PrimaryKeyRelatedField
-
-    # related_object is a UUIDField of a related object
-    class ExampleProtoSerializer(proto_serializers.ModelProtoSerializer):
-        related_object = PrimaryKeyRelatedField(
-            queryset=Something.objects.all(),
-            pk_field=UUIDField(format="hex_verbose"),
-        )
-        class Meta:
-            model = MyModel
-            proto_class = my_model_pb2.ExampleResponse
-
-            proto_class_list = my_model_pb2.ExampleListResponse
-
-            fields = "__all__"
 
 .. _proto-serializers-nullable-fields:
 

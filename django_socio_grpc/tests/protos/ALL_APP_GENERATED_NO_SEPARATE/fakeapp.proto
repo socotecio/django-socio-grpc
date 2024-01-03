@@ -47,6 +47,15 @@ service RelatedFieldModelController {
     rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
 }
 
+service SimpleRelatedFieldModelController {
+    rpc Create(SimpleRelatedFieldModel) returns (SimpleRelatedFieldModel) {}
+    rpc Destroy(SimpleRelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(SimpleRelatedFieldModelListRequest) returns (SimpleRelatedFieldModelList) {}
+    rpc PartialUpdate(SimpleRelatedFieldModelPartialUpdateRequest) returns (SimpleRelatedFieldModel) {}
+    rpc Retrieve(SimpleRelatedFieldModelRetrieveRequest) returns (SimpleRelatedFieldModel) {}
+    rpc Update(SimpleRelatedFieldModel) returns (SimpleRelatedFieldModel) {}
+}
+
 service SpecialFieldsModelController {
     rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
@@ -292,6 +301,41 @@ message RelatedFieldModelPartialUpdateRequest {
 }
 
 message RelatedFieldModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message SimpleRelatedFieldModel {
+    string uuid = 1;
+    optional string foreign = 2;
+    optional string slug_test_model = 3;
+    repeated string many_many = 4;
+    repeated string slug_many_many = 5;
+    repeated string many_many_foreigns = 6;
+}
+
+message SimpleRelatedFieldModelDestroyRequest {
+    string uuid = 1;
+}
+
+message SimpleRelatedFieldModelList {
+    repeated SimpleRelatedFieldModel results = 1;
+    int32 count = 2;
+}
+
+message SimpleRelatedFieldModelListRequest {
+}
+
+message SimpleRelatedFieldModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated string _partial_update_fields = 2;
+    optional string foreign = 3;
+    optional string slug_test_model = 4;
+    repeated string many_many = 5;
+    repeated string slug_many_many = 6;
+    repeated string many_many_foreigns = 7;
+}
+
+message SimpleRelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }
 

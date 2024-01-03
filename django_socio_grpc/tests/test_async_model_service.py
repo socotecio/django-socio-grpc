@@ -5,16 +5,19 @@ from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     RelatedFieldModelControllerStub,
+    SimpleRelatedFieldModelControllerStub,
     UnitTestModelControllerStub,
     add_RelatedFieldModelControllerServicer_to_server,
+    add_SimpleRelatedFieldModelControllerServicer_to_server,
     add_UnitTestModelControllerServicer_to_server,
 )
-from fakeapp.models import ForeignModel, UnitTestModel
+from fakeapp.models import ForeignModel, RelatedFieldModel, UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 from freezegun import freeze_time
 
 from django_socio_grpc.tests.fakeapp.services.related_field_model_service import (
     RelatedFieldModelService,
+    SimpleRelatedFieldModelService,
 )
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
@@ -183,3 +186,50 @@ class TestAsyncRelatedFieldModelService(TestCase):
         response = await grpc_stub.Retrieve(request=request)
 
         self.assertEqual(response.proto_slug_related_field, str(self.foreign.uuid))
+
+
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
+class TestSimpleRelatedFieldModelService(TestCase):
+    """
+    This tests the behavior of PrimaryKeyRelatedField with UUIDField
+    when dealing with serializers converting to/from proto.
+    """
+
+    def setUp(self):
+        self.fake_grpc = FakeFullAIOGRPC(
+            add_SimpleRelatedFieldModelControllerServicer_to_server,
+            SimpleRelatedFieldModelService.as_servicer(),
+        )
+
+    def tearDown(self):
+        self.fake_grpc.close()
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.item1 = RelatedFieldModel.objects.create()
+        cls.foreign = ForeignModel.objects.create(name="foreign")
+        cls.item2 = RelatedFieldModel.objects.create(foreign=cls.foreign)
+
+    async def test_async_retrieve(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(SimpleRelatedFieldModelControllerStub)
+
+        request = fakeapp_pb2.SimpleRelatedFieldModelRetrieveRequest(uuid=str(self.item1.uuid))
+        response = await grpc_stub.Retrieve(request=request)
+
+        self.assertEqual(response.foreign, "")
+
+        request = fakeapp_pb2.SimpleRelatedFieldModelRetrieveRequest(uuid=str(self.item2.uuid))
+        response = await grpc_stub.Retrieve(request=request)
+
+        self.assertEqual(response.foreign, str(self.foreign.uuid))
+
+    async def test_async_create(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(SimpleRelatedFieldModelControllerStub)
+
+        request = fakeapp_pb2.SimpleRelatedFieldModelRequest(
+            uuid=str(self.item1.uuid), foreign=str(self.foreign.uuid)
+        )
+        response = await grpc_stub.Create(request=request)
+
+        self.assertEqual(response.foreign, str(self.foreign.uuid))

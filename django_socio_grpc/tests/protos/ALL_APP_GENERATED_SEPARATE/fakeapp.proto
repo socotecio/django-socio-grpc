@@ -54,6 +54,15 @@ service RelatedFieldModelController {
     rpc Update(RelatedFieldModelRequest) returns (RelatedFieldModelResponse) {}
 }
 
+service SimpleRelatedFieldModelController {
+    rpc Create(SimpleRelatedFieldModelRequest) returns (SimpleRelatedFieldModelResponse) {}
+    rpc Destroy(SimpleRelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(SimpleRelatedFieldModelListRequest) returns (SimpleRelatedFieldModelListResponse) {}
+    rpc PartialUpdate(SimpleRelatedFieldModelPartialUpdateRequest) returns (SimpleRelatedFieldModelResponse) {}
+    rpc Retrieve(SimpleRelatedFieldModelRetrieveRequest) returns (SimpleRelatedFieldModelResponse) {}
+    rpc Update(SimpleRelatedFieldModelRequest) returns (SimpleRelatedFieldModelResponse) {}
+}
+
 service SpecialFieldsModelController {
     rpc Create(SpecialFieldsModelRequest) returns (SpecialFieldsModelResponse) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
@@ -348,6 +357,50 @@ message RelatedFieldModelResponse {
 }
 
 message RelatedFieldModelRetrieveRequest {
+    string uuid = 1;
+}
+
+message SimpleRelatedFieldModelDestroyRequest {
+    string uuid = 1;
+}
+
+message SimpleRelatedFieldModelListRequest {
+}
+
+message SimpleRelatedFieldModelListResponse {
+    repeated SimpleRelatedFieldModelResponse results = 1;
+    int32 count = 2;
+}
+
+message SimpleRelatedFieldModelPartialUpdateRequest {
+    string uuid = 1;
+    repeated string _partial_update_fields = 2;
+    optional string foreign = 3;
+    optional string slug_test_model = 4;
+    repeated string many_many = 5;
+    repeated string slug_many_many = 6;
+    repeated string many_many_foreigns = 7;
+}
+
+message SimpleRelatedFieldModelRequest {
+    string uuid = 1;
+    optional string foreign = 2;
+    optional string slug_test_model = 3;
+    repeated string many_many = 4;
+    repeated string slug_many_many = 5;
+    repeated string many_many_foreigns = 6;
+}
+
+message SimpleRelatedFieldModelResponse {
+    string uuid = 1;
+    optional string foreign = 2;
+    optional string slug_test_model = 3;
+    repeated string many_many = 4;
+    repeated string slug_many_many = 5;
+    repeated string many_many_foreigns = 6;
+}
+
+message SimpleRelatedFieldModelRetrieveRequest {
     string uuid = 1;
 }
 

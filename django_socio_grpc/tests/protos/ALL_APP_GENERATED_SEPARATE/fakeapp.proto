@@ -173,19 +173,19 @@ message BasicProtoListChildListResponse {
 }
 
 message BasicProtoListChildRequest {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
-    int32 count = 4;
-    bool is_validated = 5;
+    optional bool is_validated = 5;
+    int32 some_default_counter = 6;
 }
 
 message BasicProtoListChildResponse {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
-    int32 count = 4;
-    bool is_validated = 5;
+    optional bool is_validated = 5;
+    int32 some_default_counter = 6;
 }
 
 message BasicServiceListResponse {
@@ -234,8 +234,8 @@ message CustomNameForResponse {
 
 // Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModelResponse {
-    string uuid = 1;
-    int32 default_method_field = 2;
+    optional string uuid = 1;
+    optional int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 
@@ -252,13 +252,13 @@ message ForeignModelListResponse {
 }
 
 message ForeignModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
 }
 
 message ForeignModelRetrieveCustomResponse {
     string name = 1;
-    string custom = 2;
+    optional string custom = 2;
 }
 
 message ForeignModelRetrieveCustomRetrieveRequest {
@@ -266,23 +266,23 @@ message ForeignModelRetrieveCustomRetrieveRequest {
 }
 
 message ImportStructEvenInArrayModelRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
 message ImportStructEvenInArrayModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
 message ManyManyModelRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
     string test_write_only_on_nested = 3;
 }
 
 message ManyManyModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
 }
 
@@ -299,21 +299,21 @@ message RecursiveTestModelListResponse {
 }
 
 message RecursiveTestModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
-    RecursiveTestModelRequest parent = 3;
+    optional RecursiveTestModelRequest parent = 3;
     repeated RecursiveTestModelRequest children = 4;
 }
 
 message RecursiveTestModelRequest {
-    string uuid = 1;
-    RecursiveTestModelRequest parent = 2;
+    optional string uuid = 1;
+    optional RecursiveTestModelRequest parent = 2;
     repeated RecursiveTestModelRequest children = 3;
 }
 
 message RecursiveTestModelResponse {
-    string uuid = 1;
-    RecursiveTestModelResponse parent = 2;
+    optional string uuid = 1;
+    optional RecursiveTestModelResponse parent = 2;
     repeated RecursiveTestModelResponse children = 3;
 }
 
@@ -334,7 +334,7 @@ message RelatedFieldModelListResponse {
 }
 
 message RelatedFieldModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
     repeated string _partial_update_fields = 4;
@@ -342,20 +342,20 @@ message RelatedFieldModelPartialUpdateRequest {
 }
 
 message RelatedFieldModelRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
     repeated string many_many_foreigns = 4;
 }
 
 message RelatedFieldModelResponse {
-    string uuid = 1;
-    ForeignModelResponse foreign = 2;
+    optional string uuid = 1;
+    optional ForeignModelResponse foreign = 2;
     repeated ManyManyModelResponse many_many = 3;
-    int32 slug_test_model = 4;
+    optional int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string proto_slug_related_field = 7;
+    optional string proto_slug_related_field = 7;
     string custom_field_name = 8;
     repeated string many_many_foreigns = 9;
 }
@@ -377,7 +377,7 @@ message SimpleRelatedFieldModelListResponse {
 }
 
 message SimpleRelatedFieldModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
     optional string foreign = 3;
     optional string slug_test_model = 4;
@@ -387,7 +387,7 @@ message SimpleRelatedFieldModelPartialUpdateRequest {
 }
 
 message SimpleRelatedFieldModelRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     optional string foreign = 2;
     optional string slug_test_model = 3;
     repeated string many_many = 4;
@@ -396,7 +396,7 @@ message SimpleRelatedFieldModelRequest {
 }
 
 message SimpleRelatedFieldModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     optional string foreign = 2;
     optional string slug_test_model = 3;
     repeated string many_many = 4;
@@ -423,27 +423,27 @@ message SpecialFieldsModelListResponse {
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
-    google.protobuf.Struct meta_datas = 3;
+    optional google.protobuf.Struct meta_datas = 3;
     repeated int32 list_datas = 4;
 }
 
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelRequest {
-    string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
+    optional string uuid = 1;
+    optional google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
 }
 
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelResponse {
-    string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
+    optional string uuid = 1;
+    optional google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
-    bytes binary = 4;
+    optional bytes binary = 4;
 }
 
 message SpecialFieldsModelRetrieveRequest {
@@ -498,28 +498,28 @@ message UnitTestModelListWithExtraArgsRequest {
 }
 
 message UnitTestModelPartialUpdateRequest {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
     repeated string _partial_update_fields = 4;
-    optional int32 count = 5;
-    bool is_validated = 6;
+    optional bool is_validated = 6;
+    optional int32 some_default_counter = 7;
 }
 
 message UnitTestModelRequest {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
-    optional int32 count = 4;
-    bool is_validated = 5;
+    optional bool is_validated = 5;
+    optional int32 some_default_counter = 6;
 }
 
 message UnitTestModelResponse {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
-    optional int32 count = 4;
-    bool is_validated = 5;
+    optional bool is_validated = 5;
+    optional int32 some_default_counter = 6;
 }
 
 message UnitTestModelRetrieveRequest {

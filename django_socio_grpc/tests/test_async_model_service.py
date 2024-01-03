@@ -39,7 +39,7 @@ class TestAsyncModelService(TestCase):
         for idx in range(10):
             title = "z" * (idx + 1)
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
-            UnitTestModel(title=title, text=text).save()
+            UnitTestModel(title=title, text=text, some_default_counter=50).save()
 
     async def test_async_create(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
@@ -49,6 +49,8 @@ class TestAsyncModelService(TestCase):
         self.assertNotEqual(response.id, None)
         self.assertEqual(response.title, "fake")
         self.assertEqual(response.text, "text")
+        self.assertEqual(response.some_default_counter, 10)
+        self.assertEqual(response.is_validated, False)
         self.assertEqual(await sync_to_async(UnitTestModel.objects.count)(), 11)
 
     async def test_async_list(self):
@@ -77,6 +79,8 @@ class TestAsyncModelService(TestCase):
 
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, "newText")
+        self.assertEqual(response.some_default_counter, 10)
+        self.assertEqual(response.is_validated, False)
 
     async def test_async_destroy(self):
         unit_id = (await sync_to_async(UnitTestModel.objects.first)()).id
@@ -144,13 +148,23 @@ class TestAsyncModelService(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = fakeapp_pb2.UnitTestModelRequest(title="fake")
         response = await grpc_stub.Create(request=request)
-
+        
+        # INFO - AM - 03/01/2023 - text is optional and can be null and is null so it's not send
         self.assertFalse(response.HasField("text"))
+        # INFO - AM - 03/01/2023 - some_default_counter is optional but can't be null because it has a default in serializer so it appear in the response
+        self.assertTrue(response.HasField("some_default_counter"))
+        # INFO - AM - 03/01/2023 - is_validated is optional but can't be null because it has a default in model so it appear in the response
+        self.assertTrue(response.HasField("is_validated"))
 
         request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=response.id)
         response = await grpc_stub.Retrieve(request=request)
 
+        # INFO - AM - 03/01/2023 - text is optional and can be null and is null so it's not send
         self.assertFalse(response.HasField("text"))
+        # INFO - AM - 03/01/2023 - some_default_counter is optional but can't be null because it has a default in serializer so it appear in the response
+        self.assertTrue(response.HasField("some_default_counter"))
+        # INFO - AM - 03/01/2023 - is_validated is optional but can't be null because it has a default in model so it appear in the response
+        self.assertTrue(response.HasField("is_validated"))
 
         instance = await UnitTestModel.objects.aget(id=response.id)
         assert instance.text is None

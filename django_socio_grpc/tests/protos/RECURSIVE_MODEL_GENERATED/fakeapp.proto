@@ -26,21 +26,21 @@ message RecursiveTestModelListResponse {
 }
 
 message RecursiveTestModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
-    RecursiveTestModelRequest parent = 3;
+    optional RecursiveTestModelRequest parent = 3;
     repeated RecursiveTestModelRequest children = 4;
 }
 
 message RecursiveTestModelRequest {
-    string uuid = 1;
-    RecursiveTestModelRequest parent = 2;
+    optional string uuid = 1;
+    optional RecursiveTestModelRequest parent = 2;
     repeated RecursiveTestModelRequest children = 3;
 }
 
 message RecursiveTestModelResponse {
-    string uuid = 1;
-    RecursiveTestModelResponse parent = 2;
+    optional string uuid = 1;
+    optional RecursiveTestModelResponse parent = 2;
     repeated RecursiveTestModelResponse children = 3;
 }
 

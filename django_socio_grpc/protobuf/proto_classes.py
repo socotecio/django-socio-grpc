@@ -94,7 +94,8 @@ class ProtoField:
 
     @classmethod
     def _get_cardinality(self, field: serializers.Field):
-        if field.allow_null or field.default not in [None, empty]:
+        ProtoGeneratorPrintHelper.print("field.default: ", field.default)
+        if field.allow_null or field.required is False or field.default not in [None, empty]:
             return FieldCardinality.OPTIONAL
         return FieldCardinality.NONE
 

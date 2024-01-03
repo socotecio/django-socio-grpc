@@ -6,6 +6,8 @@ services:
     tty: true
     build:
       context: .
+      dockerfile: Dockerfile
+      target: server
     environment:
       - DB_NAME=test
       - DB_USER=test
@@ -25,15 +27,24 @@ services:
     networks:
       django-socio-grpc-network:
 
-  django-socio-grpc-docs:
+  django-socio-grpc-docs-build:
     image: django-socio-grpc
     build:
       context: .
-    command: mkdocs serve -a 0.0.0.0:6001 -t readthedocs
+      dockerfile: Dockerfile
+      target: docs
+    command: sh -c "cd docs && find . -name '*.rst' | entr -r -n make html"
     volumes:
       - .:/opt/code
+    networks:
+      django-socio-grpc-network:
+
+  django-socio-grpc-docs:
+    image: nginx:alpine
+    volumes:
+      - ./docs/_build/html:/usr/share/nginx/html
     ports:
-      - "6001:6001"
+      - "6001:80"
     networks:
       django-socio-grpc-network:
 

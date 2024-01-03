@@ -17,7 +17,7 @@ from rest_framework.exceptions import APIException
 
 class ProtobufGenerationException(Exception):
     """
-    Class for Socio gRPC framework protobuff generation exceptions.
+    An exception class for handling errors related to protobuf generation within DSG. It can be raised with specific information about the app name, model name, and a detail message.
     """
 
     default_detail = "Unknown"
@@ -36,7 +36,7 @@ LOGGING_LEVEL = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 class GRPCException(APIException):
     """
-    Base class for Socio gRPC framework exceptions.
+    Base class for DSG exceptions.
     Subclasses should provide `.status_code` and `.default_detail` properties.
     You can also set `.logging_level` property to log the exception with the
     """
@@ -46,36 +46,60 @@ class GRPCException(APIException):
 
 
 class Unauthenticated(GRPCException):
+    """
+    Subclass of GRPCException representing the UNAUTHENTICATED gRPC status code. It indicates that authentication credentials were not provided.
+    """
+
     status_code = StatusCode.UNAUTHENTICATED
     default_detail = _("Authentication credentials were not provided.")
     default_code = "not_authenticated"
 
 
 class PermissionDenied(GRPCException):
+    """
+    Subclass of GRPCException representing the PERMISSION_DENIED gRPC status code. It indicates that the user does not have permission to perform a certain action.
+    """
+
     status_code = StatusCode.PERMISSION_DENIED
     default_detail = _("You do not have permission to perform this action.")
     default_code = "permission_denied"
 
 
 class NotFound(GRPCException):
+    """
+    Subclass of GRPCException representing the NOT_FOUND gRPC status code. It indicates that the requested resource was not found.
+    """
+
     status_code = StatusCode.NOT_FOUND
     default_detail = _("Not found.")
     default_code = "not_found"
 
 
 class AlreadyExist(GRPCException):
+    """
+    Subclass of GRPCException representing the ALREADY_EXISTS gRPC status code. It indicates that the requested resource already exists.
+    """
+
     status_code = StatusCode.ALREADY_EXISTS
     default_detail = _("Already exists.")
     default_code = "already_exist"
 
 
 class InvalidArgument(GRPCException):
+    """
+    Subclass of GRPCException representing the INVALID_ARGUMENT gRPC status code. It indicates that an invalid argument was provided.
+    """
+
     status_code = StatusCode.INVALID_ARGUMENT
     default_detail = _("Invalid argument.")
     default_code = "invalid_argument"
 
 
 class Unimplemented(GRPCException):
+    """
+    Subclass of GRPCException representing the UNIMPLEMENTED gRPC status code. It indicates that the requested operation is not yet implemented.
+    """
+
     status_code = StatusCode.UNIMPLEMENTED
     default_detail = _("Unimplemented.")
     default_code = "unimplemented"

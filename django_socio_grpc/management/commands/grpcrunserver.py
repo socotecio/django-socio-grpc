@@ -56,6 +56,10 @@ class Command(BaseCommand):
         self.reflection = options["reflection"]
         self.development_mode = options["development_mode"]
         self.max_workers = options["max_workers"]
+
+        # set GRPC_ASYNC to "False" in order to start server synchronously
+        grpc_settings.GRPC_ASYNC = False
+
         self.run(**options)
 
     def run(self, **options):

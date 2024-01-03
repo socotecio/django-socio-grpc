@@ -1,8 +1,19 @@
+from __future__ import annotations
+
 from enum import Enum
-from typing import List, Optional, TypedDict, Union
+
+try:
+    from typing_extensions import NotRequired, TypedDict
+except ImportError:
+    from typing import Optional as NotRequired
+    from typing import TypedDict
 
 
 class FieldCardinality(str, Enum):
+    """
+    Enum to use for the ``cardinality`` dictionnary key for grpc_action ``request`` and ``response``
+    """
+
     NONE = ""
     OPTIONAL = "optional"
     REPEATED = "repeated"
@@ -11,7 +22,11 @@ class FieldCardinality(str, Enum):
 
 
 class FieldDict(TypedDict):
+    """
+    Typed dict to help format ``request`` and ``response`` params of grpc_action decorator.
+    """
+
     name: str
     type: str
-    cardinality: FieldCardinality
-    comment: Optional[Union[str, List[str]]]
+    cardinality: NotRequired[FieldCardinality]
+    comment: NotRequired[str | list[str]]

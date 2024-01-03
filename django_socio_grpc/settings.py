@@ -3,34 +3,18 @@ Settings for gRPC framework are all namespaced in the GRPC_FRAMEWORK setting.
 For example your project's `settings.py` file might look like this:
 
 GRPC_FRAMEWORK = {
-    'ROOT_HANDLERS_HOOK': 'path.to.my.custom_grpc_handlers',
-
-    'SERVER_INTERCEPTORS': [Interceptor1(), Interceptor2()],
-
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-
-    # default pagination class
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.Pagenumberpagination'
-
-    'DEFAULT_AUTHENTICATION_CLASSES': ['path.to.AuthenticationClass'],
-
-    'DEFAULT_PERMISSION_CLASSES': ['path.to.DefaultPermissionClass'],
-
-    'SEPARATE_READ_WRITE_MODEL': True,
-
-    'IGNORE_LOG_FOR_ACTION': ['Service1.Action1', 'Service1.Action1'],
-
-    'ROOT_GRPC_FOLDER': 'my_grpc_folder'
-
-    "LOG_EXTRA_CONTEXT_FUNCTION": 'django_socio_grpc.log.default_get_log_extra_context'
+    "ROOT_HANDLERS_HOOK": "path.to.your.handler.function"
+    ...
 }
+
+To see all options see documentation: https://django-socio-grpc.readthedocs.io/en/stable/
 
 This module provides the `grpc_setting` object, that is used to access
 gRPC framework settings, checking for user settings first, then falling
 back to the defaults.
 """
 from django.conf import settings
-from django.test.signals import setting_changed
+from django.core.signals import setting_changed
 from django.utils.module_loading import import_string
 
 __all__ = ["grpc_settings"]
@@ -38,15 +22,15 @@ __all__ = ["grpc_settings"]
 DEFAULTS = {
     # Root grpc handlers hook configuration
     "ROOT_HANDLERS_HOOK": None,
-    # gRPC server configuration
+    # gRPC server configuration. ex: [Interceptor1(), Interceptor2()]
     "SERVER_INTERCEPTORS": None,
     # gRPC server options. See https://grpc.github.io/grpc/python/grpc_asyncio.html#create-server, https://github.com/grpc/grpc/blob/v1.46.x/include/grpc/impl/codegen/grpc_types.h
     "SERVER_OPTIONS": None,
     # Default servicer authentication classes
     "DEFAULT_AUTHENTICATION_CLASSES": [],
-    # Default filter class
+    # Default filter class. ex: ['django_filters.rest_framework.DjangoFilterBackend'],
     "DEFAULT_FILTER_BACKENDS": [],
-    # default pagination class
+    # default pagination class. ex: 'rest_framework.pagination.Pagenumberpagination'
     "DEFAULT_PAGINATION_CLASS": None,
     # Default permission classes
     "DEFAULT_PERMISSION_CLASSES": [],
@@ -73,8 +57,15 @@ DEFAULTS = {
     "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.default_get_log_extra_context",
     # Log requests even for response OK
     "LOG_OK_RESPONSE": False,
-    # List service action that we do not want to be logged (health check for example) to avoid log flooding
+    # List service action that we do not want to be logged (health check for example) to avoid log flooding. ex: ['Service1.Action1', 'Service1.Action1']
     "IGNORE_LOG_FOR_ACTION": [],
+    # An iterable containing pairs path for server certificate. See https://grpc.github.io/grpc/python/grpc.html#create-server-credentials and https://github.com/grpc/grpc/tree/master/examples/python/auth.
+    # Exemple of usage: PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH: [("server-key.pem", "server.pem")]
+    "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [],
+    # Path to the root certificate pem file. See https://grpc.github.io/grpc/python/grpc.html#grpc.ServerCredentials
+    "ROOT_CERTIFICATES_PATH": None,
+    # Set the ssl_server_credentials require_client_auth attribute
+    "REQUIRE_CLIENT_AUTH": False,
 }
 
 

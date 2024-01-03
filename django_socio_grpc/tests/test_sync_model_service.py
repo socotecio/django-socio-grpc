@@ -10,11 +10,14 @@ from fakeapp.models import UnitTestModel
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from freezegun import freeze_time
 
+from django_socio_grpc.settings import grpc_settings
+
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
 
 class TestSyncModelService(TestCase):
     def setUp(self):
+        grpc_settings.GRPC_ASYNC = False
         self.fake_grpc = FakeGRPC(
             add_UnitTestModelControllerServicer_to_server,
             SyncUnitTestModelService.as_servicer(),

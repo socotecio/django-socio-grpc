@@ -12,6 +12,7 @@ from django.core.management.base import BaseCommand
 from django.utils import autoreload
 
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.utils.ssl_credentials import get_server_credentials
 
 logger = logging.getLogger("django_socio_grpc.internal")
 
@@ -85,7 +86,12 @@ class Command(BaseCommand):
                 await grpc_settings.ROOT_HANDLERS_HOOK(server)
             else:
                 await sync_to_async(grpc_settings.ROOT_HANDLERS_HOOK)(server)
-            server.add_insecure_port(self.address)
+
+            ssl_server_credentials = get_server_credentials()
+            if ssl_server_credentials:
+                server.add_secure_port(self.address, ssl_server_credentials)
+            else:
+                server.add_insecure_port(self.address)
             await server.start()
             await server.wait_for_termination()
         except OSError as e:

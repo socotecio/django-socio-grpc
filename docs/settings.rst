@@ -295,3 +295,40 @@ When using :ref:`Log requests middleware <middlewares-log-requests-middleware>` 
 .. code-block:: python
 
   "IGNORE_LOG_FOR_ACTION": ["Service1.Action1", "Service1.Action1"]
+
+
+.. _settings-private-key-certificate_chain-pairs-path:
+
+PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+List of pair of key/server certificate to use gRPC secure port mechanisme. See :ref:`work-with-secure-port`.
+
+
+.. code-block:: python
+
+  "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [("/path/to/server-key.pem", "/path/to/server.pem")]
+
+.. _settings-root-certificates-path:
+
+ROOT_CERTIFICATES_PATH
+^^^^^^^^^^^^^^^^^^^^^^
+
+Client root certificate path that server will use to verify client authentication. See :ref:`work-with-secure-port`.
+
+.. code-block:: python
+
+  "ROOT_CERTIFICATES_PATH": "/path/to/certificates.pem"
+
+
+.. _settings-require-client-auth:
+
+REQUIRE_CLIENT_AUTH
+^^^^^^^^^^^^^^^^^^^
+
+A boolean indicating whether or not to require clients to be authenticated. May only be True if :ref:`settings-root-certificates-path` is not None. See :ref:`work-with-secure-port`.
+
+
+.. code-block:: python
+
+  "REQUIRE_CLIENT_AUTH": True

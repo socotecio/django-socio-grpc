@@ -43,3 +43,11 @@ docker compose up
 ```
 
 For local documentation go to http://localhost:6001
+
+
+## Launch tests
+
+
+```
+docker compose exec django-socio-grpc poetry run tests
+```

@@ -8,6 +8,7 @@ import grpc
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import autoreload
+from utils.ssl_credentials import get_server_credentials
 
 from django_socio_grpc.settings import grpc_settings
 
@@ -97,7 +98,11 @@ class Command(BaseCommand):
 
         # ------------------------------------------------
         # ---  common start of the gRPC server itself  ---
-        server.add_insecure_port(self.address)
+        ssl_server_credentials = get_server_credentials()
+        if ssl_server_credentials:
+            server.add_secure_port(self.address, ssl_server_credentials)
+        else:
+            server.add_insecure_port(self.address)
         server.start()
         server.wait_for_termination()
 

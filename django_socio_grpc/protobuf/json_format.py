@@ -1,7 +1,9 @@
+from typing import Type
 from uuid import UUID
 
 from google.protobuf import json_format
 from google.protobuf.json_format import MessageToDict, ParseDict
+from rest_framework import serializers
 
 
 def _is_field_optional(field):
@@ -29,6 +31,7 @@ def message_to_dict(message, **kwargs):
     kwargs.setdefault("preserving_proto_field_name", True)
 
     result_dict = MessageToDict(message, **kwargs)
+    return result_dict
     optional_fields = {
         field.name: None for field in message.DESCRIPTOR.fields if _is_field_optional(field)
     }

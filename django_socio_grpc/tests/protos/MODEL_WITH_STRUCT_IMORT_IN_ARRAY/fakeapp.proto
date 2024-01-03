@@ -9,12 +9,12 @@ service ImportStructEvenInArrayModelController {
 }
 
 message ImportStructEvenInArrayModelRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
 message ImportStructEvenInArrayModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 

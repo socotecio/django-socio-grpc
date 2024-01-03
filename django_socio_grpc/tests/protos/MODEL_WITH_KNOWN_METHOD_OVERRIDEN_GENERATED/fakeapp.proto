@@ -16,8 +16,8 @@ service SpecialFieldsModelController {
 
 // Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModelResponse {
-    string uuid = 1;
-    int32 default_method_field = 2;
+    optional string uuid = 1;
+    optional int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 
@@ -36,27 +36,27 @@ message SpecialFieldsModelListResponse {
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
-    google.protobuf.Struct meta_datas = 3;
+    optional google.protobuf.Struct meta_datas = 3;
     repeated int32 list_datas = 4;
 }
 
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelRequest {
-    string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
+    optional string uuid = 1;
+    optional google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
 }
 
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelResponse {
-    string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
+    optional string uuid = 1;
+    optional google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
-    bytes binary = 4;
+    optional bytes binary = 4;
 }
 
 message SpecialFieldsModelRetrieveRequest {

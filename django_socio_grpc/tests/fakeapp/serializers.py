@@ -39,7 +39,8 @@ class ForeignModelSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
-    count = serializers.IntegerField(default=10)
+    some_default_counter = serializers.IntegerField(default=10)
+    is_validated = serializers.BooleanField(required=False)
 
     class Meta:
         model = UnitTestModel

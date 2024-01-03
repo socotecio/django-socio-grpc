@@ -286,7 +286,12 @@ class PartialUpdateModelMixin(GRPCActionMixin):
 
         content = message_to_dict(request)
 
-        data = {k: v for k, v in content.items() if k in request._partial_update_fields}
+        data = {}
+        for field_name, field_vale in content.items():
+            if field_name not in request._partial_update_fields:
+                data[field_name] = None
+                continue
+            data[field_name] = field_vale
 
         instance = self.get_object()
 
@@ -488,7 +493,13 @@ class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin):
 
         content = message_to_dict(request)
 
-        data = {k: v for k, v in content.items() if k in request._partial_update_fields}
+        # TODO use the serializer with the partial=True for that
+        data = {}
+        for field_name, field_vale in content.items():
+            if field_name not in request._partial_update_fields:
+                data[field_name] = None
+                continue
+            data[field_name] = field_vale
 
         instance = await self.aget_object()
 

@@ -4,6 +4,7 @@ from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import empty
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (
     LIST_SERIALIZER_KWARGS,
@@ -34,7 +35,17 @@ class BaseProtoSerializer(BaseSerializer):
 
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
-        return message_to_dict(message)
+        data_dict = message_to_dict(message)
+        data_dict = self.populate_dict_with_none_if_not_required(data_dict)
+        return data_dict
+
+    def populate_dict_with_none_if_not_required(self, data_dict):
+        for field in self.fields.values():
+            if field.field_name in data_dict:
+                continue
+            if field.allow_null or field.default in [None, empty] and field.required is True:
+                data_dict[field.field_name] = None
+        return data_dict
 
     def data_to_message(self, data):
         """Protobuf message <- Dict of python primitive datatypes."""

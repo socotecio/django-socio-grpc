@@ -16,13 +16,13 @@ message ForeignModelListResponse {
 }
 
 message ForeignModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
 }
 
 message ForeignModelRetrieveCustomResponse {
     string name = 1;
-    string custom = 2;
+    optional string custom = 2;
 }
 
 message ForeignModelRetrieveCustomRetrieveRequest {

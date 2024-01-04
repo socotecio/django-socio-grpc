@@ -17,7 +17,6 @@ from .grpc_actions.placeholders import (
     StrTemplatePlaceholder,
 )
 from .grpc_actions.utils import get_serializer_base_name
-from .protobuf.json_format import message_to_dict
 from .settings import grpc_settings
 from .utils.constants import DEFAULT_LIST_FIELD_NAME, PARTIAL_UPDATE_FIELD_NAME, REQUEST_SUFFIX
 
@@ -260,7 +259,7 @@ def _get_partial_update_request(service):
         _partial_update_fields = serializers.ListField(child=serializers.CharField())
         but this would not be dynamic if constante change or if we want it to be configurable in settings in the futur
         This metaclass should inherit from DRF SerializerMetaclass as serializer has it's own metaclass to add _declared_fields attibute
-        Using PartialUpdateRequest.setattr is not enough as _declared_fields is done in metaclass so all fields should be declared before 
+        Using PartialUpdateRequest.setattr is not enough as _declared_fields is done in metaclass so all fields should be declared before
         """
 
         def __new__(cls, name, bases, attrs):

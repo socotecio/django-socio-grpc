@@ -17,6 +17,8 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+    int32 some_default_counter = 4;
+    bool is_validated = 5;
 }
 
 message UnitTestModelListRequest {
@@ -65,6 +67,8 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+    int32 some_default_counter = 4;
+    bool is_validated = 5;
 }
 
 message UnitTestModelListRequest {
@@ -145,6 +149,8 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+    int32 some_default_counter = 4;
+    bool is_validated = 5;
 }
 
 message UnitTestModelListRequest {
@@ -381,6 +387,8 @@ service UnitTestModelController {
 message UnitTestModel {
     int32 id = 1;
     string text = 2;
+    int32 some_default_counter = 3;
+    bool is_validated = 4;
 }
 
 message UnitTestModelListRequest {
@@ -422,7 +430,9 @@ service UnitTestModelController {
 message UnitTestModel {
     int32 id = 1;
     string text = 2;
-    string title = 3;
+    int32 some_default_counter = 3;
+    bool is_validated = 4;
+    string title = 5;
 }
 
 message UnitTestModelListRequest {

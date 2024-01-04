@@ -107,6 +107,18 @@ class TestSyncModelService(TestCase):
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
 
+        # Test partial update does not update fields not specified even if passed in request
+        request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
+            id=instance.id,
+            text="notUpdated",
+            title="newTitle",
+            **{PARTIAL_UPDATE_FIELD_NAME: ["title"]}
+        )
+        response = grpc_stub.PartialUpdate(request=request)
+
+        self.assertEqual(response.title, "newTitle")
+        self.assertEqual(response.text, old_text)
+
         # Test partial update takes into account empty optional fields
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
             id=instance.id, **{PARTIAL_UPDATE_FIELD_NAME: ["text"]}

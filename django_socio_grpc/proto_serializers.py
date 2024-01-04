@@ -47,8 +47,14 @@ class BaseProtoSerializer(BaseSerializer):
 
     def populate_dict_with_none_if_not_required(self, data_dict, message=None):
         """
-        todo
+        This method allow to populate the data dictionary with None for optional field that allow_null and not send in the request.
+        It's also allow to deal with partial update correctly.
+        This is mandatory for having null value received in request as DRF expect to have None value for field that are required.
+        We can't rely only on required True/False as in DSG if a field is required it will have the default value of it's type (empty string for string type) and not None
+
+        When refactoring serializer to only use message we will be able to determine the default value of the field depending of the same logic followed here
         """
+        # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the message. If not we raise an exception
         if self.partial and not hasattr(message, PARTIAL_UPDATE_FIELD_NAME):
             raise ValidationError(
                 {
@@ -60,18 +66,20 @@ class BaseProtoSerializer(BaseSerializer):
             )
 
         for field in self.fields.values():
-            # todo
+            # INFO - AM - 04/01/2024 - If we are in a partial serializer we need to only have field specified in PARTIAL_UPDATE_FIELD_NAME attribute. Meaning bot deleting field that should not be here and not adding None to allow_null field that are not specified
             if (
                 message
                 and self.partial
                 and hasattr(message, PARTIAL_UPDATE_FIELD_NAME)
                 and field.field_name not in getattr(message, PARTIAL_UPDATE_FIELD_NAME)
             ):
+                if field.field_name in data_dict:
+                    del data_dict[field.field_name]
                 continue
-            # todo
+            # INFO - AM - 04/01/2024 - if field already existing in the data_dict we do not need to do something else
             if field.field_name in data_dict:
                 continue
-            # todo
+            # INFO - AM - 04/01/2024 - Adding default None value only for optional field that are required and allowing null or having a default value
             if field.allow_null or field.default in [None, empty] and field.required is True:
                 data_dict[field.field_name] = None
         return data_dict

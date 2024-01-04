@@ -95,17 +95,17 @@ message BasicProtoListChildListResponse {
 
 message BasicProtoListChildRequest {
     optional int32 id = 1;
-    string title = 2;
-    optional string text = 3;
-    int32 some_default_counter = 4;
+    optional int32 some_default_counter = 2;
+    string title = 3;
+    optional string text = 4;
     optional bool is_validated = 5;
 }
 
 message BasicProtoListChildResponse {
     optional int32 id = 1;
-    string title = 2;
-    optional string text = 3;
-    int32 some_default_counter = 4;
+    optional int32 some_default_counter = 2;
+    string title = 3;
+    optional string text = 4;
     optional bool is_validated = 5;
 }
 

@@ -180,6 +180,8 @@ class BasicListProtoSerializer(proto_serializers.ListProtoSerializer):
 
 
 class BasicProtoListChildSerializer(proto_serializers.ModelProtoSerializer):
+    some_default_counter = serializers.IntegerField(default=10)
+
     class Meta:
         model = UnitTestModel
         proto_class = fakeapp_pb2.BasicProtoListChildResponse

@@ -38,22 +38,28 @@ message UnitTestModelListWithExtraArgsRequest {
 }
 
 message UnitTestModelPartialUpdateRequest {
-    int32 id = 1;
-    string title = 2;
-    optional string text = 3;
+    optional int32 id = 1;
+    optional int32 some_default_counter = 2;
+    optional bool is_validated = 3;
     repeated string _partial_update_fields = 4;
+    string title = 5;
+    optional string text = 6;
 }
 
 message UnitTestModelRequest {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
+    optional int32 some_default_counter = 4;
+    optional bool is_validated = 5;
 }
 
 message UnitTestModelResponse {
-    int32 id = 1;
+    optional int32 id = 1;
     optional string text = 2;
-    string title = 3;
+    optional int32 some_default_counter = 3;
+    optional bool is_validated = 4;
+    string title = 5;
 }
 
 message UnitTestModelRetrieveRequest {

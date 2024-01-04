@@ -158,7 +158,8 @@ class TestFields:
 
         assert proto_field.name == "slug_test_model"
         assert proto_field.field_type == "int32"
-        assert proto_field.cardinality == FieldCardinality.NONE
+        # INFO - AM - 04/01/2024 - OPTIONAL because slug_test_model can be null in RelatedFieldModel
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
         assert proto_field.comments is None
 
     def test_from_field_related_field_source(self):
@@ -168,7 +169,8 @@ class TestFields:
 
         assert proto_field.name == "pk_related_source_field"
         assert proto_field.field_type == "string"
-        assert proto_field.cardinality == FieldCardinality.NONE
+        # INFO - AM - 04/01/2024 - OPTIONAL because foreign can be null in RelatedFieldModel
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
         assert proto_field.comments is None
 
         field = ser.fields["many_related_field"]
@@ -233,7 +235,8 @@ class TestFields:
 
         assert proto_field.name == "choice_field"
         assert proto_field.field_type == "int32"
-        assert proto_field.cardinality == FieldCardinality.NONE
+        # INFO - AM - 04/01/2024 - OPTIONAL because a default is specified in the model
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
     def test_from_field_default(self):
         ser = MySerializer()

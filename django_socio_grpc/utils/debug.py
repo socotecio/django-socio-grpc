@@ -19,14 +19,14 @@ PREFIX_TO_DEBUG = ""
 SUFFIX_TO_DEBUG = ""
 FIELD_TO_DEBUG = ""
 
-from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
+# from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 
-ENABLE_PROTO_DEBUG = True
-SERVICE_TO_DEBUG = "UnitTestModelService"
-ACTION_TO_DEBUG = "Create"
-PREFIX_TO_DEBUG = "UnitTestModel"
-SUFFIX_TO_DEBUG = REQUEST_SUFFIX
-FIELD_TO_DEBUG = "is_validated"
+# ENABLE_PROTO_DEBUG = True
+# SERVICE_TO_DEBUG = "UnitTestModelService"
+# ACTION_TO_DEBUG = "Create"
+# PREFIX_TO_DEBUG = "UnitTestModel"
+# SUFFIX_TO_DEBUG = REQUEST_SUFFIX
+# FIELD_TO_DEBUG = "is_validated"
 
 
 class ProtoGeneratorPrintHelper(metaclass=SingletonMeta):

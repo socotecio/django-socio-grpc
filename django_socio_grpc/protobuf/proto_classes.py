@@ -95,7 +95,15 @@ class ProtoField:
     @classmethod
     def _get_cardinality(self, field: serializers.Field):
         ProtoGeneratorPrintHelper.print("field.default: ", field.default)
-        if field.allow_null or field.required is False or field.default not in [None, empty]:
+        """
+        INFO - AM - 04/01/2023
+        If field can be null -> optional
+        if field is not required -> optional
+        if field.default is set (meaning not None or empty) -> optional
+
+        Not dealing with field.allow_blank now as it doesn't seem to be related to OPTIONAl and more about validation and only exist for charfield
+        """
+        if field.allow_null or not field.required or field.default not in [None, empty]:
             return FieldCardinality.OPTIONAL
         return FieldCardinality.NONE
 

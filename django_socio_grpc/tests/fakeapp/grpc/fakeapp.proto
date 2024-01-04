@@ -508,8 +508,8 @@ message UnitTestModelRequest {
 
 message UnitTestModelResponse {
     int32 id = 1;
-    optional string text = 2;
-    string title = 3;
+    string title = 2;
+    optional string text = 3;
 }
 
 message UnitTestModelRetrieveRequest {

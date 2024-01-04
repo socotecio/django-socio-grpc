@@ -28,7 +28,10 @@ class BaseProtoSerializer(BaseSerializer):
         message = kwargs.pop("message", None)
         self.stream = kwargs.pop("stream", None)
         self.message_list_attr = kwargs.pop(LIST_ATTR_MESSAGE_NAME, DEFAULT_LIST_FIELD_NAME)
+        # INFO - AM - 04/01/2023 - Need to manually define partial before the super().__init__ as it's used in populate_dict_with_none_if_not_required that is used in message_to_data that is call before the super init
+        self.partial = kwargs.get("partial", False)
         if message is not None:
+            print("kikikikiki ", message, message.title)
             self.initial_message = message
             kwargs["data"] = self.message_to_data(message)
         super().__init__(*args, **kwargs)
@@ -36,15 +39,29 @@ class BaseProtoSerializer(BaseSerializer):
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
         data_dict = message_to_dict(message)
-        data_dict = self.populate_dict_with_none_if_not_required(data_dict)
+        print("data_dict", data_dict)
+        data_dict = self.populate_dict_with_none_if_not_required(data_dict, message)
         return data_dict
 
-    def populate_dict_with_none_if_not_required(self, data_dict):
+    def populate_dict_with_none_if_not_required(self, data_dict, message=None):
+        """
+        todo
+        """
         for field in self.fields.values():
+            # todo
+            print(field.field_name, message and self.partial and hasattr(message, "_partial_update_fields") and field.field_name not in message._partial_update_fields)
+            if message and self.partial and hasattr(message, "_partial_update_fields") and field.field_name not in message._partial_update_fields:
+                print("continue")
+                continue
+            # todo
             if field.field_name in data_dict:
                 continue
+            # todo
             if field.allow_null or field.default in [None, empty] and field.required is True:
                 data_dict[field.field_name] = None
+        print("icicic\n"*5)
+        print(message)
+        print(data_dict)
         return data_dict
 
     def data_to_message(self, data):

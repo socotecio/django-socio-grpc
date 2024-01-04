@@ -11,6 +11,7 @@ from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelServi
 from freezegun import freeze_time
 
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.utils.constants import PARTIAL_UPDATE_FIELD_NAME
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
@@ -99,7 +100,7 @@ class TestSyncModelService(TestCase):
 
         # Test partial update does not update fields not specified
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
-            id=instance.id, _partial_update_fields=["title"], title="newTitle"
+            id=instance.id, title="newTitle", **{PARTIAL_UPDATE_FIELD_NAME: ["title"]}
         )
         response = grpc_stub.PartialUpdate(request=request)
 
@@ -108,7 +109,7 @@ class TestSyncModelService(TestCase):
 
         # Test partial update takes into account empty optional fields
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
-            id=instance.id, _partial_update_fields=["text"]
+            id=instance.id, **{PARTIAL_UPDATE_FIELD_NAME: ["text"]}
         )
         response = grpc_stub.PartialUpdate(request=request)
 

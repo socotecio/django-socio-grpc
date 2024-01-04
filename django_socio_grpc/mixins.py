@@ -19,7 +19,7 @@ from .grpc_actions.placeholders import (
 from .grpc_actions.utils import get_serializer_base_name
 from .protobuf.json_format import message_to_dict
 from .settings import grpc_settings
-from .utils.constants import DEFAULT_LIST_FIELD_NAME, REQUEST_SUFFIX
+from .utils.constants import DEFAULT_LIST_FIELD_NAME, PARTIAL_UPDATE_FIELD_NAME, REQUEST_SUFFIX
 
 
 ############################################################
@@ -253,9 +253,18 @@ class UpdateModelMixin(GRPCActionMixin):
 def _get_partial_update_request(service):
     serializer_class = service.get_serializer_class()
 
-    class PartialUpdateRequest(serializer_class):
-        _partial_update_fields = serializers.ListField(child=serializers.CharField())
+    class PartialUpdateMetaClass(serializers.SerializerMetaclass):
+        """
+        todo
+        """
 
+        def __new__(cls, name, bases, attrs):
+            attrs[PARTIAL_UPDATE_FIELD_NAME] = serializers.ListField(
+                child=serializers.CharField()
+            )
+            return super().__new__(cls, name, bases, attrs)
+
+    class PartialUpdateRequest(serializer_class, metaclass=PartialUpdateMetaClass):
         class Meta(serializer_class.Meta):
             ...
 
@@ -264,7 +273,7 @@ def _get_partial_update_request(service):
     if (fields := getattr(PartialUpdateRequest.Meta, "fields", None)) and not isinstance(
         fields, str
     ):
-        PartialUpdateRequest.Meta.fields = (*fields, "_partial_update_fields")
+        PartialUpdateRequest.Meta.fields = (*fields, PARTIAL_UPDATE_FIELD_NAME)
 
     return PartialUpdateRequest
 
@@ -281,7 +290,7 @@ class PartialUpdateModelMixin(GRPCActionMixin):
         """
         Partial update a model instance.
 
-        Performs a partial update on the given `_partial_update_fields`.
+        Performs a partial update on the given PARTIAL_UPDATE_FIELD_NAME(`_partial_update_fields`).
         """
 
         instance = self.get_object()
@@ -479,7 +488,7 @@ class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin):
         """
         Partial update a model instance.
 
-        Performs a partial update on the given `_partial_update_fields`.
+        Performs a partial update on the given PARTIAL_UPDATE_FIELD_NAME(`_partial_update_fields`).
         """
 
         instance = await self.aget_object()

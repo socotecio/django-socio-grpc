@@ -18,7 +18,11 @@ from rest_framework.settings import api_settings
 from rest_framework.utils.formatting import lazy_format
 
 from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
-from django_socio_grpc.utils.constants import DEFAULT_LIST_FIELD_NAME, LIST_ATTR_MESSAGE_NAME
+from django_socio_grpc.utils.constants import (
+    DEFAULT_LIST_FIELD_NAME,
+    LIST_ATTR_MESSAGE_NAME,
+    PARTIAL_UPDATE_FIELD_NAME,
+)
 
 LIST_PROTO_SERIALIZER_KWARGS = (*LIST_SERIALIZER_KWARGS, LIST_ATTR_MESSAGE_NAME, "message")
 
@@ -47,10 +51,31 @@ class BaseProtoSerializer(BaseSerializer):
         """
         todo
         """
+        if self.partial and not hasattr(message, PARTIAL_UPDATE_FIELD_NAME):
+            raise ValidationError(
+                {
+                    PARTIAL_UPDATE_FIELD_NAME: [
+                        f"Field {PARTIAL_UPDATE_FIELD_NAME} not set in message when using partial=True"
+                    ]
+                },
+                code="missing_partial_message_attribute",
+            )
+
         for field in self.fields.values():
             # todo
-            print(field.field_name, message and self.partial and hasattr(message, "_partial_update_fields") and field.field_name not in message._partial_update_fields)
-            if message and self.partial and hasattr(message, "_partial_update_fields") and field.field_name not in message._partial_update_fields:
+            print(
+                field.field_name,
+                message
+                and self.partial
+                and hasattr(message, PARTIAL_UPDATE_FIELD_NAME)
+                and field.field_name not in getattr(message, PARTIAL_UPDATE_FIELD_NAME),
+            )
+            if (
+                message
+                and self.partial
+                and hasattr(message, PARTIAL_UPDATE_FIELD_NAME)
+                and field.field_name not in getattr(message, PARTIAL_UPDATE_FIELD_NAME)
+            ):
                 print("continue")
                 continue
             # todo
@@ -59,7 +84,7 @@ class BaseProtoSerializer(BaseSerializer):
             # todo
             if field.allow_null or field.default in [None, empty] and field.required is True:
                 data_dict[field.field_name] = None
-        print("icicic\n"*5)
+        print("icicic\n" * 5)
         print(message)
         print(data_dict)
         return data_dict

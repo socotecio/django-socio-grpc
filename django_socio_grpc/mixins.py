@@ -269,20 +269,11 @@ class PartialUpdateModelMixin(GRPCActionMixin):
         Performs a partial update on the given `_partial_update_fields`.
         """
 
-        content = message_to_dict(request)
-
-        data = {}
-        for field_name, field_vale in content.items():
-            if field_name not in request._partial_update_fields:
-                data[field_name] = None
-                continue
-            data[field_name] = field_vale
-
         instance = self.get_object()
 
         # INFO - L.G. - 11/07/2022 - We use the data parameter instead of message
         # because we handle a dict not a grpc message.
-        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer = self.get_serializer(instance, message=request, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_partial_update(serializer)
 
@@ -476,21 +467,11 @@ class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin):
         Performs a partial update on the given `_partial_update_fields`.
         """
 
-        content = message_to_dict(request)
-
-        # TODO use the serializer with the partial=True for that
-        data = {}
-        for field_name, field_vale in content.items():
-            if field_name not in request._partial_update_fields:
-                data[field_name] = None
-                continue
-            data[field_name] = field_vale
-
         instance = await self.aget_object()
 
         # INFO - L.G. - 11/07/2022 - We use the data parameter instead of message
         # because we handle a dict not a grpc message.
-        serializer = await self.aget_serializer(instance, data=data, partial=True)
+        serializer = await self.aget_serializer(instance, message=request, partial=True)
         await sync_to_async(serializer.is_valid)(raise_exception=True)
         await self.aperform_partial_update(serializer)
 

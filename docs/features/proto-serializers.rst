@@ -194,30 +194,53 @@ Use Cases
 
 .. _proto-serializers-nullable-fields:
 
-===========================
-Nullable fieds (`optional`)
-===========================
+=============================================================
+Required, Nullable and default values for fields (`optional`)
+=============================================================
 
 In gRPC, all fields have a default value. For example, if you have a field of type `int32` and you don't set a value, the default value will be `0`.
 To know if this field was set (so its value is actually `0`) or not, the field needs to be declared as `optional`
 (see `proto3 <https://protobuf.dev/programming-guides/proto3/#field-labels>`_ documentation).
 
-.. warning::
+To work with this different behavior between REST and gRPC we use the combination of 
+`required <https://www.django-rest-framework.org/api-guide/fields/#required>`_, 
+`allow_null <https://www.django-rest-framework.org/api-guide/fields/#allow_null>`_ and 
+`default <https://www.django-rest-framework.org/api-guide/fields/#default>`_ field parameters to find the adapted behavior.
 
-    There is no way to differentiate between a field that was not set and a field that was set to `None`.
-    Therefore ``{}`` and ``{"field": None}`` will be converted to the same gRPC message.
-    By default, we decided to interpret no presence of a field as ``None`` to have an intuitive way to use nullable fields which
-    are extensively used in Django (``null=True``) and DRF (``allow_null=True``) options.
-    This behavior has an unintended consequence with default values in ``ModelProtoSerializer``, because
-    the value will be `None` instead of being absent.
-    There is an `open issue <https://github.com/socotecio/django-socio-grpc/issues/171>`_ on the subject, with a workaround.
 
 There are multiple ways to have proto fields with ``optional``:
 
-- In ``ProtoSerializer``, you can use ``allow_null=True`` in the field kwargs.
+- In ``ProtoSerializer``, you can use ``allow_null=True``, ``required=False`` or ``default=<xxxx>`` in the field kwargs. Note that default should not be ``None`` or ``rest_framework.fields.empty``. If default is None just set ``allow_null`` to ``True``
 - In ``SerializerMethodField``, you can use the return annotation ``Optional[...]`` or ``... | None`` for Python 3.10+.
 - In ``ModelProtoSerializer``, model fields with ``null=True`` will be converted to ``optional`` fields.
 - In ``GRPCAction`` you can set ``cardinality`` to ``optional`` in the `request` or `response` :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>`.
+
+
+If you want to use the default value of the model field use:
+
+.. code-block:: python
+
+    # you can use any serializers field. BooleanField is only an example
+    is_validated = serializers.BooleanField(required=False)
+
+
+If you want to set ``None`` as field value:
+
+.. code-block:: python
+
+    # you can use any serializers field. Note that required=False will always be false if allow_null=True or blank=True
+    some_field = serializers.CharField(allow_null=True, required=False)
+
+.. warning::
+
+    Be aware than even if the value in DB will be ``None`` the value that you get in response will follow the same gRPC constraints and will be the default value of the field type if using :ref:`grpc-web without BUF<how-to-web>`.
+
+If you want to set a specific default as field value:
+
+.. code-block:: python
+
+    # you can use any serializers field.
+    some_field = serializers.CharField(default="default value")
 
 ==============================
 Read-Only and Write-Only Props
@@ -227,6 +250,7 @@ Read-Only and Write-Only Props
 If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, DSG will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., ``editable=False``).
 
 .. warning::
+
     This setting is deprecated. See :ref:`setting documentation<grpc-settings-separate-read-write-model>` 
 
 

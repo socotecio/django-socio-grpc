@@ -169,6 +169,8 @@ class TestAsyncModelService(TestCase):
 
         instance = await UnitTestModel.objects.aget(id=response.id)
         assert instance.text is None
+        assert instance.some_default_counter == 10
+        assert instance.is_validated is False
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})

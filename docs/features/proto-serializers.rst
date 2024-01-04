@@ -348,8 +348,6 @@ To circumvent this problem, DSG introduces function introspection where we are l
 
     class ExampleSerializer(proto_serializers.ProtoSerializer):
 
-       :TODO: module "serializers" does not exist, please add the correct import
-
         default_method_field = serializers.SerializerMethodField()
         custom_method_field = serializers.SerializerMethodField(method_name="custom_method")
 

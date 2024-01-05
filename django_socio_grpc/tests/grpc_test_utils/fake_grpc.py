@@ -122,7 +122,7 @@ class _BaseFakeContext:
     def _read_server(self):
         print("_BaseFakeContext._read_server")
         return self.stream_pipe_server.get_nowait()
-    
+
     def _read_client(self):
         print("_BaseFakeContext._read_client")
         return self.stream_pipe_server.get_nowait()
@@ -150,6 +150,7 @@ class FakeContext(_BaseFakeContext):
 
 class FakeAsyncContext(_BaseFakeContext):
     timeout_count = 100
+
     async def abort(self, code, details):
         await sync_to_async(super().abort)(code, details)
 
@@ -162,32 +163,32 @@ class FakeAsyncContext(_BaseFakeContext):
     async def _write_server(self, data):
         await sync_to_async(super()._write_server)(data)
 
-    # async def read(self):
-    #     print("FakeAsyncContext.read stream_pipe_client")
-    #     return await self._read(self.stream_pipe_client)
+    async def read_server(self):
+        print("FakeAsyncContext.read_server stream_pipe_server")
+        return await self._read(self.stream_pipe_server)
 
-    # async def _read_client(self):
-    #     print("FakeAsyncContext._read_client stream_pipe_server")
-    #     return await self._read(self.stream_pipe_server)
+    async def read_client(self):
+        print("FakeAsyncContext.read_client stream_pipe_client")
+        return await self._read(self.stream_pipe_client)
 
-    # async def _read(self, pipe, wait=True):
-    #     print("FakeAsyncContext._read")
-    #     count = 0
-    #     while True:
-    #         if count > self.timeout_count:
-    #             raise TimeoutError(
-    #                 "Context read timeout, please make sure you are correctly "
-    #                 "closing your stream with `stream_call.done_writing()`"
-    #             )
-    #         try:
-    #             await asyncio.sleep(0.1)
-    #             print("FakeAsyncContext._read loop")
-    #             return pipe.get_nowait()
-    #         except queue.Empty as e:
-    #             if wait:
-    #                 count += 1
-    #             else:
-    #                 raise e
+    async def _read(self, pipe, wait=True):
+        print("FakeAsyncContext._read")
+        count = 0
+        while True:
+            if count > self.timeout_count:
+                raise TimeoutError(
+                    "Context read timeout, please make sure you are correctly "
+                    "closing your stream with `stream_call.done_writing()`"
+                )
+            try:
+                await asyncio.sleep(0.1)
+                print("FakeAsyncContext._read loop")
+                return pipe.get_nowait()
+            except queue.Empty as e:
+                if wait:
+                    count += 1
+                else:
+                    raise e
 
 
 class FakeChannel:
@@ -359,50 +360,12 @@ class FakeFullAioCall(FakeBaseCall):
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
         async def wrapped(*args, **kwargs):
-            print("wrapped")
-
-            # async def read_initial_message():
-            #     if inspect.isasyncgen(self._request):
-            #         print("wrapped.isasyncgen", self._request)
-            #         # print("test: ", await self._request.__anext__())
-            #         # message = None
-            #         try:
-            #             async with asyncio.timeout(1):
-            #                 async for message in self._request:
-            #                     print("wrapped.isasyncgen message: ", message)
-            #                     await self.write(message)
-            #                     print("wrapped.isasyncgen after write")
-            #             # while message != grpc.aio.EOF:
-            #                 # print("before read: ", message)
-            #                 # message = await self._request.__anext__()
-            #                 # print("after read: ", message)
-            #                 # await self.write(message)
-            #                 # await asyncio.sleep(0.1)
-            #                 # return pipe.get_nowait()
-            #         except Exception as e:
-            #             print("read all intial incoming message", e)
-            #             pass 
-                        
-            #         # async for message in self._request:
-            #         #     print("wrapped.isasyncgen message: ", message)
-            #         #     await self.write(message)
-            #         #     print("wrapped.isasyncgen after write")
-            #         # print("wrapped.isasyncgen after iterator")
-            #         self._request = FakeMessageReceiver(self._context)
-            #     elif inspect.isgenerator(self._request):
-            #         print("wrapped.isgenerator")
-            #         for message in self._request:
-            #             await self.write(message)
-            #         self._request = FakeMessageReceiver(self._context)
             print("before real_method")
             method = self._real_method(request=self._request, context=self._context)
-            # await asyncio.sleep(3)
             try:
                 if inspect.isasyncgen(method):
-                    print("response stream isasyncgen")
                     async for response in method:
                         await self._context._write_server(response)
-                    print("response stream grpc.aio.EOF")
                     await self._context._write_server(grpc.aio.EOF)
                     return
                 else:
@@ -453,9 +416,12 @@ class StreamRequestMixin:
         print("__call__", request)
         # if request is not None:
         #     raise ValueError("request must be None for stream calls")
-        
+
         # return super().__call__(request=self, metadata=metadata)
-        return super().__call__(request=FakeMessageReceiver(request=request, context=self._context), metadata=metadata)
+        return super().__call__(
+            request=FakeMessageReceiver(request=request, context=self._context),
+            metadata=metadata,
+        )
 
     async def write(self, data):
         if self._is_done_writing:
@@ -473,31 +439,11 @@ class StreamResponseMixin:
 
     def __aiter__(self):
         return self
-    
-
-    async def _read_server(self, wait=True):
-        print("StreamResponseMixin._read")
-        count = 0
-        while True:
-            if count > self.timeout_count:
-                raise TimeoutError(
-                    "Context read timeout, please make sure you are correctly "
-                    "closing your stream with `stream_call.done_writing()`"
-                )
-            try:
-                await asyncio.sleep(0.1)
-                print("StreamResponseMixin._read loop")
-                return self._context.stream_pipe_server.get_nowait()
-            except queue.Empty as e:
-                if wait:
-                    count += 1
-                else:
-                    raise e
 
     async def __anext__(self):
         print("StreamResponseMixin.__anext__")
 
-        response = await self._read_server()
+        response = await self._context.read_server()
         print("StreamResponseMixin.__anext__2")
         if isinstance(response, Exception):
             raise response
@@ -507,7 +453,7 @@ class StreamResponseMixin:
 
     async def read(self):
         print("StreamResponseMixin read")
-        return await self._read_server()
+        return await self._context._read_server()
         # message = await self._context._read_server()
         # return message
 
@@ -538,6 +484,7 @@ class FakeMessageReceiver:
     """
     From `grpc._cython.cygrpc._MessageReceiver`
     """
+
     timeout_count = 40
 
     def __init__(self, request, context):
@@ -554,43 +501,19 @@ class FakeMessageReceiver:
             async for message in self._request:
                 print("FakeMessageReceiver.async_context_populater message: ", message)
                 await self.write_client(message)
-            
+
             await self.write_client(grpc.aio.EOF)
             print("ICICIIICICIICICI")
-        
+
         elif inspect.isgenerator(self._request):
             print("FakeMessageReceiver.async_context_populater.isgenerator")
             for message in self._request:
                 await self.write_client(message)
 
+            await self.write_client(grpc.aio.EOF)
+        else:
+            await self.write_client(self._request)
 
-    # async def _async_message_receiver(self, wait=True):
-    #     """An async generator that receives messages."""
-    #     populater_task = asyncio.create_task(self.async_context_populater())
-    #     # INFO - AM - 05/01/1996 - to let time for async_context_populater to run 
-
-    #     count = 0
-    #     while True:
-    #         if count > self.timeout_count:
-    #             raise TimeoutError(
-    #                 "Context read timeout, please make sure you are correctly "
-    #                 "closing your stream with `stream_call.done_writing()`"
-    #             )
-    #         try:
-    #             await asyncio.sleep(0.1)
-    #             print("FakeMessageReceiver._async_message_receiver loop")
-    #             message =  self._servicer_context.stream_pipe_client.get_nowait()
-    #             print("FakeMessageReceiver._async_message_receiver message: ", message)
-
-    #             if message == grpc.aio.EOF:
-    #                 raise StopIteration
-    #             yield message
-    #         except queue.Empty as e:
-    #             if wait:
-    #                 count += 1
-    #             else:
-    #                 raise e
-    
     async def write_server(self, data):
         if self._is_done_writing:
             raise ValueError("write() is called after done_writing()")
@@ -609,35 +532,12 @@ class FakeMessageReceiver:
     def __aiter__(self):
         print("FakeMessageReceiver.__aiter__")
 
-        populater_task = asyncio.create_task(self.async_context_populater())
-        # Prevents never awaited warning if application never used the async generator
-        # if self._agen is None:
-        #     self._agen = self._async_message_receiver()
-        # return self._agen
+        asyncio.create_task(self.async_context_populater())
         return self
-    
-    async def read_client(self):
-        count = 0
-        while True:
-            if count > self.timeout_count:
-                raise TimeoutError(
-                    "Context read timeout, please make sure you are correctly "
-                    "closing your stream with `stream_call.done_writing()`"
-                )
-            try:
-                await asyncio.sleep(0.1)
-                print("FakeMessageReceiver.read_client loop")
-                message =  self._servicer_context.stream_pipe_client.get_nowait()
-                print("FakeMessageReceiver.read_client message: ", message)
-
-                return message
-            except queue.Empty as e:
-                count += 1
-
 
     async def __anext__(self):
         print("FakeMessageReceiver.__anext__")
-        message = await self.read_client()
+        message = await self._servicer_context.read_client()
         print("FakeMessageReceiver.__anext__ message: ", message)
         if isinstance(message, Exception):
             raise message

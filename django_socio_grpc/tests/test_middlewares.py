@@ -55,14 +55,14 @@ class TestMiddleware(TestCase):
 
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
-        stream_caller = grpc_stub.StreamToStream()
-        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="a"))
+        def generate_requests():
+            yield fakeapp_pb2.StreamInStreamToStreamRequest(name="a")
 
-        response1 = await stream_caller.read()
+        # stream_caller = grpc_stub.StreamToStream(generate_requests())
 
-        self.assertEqual(response1.name, "aResponse")
+        async for response in grpc_stub.StreamToStream(generate_requests()):
+            self.assertEqual(response.name, "aResponse")
 
-        await stream_caller.done_writing()
         FakeMiddleware.inner_fn.assert_called_once()
 
     async def test_middleware_called_return(self):

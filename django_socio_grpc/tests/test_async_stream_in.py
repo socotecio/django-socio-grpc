@@ -1,3 +1,6 @@
+import asyncio
+
+import grpc
 from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
@@ -8,9 +11,7 @@ from grpc import RpcError
 
 from django_socio_grpc.tests.fakeapp.services.stream_in_service import StreamInService
 
-from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC, FakeAsyncContext
-import grpc
-import asyncio
+from .grpc_test_utils.fake_grpc import FakeAsyncContext, FakeFullAIOGRPC
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
@@ -36,7 +37,6 @@ class TestAsyncStreamIn(TestCase):
         assert response.count == 3
 
     async def test_async_stream_in_async_gen(self):
-
         queue = asyncio.Queue()
 
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
@@ -46,7 +46,7 @@ class TestAsyncStreamIn(TestCase):
             while message != grpc.aio.EOF:
                 message = await queue.get()
                 yield message
-        
+
         await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="a"))
         await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="b"))
         await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="c"))
@@ -63,17 +63,19 @@ class TestAsyncStreamIn(TestCase):
 
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
-        def generate_requests():
+        async def generate_requests():
             for name in ["a", "b", "c"]:
                 yield fakeapp_pb2.StreamInStreamInRequest(name=name)
 
+            await asyncio.sleep(3)
+            yield fakeapp_pb2.StreamInStreamInRequest(name="too late")
+
         with self.assertRaisesMessage(RpcError, "TimeoutError"):
             await grpc_stub.StreamIn(generate_requests())
-        
+
         FakeAsyncContext.timeout_count = old_timeout_count
 
     async def test_async_stream_stream(self):
-
         FakeAsyncContext.timeout_count = 20
 
         queue = asyncio.Queue()
@@ -86,13 +88,11 @@ class TestAsyncStreamIn(TestCase):
                 if message == grpc.aio.EOF:
                     break
                 yield message
-        
+
         await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="a"))
-        # await queue.put(grpc.aio.EOF)
 
         counter = 1
         async for message in grpc_stub.StreamToStream(generate_requests()):
-            print("counter: ", counter, message)
             if counter == 1:
                 self.assertEqual(message.name, "aResponse")
                 await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="b"))
@@ -106,7 +106,5 @@ class TestAsyncStreamIn(TestCase):
                 self.assertEqual(message.name, "cResponse")
                 await queue.put(grpc.aio.EOF)
                 counter += 1
-        print("finish message in client")
 
         self.assertEqual(counter, 4)
-

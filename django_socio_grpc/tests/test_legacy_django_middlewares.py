@@ -53,14 +53,11 @@ class TestLegacyDjangoMiddleware(TestCase):
 
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
-        stream_caller = grpc_stub.StreamToStream()
-        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="a"))
+        def generate_requests():
+            yield fakeapp_pb2.StreamInStreamToStreamRequest(name="a")
 
-        response1 = await stream_caller.read()
-
-        self.assertEqual(response1.name, "aResponse")
-
-        await stream_caller.done_writing()
+        async for response in grpc_stub.StreamToStream(generate_requests()):
+            self.assertEqual(response.name, "aResponse")
 
     async def test_middleware_return(self):
         """

@@ -429,7 +429,7 @@ class AsyncStreamModelMixin(StreamModelMixin):
         """
         messages = await self._get_list_data()
         for message in messages:
-            await context.write(message)
+            yield message
 
 
 class AsyncRetrieveModelMixin(RetrieveModelMixin):

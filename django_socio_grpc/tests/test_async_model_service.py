@@ -98,15 +98,8 @@ class TestAsyncModelService(TestCase):
         request = fakeapp_pb2.UnitTestModelStreamRequest()
 
         response_list = []
-        stream = grpc_stub.Stream(request=request)
-
-        import grpc
-
-        while True:
-            result = await stream.read()
-            if result == grpc.aio.EOF:
-                break
-            response_list.append(result)
+        async for response in grpc_stub.Stream(request=request):
+            response_list.append(response)
 
         self.assertEqual(len(response_list), 10)
 

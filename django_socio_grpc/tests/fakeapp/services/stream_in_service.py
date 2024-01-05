@@ -27,8 +27,6 @@ class StreamInService(generics.GenericService):
         response_stream=True,
     )
     async def StreamToStream(self, request, context):
-        import asyncio
-        print("StreamToStream before async gen")
         async for message in request:
             print("receive in server: ", message)
             name = message.name

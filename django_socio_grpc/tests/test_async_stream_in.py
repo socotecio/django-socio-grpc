@@ -9,6 +9,7 @@ from grpc import RpcError
 from django_socio_grpc.tests.fakeapp.services.stream_in_service import StreamInService
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
+import grpc
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
@@ -24,16 +25,17 @@ class TestAsyncStreamIn(TestCase):
     async def test_async_stream_in(self):
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
-        stream_caller = grpc_stub.StreamIn()
+        def generate_requests():
+            for name in ["a", "b", "c"]:
+                yield fakeapp_pb2.StreamInStreamInRequest(name=name)
+            yield grpc.aio.EOF
 
-        for name in ["a", "b", "c"]:
-            request = fakeapp_pb2.StreamInStreamInRequest(name=name)
-            await stream_caller.write(request)
+        response = await grpc_stub.StreamIn(generate_requests())
 
-        await stream_caller.done_writing()
-        response = await stream_caller
+        print(response)
 
         assert response.count == 3
+        assert False
 
     async def test_stream_raises_timeout_error(self):
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)

@@ -324,6 +324,7 @@ class FakeFullAioCall(FakeBaseCall):
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
     def __call__(self, request=None, metadata=None):
+        print("FakeFullAioCall __call__")
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
         if request is not None:
             self._request = request
@@ -332,6 +333,16 @@ class FakeFullAioCall(FakeBaseCall):
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
         async def wrapped(*args, **kwargs):
+            print("wrapped")
+            if inspect.isasyncgen(self._request):
+                print("wrapped.isasyncgen")
+                async for message in self._request:
+                    await self.write(message)
+            elif inspect.isgenerator(self._request):
+                print("wrapped.isgenerator")
+                for message in self._request:
+                    await self.write(message)
+            self._request = FakeMessageReceiver(self._context)
             method = self._real_method(request=self._request, context=self._context)
             try:
                 if inspect.isasyncgen(method):
@@ -367,11 +378,29 @@ class UnaryResponseMixin:
 
 class StreamRequestMixin:
     _is_done_writing = False
+    request = None
+
+    # def __aiter__(self):
+    #     return self
+
+    # async def __anext__(self):
+    #     print("StreamRequestMixin.__anext__")
+    #     print(self.request)
+    #     print(self._context)
+    #     for message in self.request:
+    #         print(message)
+    #         yield message
 
     def __call__(self, request=None, metadata=None):
-        if request is not None:
-            raise ValueError("request must be None for stream calls")
-        return super().__call__(request=FakeMessageReceiver(self._context), metadata=metadata)
+        # self.request = request
+        # for message in request:
+        #     await self.write(message)
+        print("__call__", request)
+        # if request is not None:
+        #     raise ValueError("request must be None for stream calls")
+        
+        # return super().__call__(request=self, metadata=metadata)
+        return super().__call__(request=request, metadata=metadata)
 
     async def write(self, data):
         if self._is_done_writing:
@@ -389,6 +418,7 @@ class StreamResponseMixin:
         return self
 
     async def __anext__(self):
+        print("StreamResponseMixin.__anext__")
         response = await self.read()
         if isinstance(response, Exception):
             raise response

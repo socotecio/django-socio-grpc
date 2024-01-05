@@ -81,9 +81,10 @@ class TestAsyncStreamIn(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
         async def generate_requests():
-            message = None
-            while message != grpc.aio.EOF:
+            while True:
                 message = await queue.get()
+                if message == grpc.aio.EOF:
+                    break
                 yield message
         
         await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="a"))
@@ -99,17 +100,13 @@ class TestAsyncStreamIn(TestCase):
                 counter += 1
             elif counter == 2:
                 self.assertEqual(message.name, "bResponse")
-                await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="b"))
-                counter += 1
-            elif counter == 3:
-                self.assertEqual(message.name, "cResponse")
                 await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="c"))
                 counter += 1
-            elif counter == 4:
+            elif counter == 3:
                 self.assertEqual(message.name, "cResponse")
                 await queue.put(grpc.aio.EOF)
                 counter += 1
         print("finish message in client")
 
-        self.assertEqual(counter, 5)
+        self.assertEqual(counter, 4)
 

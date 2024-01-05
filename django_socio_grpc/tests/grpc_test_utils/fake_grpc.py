@@ -101,15 +101,19 @@ class _BaseFakeContext:
         return self._invocation_metadata
 
     def write(self, data):
+        print("_BaseFakeContext.write")
         self.stream_pipe_server.put(data)
 
     def _write_client(self, data):
+        print("_BaseFakeContext._write_client")
         self.stream_pipe_client.put(data)
 
     def read(self):
+        print("_BaseFakeContext.read")
         return self.stream_pipe_client.get_nowait()
 
     def _read_client(self):
+        print("_BaseFakeContext._read_client")
         return self.stream_pipe_server.get_nowait()
 
     def code(self):
@@ -134,6 +138,7 @@ class FakeContext(_BaseFakeContext):
 
 
 class FakeAsyncContext(_BaseFakeContext):
+    timeout_count = 100
     async def abort(self, code, details):
         await sync_to_async(super().abort)(code, details)
 
@@ -144,24 +149,31 @@ class FakeAsyncContext(_BaseFakeContext):
         await sync_to_async(super()._write_client)(data)
 
     async def read(self):
+        print("FakeAsyncContext.read stream_pipe_client")
         return await self._read(self.stream_pipe_client)
 
     async def _read_client(self):
+        print("FakeAsyncContext._read_client stream_pipe_server")
         return await self._read(self.stream_pipe_server)
 
-    async def _read(self, pipe):
+    async def _read(self, pipe, wait=True):
+        print("FakeAsyncContext._read")
         count = 0
         while True:
-            if count > 100:
+            if count > self.timeout_count:
                 raise TimeoutError(
                     "Context read timeout, please make sure you are correctly "
                     "closing your stream with `stream_call.done_writing()`"
                 )
             try:
                 await asyncio.sleep(0.1)
+                print("FakeAsyncContext._read loop")
                 return pipe.get_nowait()
-            except queue.Empty:
-                count += 1
+            except queue.Empty as e:
+                if wait:
+                    count += 1
+                else:
+                    raise e
 
 
 class FakeChannel:
@@ -331,32 +343,62 @@ class FakeFullAioCall(FakeBaseCall):
         if metadata is not None:
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+        
+        print(asyncio.timeout)
 
         async def wrapped(*args, **kwargs):
             print("wrapped")
-            if inspect.isasyncgen(self._request):
-                print("wrapped.isasyncgen")
-                async for message in self._request:
-                    await self.write(message)
-            elif inspect.isgenerator(self._request):
-                print("wrapped.isgenerator")
-                for message in self._request:
-                    await self.write(message)
-            self._request = FakeMessageReceiver(self._context)
+
+            async def read_initial_message():
+                if inspect.isasyncgen(self._request):
+                    print("wrapped.isasyncgen", self._request)
+                    # print("test: ", await self._request.__anext__())
+                    # message = None
+                    try:
+                        async with asyncio.timeout(1):
+                            async for message in self._request:
+                                print("wrapped.isasyncgen message: ", message)
+                                await self.write(message)
+                                print("wrapped.isasyncgen after write")
+                        # while message != grpc.aio.EOF:
+                            # print("before read: ", message)
+                            # message = await self._request.__anext__()
+                            # print("after read: ", message)
+                            # await self.write(message)
+                            # await asyncio.sleep(0.1)
+                            # return pipe.get_nowait()
+                    except Exception as e:
+                        print("read all intial incoming message", e)
+                        pass 
+                        
+                    # async for message in self._request:
+                    #     print("wrapped.isasyncgen message: ", message)
+                    #     await self.write(message)
+                    #     print("wrapped.isasyncgen after write")
+                    # print("wrapped.isasyncgen after iterator")
+                    self._request = FakeMessageReceiver(self._context)
+                elif inspect.isgenerator(self._request):
+                    print("wrapped.isgenerator")
+                    for message in self._request:
+                        await self.write(message)
+                    self._request = FakeMessageReceiver(self._context)
+            print("before real_method")
             method = self._real_method(request=self._request, context=self._context)
             try:
                 if inspect.isasyncgen(method):
+                    print("response stream isasyncgen")
                     async for response in method:
-                        await self._context.write(response)
-                    await self._context.write(grpc.aio.EOF)
+                        await self._context._write_client(response)
+                    print("response stream grpc.aio.EOF")
+                    await self._context._write_client(grpc.aio.EOF)
                     return
                 else:
                     response = await method
-                    await self._context.write(grpc.aio.EOF)
+                    await self._context._write_client(grpc.aio.EOF)
                     return response
             except Exception as e:
                 # INFO - AM - 31/01/2023 - Need to write exception to context to have the exception raised in read client for stream response. This has no effect for unary response
-                await self._context.write(e)
+                await self._context._write_client(e)
                 # INFO - AM - 31/01/2023 - Return are for unary response
                 return e
 
@@ -419,7 +461,9 @@ class StreamResponseMixin:
 
     async def __anext__(self):
         print("StreamResponseMixin.__anext__")
+
         response = await self.read()
+        print("StreamResponseMixin.__anext__2")
         if isinstance(response, Exception):
             raise response
         if response == grpc.aio.EOF:
@@ -427,7 +471,9 @@ class StreamResponseMixin:
         return response
 
     async def read(self):
-        return await self._context._read_client()
+        message = await self._context._read_client()
+        print("StreamResponseMixin", message)
+        return message
 
 
 class FakeFullAioStreamUnaryCall(
@@ -463,8 +509,11 @@ class FakeMessageReceiver:
 
     async def _async_message_receiver(self):
         """An async generator that receives messages."""
+        print("FakeMessageReceiver._async_message_receiver")
         while True:
+            print("FakeMessageReceiver before read ")
             message = await self._servicer_context.read()
+            print("FakeMessageReceiver after read ")
             if message is not grpc.aio.EOF:
                 yield message
             else:
@@ -477,6 +526,7 @@ class FakeMessageReceiver:
         return self._agen
 
     async def __anext__(self):
+        print("FakeMessageReceiver.__anext__")
         return await self.__aiter__().__anext__()
 
 

@@ -8,8 +8,9 @@ from grpc import RpcError
 
 from django_socio_grpc.tests.fakeapp.services.stream_in_service import StreamInService
 
-from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
+from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC, FakeAsyncContext
 import grpc
+import asyncio
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
@@ -32,41 +33,83 @@ class TestAsyncStreamIn(TestCase):
 
         response = await grpc_stub.StreamIn(generate_requests())
 
-        print(response)
+        assert response.count == 3
+
+    async def test_async_stream_in_async_gen(self):
+
+        queue = asyncio.Queue()
+
+        grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
+
+        async def generate_requests():
+            message = None
+            while message != grpc.aio.EOF:
+                message = await queue.get()
+                yield message
+        
+        await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="a"))
+        await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="b"))
+        await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="c"))
+        await queue.put(grpc.aio.EOF)
+
+        response = await grpc_stub.StreamIn(generate_requests())
 
         assert response.count == 3
-        assert False
 
     async def test_stream_raises_timeout_error(self):
+        # INFO - AM - 05/01/2024 - Speed up the timeout for this test
+        old_timeout_count = FakeAsyncContext.timeout_count
+        FakeAsyncContext.timeout_count = 10
+
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
-        stream_caller = grpc_stub.StreamIn()
-
-        for name in ["a", "b", "c"]:
-            request = fakeapp_pb2.StreamInStreamInRequest(name=name)
-            await stream_caller.write(request)
+        def generate_requests():
+            for name in ["a", "b", "c"]:
+                yield fakeapp_pb2.StreamInStreamInRequest(name=name)
 
         with self.assertRaisesMessage(RpcError, "TimeoutError"):
-            await stream_caller
+            await grpc_stub.StreamIn(generate_requests())
+        
+        FakeAsyncContext.timeout_count = old_timeout_count
 
     async def test_async_stream_stream(self):
+
+        FakeAsyncContext.timeout_count = 20
+
+        queue = asyncio.Queue()
+
         grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
 
-        stream_caller = grpc_stub.StreamToStream()
+        async def generate_requests():
+            message = None
+            while message != grpc.aio.EOF:
+                message = await queue.get()
+                yield message
+        
+        await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="a"))
+        # await queue.put(grpc.aio.EOF)
 
-        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="a"))
-        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="b"))
+        counter = 1
+        async for message in grpc_stub.StreamToStream(generate_requests()):
+            print("counter: ", counter, message)
+            if counter == 1:
+                self.assertEqual(message.name, "aResponse")
+                await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="b"))
+                # await asyncio.sleep(2)
+                counter += 1
+            elif counter == 2:
+                self.assertEqual(message.name, "bResponse")
+                await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="b"))
+                counter += 1
+            elif counter == 3:
+                self.assertEqual(message.name, "cResponse")
+                await queue.put(fakeapp_pb2.StreamInStreamInRequest(name="c"))
+                counter += 1
+            elif counter == 4:
+                self.assertEqual(message.name, "cResponse")
+                await queue.put(grpc.aio.EOF)
+                counter += 1
+        print("finish message in client")
 
-        response1 = await stream_caller.read()
+        self.assertEqual(counter, 5)
 
-        self.assertEqual(response1.name, "aResponse")
-
-        await stream_caller.write(fakeapp_pb2.StreamInStreamToStreamRequest(name="c"))
-
-        response2 = await stream_caller.read()
-        response3 = await stream_caller.read()
-
-        self.assertEqual(response2.name, "bResponse")
-        self.assertEqual(response3.name, "cResponse")
-
-        await stream_caller.done_writing()

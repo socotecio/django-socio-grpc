@@ -28,13 +28,9 @@ class StreamInService(generics.GenericService):
     )
     async def StreamToStream(self, request, context):
         async for message in request:
-            print("receive in server: ", message)
             name = message.name
             if name == "abort":
                 raise NotFound()
             yield fakeapp_pb2.StreamInStreamToStreamResponse(name=f"{name}Response")
             if name == "finish":
-                print("messages name in server is finish")
                 break
-            # await asyncio.sleep(2)
-        print("finish messages in server")

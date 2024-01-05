@@ -6,7 +6,6 @@ import asyncio
 import inspect
 import queue
 import socket
-from collections.abc import Iterable
 
 import grpc
 from asgiref.sync import async_to_sync, sync_to_async
@@ -55,24 +54,13 @@ class _InactiveRpcError(grpc.RpcError):
 
 
 class _BaseFakeContext:
-    def __init__(self, stream_pipe=None, auto_eof=True):
+    def __init__(self):
         # INFO - FB - 11/10/2022 - When you run Stream to Stream, you have to write on different Queue
         # The stream_pip_client,  in which client writes requests and reads by the server
         self.stream_pipe_client = queue.Queue()
 
         # The stream_pipe_server, in which server writes responses and reads by the client
         self.stream_pipe_server = queue.Queue()
-        if stream_pipe is None:
-            pass
-        elif not isinstance(stream_pipe, Iterable):
-            raise Exception("FakeContext stream pipe must be an iterable")
-        else:
-            for item in stream_pipe:
-                print("_BaseFakeContext stream_pipe_server put")
-                self.stream_pipe_server.put(item)
-        if stream_pipe is not None and auto_eof:
-            print("_BaseFakeContext auto eof")
-            self.stream_pipe_server.put(grpc.aio.EOF)
 
         self._invocation_metadata = []
         self._code = grpc.StatusCode.OK
@@ -104,27 +92,20 @@ class _BaseFakeContext:
 
     def write(self, data):
         self._write_server(data)
-        # print("_BaseFakeContext.write")
-        # self.stream_pipe_server.put(data)
 
     def _write_server(self, data):
-        print("_BaseFakeContext._write_server")
         self.stream_pipe_server.put(data)
 
     def _write_client(self, data):
-        print("_BaseFakeContext._write_client")
         self.stream_pipe_client.put(data)
 
     def read(self):
-        print("_BaseFakeContext.read")
         return self._read_client()
 
     def _read_server(self):
-        print("_BaseFakeContext._read_server")
         return self.stream_pipe_server.get_nowait()
 
     def _read_client(self):
-        print("_BaseFakeContext._read_client")
         return self.stream_pipe_server.get_nowait()
 
     def code(self):
@@ -164,15 +145,12 @@ class FakeAsyncContext(_BaseFakeContext):
         await sync_to_async(super()._write_server)(data)
 
     async def read_server(self):
-        print("FakeAsyncContext.read_server stream_pipe_server")
         return await self._read(self.stream_pipe_server)
 
     async def read_client(self):
-        print("FakeAsyncContext.read_client stream_pipe_client")
         return await self._read(self.stream_pipe_client)
 
     async def _read(self, pipe, wait=True):
-        print("FakeAsyncContext._read")
         count = 0
         while True:
             if count > self.timeout_count:
@@ -182,7 +160,6 @@ class FakeAsyncContext(_BaseFakeContext):
                 )
             try:
                 await asyncio.sleep(0.1)
-                print("FakeAsyncContext._read loop")
                 return pipe.get_nowait()
             except queue.Empty as e:
                 if wait:
@@ -321,7 +298,7 @@ class FakeAioCall(FakeBaseCall):
         if metadata is not None:
             self._metadata = metadata
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
-        # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
+        # INFO - AM - 18/02/2022 - Use FakeFullAioCall for stream testing
         self.method_awaitable = self._real_method(request=self._request, context=self._context)
         return self
 
@@ -351,7 +328,6 @@ class FakeFullAioCall(FakeBaseCall):
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
     def __call__(self, request=None, metadata=None):
-        print("FakeFullAioCall __call__")
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
         if request is not None:
             self._request = request
@@ -360,7 +336,6 @@ class FakeFullAioCall(FakeBaseCall):
             self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
         async def wrapped(*args, **kwargs):
-            print("before real_method")
             method = self._real_method(request=self._request, context=self._context)
             try:
                 if inspect.isasyncgen(method):
@@ -378,7 +353,6 @@ class FakeFullAioCall(FakeBaseCall):
                 # INFO - AM - 31/01/2023 - Return are for unary response
                 return e
 
-        # TODO - AM - 18/02/2022 - Need to launch _real_method in a separate thread to be able to work with stream stream object
         self.method_awaitable = asyncio.create_task(
             wrapped(request=self._request, context=self._context)
         )
@@ -398,26 +372,8 @@ class StreamRequestMixin:
     _is_done_writing = False
     request = None
 
-    # def __aiter__(self):
-    #     return self
-
-    # async def __anext__(self):
-    #     print("StreamRequestMixin.__anext__")
-    #     print(self.request)
-    #     print(self._context)
-    #     for message in self.request:
-    #         print(message)
-    #         yield message
-
     def __call__(self, request=None, metadata=None):
-        # self.request = request
-        # for message in request:
-        #     await self.write(message)
         print("__call__", request)
-        # if request is not None:
-        #     raise ValueError("request must be None for stream calls")
-
-        # return super().__call__(request=self, metadata=metadata)
         return super().__call__(
             request=FakeMessageReceiver(request=request, context=self._context),
             metadata=metadata,
@@ -435,16 +391,12 @@ class StreamRequestMixin:
 
 
 class StreamResponseMixin:
-    timeout_count = 30
-
     def __aiter__(self):
         return self
 
     async def __anext__(self):
-        print("StreamResponseMixin.__anext__")
-
+        # INFO - AM - 05/01/2024 - do not use self.read here. Don't know why (mostly because of mixed inheritance and read client instead of server pipe) but it break everything
         response = await self._context.read_server()
-        print("StreamResponseMixin.__anext__2")
         if isinstance(response, Exception):
             raise response
         if response == grpc.aio.EOF:
@@ -452,10 +404,7 @@ class StreamResponseMixin:
         return response
 
     async def read(self):
-        print("StreamResponseMixin read")
         return await self._context._read_server()
-        # message = await self._context._read_server()
-        # return message
 
 
 class FakeFullAioStreamUnaryCall(
@@ -483,9 +432,9 @@ class FakeFullAioUnaryUnaryCall(FakeFullAioCall, UnaryResponseMixin, grpc.aio.Un
 class FakeMessageReceiver:
     """
     From `grpc._cython.cygrpc._MessageReceiver`
+    This allow to transform the request in a stream request that is a generator
+    into an other generator that read the first one in an other thread to not block the thread when using stream to stream
     """
-
-    timeout_count = 40
 
     def __init__(self, request, context):
         self._request = request
@@ -494,30 +443,23 @@ class FakeMessageReceiver:
         self._is_done_writing = False
 
     async def async_context_populater(self):
-        print("FakeMessageReceiver.async_context_populater")
-
+        """
+        This method will be launched in an other loop to be able to populate the stream client pipe without blocking the main thread
+        If the request is a generator it will also write grpc.aio.EOF to let the test finish correctly
+        """
         if inspect.isasyncgen(self._request):
-            print("FakeMessageReceiver.async_context_populater.isasyncgen")
             async for message in self._request:
-                print("FakeMessageReceiver.async_context_populater message: ", message)
                 await self.write_client(message)
 
             await self.write_client(grpc.aio.EOF)
-            print("ICICIIICICIICICI")
 
         elif inspect.isgenerator(self._request):
-            print("FakeMessageReceiver.async_context_populater.isgenerator")
             for message in self._request:
                 await self.write_client(message)
 
             await self.write_client(grpc.aio.EOF)
         else:
             await self.write_client(self._request)
-
-    async def write_server(self, data):
-        if self._is_done_writing:
-            raise ValueError("write() is called after done_writing()")
-        await self._servicer_context._write_server(data)
 
     async def write_client(self, data):
         if self._is_done_writing:
@@ -530,15 +472,15 @@ class FakeMessageReceiver:
             self._is_done_writing = True
 
     def __aiter__(self):
-        print("FakeMessageReceiver.__aiter__")
-
+        # INFO - AM - 05/01/2024 - launch the read of the client stream in an other thread
         asyncio.create_task(self.async_context_populater())
         return self
 
     async def __anext__(self):
-        print("FakeMessageReceiver.__anext__")
+        # INFO - AM - 05/01/2024 - this will read what client writed in the client pipe and let server read it when using generator over the FakeMessageReceiver
+        if self._is_done_writing:
+            raise ValueError("write() is called after done_writing()")
         message = await self._servicer_context.read_client()
-        print("FakeMessageReceiver.__anext__ message: ", message)
         if isinstance(message, Exception):
             raise message
         if message == grpc.aio.EOF:

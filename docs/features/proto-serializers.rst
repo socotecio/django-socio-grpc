@@ -233,7 +233,7 @@ If you want to set ``None`` as field value:
 
 .. warning::
 
-    Be aware than even if the value in DB will be ``None`` the value that you get in response will follow the same gRPC constraints and will be the default value of the field type if using :ref:`grpc-web without BUF<how-to-web>`.
+    In a JS environment, when using :ref:`Google official JS protobuf compiler<how-to-web>`, optional fields without presence (when the value has not been set) will always return their default value instead of undefined/null.
 
 If you want to set a specific default as field value:
 

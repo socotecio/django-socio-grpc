@@ -239,11 +239,11 @@ def _get_partial_update_request(service):
 
     class PartialUpdateMetaClass(serializers.SerializerMetaclass):
         """
-        this metaclass just exist so we can set the PARTIAL_UPDATE_FIELD_NAME variable as an attribute name of PartialUpdateRequest.
+        This metaclass exists so we can set the PARTIAL_UPDATE_FIELD_NAME variable as an attribute name of PartialUpdateRequest.
         This can be replaced by just declaring in PartialUpdateRequest:
         _partial_update_fields = serializers.ListField(child=serializers.CharField())
-        but this would not be dynamic if constante change or if we want it to be configurable in settings in the futur
-        This metaclass should inherit from DRF SerializerMetaclass as serializer has it's own metaclass to add _declared_fields attibute
+        but this would not be dynamic if a constant changes or if we want it to be configurable in settings in the future.
+        This metaclass should inherit from DRF SerializerMetaclass as serializer has it's own metaclass to add _declared_fields attribute
         Using PartialUpdateRequest.setattr is not enough as _declared_fields is done in metaclass so all fields should be declared before
         """
 

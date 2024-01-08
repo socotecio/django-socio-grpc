@@ -83,6 +83,20 @@ class TestAsyncModelService(TestCase):
         self.assertEqual(response.some_default_counter, 10)
         self.assertEqual(response.is_validated, False)
 
+    
+    async def test_async_update_with_default_value(self):
+        unit_id = (await sync_to_async(UnitTestModel.objects.first)()).id
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+        request = fakeapp_pb2.UnitTestModelRequest(
+            id=unit_id, title="", text="newText", is_validated=False, some_default_counter=0
+        )
+        response = await grpc_stub.Update(request=request)
+
+        self.assertEqual(response.title, "")
+        self.assertEqual(response.text, "newText")
+        self.assertEqual(response.some_default_counter, 0)
+        self.assertEqual(response.is_validated, False)
+
     async def test_async_destroy(self):
         unit_id = (await sync_to_async(UnitTestModel.objects.first)()).id
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)

@@ -42,10 +42,10 @@ class BaseProtoSerializer(BaseSerializer):
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
         data_dict = message_to_dict(message)
-        data_dict = self.populate_dict_with_none_if_not_required(data_dict, message)
+        data_dict = self.populate_dict_with_none_if_not_required(data_dict)
         return data_dict
 
-    def populate_dict_with_none_if_not_required(self, data_dict, message=None):
+    def populate_dict_with_none_if_not_required(self, data_dict):
         """
         This method allow to populate the data dictionary with None for optional field that allow_null and not send in the request.
         It's also allow to deal with partial update correctly.
@@ -54,8 +54,8 @@ class BaseProtoSerializer(BaseSerializer):
 
         When refactoring serializer to only use message we will be able to determine the default value of the field depending of the same logic followed here
         """
-        # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the message. If not we raise an exception
-        if self.partial and not hasattr(message, PARTIAL_UPDATE_FIELD_NAME):
+        # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the data_dict. If not we raise an exception
+        if self.partial and not PARTIAL_UPDATE_FIELD_NAME in data_dict:
             raise ValidationError(
                 {
                     PARTIAL_UPDATE_FIELD_NAME: [
@@ -66,12 +66,10 @@ class BaseProtoSerializer(BaseSerializer):
             )
 
         for field in self.fields.values():
-            # INFO - AM - 04/01/2024 - If we are in a partial serializer we need to only have field specified in PARTIAL_UPDATE_FIELD_NAME attribute. Meaning bot deleting field that should not be here and not adding None to allow_null field that are not specified
+            # INFO - AM - 04/01/2024 - If we are in a partial serializer we only need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute in the data. Meaning deleting fields that should not be here and not adding None to allow_null field that are not specified
             if (
-                message
-                and self.partial
-                and hasattr(message, PARTIAL_UPDATE_FIELD_NAME)
-                and field.field_name not in getattr(message, PARTIAL_UPDATE_FIELD_NAME)
+                self.partial
+                and field.field_name not in data_dict.get(PARTIAL_UPDATE_FIELD_NAME, {})
             ):
                 if field.field_name in data_dict:
                     del data_dict[field.field_name]
@@ -80,7 +78,17 @@ class BaseProtoSerializer(BaseSerializer):
             if field.field_name in data_dict:
                 continue
             # INFO - AM - 04/01/2024 - Adding default None value only for optional field that are required and allowing null or having a default value
-            if field.allow_null or field.default in [None, empty] and field.required is True:
+            print(field.field_name, field.allow_null, field.default, field.required, "value: ", data_dict.get(field.field_name, "not_set"))
+            if field.allow_null and field.default not in [None, empty]:
+                raise ValidationError(
+                    {
+                        field.field_name: [
+                            f"Field {field.field_name} accept both null and a default value. "
+                        ]
+                    },
+                    code="both_allow_null_and_default",
+                )
+            if field.allow_null or (field.default in [None, empty] and field.required is True):
                 data_dict[field.field_name] = None
         return data_dict
 

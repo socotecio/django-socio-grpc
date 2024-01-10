@@ -20,6 +20,15 @@ service BasicController {
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
+service DefaultValueController {
+    rpc Create(DefaultValueRequest) returns (DefaultValueResponse) {}
+    rpc Destroy(DefaultValueDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(DefaultValueListRequest) returns (DefaultValueListResponse) {}
+    rpc PartialUpdate(DefaultValuePartialUpdateRequest) returns (DefaultValueResponse) {}
+    rpc Retrieve(DefaultValueRetrieveRequest) returns (DefaultValueResponse) {}
+    rpc Update(DefaultValueRequest) returns (DefaultValueResponse) {}
+}
+
 service ExceptionController {
     rpc APIException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GRPCException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -175,19 +184,17 @@ message BasicProtoListChildListResponse {
 message BasicProtoListChildRequest {
     optional int32 id = 1;
     optional int32 some_default_counter = 2;
-    optional string title = 3;
+    string title = 3;
     optional string text = 4;
     optional bool is_validated = 5;
-    int32 required_counter = 6;
 }
 
 message BasicProtoListChildResponse {
     optional int32 id = 1;
     optional int32 some_default_counter = 2;
-    optional string title = 3;
+    string title = 3;
     optional string text = 4;
     optional bool is_validated = 5;
-    int32 required_counter = 6;
 }
 
 message BasicServiceListResponse {
@@ -239,6 +246,77 @@ message CustomRetrieveResponseSpecialFieldsModelResponse {
     optional string uuid = 1;
     optional int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message DefaultValueDestroyRequest {
+    int32 id = 1;
+}
+
+message DefaultValueListRequest {
+}
+
+message DefaultValueListResponse {
+    repeated DefaultValueResponse results = 1;
+    int32 count = 2;
+}
+
+message DefaultValuePartialUpdateRequest {
+    optional int32 id = 1;
+    optional string string_required_but_serializer_default = 2;
+    optional int32 int_required_but_serializer_default = 3;
+    optional bool boolean_required_but_serializer_default = 4;
+    repeated string _partial_update_fields = 5;
+    string string_required = 6;
+    optional string string_blank = 7;
+    optional string string_nullable = 8;
+    optional string string_default = 9;
+    int32 int_required = 10;
+    optional int32 int_nullable = 11;
+    optional int32 int_default = 12;
+    bool boolean_required = 13;
+    optional bool boolean_nullable = 14;
+    optional bool boolean_default_false = 15;
+    optional bool boolean_default_true = 16;
+}
+
+message DefaultValueRequest {
+    optional int32 id = 1;
+    optional string string_required_but_serializer_default = 2;
+    optional int32 int_required_but_serializer_default = 3;
+    optional bool boolean_required_but_serializer_default = 4;
+    string string_required = 5;
+    optional string string_blank = 6;
+    optional string string_nullable = 7;
+    optional string string_default = 8;
+    int32 int_required = 9;
+    optional int32 int_nullable = 10;
+    optional int32 int_default = 11;
+    bool boolean_required = 12;
+    optional bool boolean_nullable = 13;
+    optional bool boolean_default_false = 14;
+    optional bool boolean_default_true = 15;
+}
+
+message DefaultValueResponse {
+    optional int32 id = 1;
+    optional string string_required_but_serializer_default = 2;
+    optional int32 int_required_but_serializer_default = 3;
+    optional bool boolean_required_but_serializer_default = 4;
+    string string_required = 5;
+    optional string string_blank = 6;
+    optional string string_nullable = 7;
+    optional string string_default = 8;
+    int32 int_required = 9;
+    optional int32 int_nullable = 10;
+    optional int32 int_default = 11;
+    bool boolean_required = 12;
+    optional bool boolean_nullable = 13;
+    optional bool boolean_default_false = 14;
+    optional bool boolean_default_true = 15;
+}
+
+message DefaultValueRetrieveRequest {
+    int32 id = 1;
 }
 
 message ExceptionStreamRaiseExceptionResponse {
@@ -504,27 +582,24 @@ message UnitTestModelPartialUpdateRequest {
     optional int32 some_default_counter = 2;
     optional bool is_validated = 3;
     repeated string _partial_update_fields = 4;
-    optional string title = 5;
+    string title = 5;
     optional string text = 6;
-    int32 required_counter = 7;
 }
 
 message UnitTestModelRequest {
     optional int32 id = 1;
     optional int32 some_default_counter = 2;
     optional bool is_validated = 3;
-    optional string title = 4;
+    string title = 4;
     optional string text = 5;
-    int32 required_counter = 6;
 }
 
 message UnitTestModelResponse {
     optional int32 id = 1;
     optional int32 some_default_counter = 2;
     optional bool is_validated = 3;
-    optional string title = 4;
+    string title = 4;
     optional string text = 5;
-    int32 required_counter = 6;
 }
 
 message UnitTestModelRetrieveRequest {

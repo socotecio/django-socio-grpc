@@ -145,6 +145,14 @@ service RecursiveTestModelController {
     rpc Destroy(RecursiveTestModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
+service DefaultValueModelController {
+    rpc List(DefaultValueModelListRequest) returns (DefaultValueModelListResponse) {}
+    rpc Create(DefaultValueModel) returns (DefaultValueModel) {}
+    rpc Retrieve(DefaultValueModelRetrieveRequest) returns (DefaultValueModel) {}
+    rpc Update(DefaultValueModel) returns (DefaultValueModel) {}
+    rpc Destroy(DefaultValueModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
 message UnitTestModel {
     int32 id = 1;
     string title = 2;
@@ -282,6 +290,40 @@ message RecursiveTestModelRetrieveRequest {
 
 message RecursiveTestModelDestroyRequest {
     string uuid = 1;
+}
+
+message DefaultValueModel {
+    string id = 1;
+    string string_required = 2;
+    string string_blank = 3;
+    string string_nullable = 4;
+    string string_default = 5;
+    string string_required_but_serializer_default = 6;
+    int32 int_required = 7;
+    int32 int_nullable = 8;
+    int32 int_default = 9;
+    int32 int_required_but_serializer_default = 10;
+    bool boolean_required = 11;
+    bool boolean_nullable = 12;
+    bool boolean_default_false = 13;
+    bool boolean_default_true = 14;
+    bool boolean_required_but_serializer_default = 15;
+}
+
+message DefaultValueModelListRequest {
+}
+
+message DefaultValueModelListResponse {
+    repeated DefaultValueModel results = 1;
+    int32 count = 2;
+}
+
+message DefaultValueModelRetrieveRequest {
+    string id = 1;
+}
+
+message DefaultValueModelDestroyRequest {
+    string id = 1;
 }
 
 """

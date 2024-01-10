@@ -1,69 +1,23 @@
-from typing import List, Optional
-
-import pytest
-from django.db import models
-from rest_framework import serializers
-
-from django_socio_grpc import proto_serializers
-from django_socio_grpc.decorators import grpc_action
-from django_socio_grpc.protobuf import ProtoComment, ProtoRegistrationError
 from django_socio_grpc.protobuf.proto_classes import (
-    EmptyMessage,
     FieldCardinality,
     ProtoField,
-    ProtoMessage,
-    RequestProtoMessage,
-    ResponseProtoMessage,
-    StructMessage,
 )
-from django_socio_grpc.services import Service
-from django_socio_grpc.tests.fakeapp.models import RelatedFieldModel
-from django_socio_grpc.tests.fakeapp.serializers import (
-    BasicProtoListChildSerializer,
-    BasicServiceSerializer,
-    RelatedFieldModelSerializer,
+from fakeapp.serializers import DefaultValueSerializer
+from django.test import TestCase, override_settings
+
+from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
+
+from fakeapp.grpc.fakeapp_pb2_grpc import (
+    SimpleRelatedFieldModelControllerStub,
+    add_SimpleRelatedFieldModelControllerServicer_to_server,
 )
 
-from django_socio_grpc import generics, mixins
 
 
-class MyDefaultValueModel(models.Model):
-    string_required = models.CharField(max_length=20)
-    string_blank = models.CharField(max_length=20, blank=True)
-    string_nullable = models.CharField(max_length=20, null=True)
-    string_default = models.CharField(max_length=20, default="default")
-    string_required_but_serializer_default = models.CharField(max_length=20)
-    int_required = models.IntegerField()
-    int_nullable = models.IntegerField(null=True)
-    int_default = models.IntegerField(default=5)
-    int_required_but_serializer_default = models.IntegerField()
-    boolean_required = models.BooleanField()
-    boolean_default_false = models.BooleanField(default=False)
-    boolean_default_true = models.BooleanField(default=True)
-    boolean_required_but_serializer_default = models.IntegerField()
-
-
-
-class MyDefaultSerializer(proto_serializers.ModelProtoSerializer):
-    string_required_but_serializer_default = serializers.CharField(default="default_serializer")
-    int_required_but_serializer_default = serializers.IntegerField(default=10)
-    boolean_required_but_serializer_default = serializers.CharField(default=False)
-
-    class Meta:
-        model = MyDefaultValueModel
-        fields = "__all__"
-
-
-
-class UnitTestModelService(generics.AsyncModelService):
-    queryset = MyDefaultValueModel.objects.all().order_by("id")
-    serializer_class = MyDefaultSerializer
-
-
-class TestDefaultValue:
+class TestDefaultValueField:
     # FROM_FIELD
     def test_from_field_string(self):
-        ser = MyDefaultSerializer()
+        ser = DefaultValueSerializer()
         field = ser.fields["string_required"]
 
         proto_field = ProtoField.from_field(field)
@@ -74,7 +28,7 @@ class TestDefaultValue:
 
         # ---------------------------------
 
-        ser = MyDefaultSerializer()
+        ser = DefaultValueSerializer()
         field = ser.fields["string_blank"]
 
         proto_field = ProtoField.from_field(field)
@@ -85,7 +39,7 @@ class TestDefaultValue:
 
         # ---------------------------------
 
-        ser = MyDefaultSerializer()
+        ser = DefaultValueSerializer()
         field = ser.fields["string_nullable"]
 
         proto_field = ProtoField.from_field(field)
@@ -96,7 +50,7 @@ class TestDefaultValue:
 
         # ---------------------------------
 
-        ser = MyDefaultSerializer()
+        ser = DefaultValueSerializer()
         field = ser.fields["string_default"]
 
         proto_field = ProtoField.from_field(field)
@@ -107,7 +61,7 @@ class TestDefaultValue:
 
         # ---------------------------------
 
-        ser = MyDefaultSerializer()
+        ser = DefaultValueSerializer()
         field = ser.fields["string_required_but_serializer_default"]
 
         proto_field = ProtoField.from_field(field)
@@ -115,3 +69,119 @@ class TestDefaultValue:
         assert proto_field.name == "string_required_but_serializer_default"
         assert proto_field.field_type == "string"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
+    
+    def test_from_field_integer(self):
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_required"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "int_required"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_nullable"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "int_nullable"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_default"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "int_default"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_required_but_serializer_default"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "int_required_but_serializer_default"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_boolean(self):
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_required"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "boolean_required"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_nullable"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "boolean_nullable"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_default_true"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "boolean_default_true"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_default_false"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "boolean_default_false"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_required_but_serializer_default"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "boolean_required_but_serializer_default"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+
+# @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
+# class TestDefaultValueService(TestCase):
+#     def setUp(self):
+#         self.fake_grpc = FakeFullAIOGRPC(
+#             add_SimpleRelatedFieldModelControllerServicer_to_server, DefaultValueService.as_servicer()
+#         )
+
+#         self.setup_instance = DefaultValueService(string_required="setUp", string_required_but_serializer_default="setup_serializer", int_required=50, int_required_but_serializer_default="60", boolean_required=True, boolean_required_but_serializer_default=False).save()
+
+#     async def test_retrieve_all_default_value(self):
+
+#         grpc_stub = self.fake_grpc.get_fake_stub(SimpleRelatedFieldModelControllerStub)
+#         request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=self.setup_instance.id)
+#         response = await grpc_stub.Retrieve(request=request)
+
+#         self.assertEqual(response.title, "z")
+#         self.assertEqual(response.text, "abc")

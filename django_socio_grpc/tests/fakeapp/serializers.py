@@ -216,4 +216,6 @@ class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
 
     class Meta:
         model = DefaultValueModel
+        proto_class = fakeapp_pb2.DefaultValueResponse
+        proto_class_list = fakeapp_pb2.DefaultValueListResponse
         fields = "__all__"

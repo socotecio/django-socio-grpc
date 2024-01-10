@@ -11,6 +11,9 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
     SimpleRelatedFieldModelControllerStub,
     add_SimpleRelatedFieldModelControllerServicer_to_server,
 )
+from fakeapp.services.default_value_service import DefaultValueService
+from fakeapp.grpc import fakeapp_pb2
+from fakeapp.models import DefaultValueModel
 
 
 
@@ -168,20 +171,21 @@ class TestDefaultValueField:
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
 
-# @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
-# class TestDefaultValueService(TestCase):
-#     def setUp(self):
-#         self.fake_grpc = FakeFullAIOGRPC(
-#             add_SimpleRelatedFieldModelControllerServicer_to_server, DefaultValueService.as_servicer()
-#         )
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
+class TestDefaultValueService(TestCase):
+    def setUp(self):
+        self.fake_grpc = FakeFullAIOGRPC(
+            add_SimpleRelatedFieldModelControllerServicer_to_server, DefaultValueService.as_servicer()
+        )
 
-#         self.setup_instance = DefaultValueService(string_required="setUp", string_required_but_serializer_default="setup_serializer", int_required=50, int_required_but_serializer_default="60", boolean_required=True, boolean_required_but_serializer_default=False).save()
+        self.setup_instance = DefaultValueModel.objects.create(string_required="setUp", string_required_but_serializer_default="setup_serializer", int_required=50, int_required_but_serializer_default="60", boolean_required=True, boolean_required_but_serializer_default=False)
 
-#     async def test_retrieve_all_default_value(self):
+    async def test_retrieve_all_default_value(self):
 
-#         grpc_stub = self.fake_grpc.get_fake_stub(SimpleRelatedFieldModelControllerStub)
-#         request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=self.setup_instance.id)
-#         response = await grpc_stub.Retrieve(request=request)
+        grpc_stub = self.fake_grpc.get_fake_stub(SimpleRelatedFieldModelControllerStub)
+        request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=self.setup_instance.id)
+        response = await grpc_stub.Retrieve(request=request)
 
-#         self.assertEqual(response.title, "z")
-#         self.assertEqual(response.text, "abc")
+        self.assertEqual(response.title, "z")
+        self.assertEqual(response.text, "abc")
+        assert False

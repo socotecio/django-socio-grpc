@@ -80,14 +80,14 @@ class BaseProtoSerializer(BaseSerializer):
             if field.field_name in data_dict:
                 continue
 
-            if field.required:
-                print(message.DESCRIPTOR.fields_by_name)
-                print("icicicic ", message.DESCRIPTOR.fields_by_name[field.field_name].default_value)
+            if field.required and field.field_name in message.DESCRIPTOR.fields_by_name:
+                # print(message.DESCRIPTOR.fields_by_name)
+                # print("icicicic ", message.DESCRIPTOR.fields_by_name[field.field_name].default_value)
                 data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[field.field_name].default_value
                 continue
             # INFO - AM - 04/01/2024 - Adding default None value only for optional field that are required and allowing null or having a default value
-            print(field.field_name, field.allow_null, field.default, field.required, "value: ", data_dict.get(field.field_name, "not_set"))
-            print(message.HasField(field.field_name), field.field_name in data_dict)
+            # print(field.field_name, field.allow_null, field.default, field.required, "value: ", data_dict.get(field.field_name, "not_set"))
+            # print(message.HasField(field.field_name), field.field_name in data_dict)
             if field.allow_null and field.default not in [None, empty]:
                 raise ValidationError(
                     {

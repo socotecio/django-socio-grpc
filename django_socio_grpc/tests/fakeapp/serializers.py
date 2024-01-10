@@ -14,6 +14,7 @@ from .models import (
     RelatedFieldModel,
     SpecialFieldsModel,
     UnitTestModel,
+    DefaultValueModel
 )
 
 
@@ -206,4 +207,13 @@ class RecursiveTestModelSerializer(proto_serializers.ModelProtoSerializer):
         model = RecursiveTestModel
         # proto_class = fakeapp_pb2.BasicProtoListChildResponse
         # proto_class_list = fakeapp_pb2.BasicProtoListChildListResponse
+        fields = "__all__"
+
+class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
+    string_required_but_serializer_default = serializers.CharField(default="default_serializer")
+    int_required_but_serializer_default = serializers.IntegerField(default=10)
+    boolean_required_but_serializer_default = serializers.BooleanField(default=False)
+
+    class Meta:
+        model = DefaultValueModel
         fields = "__all__"

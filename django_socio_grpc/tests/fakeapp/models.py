@@ -18,6 +18,7 @@ class UnitTestModel(models.Model):
     text = models.CharField(max_length=100, null=True)
     some_default_counter = models.IntegerField()
     is_validated = models.BooleanField(default=False)
+    required_counter = models.IntegerField()
 
     class Meta:
         grpc_messages = {

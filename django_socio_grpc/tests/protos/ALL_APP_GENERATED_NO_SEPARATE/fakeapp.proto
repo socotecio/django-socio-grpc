@@ -152,9 +152,10 @@ message BasicParamWithSerializerRequestList {
 message BasicProtoListChild {
     optional int32 id = 1;
     optional int32 some_default_counter = 2;
-    string title = 3;
+    optional string title = 3;
     optional string text = 4;
     optional bool is_validated = 5;
+    int32 required_counter = 6;
 }
 
 message BasicProtoListChildList {
@@ -397,8 +398,9 @@ message UnitTestModel {
     optional int32 id = 1;
     optional int32 some_default_counter = 2;
     optional bool is_validated = 3;
-    string title = 4;
+    optional string title = 4;
     optional string text = 5;
+    int32 required_counter = 6;
 }
 
 message UnitTestModelDestroyRequest {
@@ -428,8 +430,9 @@ message UnitTestModelPartialUpdateRequest {
     optional int32 some_default_counter = 2;
     optional bool is_validated = 3;
     repeated string _partial_update_fields = 4;
-    string title = 5;
+    optional string title = 5;
     optional string text = 6;
+    int32 required_counter = 7;
 }
 
 message UnitTestModelRetrieveRequest {

@@ -42,10 +42,10 @@ class BaseProtoSerializer(BaseSerializer):
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
         data_dict = message_to_dict(message)
-        data_dict = self.populate_dict_with_none_if_not_required(data_dict)
+        data_dict = self.populate_dict_with_none_if_not_required(data_dict, message=message)
         return data_dict
 
-    def populate_dict_with_none_if_not_required(self, data_dict):
+    def populate_dict_with_none_if_not_required(self, data_dict, message=None):
         """
         This method allow to populate the data dictionary with None for optional field that allow_null and not send in the request.
         It's also allow to deal with partial update correctly.
@@ -53,6 +53,8 @@ class BaseProtoSerializer(BaseSerializer):
         We can't rely only on required True/False as in DSG if a field is required it will have the default value of it's type (empty string for string type) and not None
 
         When refactoring serializer to only use message we will be able to determine the default value of the field depending of the same logic followed here
+        
+        set default value for field except if optional or partial update
         """
         # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the data_dict. If not we raise an exception
         if self.partial and not PARTIAL_UPDATE_FIELD_NAME in data_dict:
@@ -77,8 +79,15 @@ class BaseProtoSerializer(BaseSerializer):
             # INFO - AM - 04/01/2024 - if field already existing in the data_dict we do not need to do something else
             if field.field_name in data_dict:
                 continue
+
+            if field.required:
+                print(message.DESCRIPTOR.fields_by_name)
+                print("icicicic ", message.DESCRIPTOR.fields_by_name[field.field_name].default_value)
+                data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[field.field_name].default_value
+                continue
             # INFO - AM - 04/01/2024 - Adding default None value only for optional field that are required and allowing null or having a default value
             print(field.field_name, field.allow_null, field.default, field.required, "value: ", data_dict.get(field.field_name, "not_set"))
+            print(message.HasField(field.field_name), field.field_name in data_dict)
             if field.allow_null and field.default not in [None, empty]:
                 raise ValidationError(
                     {

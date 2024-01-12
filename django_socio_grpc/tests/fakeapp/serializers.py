@@ -7,6 +7,7 @@ from django_socio_grpc import proto_serializers
 from django_socio_grpc.protobuf import ProtoComment
 
 from .models import (
+    DefaultValueModel,
     ForeignModel,
     ImportStructEvenInArrayModel,
     ManyManyModel,
@@ -14,7 +15,6 @@ from .models import (
     RelatedFieldModel,
     SpecialFieldsModel,
     UnitTestModel,
-    DefaultValueModel
 )
 
 
@@ -204,8 +204,11 @@ class RecursiveTestModelSerializer(proto_serializers.ModelProtoSerializer):
         # proto_class_list = fakeapp_pb2.BasicProtoListChildListResponse
         fields = "__all__"
 
+
 class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
-    string_required_but_serializer_default = serializers.CharField(default="default_serializer")
+    string_required_but_serializer_default = serializers.CharField(
+        default="default_serializer"
+    )
     int_required_but_serializer_default = serializers.IntegerField(default=10)
     boolean_required_but_serializer_default = serializers.BooleanField(default=False)
 

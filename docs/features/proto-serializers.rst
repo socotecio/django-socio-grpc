@@ -242,6 +242,11 @@ If you want to set a specific default as field value:
     # you can use any serializers field.
     some_field = serializers.CharField(default="default value")
 
+TODO:
+string_default field.allow_null=False field.default=<class 'rest_framework.fields.empty'> field.required=False field name in descriptor:  True
+
+when not allow_null but not required either with no default in the serializer (meaning default in models only) -> Not updated by default gRPC when using update without specified the field
+
 ==============================
 Read-Only and Write-Only Props
 ==============================

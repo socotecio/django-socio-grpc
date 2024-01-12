@@ -277,6 +277,8 @@ message DefaultValuePartialUpdateRequest {
     optional bool boolean_nullable = 14;
     optional bool boolean_default_false = 15;
     optional bool boolean_default_true = 16;
+    optional string string_default_and_blank = 17;
+    optional string string_null_default_and_blank = 18;
 }
 
 message DefaultValueRequest {
@@ -295,6 +297,8 @@ message DefaultValueRequest {
     optional bool boolean_nullable = 13;
     optional bool boolean_default_false = 14;
     optional bool boolean_default_true = 15;
+    optional string string_default_and_blank = 16;
+    optional string string_null_default_and_blank = 17;
 }
 
 message DefaultValueResponse {
@@ -313,6 +317,8 @@ message DefaultValueResponse {
     optional bool boolean_nullable = 13;
     optional bool boolean_default_false = 14;
     optional bool boolean_default_true = 15;
+    optional string string_default_and_blank = 16;
+    optional string string_null_default_and_blank = 17;
 }
 
 message DefaultValueRetrieveRequest {

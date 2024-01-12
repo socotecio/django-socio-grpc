@@ -119,7 +119,7 @@ class TestSyncModelService(TestCase):
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
 
-        # Test partial update takes into account None value for allow_null field 
+        # Test partial update takes into account None value for allow_null field
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
             id=instance.id, text=None, **{PARTIAL_UPDATE_FIELD_NAME: ["text"]}
         )

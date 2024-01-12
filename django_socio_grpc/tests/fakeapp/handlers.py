@@ -1,4 +1,5 @@
 from fakeapp.services.basic_service import BasicService
+from fakeapp.services.default_value_service import DefaultValueService
 from fakeapp.services.exception_service import ExceptionService
 from fakeapp.services.foreign_model_service import ForeignModelService
 from fakeapp.services.import_struct_even_in_array_model_service import (
@@ -13,7 +14,6 @@ from fakeapp.services.special_fields_model_service import SpecialFieldsModelServ
 from fakeapp.services.stream_in_service import StreamInService
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from fakeapp.services.unit_test_model_service import UnitTestModelService
-from fakeapp.services.default_value_service import DefaultValueService
 
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 from django_socio_grpc.tests.fakeapp.services.unit_test_model_with_struct_filter_service import (

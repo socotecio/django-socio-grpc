@@ -18,9 +18,9 @@ class TestFilteringMetadata(TestCase):
         for idx in range(10):
             title = "z" * (idx + 1)
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
-            UnitTestModel(title=title, text=text, some_default_counter=50).save()
+            UnitTestModel(title=title, text=text).save()
 
-        UnitTestModel(title="zzzz", text=text, some_default_counter=50).save()
+        UnitTestModel(title="zzzz", text=text).save()
         self.fake_grpc = FakeFullAIOGRPC(
             add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
         )

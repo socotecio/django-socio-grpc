@@ -68,13 +68,8 @@ class BaseProtoSerializer(BaseSerializer):
                 code="missing_partial_message_attribute",
             )
 
-        print(self.Meta.model.string_null_default_and_blank.field.default)
-        print(self.Meta.model._meta.pk.name)
-        print(data_dict)
         is_update_process = bool(data_dict.get(self.Meta.model._meta.pk.name, ""))
-        print("is_update_process ", is_update_process)
         for field in self.fields.values():
-            print(field.field_name)
             # INFO - AM - 04/01/2024 - If we are in a partial serializer we only need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute in the data. Meaning deleting fields that should not be here and not adding None to allow_null field that are not specified
             if self.partial and field.field_name not in data_dict.get(
                 PARTIAL_UPDATE_FIELD_NAME, {}
@@ -84,7 +79,6 @@ class BaseProtoSerializer(BaseSerializer):
                 continue
             # INFO - AM - 04/01/2024 - if field already existing in the data_dict we do not need to do something else
             if field.field_name in data_dict:
-                print("in", data_dict[field.field_name], type(data_dict[field.field_name]))
                 continue
 
             if self.partial and field.field_name in data_dict.get(
@@ -101,35 +95,6 @@ class BaseProtoSerializer(BaseSerializer):
                 data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[
                     field.field_name
                 ].default_value
-
-            print(
-                field.field_name,
-                f"{field.allow_null=}",
-                f"{field.default=}",
-                f"{field.required=}",
-                "field name in descriptor: ",
-                field.field_name in message.DESCRIPTOR.fields_by_name,
-            )
-            # print("value: ", data_dict.get(field.field_name, "not_set"))
-            # if field.required and field.field_name in message.DESCRIPTOR.fields_by_name:
-            #     # print(message.DESCRIPTOR.fields_by_name)
-            #     # print("icicicic ", message.DESCRIPTOR.fields_by_name[field.field_name].default_value)
-            #     data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[field.field_name].default_value
-            #     continue
-            # INFO - AM - 04/01/2024 - Adding default None value only for optional field that are required and allowing null or having a default value
-
-            # print(message.HasField(field.field_name), field.field_name in data_dict)
-            # if field.allow_null and field.default not in [None, empty]:
-            #     raise ValidationError(
-            #         {
-            #             field.field_name: [
-            #                 f"Field {field.field_name} accept both null and a default value. "
-            #             ]
-            #         },
-            #         code="both_allow_null_and_default",
-            #     )
-
-            # string_default field.allow_null=False field.default=<class 'rest_framework.fields.empty'> field.required=False field name in descriptor:  True
 
             # INFO - AM - 12/01/2024 - if field name is not in data_dict but is required that mean that it's a default value deleted when transforming proto to dict
             if field.required and field.field_name in message.DESCRIPTOR.fields_by_name:
@@ -154,7 +119,6 @@ class BaseProtoSerializer(BaseSerializer):
                 ):
                     deferred_attribute = getattr(self.Meta.model, field.field_name)
                     if deferred_attribute.field.default != NOT_PROVIDED:
-                        print("icicic ", deferred_attribute.field.default)
                         data_dict[field.field_name] = deferred_attribute.field.default
                         continue
 

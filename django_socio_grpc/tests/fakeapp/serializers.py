@@ -212,6 +212,13 @@ class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
     int_required_but_serializer_default = serializers.IntegerField(default=10)
     boolean_required_but_serializer_default = serializers.BooleanField(default=False)
 
+    string_default_but_serializer_default = serializers.CharField(
+        default="default_serializer_override"
+    )
+    string_nullable_default_but_serializer_default = serializers.CharField(
+        default="default_serializer_override"
+    )
+
     class Meta:
         model = DefaultValueModel
         proto_class = fakeapp_pb2.DefaultValueResponse

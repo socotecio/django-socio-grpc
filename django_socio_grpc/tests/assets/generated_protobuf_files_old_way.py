@@ -17,8 +17,6 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
-    int32 some_default_counter = 4;
-    bool is_validated = 5;
 }
 
 message UnitTestModelListRequest {
@@ -67,8 +65,6 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
-    int32 some_default_counter = 4;
-    bool is_validated = 5;
 }
 
 message UnitTestModelListRequest {
@@ -157,8 +153,6 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
-    int32 some_default_counter = 4;
-    bool is_validated = 5;
 }
 
 message UnitTestModelListRequest {
@@ -298,16 +292,20 @@ message DefaultValueModel {
     string string_blank = 3;
     string string_nullable = 4;
     string string_default = 5;
-    string string_required_but_serializer_default = 6;
-    int32 int_required = 7;
-    int32 int_nullable = 8;
-    int32 int_default = 9;
-    int32 int_required_but_serializer_default = 10;
-    bool boolean_required = 11;
-    bool boolean_nullable = 12;
-    bool boolean_default_false = 13;
-    bool boolean_default_true = 14;
-    bool boolean_required_but_serializer_default = 15;
+    string string_default_and_blank = 6;
+    string string_null_default_and_blank = 7;
+    string string_required_but_serializer_default = 8;
+    string string_default_but_serializer_default = 9;
+    string string_nullable_default_but_serializer_default = 10;
+    int32 int_required = 11;
+    int32 int_nullable = 12;
+    int32 int_default = 13;
+    int32 int_required_but_serializer_default = 14;
+    bool boolean_required = 15;
+    bool boolean_nullable = 16;
+    bool boolean_default_false = 17;
+    bool boolean_default_true = 18;
+    bool boolean_required_but_serializer_default = 19;
 }
 
 message DefaultValueModelListRequest {
@@ -429,8 +427,6 @@ service UnitTestModelController {
 message UnitTestModel {
     int32 id = 1;
     string text = 2;
-    int32 some_default_counter = 3;
-    bool is_validated = 4;
 }
 
 message UnitTestModelListRequest {
@@ -472,9 +468,7 @@ service UnitTestModelController {
 message UnitTestModel {
     int32 id = 1;
     string text = 2;
-    int32 some_default_counter = 3;
-    bool is_validated = 4;
-    string title = 5;
+    string title = 3;
 }
 
 message UnitTestModelListRequest {

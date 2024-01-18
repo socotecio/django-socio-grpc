@@ -16,8 +16,6 @@ class UnitTestModel(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=20)
     text = models.CharField(max_length=100, null=True)
-    some_default_counter = models.IntegerField()
-    is_validated = models.BooleanField(default=False)
 
     class Meta:
         grpc_messages = {

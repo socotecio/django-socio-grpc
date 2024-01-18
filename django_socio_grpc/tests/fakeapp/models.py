@@ -205,8 +205,10 @@ class DefaultValueModel(models.Model):
         max_length=60, default="null_default_and_blank", blank=True, null=True
     )
     string_required_but_serializer_default = models.CharField(max_length=20)
-    # TODO model default but overrided by serializer default
-    # TODO model default and nullable but overrided by serializer default
+    string_default_but_serializer_default = models.CharField(max_length=60, default="default")
+    string_nullable_default_but_serializer_default = models.CharField(
+        max_length=60, default="default"
+    )
     int_required = models.IntegerField()
     int_nullable = models.IntegerField(null=True)
     int_default = models.IntegerField(default=5)

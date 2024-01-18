@@ -207,8 +207,13 @@ class TestDefaultValueService(TestCase):
         self.assertEqual(response.string_default, "default")
         self.assertEqual(
             response.string_required_but_serializer_default, "setup_serializer"
-        )  # created in setup not serializer so default value != than value in instance. See create test for testung default serializer value
-
+        )  # created in setup not serializer so default value != than value in instance because required. See create test for testing default serializer value
+        self.assertEqual(
+            response.string_default_but_serializer_default, "default"
+        )  # created in setup not serializer so default value != than value in serializer. See create test for testing default serializer value
+        self.assertEqual(
+            response.string_nullable_default_but_serializer_default, "default"
+        )  # created in setup not serializer so default value != than value in serializer. See create test for testing default serializer value
         # INTEGER ##################
 
         # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
@@ -261,6 +266,13 @@ class TestDefaultValueService(TestCase):
         self.assertEqual(response.string_null_default_and_blank, "null_default_and_blank")
         self.assertEqual(response.string_default, "default")
         self.assertEqual(response.string_required_but_serializer_default, "default_serializer")
+        self.assertEqual(
+            response.string_default_but_serializer_default, "default_serializer_override"
+        )
+        self.assertEqual(
+            response.string_nullable_default_but_serializer_default,
+            "default_serializer_override",
+        )
 
         # INTEGER ##################
 
@@ -296,6 +308,8 @@ class TestDefaultValueService(TestCase):
             string_default_and_blank="update_default_and_blank",
             string_null_default_and_blank="update_null_default_and_blank",
             string_required_but_serializer_default="update_serializer",
+            string_default_but_serializer_default="update_serializer_override",
+            string_nullable_default_but_serializer_default="update_serializer_override",
             int_required=200,
             int_nullable=201,
             int_default=202,
@@ -336,6 +350,13 @@ class TestDefaultValueService(TestCase):
             response.string_default, "update_default"
         )  # This field not updated because model default only apply on creation
         self.assertEqual(response.string_required_but_serializer_default, "default_serializer")
+        self.assertEqual(
+            response.string_default_but_serializer_default, "default_serializer_override"
+        )
+        self.assertEqual(
+            response.string_nullable_default_but_serializer_default,
+            "default_serializer_override",
+        )
 
         await all_setted_instance.arefresh_from_db()
         self.assertEqual(all_setted_instance.string_blank, "")
@@ -407,6 +428,8 @@ class TestDefaultValueService(TestCase):
             string_default_and_blank="update_default_and_blank",
             string_null_default_and_blank="update_null_default_and_blank",
             string_required_but_serializer_default="update_serializer",
+            string_default_but_serializer_default="update_serializer_override",
+            string_nullable_default_but_serializer_default="update_serializer_override",
             int_required=200,
             int_nullable=201,
             int_default=202,
@@ -430,6 +453,8 @@ class TestDefaultValueService(TestCase):
                     "string_default_and_blank",
                     "string_null_default_and_blank",
                     "string_required_but_serializer_default",
+                    "string_default_but_serializer_default",
+                    "string_nullable_default_but_serializer_default",
                     "int_nullable",
                     "int_default",
                     "int_required_but_serializer_default",
@@ -461,6 +486,13 @@ class TestDefaultValueService(TestCase):
             response.string_default, "update_default"
         )  # Field not updated because not specified in PARTIAL_UPDATE_FIELD_NAME
         self.assertEqual(response.string_required_but_serializer_default, "default_serializer")
+        self.assertEqual(
+            response.string_default_but_serializer_default, "default_serializer_override"
+        )
+        self.assertEqual(
+            response.string_nullable_default_but_serializer_default,
+            "default_serializer_override",
+        )
 
         await all_setted_instance.arefresh_from_db()
         self.assertEqual(all_setted_instance.string_blank, "")
@@ -504,11 +536,96 @@ class TestDefaultValueService(TestCase):
         self.assertEqual(response.boolean_required_but_serializer_default, False)
 
     async def test_partial_update_choosing_a_required_without_setting_it_raise_error(self):
-        # string_default
-        assert False
+        all_setted_instance = await DefaultValueModel.objects.acreate(
+            string_required="update_required",
+            string_blank="update_blank",
+            string_nullable="update_nullable",
+            string_default="update_default",
+            string_default_and_blank="update_default_and_blank",
+            string_null_default_and_blank="update_null_default_and_blank",
+            string_required_but_serializer_default="update_serializer",
+            int_required=200,
+            int_nullable=201,
+            int_default=202,
+            int_required_but_serializer_default=60,
+            boolean_required=True,
+            boolean_nullable=True,
+            boolean_default_false=True,
+            boolean_default_true=False,
+            boolean_required_but_serializer_default=True,
+        )
+
+        grpc_stub = self.fake_grpc.get_fake_stub(DefaultValueControllerStub)
+
+        request = fakeapp_pb2.DefaultValuePartialUpdateRequest(
+            id=all_setted_instance.id,
+            **{
+                PARTIAL_UPDATE_FIELD_NAME: [
+                    "string_default",
+                ]
+            }
+        )
+
+        with self.assertRaises(grpc.RpcError) as error:
+            await grpc_stub.PartialUpdate(request=request)
+
+        self.assertEqual(error.exception.code(), grpc.StatusCode.INVALID_ARGUMENT)
+
+        self.assertEqual(
+            '{"string_default": [{"message": "This field may not be blank.", "code": "blank"}]}',
+            error.exception.details(),
+        )
 
     async def test_partial_update_choosing_default_grpc_value_for_nullable_field(self):
         # set "" for string_null_default_and_blank
         # set 0 for int_nullable
         # set False for boolean_nullable
-        assert False
+        all_setted_instance = await DefaultValueModel.objects.acreate(
+            string_required="update_required",
+            string_blank="update_blank",
+            string_nullable="update_nullable",
+            string_default="update_default",
+            string_default_and_blank="update_default_and_blank",
+            string_null_default_and_blank="update_null_default_and_blank",
+            string_required_but_serializer_default="update_serializer",
+            int_required=200,
+            int_nullable=201,
+            int_default=202,
+            int_required_but_serializer_default=60,
+            boolean_required=True,
+            boolean_nullable=True,
+            boolean_default_false=True,
+            boolean_default_true=False,
+            boolean_required_but_serializer_default=True,
+        )
+
+        grpc_stub = self.fake_grpc.get_fake_stub(DefaultValueControllerStub)
+
+        # Notice abscence of "string_default" as it is a required field and default grpc value (empty string) is not valid if blank not True
+        request = fakeapp_pb2.DefaultValuePartialUpdateRequest(
+            id=all_setted_instance.id,
+            string_null_default_and_blank="",
+            int_nullable=0,
+            boolean_nullable=False,
+            **{
+                PARTIAL_UPDATE_FIELD_NAME: [
+                    "string_null_default_and_blank",
+                    "int_nullable",
+                    "boolean_nullable",
+                ]
+            }
+        )
+        response = await grpc_stub.PartialUpdate(request=request)
+
+        self.assertTrue(response.HasField("string_null_default_and_blank"))
+        self.assertTrue(response.HasField("int_nullable"))
+        self.assertTrue(response.HasField("boolean_nullable"))
+
+        self.assertEqual(response.string_null_default_and_blank, "")
+        self.assertEqual(response.int_nullable, 0)
+        self.assertEqual(response.boolean_nullable, False)
+
+        await all_setted_instance.arefresh_from_db()
+        self.assertEqual(all_setted_instance.string_null_default_and_blank, "")
+        self.assertEqual(all_setted_instance.int_nullable, 0)
+        self.assertEqual(all_setted_instance.boolean_nullable, False)

@@ -276,20 +276,22 @@ message DefaultValuePartialUpdateRequest {
     optional string string_required_but_serializer_default = 2;
     optional int32 int_required_but_serializer_default = 3;
     optional bool boolean_required_but_serializer_default = 4;
-    repeated string _partial_update_fields = 5;
-    string string_required = 6;
-    optional string string_blank = 7;
-    optional string string_nullable = 8;
-    optional string string_default = 9;
-    int32 int_required = 10;
-    optional int32 int_nullable = 11;
-    optional int32 int_default = 12;
-    bool boolean_required = 13;
-    optional bool boolean_nullable = 14;
-    optional bool boolean_default_false = 15;
-    optional bool boolean_default_true = 16;
-    optional string string_default_and_blank = 17;
-    optional string string_null_default_and_blank = 18;
+    optional string string_default_but_serializer_default = 5;
+    optional string string_nullable_default_but_serializer_default = 6;
+    repeated string _partial_update_fields = 7;
+    string string_required = 8;
+    optional string string_blank = 9;
+    optional string string_nullable = 10;
+    optional string string_default = 11;
+    optional string string_default_and_blank = 12;
+    optional string string_null_default_and_blank = 13;
+    int32 int_required = 14;
+    optional int32 int_nullable = 15;
+    optional int32 int_default = 16;
+    bool boolean_required = 17;
+    optional bool boolean_nullable = 18;
+    optional bool boolean_default_false = 19;
+    optional bool boolean_default_true = 20;
 }
 
 message DefaultValueRequest {
@@ -297,19 +299,21 @@ message DefaultValueRequest {
     optional string string_required_but_serializer_default = 2;
     optional int32 int_required_but_serializer_default = 3;
     optional bool boolean_required_but_serializer_default = 4;
-    string string_required = 5;
-    optional string string_blank = 6;
-    optional string string_nullable = 7;
-    optional string string_default = 8;
-    int32 int_required = 9;
-    optional int32 int_nullable = 10;
-    optional int32 int_default = 11;
-    bool boolean_required = 12;
-    optional bool boolean_nullable = 13;
-    optional bool boolean_default_false = 14;
-    optional bool boolean_default_true = 15;
-    optional string string_default_and_blank = 16;
-    optional string string_null_default_and_blank = 17;
+    optional string string_default_but_serializer_default = 5;
+    optional string string_nullable_default_but_serializer_default = 6;
+    string string_required = 7;
+    optional string string_blank = 8;
+    optional string string_nullable = 9;
+    optional string string_default = 10;
+    optional string string_default_and_blank = 11;
+    optional string string_null_default_and_blank = 12;
+    int32 int_required = 13;
+    optional int32 int_nullable = 14;
+    optional int32 int_default = 15;
+    bool boolean_required = 16;
+    optional bool boolean_nullable = 17;
+    optional bool boolean_default_false = 18;
+    optional bool boolean_default_true = 19;
 }
 
 message DefaultValueResponse {
@@ -317,19 +321,21 @@ message DefaultValueResponse {
     optional string string_required_but_serializer_default = 2;
     optional int32 int_required_but_serializer_default = 3;
     optional bool boolean_required_but_serializer_default = 4;
-    string string_required = 5;
-    optional string string_blank = 6;
-    optional string string_nullable = 7;
-    optional string string_default = 8;
-    int32 int_required = 9;
-    optional int32 int_nullable = 10;
-    optional int32 int_default = 11;
-    bool boolean_required = 12;
-    optional bool boolean_nullable = 13;
-    optional bool boolean_default_false = 14;
-    optional bool boolean_default_true = 15;
-    optional string string_default_and_blank = 16;
-    optional string string_null_default_and_blank = 17;
+    optional string string_default_but_serializer_default = 5;
+    optional string string_nullable_default_but_serializer_default = 6;
+    string string_required = 7;
+    optional string string_blank = 8;
+    optional string string_nullable = 9;
+    optional string string_default = 10;
+    optional string string_default_and_blank = 11;
+    optional string string_null_default_and_blank = 12;
+    int32 int_required = 13;
+    optional int32 int_nullable = 14;
+    optional int32 int_default = 15;
+    bool boolean_required = 16;
+    optional bool boolean_nullable = 17;
+    optional bool boolean_default_false = 18;
+    optional bool boolean_default_true = 19;
 }
 
 message DefaultValueRetrieveRequest {

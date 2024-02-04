@@ -371,6 +371,21 @@ class AsyncCreateModelMixin(CreateModelMixin):
         """Save a new object instance."""
         await sync_to_async(serializer.save)()
 
+class AsyncBulkCreateMixin(CreateModelMixin):
+    @grpc_action(
+         request=SelfSerializer,
+         use_request_list=True, 
+         response=SelfSerializer,
+         use_response_list=True
+     )
+    async def BulkCreate(self, request, context):
+        serializer = await self.aget_serializer(message=request, many=True)
+        await sync_to_async(serializer.is_valid)(raise_exception=True)
+        await self.aperform_create(serializer)
+        return await serializer.amessage
+
+    async def perform_bulk_create(self, serializer):
+        await serializer.asave()
 
 class AsyncListModelMixin(ListModelMixin):
     async def List(self, request, context):

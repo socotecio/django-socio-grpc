@@ -156,6 +156,7 @@ class GRPCAction:
         service: Type["Service"],
         as_list: bool,
         list_field_name: Optional[str],
+        filter_field: Optional[ProtoField] = None,
     ):
         assert not isinstance(message, Placeholder)
         try:
@@ -169,12 +170,15 @@ class GRPCAction:
                 "going to transform ", message, " to proto_message"
             )
             # INFO - AM - 29/12/2023 - this is the next method that introspect serializer to register data to then generate proto
+            print("la: ", message_name or action_name)
             proto_message = message_class.create(
                 message,
                 base_name=message_name or action_name,
                 appendable_name=not message_name,
                 prefix=prefix,
+                filter_field=filter_field if not as_list else None,
             )
+            print("real name: ", proto_message.name)
             # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step:90, method: create_proto_message)
             ProtoGeneratorPrintHelper.print(
                 f"proto_message {proto_message} generated as string"
@@ -193,8 +197,10 @@ class GRPCAction:
                         name=list_field_name,
                         field_type=proto_message,
                         cardinality=FieldCardinality.REPEATED,
-                    )
+                    ),
                 ]
+                if filter_field:
+                    fields.append(filter_field)
                 if getattr(service, "pagination_class", None):
                     fields.append(
                         ProtoField(
@@ -228,9 +234,11 @@ class GRPCAction:
 
                 return list_message
 
+            # TODO - AM - 13/02/2024 - Add here when wanting filtering in request with detailled field and not struct
             return proto_message
 
-        except TypeError:
+        except TypeError as e:
+            print("error on create_proto_message: ", e)
             raise ProtoRegistrationError(
                 f"GRPCAction {action_name} has an invalid message type: {type(message)}"
             )
@@ -241,6 +249,23 @@ class GRPCAction:
             req_class = RequestProtoMessage
             res_class = ResponseProtoMessage
 
+        filter_field = None
+        print(service)
+        # print(service.__dict__)
+        if (
+            hasattr(service, "filter_backends")
+            and service.filter_backends
+            and service.get_use_filter_request()
+        ):
+            print("icicic")
+            filter_field = ProtoField.from_field_dict(
+                {
+                    "name": "_filters",
+                    "type": "google.protobuf.Struct",
+                    "cardinality": FieldCardinality.OPTIONAL,
+                }
+            )
+
         request = self.create_proto_message(
             self.request,
             self.request_name,
@@ -249,7 +274,19 @@ class GRPCAction:
             service,
             self.use_request_list,
             self.request_message_list_attr,
+            filter_field,
         )
+        # TODO - AM - 13/02/2024 - Add settings like: FILTER_BEHAVIOR=METADATA|REQUEST_STRUCT|REQUEST_STRUCT_WITH_SUFFIX|REQUEST_MESSAGE|REQUEST_MESSAGE_WITH_SUFFIX|
+        # request = self.create_proto_message(
+        #     self.request,
+        #     self.request_name if not service.filter_backends else f"{self.request_name}WithFilters",
+        #     req_class,
+        #     action_name if not service.filter_backends else f"{action_name}WithFilters",
+        #     service,
+        #     self.use_request_list,
+        #     self.request_message_list_attr,
+        #     filter_message
+        # )
         response = self.create_proto_message(
             self.response,
             self.response_name,

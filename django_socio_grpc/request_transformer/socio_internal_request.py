@@ -80,6 +80,7 @@ class InternalHttpRequest:
         return grpc_request_metadata
 
     def get_query_params(self):
+        # TODO - AM - 13/02/2024 - add get_from_request_methods
         return {
             **self.get_from_metadata(self.FILTERS_KEY),
             **self.get_from_metadata(self.PAGINATION_KEY),

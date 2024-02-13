@@ -5,17 +5,21 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service UnitTestModelController {
-    rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
-    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
-    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
-    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
-    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
+    rpc Create(NoneWithFilters) returns (UnitTestModelResponse) {}
+    rpc Destroy(UnitTestModelDestroyRequestWithFilters) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequestWithFilters) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(NoneWithFilters) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequestWithFilters) returns (UnitTestModelResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequestWithFilters) returns (UnitTestModelResponse) {}
+    rpc Stream(UnitTestModelStreamRequestWithFilters) returns (stream UnitTestModelResponse) {}
+    rpc Update(NoneWithFilters) returns (UnitTestModelResponse) {}
 }
 
-message UnitTestModelDestroyRequest {
+message NoneWithFilters {
+    bool archived = 1;
+}
+
+message UnitTestModelDestroyRequestWithFilters {
     int32 id = 1;
 }
 
@@ -25,7 +29,7 @@ message UnitTestModelListExtraArgsResponse {
     repeated UnitTestModelResponse results = 3;
 }
 
-message UnitTestModelListRequest {
+message UnitTestModelListRequestWithFilters {
 }
 
 message UnitTestModelListResponse {
@@ -33,21 +37,11 @@ message UnitTestModelListResponse {
     int32 count = 2;
 }
 
-message UnitTestModelListWithExtraArgsRequest {
-    bool archived = 1;
-}
-
-message UnitTestModelPartialUpdateRequest {
+message UnitTestModelPartialUpdateRequestWithFilters {
     int32 id = 1;
     string title = 2;
     optional string text = 3;
     repeated string _partial_update_fields = 4;
-}
-
-message UnitTestModelRequest {
-    int32 id = 1;
-    string title = 2;
-    optional string text = 3;
 }
 
 message UnitTestModelResponse {
@@ -56,10 +50,10 @@ message UnitTestModelResponse {
     optional string text = 3;
 }
 
-message UnitTestModelRetrieveRequest {
+message UnitTestModelRetrieveRequestWithFilters {
     int32 id = 1;
 }
 
-message UnitTestModelStreamRequest {
+message UnitTestModelStreamRequestWithFilters {
 }
 

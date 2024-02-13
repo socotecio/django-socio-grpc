@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from typing import (
+    TYPE_CHECKING,
     Callable,
     ClassVar,
     Dict,
@@ -35,6 +36,9 @@ from django_socio_grpc.utils.tools import rreplace
 
 from .exceptions import ProtoRegistrationError
 from .typing import FieldCardinality, FieldDict
+
+if TYPE_CHECKING:
+    from django_socio_grpc.services import Service
 
 logger = logging.getLogger("django_socio_grpc.generation")
 
@@ -453,19 +457,34 @@ class ProtoMessage:
         base_name: str,
         appendable_name: bool,
         prefix: str = "",
+        filter_field: Optional[ProtoField] = None,
     ) -> Union["ProtoMessage", str]:
         if isinstance(value, type) and issubclass(value, serializers.BaseSerializer):
             ProtoGeneratorPrintHelper.print("Message from serializer")
-            return cls.from_serializer(value, name=None if appendable_name else base_name)
+            proto_message = cls.from_serializer(
+                value, name=None if appendable_name else base_name
+            )
+            if filter_field:
+                proto_message.fields.append(filter_field)
+            return proto_message
         elif isinstance(value, str):
             ProtoGeneratorPrintHelper.print("Message from string")
             return PRIMITIVE_TYPES.get(value, value)
         # Empty value means an EmptyMessage, this is handled in the from_field_dicts
         elif isinstance(value, list) or not value:
             ProtoGeneratorPrintHelper.print("Message from field dicts")
-            return cls.from_field_dicts(
-                value, base_name=base_name, appendable_name=appendable_name, prefix=prefix
+            print("filter_field: ", filter_field)
+            proto_message = cls.from_field_dicts(
+                value,
+                base_name=base_name,
+                appendable_name=appendable_name and not filter_field,
+                prefix=prefix,
             )
+            print("try name", proto_message.name, base_name, appendable_name, prefix)
+            if filter_field:
+                print("in filter_field!!!!!!!!!!!!!!!!!")
+                proto_message.fields.append(filter_field)
+            return proto_message
         else:
             raise TypeError()
 
@@ -477,7 +496,9 @@ class ProtoMessage:
         appendable_name: bool = True,
         prefix: str = "",
     ) -> "ProtoMessage":
+        print("from_field_dicts", appendable_name)
         if not fields and appendable_name:
+            print("Emtpy not good")
             return EmptyMessage
 
         return cls(

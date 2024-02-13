@@ -2,6 +2,7 @@ from typing import List, Optional
 
 import pytest
 from django.db import models
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers
 
 from django_socio_grpc import proto_serializers
@@ -451,6 +452,29 @@ class TestGrpcActionProto:
         async def EmptyMessages(self, request, context):
             ...
 
+    class MyActionWithFilter(Service):
+        serializer_class = MySerializer
+        filter_backends = [DjangoFilterBackend]
+        filterset_fields = ["title", "text"]
+        use_filter_request = True
+
+        @grpc_action(
+            request=[],
+            response=BasicProtoListChildSerializer,
+            request_name="ReqNameRequest",
+            use_response_list=True,
+            use_request_list=True,
+        )
+        async def BasicListWithFilter(self, request, context):
+            ...
+
+        @grpc_action(
+            request=[],
+            response="google.protobuf.Empty",
+        )
+        async def FilterInRequest(self, request, context):
+            ...
+
     def test_register_action_list(self):
         proto_rpc = self.MyAction.BasicList.make_proto_rpc("BasicList", self.MyAction)
 
@@ -488,3 +512,36 @@ class TestGrpcActionProto:
 
         assert request is EmptyMessage
         assert response is EmptyMessage
+
+    def test_register_action_with_filters(self):
+        proto_rpc = self.MyActionWithFilter.FilterInRequest.make_proto_rpc(
+            "FilterInRequest", self.MyActionWithFilter
+        )
+
+        request = proto_rpc.request
+        response = proto_rpc.response
+
+        assert request.name == "FilterInRequest"
+        assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
+        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+
+        assert response is EmptyMessage
+
+    def test_register_action_list_with_filters(self):
+        proto_rpc = self.MyActionWithFilter.BasicListWithFilter.make_proto_rpc(
+            "BasicListWithFilter", self.MyActionWithFilter
+        )
+
+        response = proto_rpc.response
+
+        assert response.name == "BasicProtoListChildListResponse"
+        assert response["results"].field_type.name == "BasicProtoListChildResponse"
+
+        request = proto_rpc.request
+
+        print(request)
+
+        assert request.name == "ReqNameListRequest"
+        assert request["results"].field_type.name == "ReqNameRequest"
+        assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
+        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"

@@ -34,12 +34,18 @@ class Service(GRPCActionMixin):
 
     _is_auth_performed: bool = False
 
+    use_filter_request: bool = False
+
     def __init__(self, **kwargs):
         """
         Set kwargs as self attributes.
         """
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+    @classmethod
+    def get_use_filter_request(cls):
+        return cls.use_filter_request
 
     @classmethod
     def get_service_name(cls):

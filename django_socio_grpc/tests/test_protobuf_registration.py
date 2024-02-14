@@ -472,6 +472,13 @@ class TestGrpcActionProto:
             request=[],
             response="google.protobuf.Empty",
         )
+        async def FilterInEmpty(self, request, context):
+            ...
+
+        @grpc_action(
+            request=[{"name": "test", "type": "bool"}],
+            response="google.protobuf.Empty",
+        )
         async def FilterInRequest(self, request, context):
             ...
 
@@ -513,21 +520,21 @@ class TestGrpcActionProto:
         assert request is EmptyMessage
         assert response is EmptyMessage
 
-    def test_register_action_with_filters(self):
-        proto_rpc = self.MyActionWithFilter.FilterInRequest.make_proto_rpc(
-            "FilterInRequest", self.MyActionWithFilter
+    def test_register_action_empty_message_with_struct_filters(self):
+        proto_rpc = self.MyActionWithFilter.FilterInEmpty.make_proto_rpc(
+            "FilterInEmpty", self.MyActionWithFilter
         )
 
         request = proto_rpc.request
         response = proto_rpc.response
 
-        assert request.name == "FilterInRequest"
+        assert request.name == "MyActionWithFilterFilterInEmptyRequest"
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
         assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
 
         assert response is EmptyMessage
 
-    def test_register_action_list_with_filters(self):
+    def test_register_action_list_with_struct_filters(self):
         proto_rpc = self.MyActionWithFilter.BasicListWithFilter.make_proto_rpc(
             "BasicListWithFilter", self.MyActionWithFilter
         )
@@ -539,9 +546,23 @@ class TestGrpcActionProto:
 
         request = proto_rpc.request
 
-        print(request)
-
         assert request.name == "ReqNameListRequest"
         assert request["results"].field_type.name == "ReqNameRequest"
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
         assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+
+    def test_register_action_with_struct_filters(self):
+        proto_rpc = self.MyActionWithFilter.FilterInRequest.make_proto_rpc(
+            "FilterInRequest", self.MyActionWithFilter
+        )
+
+        request = proto_rpc.request
+        response = proto_rpc.response
+
+        assert request.name == "MyActionWithFilterFilterInRequestRequest"
+        assert len(request.fields) == 2
+        assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
+        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+        assert "test" in request
+
+        assert response is EmptyMessage

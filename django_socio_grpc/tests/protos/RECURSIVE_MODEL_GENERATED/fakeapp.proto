@@ -5,25 +5,19 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service RecursiveTestModelController {
-    rpc Create(NoneWithFilters) returns (RecursiveTestModelResponse) {}
-    rpc Destroy(RecursiveTestModelDestroyRequestWithFilters) returns (google.protobuf.Empty) {}
-    rpc List(RecursiveTestModelListRequestWithFilters) returns (RecursiveTestModelListResponse) {}
-    rpc PartialUpdate(RecursiveTestModelPartialUpdateRequestWithFilters) returns (RecursiveTestModelResponse) {}
-    rpc Retrieve(RecursiveTestModelRetrieveRequestWithFilters) returns (RecursiveTestModelResponse) {}
-    rpc Update(NoneWithFilters) returns (RecursiveTestModelResponse) {}
+    rpc Create(RecursiveTestModelRequest) returns (RecursiveTestModelResponse) {}
+    rpc Destroy(RecursiveTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RecursiveTestModelListRequest) returns (RecursiveTestModelListResponse) {}
+    rpc PartialUpdate(RecursiveTestModelPartialUpdateRequest) returns (RecursiveTestModelResponse) {}
+    rpc Retrieve(RecursiveTestModelRetrieveRequest) returns (RecursiveTestModelResponse) {}
+    rpc Update(RecursiveTestModelRequest) returns (RecursiveTestModelResponse) {}
 }
 
-message NoneWithFilters {
-    string uuid = 1;
-    NoneWithFilters parent = 2;
-    repeated NoneWithFilters children = 3;
-}
-
-message RecursiveTestModelDestroyRequestWithFilters {
+message RecursiveTestModelDestroyRequest {
     string uuid = 1;
 }
 
-message RecursiveTestModelListRequestWithFilters {
+message RecursiveTestModelListRequest {
 }
 
 message RecursiveTestModelListResponse {
@@ -31,7 +25,7 @@ message RecursiveTestModelListResponse {
     int32 count = 2;
 }
 
-message RecursiveTestModelPartialUpdateRequestWithFilters {
+message RecursiveTestModelPartialUpdateRequest {
     string uuid = 1;
     repeated string _partial_update_fields = 2;
     RecursiveTestModelRequest parent = 3;
@@ -50,7 +44,7 @@ message RecursiveTestModelResponse {
     repeated RecursiveTestModelResponse children = 3;
 }
 
-message RecursiveTestModelRetrieveRequestWithFilters {
+message RecursiveTestModelRetrieveRequest {
     string uuid = 1;
 }
 

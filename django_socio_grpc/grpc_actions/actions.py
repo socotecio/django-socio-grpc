@@ -170,7 +170,6 @@ class GRPCAction:
                 "going to transform ", message, " to proto_message"
             )
             # INFO - AM - 29/12/2023 - this is the next method that introspect serializer to register data to then generate proto
-            print("la: ", message_name or action_name)
             proto_message = message_class.create(
                 message,
                 base_name=message_name or action_name,
@@ -178,7 +177,6 @@ class GRPCAction:
                 prefix=prefix,
                 filter_field=filter_field if not as_list else None,
             )
-            print("real name: ", proto_message.name)
             # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step:90, method: create_proto_message)
             ProtoGeneratorPrintHelper.print(
                 f"proto_message {proto_message} generated as string"
@@ -237,8 +235,7 @@ class GRPCAction:
             # TODO - AM - 13/02/2024 - Add here when wanting filtering in request with detailled field and not struct
             return proto_message
 
-        except TypeError as e:
-            print("error on create_proto_message: ", e)
+        except TypeError:
             raise ProtoRegistrationError(
                 f"GRPCAction {action_name} has an invalid message type: {type(message)}"
             )
@@ -250,14 +247,11 @@ class GRPCAction:
             res_class = ResponseProtoMessage
 
         filter_field = None
-        print(service)
-        # print(service.__dict__)
         if (
             hasattr(service, "filter_backends")
             and service.filter_backends
             and service.get_use_filter_request()
         ):
-            print("icicic")
             filter_field = ProtoField.from_field_dict(
                 {
                     "name": "_filters",

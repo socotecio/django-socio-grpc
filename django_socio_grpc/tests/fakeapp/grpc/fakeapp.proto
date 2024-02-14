@@ -37,12 +37,12 @@ service ImportStructEvenInArrayModelController {
 }
 
 service RecursiveTestModelController {
-    rpc Create(NoneWithFilters) returns (RecursiveTestModelResponse) {}
-    rpc Destroy(RecursiveTestModelDestroyRequestWithFilters) returns (google.protobuf.Empty) {}
-    rpc List(RecursiveTestModelListRequestWithFilters) returns (RecursiveTestModelListResponse) {}
-    rpc PartialUpdate(RecursiveTestModelPartialUpdateRequestWithFilters) returns (RecursiveTestModelResponse) {}
-    rpc Retrieve(RecursiveTestModelRetrieveRequestWithFilters) returns (RecursiveTestModelResponse) {}
-    rpc Update(NoneWithFilters) returns (RecursiveTestModelResponse) {}
+    rpc Create(RecursiveTestModelRequest) returns (RecursiveTestModelResponse) {}
+    rpc Destroy(RecursiveTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(RecursiveTestModelListRequest) returns (RecursiveTestModelListResponse) {}
+    rpc PartialUpdate(RecursiveTestModelPartialUpdateRequest) returns (RecursiveTestModelResponse) {}
+    rpc Retrieve(RecursiveTestModelRetrieveRequest) returns (RecursiveTestModelResponse) {}
+    rpc Update(RecursiveTestModelRequest) returns (RecursiveTestModelResponse) {}
 }
 
 service RelatedFieldModelController {
@@ -78,37 +78,36 @@ service StreamInController {
 }
 
 service SyncUnitTestModelController {
-    rpc Create(NoneWithFilters) returns (UnitTestModelResponse) {}
-    rpc Destroy(UnitTestModelDestroyRequestWithFilters) returns (google.protobuf.Empty) {}
-    rpc List(UnitTestModelListRequestWithFilters) returns (UnitTestModelListResponse) {}
-    rpc ListWithExtraArgs(NoneWithFilters) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc PartialUpdate(UnitTestModelPartialUpdateRequestWithFilters) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequestWithFilters) returns (UnitTestModelResponse) {}
-    rpc Stream(UnitTestModelStreamRequestWithFilters) returns (stream UnitTestModelResponse) {}
-    rpc Update(NoneWithFilters) returns (UnitTestModelResponse) {}
+    rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
+    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModelResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
+    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
 service UnitTestModelController {
-    rpc Create(NoneWithFilters) returns (UnitTestModelResponse) {}
-    rpc Destroy(UnitTestModelDestroyRequestWithFilters) returns (google.protobuf.Empty) {}
-    rpc List(UnitTestModelListRequestWithFilters) returns (UnitTestModelListResponse) {}
-    rpc ListWithExtraArgs(NoneWithFilters) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc PartialUpdate(UnitTestModelPartialUpdateRequestWithFilters) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequestWithFilters) returns (UnitTestModelResponse) {}
-    rpc Stream(UnitTestModelStreamRequestWithFilters) returns (stream UnitTestModelResponse) {}
-    rpc Update(NoneWithFilters) returns (UnitTestModelResponse) {}
+    rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
+    rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc ListWithExtraArgs(UnitTestModelListWithExtraArgsRequest) returns (UnitTestModelListExtraArgsResponse) {}
+    rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModelResponse) {}
+    rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
+    rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+    rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
-service UnitTestModelFilterRequestController {
-    rpc Create(NoneWithFilters) returns (UnitTestModelResponse) {}
-    rpc Destroy(UnitTestModelDestroyRequestWithFilters) returns (google.protobuf.Empty) {}
-    rpc EmptyWithFilterRequest(NoneWithFilters) returns (google.protobuf.Empty) {}
-    rpc List(UnitTestModelListRequestWithFilters) returns (UnitTestModelListResponse) {}
-    rpc ListWithExtraArgs(NoneWithFilters) returns (UnitTestModelListExtraArgsResponse) {}
-    rpc PartialUpdate(UnitTestModelPartialUpdateRequestWithFilters) returns (UnitTestModelResponse) {}
-    rpc Retrieve(UnitTestModelRetrieveRequestWithFilters) returns (UnitTestModelResponse) {}
-    rpc Stream(UnitTestModelStreamRequestWithFilters) returns (stream UnitTestModelResponse) {}
-    rpc Update(NoneWithFilters) returns (UnitTestModelResponse) {}
+service UnitTestModelWithStructFilterController {
+    rpc Create(UnitTestModelWithStructFilterRequest) returns (UnitTestModelWithStructFilterResponse) {}
+    rpc Destroy(UnitTestModelWithStructFilterDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc EmptyWithFilter(UnitTestModelWithStructFilterEmptyWithFilterRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelWithStructFilterListRequest) returns (UnitTestModelWithStructFilterListResponse) {}
+    rpc PartialUpdate(UnitTestModelWithStructFilterPartialUpdateRequest) returns (UnitTestModelWithStructFilterResponse) {}
+    rpc Retrieve(UnitTestModelWithStructFilterRetrieveRequest) returns (UnitTestModelWithStructFilterResponse) {}
+    rpc Stream(UnitTestModelWithStructFilterStreamRequest) returns (stream UnitTestModelWithStructFilterResponse) {}
+    rpc Update(UnitTestModelWithStructFilterRequest) returns (UnitTestModelWithStructFilterResponse) {}
 }
 
 message BaseProtoExampleListResponse {
@@ -294,15 +293,11 @@ message ManyManyModelResponse {
     string name = 2;
 }
 
-message NoneWithFilters {
-    optional google.protobuf.Struct _filters = 1;
-}
-
-message RecursiveTestModelDestroyRequestWithFilters {
+message RecursiveTestModelDestroyRequest {
     string uuid = 1;
 }
 
-message RecursiveTestModelListRequestWithFilters {
+message RecursiveTestModelListRequest {
 }
 
 message RecursiveTestModelListResponse {
@@ -310,7 +305,7 @@ message RecursiveTestModelListResponse {
     int32 count = 2;
 }
 
-message RecursiveTestModelPartialUpdateRequestWithFilters {
+message RecursiveTestModelPartialUpdateRequest {
     string uuid = 1;
     repeated string _partial_update_fields = 2;
     RecursiveTestModelRequest parent = 3;
@@ -329,7 +324,7 @@ message RecursiveTestModelResponse {
     repeated RecursiveTestModelResponse children = 3;
 }
 
-message RecursiveTestModelRetrieveRequestWithFilters {
+message RecursiveTestModelRetrieveRequest {
     string uuid = 1;
 }
 
@@ -483,9 +478,12 @@ message StreamInStreamToStreamResponse {
     string name = 1;
 }
 
-message UnitTestModelDestroyRequestWithFilters {
+message SyncUnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
+}
+
+message UnitTestModelDestroyRequest {
     int32 id = 1;
-    optional google.protobuf.Struct _filters = 2;
 }
 
 message UnitTestModelListExtraArgsResponse {
@@ -494,8 +492,7 @@ message UnitTestModelListExtraArgsResponse {
     repeated UnitTestModelResponse results = 3;
 }
 
-message UnitTestModelListRequestWithFilters {
-    optional google.protobuf.Struct _filters = 1;
+message UnitTestModelListRequest {
 }
 
 message UnitTestModelListResponse {
@@ -503,12 +500,21 @@ message UnitTestModelListResponse {
     int32 count = 2;
 }
 
-message UnitTestModelPartialUpdateRequestWithFilters {
+message UnitTestModelListWithExtraArgsRequest {
+    bool archived = 1;
+}
+
+message UnitTestModelPartialUpdateRequest {
     int32 id = 1;
     string title = 2;
     optional string text = 3;
     repeated string _partial_update_fields = 4;
-    optional google.protobuf.Struct _filters = 5;
+}
+
+message UnitTestModelRequest {
+    int32 id = 1;
+    string title = 2;
+    optional string text = 3;
 }
 
 message UnitTestModelResponse {
@@ -517,12 +523,58 @@ message UnitTestModelResponse {
     optional string text = 3;
 }
 
-message UnitTestModelRetrieveRequestWithFilters {
+message UnitTestModelRetrieveRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelStreamRequest {
+}
+
+message UnitTestModelWithStructFilterDestroyRequest {
     int32 id = 1;
     optional google.protobuf.Struct _filters = 2;
 }
 
-message UnitTestModelStreamRequestWithFilters {
+message UnitTestModelWithStructFilterEmptyWithFilterRequest {
+    optional google.protobuf.Struct _filters = 1;
+}
+
+message UnitTestModelWithStructFilterListRequest {
+    optional google.protobuf.Struct _filters = 1;
+}
+
+message UnitTestModelWithStructFilterListResponse {
+    repeated UnitTestModelWithStructFilterResponse results = 1;
+    int32 count = 2;
+}
+
+message UnitTestModelWithStructFilterPartialUpdateRequest {
+    int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    repeated string _partial_update_fields = 4;
+    optional google.protobuf.Struct _filters = 5;
+}
+
+message UnitTestModelWithStructFilterRequest {
+    int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    optional google.protobuf.Struct _filters = 4;
+}
+
+message UnitTestModelWithStructFilterResponse {
+    int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+}
+
+message UnitTestModelWithStructFilterRetrieveRequest {
+    int32 id = 1;
+    optional google.protobuf.Struct _filters = 2;
+}
+
+message UnitTestModelWithStructFilterStreamRequest {
     optional google.protobuf.Struct _filters = 1;
 }
 

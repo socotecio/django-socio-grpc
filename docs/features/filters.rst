@@ -167,14 +167,19 @@ You can register it **by service** or **globally**:
         filter_backends = [DjangoFilterBackend]
 
 
-* Register DjangoFilterBackend **globally**. :ref:`See DSG settings DEFAULT_FILTER_BACKENDS<default_filter_backends_settings>`:
+* Register DjangoFilterBackend **globally**. :ref:`See DSG settings DEFAULT_FILTER_BACKENDS<default_filter_backends_settings>`
+* Choose you prefered filtered options. Think about regenerating your proto when changing it. :ref:`See DSG settings FILTER_BEHAVIOR<settings-filter-behavior>`
 
 .. code-block:: python
+
+
+    from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
 
     # settings.py
     GRPC_FRAMEWORK = {
         ...
         "DEFAULT_FILTER_BACKENDS": [DjangoFilterBackend],
+        "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT
         ...
     }
 
@@ -235,7 +240,7 @@ There is two way to defining filter fields.
 Using it
 ========
 
-We use grpc metadata to make the filters works out of the box.
+You can use metadata or ``_filters`` field to make the filters works out of the box.
 
 For more example you can see the `client in DSG example repo <https://github.com/socotecio/django-socio-grpc-example/blob/main/backend/bib_example_filter_client.py>`_
 
@@ -247,6 +252,9 @@ For more example you can see the `client in DSG example repo <https://github.com
     import json
 
     async def main():
+        ######################################################################################################
+        # Working if FILTER_BEHAVIOR settings is egual to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        ######################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
@@ -256,6 +264,23 @@ For more example you can see the `client in DSG example repo <https://github.com
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
+        
+
+        ############################################################################################################
+        # Working if FILTER_BEHAVIOR settings is egual to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        ############################################################################################################
+        async with grpc.aio.insecure_channel("localhost:50051") as channel:
+            quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
+
+            # filters only the user with id "be76adbb-73c3-4d65-b823-66b3276df38b"
+            filter_as_dict = {"user": "be76adbb-73c3-4d65-b823-66b3276df38b"}
+            filter_as_struct = struct_pb2.Struct()
+            filter_as_struct.update(filter_as_dict)
+            
+            # _filters field is only generated if you set FILTER_BEHAVIOR to the correct options. Think to regenerate proto after changing it.
+            request = quickstart_pb2.PostListRequest(_filters=filter_as_struct)
+
+            response = await quickstart_client.List(request)
 
     if __name__ == "__main__":
         asyncio.run(main())
@@ -293,6 +318,9 @@ Refer to the DRF docs for implementation details and specific lookup.
     import json
 
     async def main():
+        ######################################################################################################
+        # Working if FILTER_BEHAVIOR settings is egual to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        ######################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
@@ -301,6 +329,22 @@ Refer to the DRF docs for implementation details and specific lookup.
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
+
+        
+        ############################################################################################################
+        # Working if FILTER_BEHAVIOR settings is egual to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        ############################################################################################################
+        async with grpc.aio.insecure_channel("localhost:50051") as channel:
+            quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
+
+            filter_as_dict = {"search": "test-user"} 
+            filter_as_struct = struct_pb2.Struct()
+            filter_as_struct.update(filter_as_dict)
+            
+            # _filters field is only generated if you set FILTER_BEHAVIOR to the correct options. Think to regenerate proto after changing it.
+            request = quickstart_pb2.PostListRequest(_filters=filter_as_struct)
+
+            response = await quickstart_client.List(request)
 
     if __name__ == "__main__":
         asyncio.run(main())
@@ -337,6 +381,9 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
     import json
 
     async def main():
+        ######################################################################################################
+        # Working if FILTER_BEHAVIOR settings is egual to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        ######################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
@@ -346,6 +393,22 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
+
+        ############################################################################################################
+        # Working if FILTER_BEHAVIOR settings is egual to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        ############################################################################################################
+        async with grpc.aio.insecure_channel("localhost:50051") as channel:
+            quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
+
+            # filters only the user with id "be76adbb-73c3-4d65-b823-66b3276df38b"
+            filter_as_dict = {"ordering": "-pub_date"}
+            filter_as_struct = struct_pb2.Struct()
+            filter_as_struct.update(filter_as_dict)
+            
+            # _filters field is only generated if you set FILTER_BEHAVIOR to the correct options. Think to regenerate proto after changing it.
+            request = quickstart_pb2.PostListRequest(_filters=filter_as_struct)
+
+            response = await quickstart_client.List(request)
 
     if __name__ == "__main__":
         asyncio.run(main())

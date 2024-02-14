@@ -14,7 +14,7 @@ class UnitTestModelWithStructFilterService(
     serializer_class = UnitTestModelWithStructFilterSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["title", "text"]
-    use_filter_request = True
+    use_struct_filter_request = True
 
     @grpc_action(
         request=[],

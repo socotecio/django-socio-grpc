@@ -250,7 +250,7 @@ class GRPCAction:
         if (
             hasattr(service, "filter_backends")
             and service.filter_backends
-            and service.get_use_filter_request()
+            and service.get_use_struct_filter_request()
         ):
             filter_field = ProtoField.from_field_dict(
                 {

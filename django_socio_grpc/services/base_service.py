@@ -34,7 +34,7 @@ class Service(GRPCActionMixin):
 
     _is_auth_performed: bool = False
 
-    use_filter_request: bool = False
+    use_struct_filter_request: bool = False
 
     def __init__(self, **kwargs):
         """
@@ -44,8 +44,8 @@ class Service(GRPCActionMixin):
             setattr(self, key, value)
 
     @classmethod
-    def get_use_filter_request(cls):
-        return cls.use_filter_request
+    def get_use_struct_filter_request(cls):
+        return cls.use_struct_filter_request
 
     @classmethod
     def get_service_name(cls):

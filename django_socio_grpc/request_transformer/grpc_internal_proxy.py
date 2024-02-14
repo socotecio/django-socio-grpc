@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from google.protobuf.message import Message
 from grpc.aio import ServicerContext
 from grpc.aio._typing import ResponseType
 
@@ -15,11 +16,12 @@ class GRPCInternalProxyContext:
     """
 
     grpc_context: ServicerContext
+    grpc_request: Message
     grpc_action: str
     http_request: InternalHttpRequest = None
 
     def __post_init__(self):
-        self.http_request = InternalHttpRequest(self, self.grpc_action)
+        self.http_request = InternalHttpRequest(self, self.grpc_request, self.grpc_action)
 
     def __getattr__(self, attr):
         if hasattr(self.grpc_context, attr):

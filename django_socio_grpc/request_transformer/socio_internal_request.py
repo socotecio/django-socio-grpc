@@ -1,10 +1,18 @@
 import json
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import escape_uri_path, iri_to_uri
+from google.protobuf.message import Message
 
+from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.settings import grpc_settings
+
+if TYPE_CHECKING:
+    from django_socio_grpc.request_transformer.grpc_internal_proxy import (
+        GRPCInternalProxyContext,
+    )
 
 
 class InternalHttpRequest:
@@ -20,6 +28,7 @@ class InternalHttpRequest:
     }
     FILTERS_KEY = "FILTERS"
     PAGINATION_KEY = "PAGINATION"
+    FILTERS_KEY_IN_REQUEST = "_filters"
 
     #  Map http method to use DjangoModelPermission
     METHOD_MAP = {
@@ -31,7 +40,9 @@ class InternalHttpRequest:
         "Destroy": "DELETE",
     }
 
-    def __init__(self, grpc_context, grpc_action):
+    def __init__(
+        self, grpc_context: "GRPCInternalProxyContext", grpc_request: Message, grpc_action: str
+    ):
         self.user = None
         self.auth = None
 
@@ -53,7 +64,7 @@ class InternalHttpRequest:
         self.method = self.grpc_action_to_http_method_name(grpc_action)
 
         # Computed params
-        self.query_params = self.get_query_params()
+        self.query_params = self.get_query_params(grpc_request)
         # INFO - AM - 10/02/2021 - Only implementing GET because it's easier as we have metadata here. For post we will have to pass the request and transform it to python dict.
         # It's possible but it will be slow the all thing so we hava to param this behavior with settings.
         # So we are waiting for the need to implement it
@@ -73,17 +84,27 @@ class InternalHttpRequest:
             **json.loads(user_custom_headers),
         }
 
+    def get_from_request_struct(self, grpc_request, struct_field_name):
+        # INFO - AM - 14/02/2024 - Need to check both if the request have a _filters key and if this optional _filters is filled
+        if hasattr(grpc_request, struct_field_name) and grpc_request.HasField(
+            struct_field_name
+        ):
+            return message_to_dict(getattr(grpc_request, struct_field_name))
+
+        return {}
+
     def convert_metadata_to_dict(self, invocation_metadata):
         grpc_request_metadata = {}
         for key, value in dict(invocation_metadata).items():
             grpc_request_metadata[key.upper()] = value
         return grpc_request_metadata
 
-    def get_query_params(self):
+    def get_query_params(self, grpc_request: Message):
         # TODO - AM - 13/02/2024 - add get_from_request_methods
         return {
             **self.get_from_metadata(self.FILTERS_KEY),
             **self.get_from_metadata(self.PAGINATION_KEY),
+            **self.get_from_request_struct(grpc_request, self.FILTERS_KEY_IN_REQUEST),
         }
 
     def build_absolute_uri(self):

@@ -13,7 +13,7 @@ from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
-class TestFiltering(TestCase):
+class TestFilteringMetadata(TestCase):
     def setUp(self):
         for idx in range(10):
             title = "z" * (idx + 1)
@@ -28,7 +28,7 @@ class TestFiltering(TestCase):
     def tearDown(self):
         self.fake_grpc.close()
 
-    async def test_django_filter(self):
+    async def test_django_filter_with_metadata(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = UnitTestModelListRequest()
         filter_as_dict = {"title": "zzzzzzz"}

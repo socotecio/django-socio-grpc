@@ -176,8 +176,12 @@ class GRPCAction:
                 base_name=message_name or action_name,
                 appendable_name=not message_name,
                 prefix=prefix,
-                filter_field=filter_field if not as_list else None,
-                pagination_field=pagination_field if not as_list else None,
+                filter_field=filter_field
+                if not as_list
+                else None,  # If list we need the filter field in the ListMessage not the children message
+                pagination_field=pagination_field
+                if not as_list
+                else None,  # If list we need the filter field in the ListMessage not the children message
             )
             # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step:90, method: create_proto_message)
             ProtoGeneratorPrintHelper.print(
@@ -199,6 +203,7 @@ class GRPCAction:
                         cardinality=FieldCardinality.REPEATED,
                     ),
                 ]
+                # INFO - AM - 14/02/2024 - Adding manually the filter_field and pagination_field if existing to the list message
                 if filter_field:
                     fields.append(filter_field)
                 if pagination_field:
@@ -321,17 +326,6 @@ class GRPCAction:
             filter_field,
             pagination_field,
         )
-        # TODO - AM - 13/02/2024 - Add settings ADD_SUFFIX_WHEN_MESSAGE_BEHAVIOR
-        # request = self.create_proto_message(
-        #     self.request,
-        #     self.request_name if not service.filter_backends else f"{self.request_name}WithFilters",
-        #     req_class,
-        #     action_name if not service.filter_backends else f"{action_name}WithFilters",
-        #     service,
-        #     self.use_request_list,
-        #     self.request_message_list_attr,
-        #     filter_message
-        # )
         response = self.create_proto_message(
             self.response,
             self.response_name,

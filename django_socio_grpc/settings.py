@@ -83,8 +83,6 @@ DEFAULTS = {
     # Prefered pagination mode capability. See FilterAndPaginationBehaviorOptions for options
     # /!\ for 1.O.0 the default behavior will change from METADATA_STRICT to METADATA_AND_FILTER_MESSAGE
     "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT,
-    # TODO - AM - at the end
-    "ADD_SUFFIX_WHEN_MESSAGE_BEHAVIOR": False,
 }
 
 

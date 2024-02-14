@@ -44,6 +44,11 @@ class InternalHttpRequest:
     def __init__(
         self, grpc_context: "GRPCInternalProxyContext", grpc_request: Message, grpc_action: str
     ):
+        """
+        grpc_context is used to get all the headers and other informations
+        grpc_request is only used for filter and pagination from the request if setted by FILTER_BEHAVIOR or PAGINATION_BEHAVIOR settings.
+        grpc_action is used to populate InternalHttpRequest.method
+        """
         self.user = None
         self.auth = None
 
@@ -64,7 +69,7 @@ class InternalHttpRequest:
         #  Grpc action to http method name
         self.method = self.grpc_action_to_http_method_name(grpc_action)
 
-        # Computed params
+        # Computed params | grpc_request is passed as argument and not class element because we don't want developer to access to the request from the context proxy
         self.query_params = self.get_query_params(grpc_request)
         # INFO - AM - 10/02/2021 - Only implementing GET because it's easier as we have metadata here. For post we will have to pass the request and transform it to python dict.
         # It's possible but it will be slow the all thing so we hava to param this behavior with settings.

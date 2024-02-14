@@ -16,6 +16,7 @@ class GRPCInternalProxyContext:
     """
 
     grpc_context: ServicerContext
+    # INFO - AM - 14/02/2024 - grpc_request is used to get filter and pagination from the request. It is not acessible in GRPCInternalProxyContext.
     grpc_request: Message
     grpc_action: str
     http_request: InternalHttpRequest = None

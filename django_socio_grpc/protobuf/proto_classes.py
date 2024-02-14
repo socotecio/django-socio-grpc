@@ -477,7 +477,8 @@ class ProtoMessage:
                 base_name=base_name,
                 appendable_name=appendable_name,
                 prefix=prefix,
-                authorize_empty=not filter_field and not pagination_field,
+                authorize_empty=not filter_field
+                and not pagination_field,  # If we have filter_field or pagination_field we can't have an empty message
             )
             if filter_field:
                 proto_message.fields.append(filter_field)

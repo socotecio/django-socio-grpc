@@ -23,7 +23,7 @@ __all__ = ["grpc_settings"]
 class FilterAndPaginationBehaviorOptions:
     METADATA_STRICT = "METADATA_STRICT"
     REQUEST_STRUCT_STRICT = "REQUEST_STRUCT_STRICT"
-    METADATA_AND_FILTER_STRUCT = "METADATA_AND_FILTER_STRUCT"
+    METADATA_AND_REQUEST_STRUCT = "METADATA_AND_REQUEST_STRUCT"
 
     # More complicated and will be implented late 2024: https://github.com/socotecio/django-socio-grpc/issues/247
     # FILTER_MESSAGE_STRICT = "METADATA_STRICT"

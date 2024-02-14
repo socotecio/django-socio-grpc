@@ -35,11 +35,11 @@ class Service(GRPCActionMixin):
     _is_auth_performed: bool = False
 
     use_struct_filter_request: bool = grpc_settings.FILTER_BEHAVIOR in [
-        FilterAndPaginationBehaviorOptions.METADATA_AND_FILTER_STRUCT,
+        FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
         FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
     ]
     use_struct_pagination_request: bool = grpc_settings.PAGINATION_BEHAVIOR in [
-        FilterAndPaginationBehaviorOptions.METADATA_AND_FILTER_STRUCT,
+        FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
         FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
     ]
 

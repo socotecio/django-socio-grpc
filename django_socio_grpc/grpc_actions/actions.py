@@ -256,7 +256,7 @@ class GRPCAction:
         ):
             # INFO - AM - 14/02/2024 - if using a struct message for the filtering is activated in the service or globally we add the _filters as a struct message
             if service.get_use_struct_filter_request() or grpc_settings.FILTER_BEHAVIOR in [
-                FilterAndPaginationBehaviorOptions.METADATA_AND_FILTER_STRUCT,
+                FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
                 FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
             ]:
                 return ProtoField.from_field_dict(
@@ -286,7 +286,7 @@ class GRPCAction:
                 service.get_use_struct_pagination_request()
                 or grpc_settings.PAGINATION_BEHAVIOR
                 in [
-                    FilterAndPaginationBehaviorOptions.METADATA_AND_FILTER_STRUCT,
+                    FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
                     FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
                 ]
             ):

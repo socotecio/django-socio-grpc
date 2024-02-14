@@ -7,7 +7,7 @@ from django.utils.encoding import escape_uri_path, iri_to_uri
 from google.protobuf.message import Message
 
 from django_socio_grpc.protobuf.json_format import message_to_dict
-from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
 
 if TYPE_CHECKING:
     from django_socio_grpc.request_transformer.grpc_internal_proxy import (
@@ -29,6 +29,7 @@ class InternalHttpRequest:
     FILTERS_KEY = "FILTERS"
     PAGINATION_KEY = "PAGINATION"
     FILTERS_KEY_IN_REQUEST = "_filters"
+    PAGINATION_KEY_IN_REQUEST = "_pagination"
 
     #  Map http method to use DjangoModelPermission
     METHOD_MAP = {
@@ -100,12 +101,44 @@ class InternalHttpRequest:
         return grpc_request_metadata
 
     def get_query_params(self, grpc_request: Message):
-        # TODO - AM - 13/02/2024 - add get_from_request_methods
-        return {
-            **self.get_from_metadata(self.FILTERS_KEY),
-            **self.get_from_metadata(self.PAGINATION_KEY),
-            **self.get_from_request_struct(grpc_request, self.FILTERS_KEY_IN_REQUEST),
-        }
+        query_params = {}
+        if grpc_settings.FILTER_BEHAVIOR in [
+            FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
+            FilterAndPaginationBehaviorOptions.METADATA_STRICT,
+        ]:
+            query_params = {
+                **query_params,
+                **self.get_from_metadata(self.FILTERS_KEY),
+            }
+
+        if grpc_settings.FILTER_BEHAVIOR in [
+            FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
+            FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
+        ]:
+            query_params = {
+                **query_params,
+                **self.get_from_request_struct(grpc_request, self.FILTERS_KEY_IN_REQUEST),
+            }
+
+        if grpc_settings.PAGINATION_BEHAVIOR in [
+            FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
+            FilterAndPaginationBehaviorOptions.METADATA_STRICT,
+        ]:
+            query_params = {
+                **query_params,
+                **self.get_from_metadata(self.PAGINATION_KEY),
+            }
+
+        if grpc_settings.PAGINATION_BEHAVIOR in [
+            FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
+            FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
+        ]:
+            query_params = {
+                **query_params,
+                **self.get_from_request_struct(grpc_request, self.PAGINATION_KEY_IN_REQUEST),
+            }
+
+        return query_params
 
     def build_absolute_uri(self):
         return "NYI"

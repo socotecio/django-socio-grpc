@@ -643,7 +643,9 @@ class TestGrpcActionProto:
             "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
         }
     )
-    def test_register_action_with_struct_pagination_on_settings_METADATA_AND_REQUEST_STRUCT(self):
+    def test_register_action_with_struct_pagination_on_settings_METADATA_AND_REQUEST_STRUCT(
+        self,
+    ):
         proto_rpc = self.MyAction.Optional.make_proto_rpc("Optional", self.MyAction)
 
         request = proto_rpc.request

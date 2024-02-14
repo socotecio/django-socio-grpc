@@ -27,7 +27,7 @@ class UnitTestModelServiceWithDifferentPagination(UnitTestModelService):
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
-class TestPagination(TestCase):
+class TestPaginationMetadata(TestCase):
     def setUp(self):
         for idx in range(10):
             title = "z" * (idx + 1)

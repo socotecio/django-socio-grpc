@@ -453,10 +453,12 @@ message UnitTestModelWithStructFilter {
 message UnitTestModelWithStructFilterDestroyRequest {
     int32 id = 1;
     optional google.protobuf.Struct _filters = 2;
+    optional google.protobuf.Struct _pagination = 3;
 }
 
 message UnitTestModelWithStructFilterEmptyWithFilter {
     optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
 }
 
 message UnitTestModelWithStructFilterList {
@@ -466,6 +468,7 @@ message UnitTestModelWithStructFilterList {
 
 message UnitTestModelWithStructFilterListRequest {
     optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
 }
 
 message UnitTestModelWithStructFilterPartialUpdateRequest {
@@ -474,14 +477,17 @@ message UnitTestModelWithStructFilterPartialUpdateRequest {
     optional string text = 3;
     repeated string _partial_update_fields = 4;
     optional google.protobuf.Struct _filters = 5;
+    optional google.protobuf.Struct _pagination = 6;
 }
 
 message UnitTestModelWithStructFilterRetrieveRequest {
     int32 id = 1;
     optional google.protobuf.Struct _filters = 2;
+    optional google.protobuf.Struct _pagination = 3;
 }
 
 message UnitTestModelWithStructFilterStreamRequest {
     optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
 }
 

@@ -19,6 +19,17 @@ from django.utils.module_loading import import_string
 
 __all__ = ["grpc_settings"]
 
+
+class FilterAndPaginationBehaviorOptions:
+    METADATA_STRICT = "METADATA_STRICT"
+    REQUEST_STRUCT_STRICT = "REQUEST_STRUCT_STRICT"
+    METADATA_AND_FILTER_STRUCT = "METADATA_AND_FILTER_STRUCT"
+
+    # More complicated and will be implented late 2024: https://github.com/socotecio/django-socio-grpc/issues/247
+    # FILTER_MESSAGE_STRICT = "METADATA_STRICT"
+    # METADATA_AND_FILTER_MESSAGE = "METADATA_AND_FILTER_MESSAGE"
+
+
 DEFAULTS = {
     # Root grpc handlers hook configuration
     "ROOT_HANDLERS_HOOK": None,
@@ -66,6 +77,14 @@ DEFAULTS = {
     "ROOT_CERTIFICATES_PATH": None,
     # Set the ssl_server_credentials require_client_auth attribute
     "REQUIRE_CLIENT_AUTH": False,
+    # Prefered filter mode capability. See FilterAndPaginationBehaviorOptions for options
+    # /!\ for 1.O.0 the default behavior will change from METADATA_STRICT to METADATA_AND_FILTER_MESSAGE
+    "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT,
+    # Prefered pagination mode capability. See FilterAndPaginationBehaviorOptions for options
+    # /!\ for 1.O.0 the default behavior will change from METADATA_STRICT to METADATA_AND_FILTER_MESSAGE
+    "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT,
+    # TODO - AM - at the end
+    "ADD_SUFFIX_WHEN_MESSAGE_BEHAVIOR": False,
 }
 
 

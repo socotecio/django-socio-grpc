@@ -454,6 +454,7 @@ class ProtoMessage:
         appendable_name: bool,
         prefix: str = "",
         filter_field: Optional[ProtoField] = None,
+        pagination_field: Optional[ProtoField] = None,
     ) -> Union["ProtoMessage", str]:
         if isinstance(value, type) and issubclass(value, serializers.BaseSerializer):
             ProtoGeneratorPrintHelper.print("Message from serializer")
@@ -462,6 +463,8 @@ class ProtoMessage:
             )
             if filter_field:
                 proto_message.fields.append(filter_field)
+            if pagination_field:
+                proto_message.fields.append(pagination_field)
             return proto_message
         elif isinstance(value, str):
             ProtoGeneratorPrintHelper.print("Message from string")
@@ -474,10 +477,12 @@ class ProtoMessage:
                 base_name=base_name,
                 appendable_name=appendable_name,
                 prefix=prefix,
-                authorize_empty=not filter_field,
+                authorize_empty=not filter_field and not pagination_field,
             )
             if filter_field:
                 proto_message.fields.append(filter_field)
+            if pagination_field:
+                proto_message.fields.append(pagination_field)
             return proto_message
         else:
             raise TypeError()

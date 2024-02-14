@@ -10,7 +10,7 @@ from django_socio_grpc.exceptions import PermissionDenied, Unauthenticated
 from django_socio_grpc.grpc_actions.actions import GRPCActionMixin
 from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
 from django_socio_grpc.services.servicer_proxy import ServicerProxy
-from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
 
 if TYPE_CHECKING:
     from django_socio_grpc.protobuf import AppHandlerRegistry
@@ -34,7 +34,14 @@ class Service(GRPCActionMixin):
 
     _is_auth_performed: bool = False
 
-    use_struct_filter_request: bool = False
+    use_struct_filter_request: bool = grpc_settings.FILTER_BEHAVIOR in [
+        FilterAndPaginationBehaviorOptions.METADATA_AND_FILTER_STRUCT,
+        FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
+    ]
+    use_struct_pagination_request: bool = grpc_settings.PAGINATION_BEHAVIOR in [
+        FilterAndPaginationBehaviorOptions.METADATA_AND_FILTER_STRUCT,
+        FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
+    ]
 
     def __init__(self, **kwargs):
         """
@@ -46,6 +53,10 @@ class Service(GRPCActionMixin):
     @classmethod
     def get_use_struct_filter_request(cls):
         return cls.use_struct_filter_request
+
+    @classmethod
+    def get_use_struct_pagination_request(cls):
+        return cls.use_struct_pagination_request
 
     @classmethod
     def get_service_name(cls):

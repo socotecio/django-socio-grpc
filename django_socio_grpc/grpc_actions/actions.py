@@ -177,7 +177,9 @@ class GRPCAction:
             )
             # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step:90, method: create_proto_message)
             ProtoGeneratorPrintHelper.print(
-                f"proto_message {proto_message.name} with {len(proto_message.fields)} field generated:",
+                f"proto_message {proto_message} generated as string"
+                if isinstance(proto_message, str)
+                else f"proto_message {proto_message.name} with {len(proto_message.fields)} field generated:",
                 proto_message,
             )
             if as_list:

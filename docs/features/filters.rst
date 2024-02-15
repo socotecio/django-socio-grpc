@@ -240,7 +240,7 @@ There is two way to defining filter fields.
 Using it
 ========
 
-You can use metadata or ``_filters`` field to make the filters works out of the box.
+You can use metadata or ``_filters`` request field to make the filters works out of the box.
 
 For more example you can see the `client in DSG example repo <https://github.com/socotecio/django-socio-grpc-example/blob/main/backend/bib_example_filter_client.py>`_
 
@@ -286,7 +286,7 @@ For more example you can see the `client in DSG example repo <https://github.com
         asyncio.run(main())
 
 
-For web usage see `How to web: Using js client<_using_js_client>_`
+For web usage see :ref:`How to web: Using js client<using_js_client>`
 
 
 SearchFilter

@@ -132,6 +132,8 @@ For instance, to use django-filter backend (`doc <https://django-filter.readthed
 
 For more details, see the `DRF documentation on filters <https://www.django-rest-framework.org/api-guide/filtering/#setting-filter-backends>`_ as DSG use the same system.
 
+.. _default_pagination_class_settings:
+
 DEFAULT_PAGINATION_CLASS
 ^^^^^^^^^^^^^^^^^^^^^^^^
 

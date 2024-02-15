@@ -10,6 +10,7 @@ Features
    proto-serializers
    middlewares
    filters
+   pagination
    generic-mixins
    proto-generation
    exceptions

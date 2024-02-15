@@ -341,7 +341,11 @@ A boolean indicating whether or not to require clients to be authenticated. May 
 .. _settings-filter-behavior:
 
 FILTER_BEHAVIOR
-^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^
+
+.. warning::
+  
+  Default behavior will change in 1.0.0 to accept both metadata and request filtering. If you start a new project please consider setting PAGINATION_BEHAVIOR to METADATA_AND_REQUEST_STRUCT
 
 Variable allowing user to configure how the filter work.
 
@@ -370,6 +374,10 @@ An util class exist to help you set this settings:
 
 PAGINATION_BEHAVIOR
 ^^^^^^^^^^^^^^^^^^^
+
+.. warning::
+  
+  Default behavior will change in 1.0.0 to accept both metadata and request filtering. If you start a new project please consider setting PAGINATION_BEHAVIOR to METADATA_AND_REQUEST_STRUCT
 
 Variable allowing user to configure how the pagination work.
 

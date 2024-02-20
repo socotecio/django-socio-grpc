@@ -33,10 +33,11 @@ class FilterAndPaginationBehaviorOptions(str, Enum):
     - ``METADATA_AND_REQUEST_STRUCT`` that allow pagination against metadata and request field (``_filters`` or ``_pagination``). This mode add the specific key (``_filters`` or ``_pagination``) in every message except if service specifically disable it. If filter is present in both metadata and request field, the one in request field have priority
 
     The mains differences between metadata and request are:
-    - Metadata are not specified in the proto file so you add or removing pagination possibility without deploying a new api verison or causing breaking change
-    - Request allow you to help the developper understand which endpoint accept filtering and automatically document it
-    - Request are serialized so it can improve performance if filtering with large amount of data
+    - Metadata are not specified in the proto file so adding or removing a filter in a new version is not documented and may cause breaking changes.
+    - Requests allows helping developpers understand which endpoint accept filtering and automatically document it
+    - Requests are serialized so it can improve performance when filtering large amount of data
     """
+
     METADATA_STRICT = "METADATA_STRICT"
     REQUEST_STRUCT_STRICT = "REQUEST_STRUCT_STRICT"
     METADATA_AND_REQUEST_STRUCT = "METADATA_AND_REQUEST_STRUCT"

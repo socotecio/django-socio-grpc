@@ -345,7 +345,7 @@ FILTER_BEHAVIOR
 
 .. warning::
   
-  Default behavior will change in 1.0.0 to accept both metadata and request filtering. If you start a new project please consider setting PAGINATION_BEHAVIOR to METADATA_AND_REQUEST_STRUCT
+  Default behavior will change in 1.0.0 to accept only request filtering. If you start a new project please consider setting FILTER_BEHAVIOR to REQUEST_STRUCT_STRICT
 
 Variable allowing user to configure how the filter work.
 
@@ -366,7 +366,7 @@ PAGINATION_BEHAVIOR
 
 .. warning::
   
-  Default behavior will change in 1.0.0 to accept both metadata and request filtering. If you start a new project please consider setting PAGINATION_BEHAVIOR to METADATA_AND_REQUEST_STRUCT
+  Default behavior will change in 1.0.0 to accept only request filtering. If you start a new project please consider setting PAGINATION_BEHAVIOR to REQUEST_STRUCT_STRICT
 
 Variable allowing user to configure how the pagination work.
 

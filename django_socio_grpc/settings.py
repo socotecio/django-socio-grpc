@@ -30,7 +30,7 @@ class FilterAndPaginationBehaviorOptions(str, Enum):
     The different possibilities are:
     - ``METADATA_STRICT`` that only allow the element choosen against metadata. This is the default behavior as it's the legacy way of pagination. This will change for 1.0.0. This mode doesn't add additional fields into the messages.
     - ``REQUEST_STRUCT_STRICT`` that only allow to use the element choosen against request field (``_filters`` or ``_pagination``). This mode add the specifis key (``_filters`` or ``_pagination``) in every message except if service specifically disable it.
-    - ``METADATA_AND_REQUEST_STRUCT`` that allow pagination against metadata and request field (``_filters`` or ``_pagination``). This mode add the specific key (``_filters`` or ``_pagination``) in every message except if service specifically disable it. If filter is present in both metadata and request field, the one in request field have priority
+    - ``METADATA_AND_REQUEST_STRUCT`` that allow pagination against metadata and request field (``_filters`` or ``_pagination``). This mode add the specific key (``_filters`` or ``_pagination``) in every message except if service specifically disable it. If filter is present in both metadata and request field, the one in request field have priority. You should onmy use this mode when transitionning from metadata to request as having both is not recommended and could bring clarity issues.
 
     The mains differences between metadata and request are:
     - Metadata are not specified in the proto file so adding or removing a filter in a new version is not documented and may cause breaking changes.

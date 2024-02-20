@@ -6,6 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -22,8 +23,28 @@ class UnitTestModelWithStructFilterService(
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["title", "text"]
-    use_struct_filter_request = True
-    use_struct_pagination_request = True
+
+    # INFO - AM - 20/02/2024 - This is just for testing the override of get_filter_field in proto generation. This filter will not work if FILTER_BEHAVIOR settings not correctly set.
+    @classmethod
+    def get_filter_field(cls):
+        return ProtoField.from_field_dict(
+            {
+                "name": "_filters",
+                "type": "google.protobuf.Struct",
+                "cardinality": FieldCardinality.OPTIONAL,
+            }
+        )
+
+    # INFO - AM - 20/02/2024 - This is just for testing the override of get_pagination_field in proto generation. This pagination will not work if PAGINATION_BEHAVIOR settings not correctly set.
+    @classmethod
+    def get_pagination_field(cls):
+        return ProtoField.from_field_dict(
+            {
+                "name": "_pagination",
+                "type": "google.protobuf.Struct",
+                "cardinality": FieldCardinality.OPTIONAL,
+            }
+        )
 
     @grpc_action(
         request=[],

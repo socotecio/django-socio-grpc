@@ -13,6 +13,8 @@ This module provides the `grpc_setting` object, that is used to access
 gRPC framework settings, checking for user settings first, then falling
 back to the defaults.
 """
+from enum import Enum
+
 from django.conf import settings
 from django.core.signals import setting_changed
 from django.utils.module_loading import import_string
@@ -20,7 +22,8 @@ from django.utils.module_loading import import_string
 __all__ = ["grpc_settings"]
 
 
-class FilterAndPaginationBehaviorOptions:
+# TODO - AM - 20/02/2024 - replace (str, Enum) by (StrEnum) when python requirements > 3.11. https://docs.python.org/fr/3/library/enum.html#enum.StrEnum
+class FilterAndPaginationBehaviorOptions(str, Enum):
     METADATA_STRICT = "METADATA_STRICT"
     REQUEST_STRUCT_STRICT = "REQUEST_STRUCT_STRICT"
     METADATA_AND_REQUEST_STRUCT = "METADATA_AND_REQUEST_STRUCT"

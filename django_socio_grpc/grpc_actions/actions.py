@@ -58,7 +58,7 @@ from django_socio_grpc.protobuf.proto_classes import (
     ResponseProtoMessage,
 )
 from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
-from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
+from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 from django_socio_grpc.utils.tools import rreplace
 from django_socio_grpc.utils.utils import _is_generator, isgeneratorfunction
@@ -156,10 +156,11 @@ class GRPCAction:
         service: Type["Service"],
         as_list: bool,
         list_field_name: Optional[str],
-        filter_field: Optional[ProtoField] = None,
-        pagination_field: Optional[ProtoField] = None,
+        additional_action_fields: Optional[List[ProtoField]] = None,
     ):
         assert not isinstance(message, Placeholder)
+        if additional_action_fields is None:
+            additional_action_fields = []
         try:
             prefix = service.get_service_name()
 
@@ -176,12 +177,9 @@ class GRPCAction:
                 base_name=message_name or action_name,
                 appendable_name=not message_name,
                 prefix=prefix,
-                filter_field=filter_field
+                additional_action_fields=additional_action_fields
                 if not as_list
-                else None,  # If list we need the filter field in the ListMessage not the children message
-                pagination_field=pagination_field
-                if not as_list
-                else None,  # If list we need the filter field in the ListMessage not the children message
+                else None,  # If list we need the filter field in the ListMessage not the children messagee
             )
             # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step:90, method: create_proto_message)
             ProtoGeneratorPrintHelper.print(
@@ -204,10 +202,9 @@ class GRPCAction:
                     ),
                 ]
                 # INFO - AM - 14/02/2024 - Adding manually the filter_field and pagination_field if existing to the list message
-                if filter_field:
-                    fields.append(filter_field)
-                if pagination_field:
-                    fields.append(pagination_field)
+                if additional_action_fields:
+                    fields += additional_action_fields
+
                 if getattr(service, "pagination_class", None):
                     fields.append(
                         ProtoField(
@@ -248,72 +245,13 @@ class GRPCAction:
                 f"GRPCAction {action_name} has an invalid message type: {type(message)}"
             )
 
-    def get_filter_field(self, service):
-        """
-        DSG let the possibility to the user to use the filtering system supported by django either with metadata or directly in the request message.
-        This method check, depending of the service and project configuration, if a field need to be added in the message for filtering
-        """
-        # INFO - AM - 14/02/2024 - If filtering is activated on the service or globally
-        if (
-            hasattr(service, "filter_backends")
-            and service.filter_backends
-            or grpc_settings.DEFAULT_FILTER_BACKENDS
-        ):
-            # INFO - AM - 14/02/2024 - if using a struct message for the filtering is activated in the service or globally we add the _filters as a struct message
-            if service.get_use_struct_filter_request() or grpc_settings.FILTER_BEHAVIOR in [
-                FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
-                FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
-            ]:
-                return ProtoField.from_field_dict(
-                    {
-                        "name": "_filters",
-                        "type": "google.protobuf.Struct",
-                        "cardinality": FieldCardinality.OPTIONAL,
-                    }
-                )
-            # TODO - AM - 13/02/2024 - Add here in elif when wanting filtering in request with detailled field and not struct
-
-        return None
-
-    def get_pagination_field(self, service):
-        """
-        DSG let the possibility to the user to use the pagination system supported by django either with metadata or directly in the request message.
-        This method check, depending of the service and project configuration, if a field need to be added in the message for pagination
-        """
-        # INFO - AM - 14/02/2024 - If pagination is activated on the service or globally
-        if (
-            hasattr(service, "pagination_class")
-            and service.pagination_class
-            or grpc_settings.DEFAULT_PAGINATION_CLASS
-        ):
-            # INFO - AM - 14/02/2024 - if using a struct message for the filtering is activated in the service or globally we add the _filters as a struct message
-            if (
-                service.get_use_struct_pagination_request()
-                or grpc_settings.PAGINATION_BEHAVIOR
-                in [
-                    FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
-                    FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
-                ]
-            ):
-                return ProtoField.from_field_dict(
-                    {
-                        "name": "_pagination",
-                        "type": "google.protobuf.Struct",
-                        "cardinality": FieldCardinality.OPTIONAL,
-                    }
-                )
-            # TODO - AM - 13/02/2024 - Add here in elif when wanting pagination in request with detailled field and not struct
-
-        return None
-
     def make_proto_rpc(self, action_name: str, service: Type["Service"]) -> ProtoRpc:
         req_class = res_class = ProtoMessage
         if grpc_settings.SEPARATE_READ_WRITE_MODEL:
             req_class = RequestProtoMessage
             res_class = ResponseProtoMessage
 
-        filter_field = self.get_filter_field(service)
-        pagination_field = self.get_pagination_field(service)
+        additional_action_fields = service._additional_action_fields()
 
         request = self.create_proto_message(
             self.request,
@@ -323,8 +261,7 @@ class GRPCAction:
             service,
             self.use_request_list,
             self.request_message_list_attr,
-            filter_field,
-            pagination_field,
+            additional_action_fields,
         )
         response = self.create_proto_message(
             self.response,

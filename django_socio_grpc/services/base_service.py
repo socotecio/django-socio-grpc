@@ -10,10 +10,11 @@ from django_socio_grpc.exceptions import PermissionDenied, Unauthenticated
 from django_socio_grpc.grpc_actions.actions import GRPCActionMixin
 from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
 from django_socio_grpc.services.servicer_proxy import ServicerProxy
-from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
+from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
     from django_socio_grpc.protobuf import AppHandlerRegistry
+    from django_socio_grpc.protobuf.proto_classes import ProtoField
 
 from logging import getLogger
 
@@ -34,14 +35,9 @@ class Service(GRPCActionMixin):
 
     _is_auth_performed: bool = False
 
-    use_struct_filter_request: bool = grpc_settings.FILTER_BEHAVIOR in [
-        FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
-        FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
-    ]
-    use_struct_pagination_request: bool = grpc_settings.PAGINATION_BEHAVIOR in [
-        FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
-        FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
-    ]
+    @classmethod
+    def _additional_action_fields(self) -> list["ProtoField"]:
+        return []
 
     def __init__(self, **kwargs):
         """

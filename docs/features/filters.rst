@@ -253,7 +253,7 @@ For more example you can see the `client in DSG example repo <https://github.com
 
     async def main():
         ######################################################################################################
-        # Working if FILTER_BEHAVIOR settings is egual to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        # Working if FILTER_BEHAVIOR settings is equal to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
         ######################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
@@ -267,7 +267,7 @@ For more example you can see the `client in DSG example repo <https://github.com
         
 
         ############################################################################################################
-        # Working if FILTER_BEHAVIOR settings is egual to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        # Working if FILTER_BEHAVIOR settings is equal to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
         ############################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
@@ -319,7 +319,7 @@ Refer to the DRF docs for implementation details and specific lookup.
 
     async def main():
         ######################################################################################################
-        # Working if FILTER_BEHAVIOR settings is egual to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        # Working if FILTER_BEHAVIOR settings is equal to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
         ######################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
@@ -332,7 +332,7 @@ Refer to the DRF docs for implementation details and specific lookup.
 
         
         ############################################################################################################
-        # Working if FILTER_BEHAVIOR settings is egual to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        # Working if FILTER_BEHAVIOR settings is equal to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
         ############################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
@@ -382,7 +382,7 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
 
     async def main():
         ######################################################################################################
-        # Working if FILTER_BEHAVIOR settings is egual to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        # Working if FILTER_BEHAVIOR settings is equal to "METADATA_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
         ######################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
@@ -395,7 +395,7 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
             response = await quickstart_client.List(request, metadata=metadata)
 
         ############################################################################################################
-        # Working if FILTER_BEHAVIOR settings is egual to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
+        # Working if FILTER_BEHAVIOR settings is equal to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
         ############################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)

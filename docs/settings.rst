@@ -349,25 +349,14 @@ FILTER_BEHAVIOR
 
 Variable allowing user to configure how the filter work.
 
-Values possible are: 
 
-- ``METADATA_STRICT`` that only allow filtering against metadata. This is the default behavior as it's the legacy way of filtering. This will change for 1.0.0. This mode doesn't add additional field into the messages
-- ``REQUEST_STRUCT_STRICT`` that only allow filtering against request ``_filters`` field. This mode add the ``_filters`` key in every message except if service specifically disable it.
-- ``METADATA_AND_REQUEST_STRUCT`` that allow filtering against metadata and request ``_filters`` field. This mode add the ``_filters`` key in every message except if service specifically disable it. If filter is present in both metadata and _filters field, the one in _filters fiels have priority
-
-
-The mains differences between metadata and request are:
-- Metadata are not specified in the proto file so you add or removing filtering possibility without deploying a new api verison or causing breaking change
-- Request allow you to help the developper understand which endpoint accept filtering and automatically document it
-- Request are serialized so it can improve performance if filtering with large amount of data
-
-An util class exist to help you set this settings:
+The differents options possibles are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
 
 .. code-block:: python
 
   from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
 
-  "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT
+  "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT
 
 
 .. _settings-pagination-behavior:
@@ -381,22 +370,10 @@ PAGINATION_BEHAVIOR
 
 Variable allowing user to configure how the pagination work.
 
-Values possible are: 
-
-- ``METADATA_STRICT`` that only allow pagination against metadata. This is the default behavior as it's the legacy way of pagination. This will change for 1.0.0. This mode doesn't add additional field into the messages.
-- ``REQUEST_STRUCT_STRICT`` that only allow pagination against request ``_pagination`` field. This mode add the ``_pagination`` key in every message except if service specifically disable it.
-- ``METADATA_AND_REQUEST_STRUCT`` that allow pagination against metadata and request ``_pagination`` field. This mode add the ``_pagination`` key in every message except if service specifically disable it. If filter is present in both metadata and _pagination field, the one in _pagination fiels have priority
-
-
-The mains differences between metadata and request are:
-- Metadata are not specified in the proto file so you add or removing pagination possibility without deploying a new api verison or causing breaking change
-- Request allow you to help the developper understand which endpoint accept filtering and automatically document it
-- Request are serialized so it can improve performance if filtering with large amount of data
-
-An util class exist to help you set this settings:
+The differents options possibles are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
 
 .. code-block:: python
 
   from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
   
-  "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT
+  "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT

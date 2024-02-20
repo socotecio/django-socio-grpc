@@ -24,6 +24,19 @@ __all__ = ["grpc_settings"]
 
 # TODO - AM - 20/02/2024 - replace (str, Enum) by (StrEnum) when python requirements > 3.11. https://docs.python.org/fr/3/library/enum.html#enum.StrEnum
 class FilterAndPaginationBehaviorOptions(str, Enum):
+    """
+    FilterAndPaginationBehaviorOptions is an StrEnum that present the congiguration possibilities for PAGINATION_BEHAVIOR and FILTER_BEHAVIOR.
+
+    The different possibilities are:
+    - ``METADATA_STRICT`` that only allow the element choosen against metadata. This is the default behavior as it's the legacy way of pagination. This will change for 1.0.0. This mode doesn't add additional fields into the messages.
+    - ``REQUEST_STRUCT_STRICT`` that only allow to use the element choosen against request field (``_filters`` or ``_pagination``). This mode add the specifis key (``_filters`` or ``_pagination``) in every message except if service specifically disable it.
+    - ``METADATA_AND_REQUEST_STRUCT`` that allow pagination against metadata and request field (``_filters`` or ``_pagination``). This mode add the specific key (``_filters`` or ``_pagination``) in every message except if service specifically disable it. If filter is present in both metadata and request field, the one in request field have priority
+
+    The mains differences between metadata and request are:
+    - Metadata are not specified in the proto file so you add or removing pagination possibility without deploying a new api verison or causing breaking change
+    - Request allow you to help the developper understand which endpoint accept filtering and automatically document it
+    - Request are serialized so it can improve performance if filtering with large amount of data
+    """
     METADATA_STRICT = "METADATA_STRICT"
     REQUEST_STRUCT_STRICT = "REQUEST_STRUCT_STRICT"
     METADATA_AND_REQUEST_STRUCT = "METADATA_AND_REQUEST_STRUCT"

@@ -36,7 +36,7 @@ class Service(GRPCActionMixin):
     _is_auth_performed: bool = False
 
     @classmethod
-    def _additional_action_fields(self) -> list["ProtoField"]:
+    def _additional_action_fields(self) -> List["ProtoField"]:
         return []
 
     def __init__(self, **kwargs):

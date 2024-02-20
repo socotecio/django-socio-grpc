@@ -47,14 +47,6 @@ class Service(GRPCActionMixin):
             setattr(self, key, value)
 
     @classmethod
-    def get_use_struct_filter_request(cls):
-        return cls.use_struct_filter_request
-
-    @classmethod
-    def get_use_struct_pagination_request(cls):
-        return cls.use_struct_pagination_request
-
-    @classmethod
     def get_service_name(cls):
         return cls.__name__
 

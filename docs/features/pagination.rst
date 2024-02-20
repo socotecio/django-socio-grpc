@@ -9,7 +9,7 @@ Description
 
 **Pagination** is used to split data across several pages. It is a well known pattern to optimise performance on large dataset.
 
-DSG work with pagination the same way as `DRF Pagination does <https://www.django-rest-framework.org/api-guide/pagination/>`_ that itself is a surcharge from the `Django Pagination system <https://docs.djangoproject.com/en/5.0/topics/pagination/>`_.
+DSG works with pagination the same way `DRF Pagination <https://www.django-rest-framework.org/api-guide/pagination/>`_ does. It uses the `Django Pagination system <https://docs.djangoproject.com/en/5.0/topics/pagination/>`_ and its `Paginator` class.
 
 That mean that DSG support the default pagination class from DRF as `PageNumberPagination <https://www.django-rest-framework.org/api-guide/pagination/#pagenumberpagination>`_, `LimitOffsetPagination <https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination>`_ and `CursorPagination <https://www.django-rest-framework.org/api-guide/pagination/#cursorpagination>`_. It also support the fact to create your `own class <https://www.django-rest-framework.org/api-guide/pagination/#custom-pagination-styles>`_ for advanced pagination functionnalities
 

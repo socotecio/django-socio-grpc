@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Optional
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.core.exceptions import ValidationError
@@ -62,7 +63,7 @@ class GenericService(services.Service):
         return additional_fields
 
     @classmethod
-    def get_filter_field(cls) -> ProtoField | None:
+    def get_filter_field(cls) -> Optional[ProtoField]:
         """
         Get the ProtoField describing the field used for filtering in request if needed else None
         """
@@ -87,7 +88,7 @@ class GenericService(services.Service):
         )
 
     @classmethod
-    def get_pagination_field(cls) -> ProtoField | None:
+    def get_pagination_field(cls) -> Optional[ProtoField]:
         """
         Get the ProtoField describing the field used for pagination in request if needed else Non
         """

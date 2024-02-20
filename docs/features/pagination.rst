@@ -11,11 +11,11 @@ Description
 
 DSG works with pagination the same way `DRF Pagination <https://www.django-rest-framework.org/api-guide/pagination/>`_ does. It uses the `Django Pagination system <https://docs.djangoproject.com/en/5.0/topics/pagination/>`_ and its `Paginator` class.
 
-That mean that DSG support the default pagination class from DRF as `PageNumberPagination <https://www.django-rest-framework.org/api-guide/pagination/#pagenumberpagination>`_, `LimitOffsetPagination <https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination>`_ and `CursorPagination <https://www.django-rest-framework.org/api-guide/pagination/#cursorpagination>`_. It also support the fact to create your `own class <https://www.django-rest-framework.org/api-guide/pagination/#custom-pagination-styles>`_ for advanced pagination functionnalities
+That means DSG supports the default pagination class from DRF as `PageNumberPagination <https://www.django-rest-framework.org/api-guide/pagination/#pagenumberpagination>`_, `LimitOffsetPagination <https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination>`_ and `CursorPagination <https://www.django-rest-framework.org/api-guide/pagination/#cursorpagination>`_. It also supports creating your `own class <https://www.django-rest-framework.org/api-guide/pagination/#custom-pagination-styles>`_ for advanced pagination functionalities.
 
-Pagination can be :ref:`enabled globally<pagination-using-it-globally>` for the all project or for :ref:`only some services<pagination-using-it-by-service>`.
+Pagination can be :ref:`enabled globally<pagination-using-it-globally>` for the all the project or for :ref:`only some services<pagination-using-it-by-service>`.
 
-To use pagination you could use metadata or request depending on :ref:`PAGINATION_BEHAVIOR settings<settings-pagination-behavior>`, See :ref:`example for how to use it<pagination-using-it>`.
+To use pagination you may use metadata or request depending on the :ref:`PAGINATION_BEHAVIOR setting<settings-pagination-behavior>`, See :ref:`example for how to use it<pagination-using-it>`.
 
 
 .. _pagination-using-it-globally:

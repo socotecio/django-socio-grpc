@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django_socio_grpc.protobuf.generation_plugin import FilterGenerationPlugin, PaginationGenerationPlugin, ResponseAsListGenerationPlugin
 from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelWithStructFilterSerializer
 from google.protobuf import empty_pb2
@@ -15,6 +16,16 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 100
 
 
+# INFO - AM - 20/02/2024 - This is just for testing the override of FilterGenerationPlugin in proto generation. This filter will not work if FILTER_BEHAVIOR settings not correctly set.
+class FilterGenerationPluginForce(FilterGenerationPlugin):
+    def check_condition(self,*args,**kwargs) -> bool:
+        return True
+
+# INFO - AM - 20/02/2024 - This is just for testing the override of PaginationGenerationPlugin in proto generation. This pagination will not work if PAGINATION_BEHAVIOR settings not correctly set.
+class PaginationGenerationPluginForce(PaginationGenerationPlugin):
+    def check_condition(self,*args,**kwargs) -> bool:
+        return True
+
 class UnitTestModelWithStructFilterService(
     generics.AsyncModelService, mixins.AsyncStreamModelMixin
 ):
@@ -24,31 +35,19 @@ class UnitTestModelWithStructFilterService(
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["title", "text"]
 
-    # INFO - AM - 20/02/2024 - This is just for testing the override of get_filter_field in proto generation. This filter will not work if FILTER_BEHAVIOR settings not correctly set.
-    @classmethod
-    def get_filter_field(cls):
-        return ProtoField.from_field_dict(
-            {
-                "name": "_filters",
-                "type": "google.protobuf.Struct",
-                "cardinality": FieldCardinality.OPTIONAL,
-            }
-        )
 
-    # INFO - AM - 20/02/2024 - This is just for testing the override of get_pagination_field in proto generation. This pagination will not work if PAGINATION_BEHAVIOR settings not correctly set.
-    @classmethod
-    def get_pagination_field(cls):
-        return ProtoField.from_field_dict(
-            {
-                "name": "_pagination",
-                "type": "google.protobuf.Struct",
-                "cardinality": FieldCardinality.OPTIONAL,
-            }
-        )
+    @grpc_action(
+        request=[],
+        response=UnitTestModelWithStructFilterSerializer,
+        use_generation_plugins=[ResponseAsListGenerationPlugin(), FilterGenerationPluginForce(), PaginationGenerationPluginForce()]
+    )
+    async def List(self, request, context):
+        return super().List(request, context)
 
     @grpc_action(
         request=[],
         response="google.protobuf.Empty",
+        use_generation_plugins=[FilterGenerationPluginForce(), PaginationGenerationPluginForce()]
     )
     async def EmptyWithFilter(self, request, context):
         return empty_pb2.Empty()

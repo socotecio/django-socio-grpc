@@ -107,6 +107,9 @@ class GRPCAction:
     proto_rpc: Optional[ProtoRpc] = field(init=False, default=None)
 
     def __post_init__(self):
+        assert issubclass(
+            self.message_name_constructor_class, MessageNameConstructor
+        ), "message_name_constructor_class need to be a subclass of MessageNameConstructor"
         if isinstance(self.function, SyncToAsync):
             base_function = self.function
 
@@ -121,16 +124,13 @@ class GRPCAction:
         if isgeneratorfunction(self.function):
             self._is_generator = _is_generator
 
-        # DEPRECATED - AM - 22/02/2024
-        self._maintain_compat()
-
     def _maintain_compat(self):
         """
         Transform old arguments to the correct plugins
         """
-        warning_message = "You are using %s argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: TODO"
-        if self.use_request_list is not None:
-            logger.warning(warning_message.format("use_request_list"))
+        warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: TODO"
+        if self.use_request_list:
+            # logger.warning(warning_message.format("use_request_list"))
 
             if self.request_message_list_attr:
                 logger.warning(warning_message.format("request_message_list_attr"))
@@ -141,8 +141,8 @@ class GRPCAction:
                 ),
             )
 
-        if self.use_response_list is not None:
-            logger.warning(warning_message.format("use_response_list"))
+        if self.use_response_list:
+            # logger.warning(warning_message.format("use_response_list"))
             if self.response_message_list_attr:
                 logger.warning(warning_message.format("response_message_list_attr"))
             self.use_generation_plugins.insert(
@@ -209,52 +209,36 @@ class GRPCAction:
 
         # additional_action_fields = service._additional_action_fields()
 
-        name_constructor = self.message_name_constructor_class(
+        message_name_constructor = self.message_name_constructor_class(
             action_name=action_name, service=service
         )
 
-        request_name = name_constructor.construct_request_name(
+        request_name = message_name_constructor.construct_request_name(
             message=self.request, message_name=self.request_name
         )
-        request = req_class.create(message=self.request, name=request_name)
+        request = req_class.create(value=self.request, name=request_name)
 
-        response_name = name_constructor.construct_response_name(
+        response_name = message_name_constructor.construct_response_name(
             message=self.response, message_name=self.response_name
         )
-        response = res_class.create(message=self.response, name=response_name)
+        response = res_class.create(value=self.response, name=response_name)
+
+        # DEPRECATED - AM - 22/02/2024
+        self._maintain_compat()
 
         for generation_plugin in self.use_generation_plugins:
             request, response = generation_plugin.run_validation_and_transform(
-                service=service, request_message=request, response_message=response
+                service=service,
+                request_message=request,
+                response_message=response,
+                message_name_constructor=message_name_constructor,
             )
 
-        if not request.fields:
+        if not request.fields and not request.serializer and not self.request_name:
             request = EmptyMessage
 
-        if not response.fields:
+        if not response.fields and not response.serializer and not self.response_name:
             response = EmptyMessage
-
-        # TODO if not field, (maybe only one field that is Struct) replace by auto import
-
-        # request = self.create_proto_message(
-        #     self.request,
-        #     self.request_name,
-        #     req_class,
-        #     action_name,
-        #     service,
-        #     self.use_request_list,
-        #     self.request_message_list_attr,
-        #     additional_action_fields,
-        # )
-        # response = self.create_proto_message(
-        #     self.response,
-        #     self.response_name,
-        #     res_class,
-        #     action_name,
-        #     service,
-        #     self.use_response_list,
-        #     self.response_message_list_attr,
-        # )
 
         return ProtoRpc(
             name=action_name,

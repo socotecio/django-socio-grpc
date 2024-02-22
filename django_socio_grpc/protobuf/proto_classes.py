@@ -19,6 +19,7 @@ from typing import (
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
+from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from rest_framework import serializers
 from rest_framework.fields import HiddenField
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
@@ -431,10 +432,8 @@ class ProtoMessage:
         fields: List[FieldDict],
         name: str,
     ) -> "ProtoMessage":
-        # TODO replace by plugin or at the end of the process
-        # if not fields:
-        #     return EmptyMessage
-
+        if fields is None:
+            fields = []
         return cls(
             name=name,
             fields=[ProtoField.from_field_dict(field) for field in fields],
@@ -477,7 +476,7 @@ class ProtoMessage:
                             field,
                             cls.from_serializer,
                             parent_serializer=serializer,
-                            name_if_recursive=name,
+                            name_if_recursive=name or MessageNameConstructor.get_base_name_from_serializer_with_suffix(serializer, cls.suffix),
                         )
                     )
                 else:
@@ -489,7 +488,7 @@ class ProtoMessage:
                             field,
                             cls.from_serializer,
                             parent_serializer=serializer,
-                            name_if_recursive=name,
+                            name_if_recursive=name or MessageNameConstructor.get_base_name_from_serializer_with_suffix(serializer, cls.suffix),
                         )
                     )
         # INFO - AM - 07/01/2022 - else the serializer needs to implement to_proto_message
@@ -505,7 +504,7 @@ class ProtoMessage:
             )
 
         proto_message = cls(
-            name=name,
+            name=name or MessageNameConstructor.get_base_name_from_serializer_with_suffix(serializer, cls.suffix),
             fields=fields,
             comments=comments,
             serializer=serializer,

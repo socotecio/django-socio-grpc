@@ -198,21 +198,23 @@ class GRPCAction:
             req_class = RequestProtoMessage
             res_class = ResponseProtoMessage
 
+        # INFO - AM - 22/02/2024 - Get the instance of the class that will be used to construct the names of the request and response message. Defautl class is MessageNameConstructor
         message_name_constructor = self.message_name_constructor_class(
             action_name=action_name, service=service
         )
 
-        request_name = message_name_constructor.construct_request_name(
+        # INFO - AM - 22/02/2024 - Get the actual request name
+        request_name: str = message_name_constructor.construct_request_name(
             message=self.request, message_name=self.request_name
         )
-        request = req_class.create(value=self.request, name=request_name)
+        request: ProtoMessage = req_class.create(value=self.request, name=request_name)
 
-        response_name = message_name_constructor.construct_response_name(
+        response_name: str = message_name_constructor.construct_response_name(
             message=self.response, message_name=self.response_name
         )
-        response = res_class.create(value=self.response, name=response_name)
+        response: ProtoMessage = res_class.create(value=self.response, name=response_name)
 
-        # DEPRECATED - AM - 22/02/2024
+        # DEPRECATED - AM - 22/02/2024 - Used to keep compat before plugin
         self._maintain_compat()
 
         for generation_plugin in self.use_generation_plugins:
@@ -223,9 +225,11 @@ class GRPCAction:
                 message_name_constructor=message_name_constructor,
             )
 
+        # DEPRECATED - AM - 22/02/2024 - In version 1.0.0 all empty message will be Empty message
         if not request.fields and not request.serializer and not self.request_name:
             request = EmptyMessage
 
+        # DEPRECATED - AM - 22/02/2024 - In version 1.0.0 all empty message will be Empty message
         if not response.fields and not response.serializer and not self.response_name:
             response = EmptyMessage
 

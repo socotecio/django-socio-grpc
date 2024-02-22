@@ -13,8 +13,11 @@ if TYPE_CHECKING:
 logger = logging.getLogger("django_socio_grpc.generation")
 
 
-@dataclass
 class BaseGenerationPlugin:
+    """
+    The base class to create generation plugins.
+    """
+
     def check_condition(
         self,
         service: Type["Service"],
@@ -22,6 +25,9 @@ class BaseGenerationPlugin:
         response_message: ProtoMessage,
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
+        """
+        Method that allow to return with modifying the proto if some conditions are not met
+        """
         return True
 
     def transform_request_message(
@@ -30,6 +36,9 @@ class BaseGenerationPlugin:
         proto_message: ProtoMessage,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
+        """
+        The actual method that transform the request ProtoMessage
+        """
         return proto_message
 
     def transform_response_message(
@@ -38,6 +47,9 @@ class BaseGenerationPlugin:
         proto_message: ProtoMessage,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
+        """
+        The actual method that transform the response ProtoMessage
+        """
         return proto_message
 
     def run_validation_and_transform(
@@ -47,6 +59,10 @@ class BaseGenerationPlugin:
         response_message: ProtoMessage,
         message_name_constructor: MessageNameConstructor,
     ) -> Tuple[ProtoMessage, ProtoMessage]:
+        """
+        The main orchestrator method of the plugin. This is the first entrypoint.
+        It check the confition setted by check_condition method and then call transform_request_message and transform_response_message
+        """
         if not self.check_condition(
             service, request_message, response_message, message_name_constructor
         ):
@@ -56,23 +72,13 @@ class BaseGenerationPlugin:
             service, request_message, message_name_constructor
         ), self.transform_response_message(service, response_message, message_name_constructor)
 
-    # def insert_suffix_before_response_or_request(self, proto_message: ProtoMessage, suffix_to_add:str):
-    #     if not grpc_settings.SEPARATE_READ_WRITE_MODEL:
-    #         return proto_message.name + suffix_to_add
 
-    #     last_request_index = proto_message.name.rfind(REQUEST_SUFFIX)
-    #     last_response_index = proto_message.name.rfind(RESPONSE_SUFFIX)
-
-    #     if last_request_index > last_response_index:
-    #         return proto_message.name[:last_request_index] + f"{suffix_to_add}{REQUEST_SUFFIX}"
-    #     elif last_response_index > last_request_index:
-    #         return proto_message.name[:last_response_index] + f"{suffix_to_add}{RESPONSE_SUFFIX}"
-    #     else:
-    #         return proto_message.name + suffix_to_add
-
-
-@dataclass
 class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
+    """
+    Util class to inherit for adding a field in a request proto message.
+    By inerhit it and fill field_name, field_cardinality and field_type classVar it will create a plugin that add a field without having to override any method.
+    """
+
     field_name: ClassVar[str] = None
     field_cardinality: ClassVar[str] = None
     field_type: ClassVar[str] = None
@@ -102,8 +108,11 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
         return proto_message
 
 
-@dataclass
 class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
+    """
+    Plugin to add the _filters field in the request ProtoMessage. See https://django-socio-grpc.readthedocs.io/en/stable/features/filters.html#djangofilterbackend
+    """
+
     field_name: ClassVar[str] = "_filters"
     field_type: ClassVar[str] = "google.protobuf.Struct"
     field_cardinality: ClassVar[str] = FieldCardinality.OPTIONAL
@@ -135,8 +144,11 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
         return True
 
 
-@dataclass
 class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
+    """
+    Plugin to add the _pagination field in the request ProtoMessage. See https://django-socio-grpc.readthedocs.io/en/stable/features/pagination.html
+    """
+
     field_name: ClassVar[str] = "_pagination"
     field_type: ClassVar[str] = "google.protobuf.Struct"
     field_cardinality: ClassVar[str] = FieldCardinality.OPTIONAL
@@ -173,6 +185,11 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
 
 @dataclass
 class AsListGenerationPlugin(BaseGenerationPlugin):
+    """
+    Plugin allowing to encapsulate a message into an other message and put it as a repeated field to return multiple instance.
+    Do not use directly, use one of it's subclass RequestAsListGenerationPlugin, ResponseAsListGenerationPlugin or RequestAndResponseAsListGenerationPlugin
+    """
+
     list_field_name: str = "results"
 
     def transform_message_to_list(
@@ -215,8 +232,11 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
         return list_message
 
 
-@dataclass
 class RequestAsListGenerationPlugin(AsListGenerationPlugin):
+    """
+    Transform a request ProtoMessage in a list ProtoMessage
+    """
+
     def transform_request_message(
         self,
         service: Type["Service"],
@@ -231,8 +251,11 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
         return self.transform_message_to_list(service, proto_message, list_name)
 
 
-@dataclass
 class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
+    """
+    Transform a response ProtoMessage in a list ProtoMessage
+    """
+
     def transform_response_message(
         self,
         service: Type["Service"],
@@ -250,4 +273,8 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
 class RequestAndResponseAsListGenerationPlugin(
     RequestAsListGenerationPlugin, ResponseAsListGenerationPlugin
 ):
+    """
+    Transform both request and response ProtoMessage in list ProtoMessage
+    """
+
     ...

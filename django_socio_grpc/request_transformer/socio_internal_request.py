@@ -106,6 +106,10 @@ class InternalHttpRequest:
         return grpc_request_metadata
 
     def get_query_params(self, grpc_request: Message):
+        """
+        Method that transform specific metadata and/or request fields (depending on FILTER_BEHAVIOR and PAGINATION_BEHAVIOR settings)
+        into a dict as if it was some query params passed in simple HTTP/1 calls
+        """
         query_params = {}
         if grpc_settings.FILTER_BEHAVIOR in [
             FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,

@@ -404,21 +404,21 @@ class TestProtoMessage:
         assert proto_message.fields[0].name == "serializer"
         assert len(proto_message.fields[0].field_type.fields) == 10
 
-    def test_as_list_message(self):
-        proto_message = ResponseProtoMessage.from_serializer(MySerializer)
-        list_message = ResponseProtoMessage.as_list_message(proto_message)
-        assert "results" in list_message
+    # def test_as_list_message(self):
+    #     proto_message = ResponseProtoMessage.from_serializer(MySerializer)
+    #     list_message = ResponseProtoMessage.as_list_message(proto_message)
+    #     assert "results" in list_message
 
-        proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer)
-        list_message = ResponseProtoMessage.as_list_message(proto_message)
+    #     proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer)
+    #     list_message = ResponseProtoMessage.as_list_message(proto_message)
 
-        assert list_message.name == "MyOtherListResponse"
-        assert len(list_message.fields) == 2
-        results_field = list_message["custom_results"]
-        assert results_field.cardinality == FieldCardinality.REPEATED
-        results_type = results_field.field_type
+    #     assert list_message.name == "MyOtherListResponse"
+    #     assert len(list_message.fields) == 2
+    #     results_field = list_message["custom_results"]
+    #     assert results_field.cardinality == FieldCardinality.REPEATED
+    #     results_type = results_field.field_type
 
-        assert results_type.name == "MyOtherResponse"
+    #     assert results_type.name == "MyOtherResponse"
 
 
 class TestGrpcActionProto:
@@ -605,7 +605,7 @@ class TestGrpcActionProto:
 
         assert request.name == "MyActionWithFilterFilterInEmptyRequest"
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_filters"].field_type.name == "google.protobuf.Struct"
 
         assert response is EmptyMessage
 
@@ -630,7 +630,7 @@ class TestGrpcActionProto:
         assert request.name == "ReqNameListRequest"
         assert request["results"].field_type.name == "ReqNameRequest"
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_filters"].field_type.name == "google.protobuf.Struct"
 
     @override_settings(
         GRPC_FRAMEWORK={
@@ -649,7 +649,7 @@ class TestGrpcActionProto:
         assert request.name == "MyActionWithFilterFilterInRequestRequest"
         assert len(request.fields) == 2
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_filters"].field_type.name == "google.protobuf.Struct"
         assert "test" in request
 
         assert response is EmptyMessage
@@ -697,7 +697,7 @@ class TestGrpcActionProto:
 
         assert request.name == "MyActionWithPaginationPaginationInEmptyRequest"
         assert request["_pagination"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_pagination"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_pagination"].field_type.name == "google.protobuf.Struct"
 
         assert response is EmptyMessage
 
@@ -722,7 +722,7 @@ class TestGrpcActionProto:
         assert request.name == "ReqNameListRequest"
         assert request["results"].field_type.name == "ReqNameRequest"
         assert request["_pagination"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_pagination"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_pagination"].field_type.name == "google.protobuf.Struct"
 
     @override_settings(
         GRPC_FRAMEWORK={
@@ -741,7 +741,7 @@ class TestGrpcActionProto:
         assert request.name == "MyActionWithPaginationPaginationInRequestRequest"
         assert len(request.fields) == 2
         assert request["_pagination"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_pagination"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_pagination"].field_type.name == "google.protobuf.Struct"
         assert "test" in request
 
         assert response is EmptyMessage

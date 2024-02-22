@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 
+from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import ProtoMessage, get_proto_type
 
 if TYPE_CHECKING:
@@ -15,7 +16,7 @@ def get_serializer_class(service: "GenericService", action: Optional[str] = None
 
 def get_serializer_base_name(service: "GenericService", action: Optional[str] = None):
     serializer = get_serializer_class(service, action)
-    return ProtoMessage.get_base_name_from_serializer(serializer)
+    return MessageNameConstructor.get_base_name_from_serializer(serializer)
 
 
 def get_lookup_field_from_serializer(serializer_instance, service_instance):

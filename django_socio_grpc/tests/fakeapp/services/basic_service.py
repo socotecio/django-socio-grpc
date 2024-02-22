@@ -8,6 +8,10 @@ from fakeapp.serializers import (
 
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.protobuf.generation_plugin import (
+    RequestAsListGenerationPlugin,
+    ResponseAsListGenerationPlugin,
+)
 
 from .basic_mixins import ListIdsMixin, ListNameMixin
 
@@ -119,8 +123,10 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
     @grpc_action(
         request=BasicProtoListChildSerializer,
         response=BasicProtoListChildSerializer,
-        use_response_list=True,
-        use_request_list=True,
+        use_generation_plugins=[
+            RequestAsListGenerationPlugin(),
+            ResponseAsListGenerationPlugin(),
+        ],
     )
     async def BasicList(self, request, context):
         serializer = BasicProtoListChildSerializer(message=request, many=True)

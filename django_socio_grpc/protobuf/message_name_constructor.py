@@ -13,11 +13,8 @@ from django_socio_grpc.utils.constants import (
 from django_socio_grpc.utils.tools import rreplace
 
 if TYPE_CHECKING:
+    from django_socio_grpc.protobuf.proto_classes import FieldDict
     from django_socio_grpc.services import Service
-
-    from django_socio_grpc.protobuf.proto_classes import (
-        FieldDict,
-    )
 
 
 @dataclass
@@ -67,9 +64,11 @@ class MessageNameConstructor:
             name = rreplace(name, "Serializer", "", 1)
 
         return name
-    
+
     @classmethod
-    def get_base_name_from_serializer_with_suffix(cls, serializer: Type[BaseSerializer], suffix:str="") -> str:
+    def get_base_name_from_serializer_with_suffix(
+        cls, serializer: Type[BaseSerializer], suffix: str = ""
+    ) -> str:
         base_name = cls.get_base_name_from_serializer(serializer)
 
         return base_name + suffix

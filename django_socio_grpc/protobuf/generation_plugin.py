@@ -245,9 +245,9 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         request_constructed_name = message_name_constructor.request_constructed_name
-        # HACK - AM - 22/02/2024 - If dev used specific message name that end by request we can't known without doing this 
+        # HACK - AM - 22/02/2024 - If dev used specific message name that end by request we can't known without doing this
         if request_constructed_name.endswith(REQUEST_SUFFIX):
-            request_constructed_name = request_constructed_name[:-len(REQUEST_SUFFIX)]
+            request_constructed_name = request_constructed_name[: -len(REQUEST_SUFFIX)]
         list_name = request_constructed_name + "List" + REQUEST_SUFFIX
         return self.transform_message_to_list(service, proto_message, list_name)
 
@@ -261,10 +261,8 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         response_constructed_name = message_name_constructor.response_constructed_name
-        # HACK - AM - 22/02/2024 - If dev used specific message name that end by response we can't known without doing this 
+        # HACK - AM - 22/02/2024 - If dev used specific message name that end by response we can't known without doing this
         if response_constructed_name.endswith(RESPONSE_SUFFIX):
-            response_constructed_name = response_constructed_name[:-len(RESPONSE_SUFFIX)]
-        list_name = (
-            response_constructed_name + "List" + RESPONSE_SUFFIX
-        )
+            response_constructed_name = response_constructed_name[: -len(RESPONSE_SUFFIX)]
+        list_name = response_constructed_name + "List" + RESPONSE_SUFFIX
         return self.transform_message_to_list(service, proto_message, list_name)

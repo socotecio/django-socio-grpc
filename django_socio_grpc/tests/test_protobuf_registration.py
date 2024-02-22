@@ -1,5 +1,4 @@
 from typing import List, Optional
-from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 
 import pytest
 from django.db import models
@@ -18,6 +17,7 @@ from django_socio_grpc.protobuf.generation_plugin import (
     RequestAsListGenerationPlugin,
     ResponseAsListGenerationPlugin,
 )
+from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
     FieldCardinality,
@@ -402,7 +402,9 @@ class TestProtoMessage:
         assert len(proto_message.fields) == 10
 
     def test_from_serializer_nested(self):
-        proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer, name="MyOtherResponse")
+        proto_message = ResponseProtoMessage.from_serializer(
+            MyOtherSerializer, name="MyOtherResponse"
+        )
 
         assert proto_message.name == "MyOtherResponse"
         assert len(proto_message.fields) == 4

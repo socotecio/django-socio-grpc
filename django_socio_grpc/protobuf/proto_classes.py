@@ -19,11 +19,11 @@ from typing import (
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
-from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from rest_framework import serializers
 from rest_framework.fields import HiddenField
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
+from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.utils.constants import (
     DEFAULT_LIST_FIELD_NAME,
     LIST_ATTR_MESSAGE_NAME,
@@ -476,7 +476,10 @@ class ProtoMessage:
                             field,
                             cls.from_serializer,
                             parent_serializer=serializer,
-                            name_if_recursive=name or MessageNameConstructor.get_base_name_from_serializer_with_suffix(serializer, cls.suffix),
+                            name_if_recursive=name
+                            or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
+                                serializer, getattr(cls, "suffix", "")
+                            ),
                         )
                     )
                 else:
@@ -488,7 +491,10 @@ class ProtoMessage:
                             field,
                             cls.from_serializer,
                             parent_serializer=serializer,
-                            name_if_recursive=name or MessageNameConstructor.get_base_name_from_serializer_with_suffix(serializer, cls.suffix),
+                            name_if_recursive=name
+                            or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
+                                serializer, getattr(cls, "suffix", "")
+                            ),
                         )
                     )
         # INFO - AM - 07/01/2022 - else the serializer needs to implement to_proto_message
@@ -504,7 +510,10 @@ class ProtoMessage:
             )
 
         proto_message = cls(
-            name=name or MessageNameConstructor.get_base_name_from_serializer_with_suffix(serializer, cls.suffix),
+            name=name
+            or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
+                serializer, getattr(cls, "suffix", "")
+            ),
             fields=fields,
             comments=comments,
             serializer=serializer,
@@ -518,44 +527,6 @@ class ProtoMessage:
     ) -> bool:
         # INFO - AM - 21/01/2022 - HiddenField are not used in api so not showed in protobuf file
         return isinstance(field, HiddenField)
-
-    # @classmethod
-    # def as_list_message(
-    #     cls,
-    #     base_message: "ProtoMessage",
-    #     base_name: Optional[str] = None,
-    #     list_field_name: Optional[str] = None,
-    # ) -> "ProtoMessage":
-    #     if list_field_name is None:
-    #         try:
-    #             list_field_name = getattr(base_message.serializer.Meta, LIST_ATTR_MESSAGE_NAME)
-    #         except AttributeError:
-    #             list_field_name = DEFAULT_LIST_FIELD_NAME
-
-    #     fields = [
-    #         ProtoField(
-    #             name=list_field_name,
-    #             field_type=base_message,
-    #             cardinality=FieldCardinality.REPEATED,
-    #         ),
-    #         ProtoField(
-    #             name="count",
-    #             field_type="int32",
-    #         ),
-    #     ]
-
-    #     list_message = cls(
-    #         base_name=f"{base_name or rreplace(base_message.base_name, cls.suffix, '', 1)}List",
-    #         fields=fields,
-    #         prefixable=base_message.prefixable,
-    #         prefix=base_message.prefix,
-    #     )
-
-    #     if not base_message.serializer:
-    #         list_message.comments = base_message.comments
-    #         base_message.comments = None
-
-    #     return list_message
 
     def __getitem__(self, key: str) -> "ProtoField":
         for field in self.fields:

@@ -1,5 +1,4 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from django_socio_grpc.protobuf.generation_plugin import FilterGenerationPlugin, PaginationGenerationPlugin, ResponseAsListGenerationPlugin
 from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelWithStructFilterSerializer
 from google.protobuf import empty_pb2
@@ -7,6 +6,11 @@ from rest_framework.pagination import PageNumberPagination
 
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.protobuf.generation_plugin import (
+    FilterGenerationPlugin,
+    PaginationGenerationPlugin,
+    ResponseAsListGenerationPlugin,
+)
 from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField
 
 
@@ -18,13 +22,15 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 # INFO - AM - 20/02/2024 - This is just for testing the override of FilterGenerationPlugin in proto generation. This filter will not work if FILTER_BEHAVIOR settings not correctly set.
 class FilterGenerationPluginForce(FilterGenerationPlugin):
-    def check_condition(self,*args,**kwargs) -> bool:
+    def check_condition(self, *args, **kwargs) -> bool:
         return True
+
 
 # INFO - AM - 20/02/2024 - This is just for testing the override of PaginationGenerationPlugin in proto generation. This pagination will not work if PAGINATION_BEHAVIOR settings not correctly set.
 class PaginationGenerationPluginForce(PaginationGenerationPlugin):
-    def check_condition(self,*args,**kwargs) -> bool:
+    def check_condition(self, *args, **kwargs) -> bool:
         return True
+
 
 class UnitTestModelWithStructFilterService(
     generics.AsyncModelService, mixins.AsyncStreamModelMixin
@@ -35,11 +41,14 @@ class UnitTestModelWithStructFilterService(
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["title", "text"]
 
-
     @grpc_action(
         request=[],
         response=UnitTestModelWithStructFilterSerializer,
-        use_generation_plugins=[ResponseAsListGenerationPlugin(), FilterGenerationPluginForce(), PaginationGenerationPluginForce()]
+        use_generation_plugins=[
+            ResponseAsListGenerationPlugin(),
+            FilterGenerationPluginForce(),
+            PaginationGenerationPluginForce(),
+        ],
     )
     async def List(self, request, context):
         return super().List(request, context)
@@ -47,7 +56,10 @@ class UnitTestModelWithStructFilterService(
     @grpc_action(
         request=[],
         response="google.protobuf.Empty",
-        use_generation_plugins=[FilterGenerationPluginForce(), PaginationGenerationPluginForce()]
+        use_generation_plugins=[
+            FilterGenerationPluginForce(),
+            PaginationGenerationPluginForce(),
+        ],
     )
     async def EmptyWithFilter(self, request, context):
         return empty_pb2.Empty()

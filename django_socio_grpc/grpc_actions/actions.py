@@ -39,6 +39,7 @@ from MyService abstract parents. This dict is then registered.
 import abc
 import asyncio
 import functools
+import logging
 from asyncio.coroutines import _is_coroutine
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type, Union
@@ -47,10 +48,15 @@ from asgiref.sync import SyncToAsync
 from rest_framework.serializers import BaseSerializer
 
 from django_socio_grpc.protobuf.exceptions import ProtoRegistrationError
+from django_socio_grpc.protobuf.generation_plugin import (
+    BaseGenerationPlugin,
+    RequestAsListGenerationPlugin,
+    ResponseAsListGenerationPlugin,
+)
+from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
-    FieldCardinality,
+    EmptyMessage,
     FieldDict,
-    ProtoField,
     ProtoMessage,
     ProtoRpc,
     ProtoService,
@@ -60,10 +66,11 @@ from django_socio_grpc.protobuf.proto_classes import (
 from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
-from django_socio_grpc.utils.tools import rreplace
 from django_socio_grpc.utils.utils import _is_generator, isgeneratorfunction
 
 from .placeholders import Placeholder
+
+logger = logging.getLogger("django_scoio_grpc.generation")
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -85,10 +92,15 @@ class GRPCAction:
     use_response_list: bool = False
     request_message_list_attr: Optional[str] = None
     response_message_list_attr: Optional[str] = None
+    message_name_constructor_class: Type[MessageNameConstructor] = MessageNameConstructor
+    use_generation_plugins: List[Type[BaseGenerationPlugin]] = field(default_factory=list)
 
     proto_rpc: Optional[ProtoRpc] = field(init=False, default=None)
 
     def __post_init__(self):
+        assert issubclass(
+            self.message_name_constructor_class, MessageNameConstructor
+        ), "message_name_constructor_class need to be a subclass of MessageNameConstructor"
         if isinstance(self.function, SyncToAsync):
             base_function = self.function
 
@@ -102,6 +114,34 @@ class GRPCAction:
 
         if isgeneratorfunction(self.function):
             self._is_generator = _is_generator
+
+    def _maintain_compat(self):
+        """
+        Transform old arguments to the correct plugins
+        """
+        warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: TODO"
+        if self.use_request_list:
+            # logger.warning(warning_message.format("use_request_list"))
+
+            if self.request_message_list_attr:
+                logger.warning(warning_message.format("request_message_list_attr"))
+            self.use_generation_plugins.insert(
+                0,
+                RequestAsListGenerationPlugin(
+                    list_field_name=self.request_message_list_attr or "results"
+                ),
+            )
+
+        if self.use_response_list:
+            # logger.warning(warning_message.format("use_response_list"))
+            if self.response_message_list_attr:
+                logger.warning(warning_message.format("response_message_list_attr"))
+            self.use_generation_plugins.insert(
+                0,
+                ResponseAsListGenerationPlugin(
+                    list_field_name=self.response_message_list_attr or "results"
+                ),
+            )
 
     def __set_name__(self, owner, name):
         """
@@ -131,6 +171,8 @@ class GRPCAction:
             "response_name": self.response_name,
             "response_stream": self.response_stream,
             "use_response_list": self.use_response_list,
+            "message_name_constructor_class": self.message_name_constructor_class,
+            "use_generation_plugins": self.use_generation_plugins,
         }
 
     @property
@@ -147,131 +189,47 @@ class GRPCAction:
         except AttributeError:
             return None
 
-    def create_proto_message(
-        self,
-        message: Optional[Union[str, Type[BaseSerializer], List[FieldDict]]],
-        message_name: Optional[str],
-        message_class: Type[ProtoMessage],
-        action_name: str,
-        service: Type["Service"],
-        as_list: bool,
-        list_field_name: Optional[str],
-        additional_action_fields: Optional[List[ProtoField]] = None,
-    ):
-        assert not isinstance(message, Placeholder)
-        if additional_action_fields is None:
-            additional_action_fields = []
-        try:
-            prefix = service.get_service_name()
-
-            # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step: 30, method: create_proto_message) allow to print the message brut before generation only for what we need
-            ProtoGeneratorPrintHelper.set_info_proto_message(
-                prefix=prefix, message_class=message_class
-            )
-            ProtoGeneratorPrintHelper.print(
-                "going to transform ", message, " to proto_message"
-            )
-            # INFO - AM - 29/12/2023 - this is the next method that introspect serializer to register data to then generate proto
-            proto_message = message_class.create(
-                message,
-                base_name=message_name or action_name,
-                appendable_name=not message_name,
-                prefix=prefix,
-                additional_action_fields=additional_action_fields
-                if not as_list
-                else None,  # If list we need the filter field in the ListMessage not the children messagee
-            )
-            # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step:90, method: create_proto_message)
-            ProtoGeneratorPrintHelper.print(
-                f"proto_message {proto_message} generated as string"
-                if isinstance(proto_message, str)
-                else f"proto_message {proto_message.name} with {len(proto_message.fields)} field generated:",
-                proto_message,
-            )
-            if as_list:
-                try:
-                    list_field_name = proto_message.serializer.Meta.message_list_attr
-                except AttributeError:
-                    list_field_name = list_field_name or "results"
-
-                fields = [
-                    ProtoField(
-                        name=list_field_name,
-                        field_type=proto_message,
-                        cardinality=FieldCardinality.REPEATED,
-                    ),
-                ]
-                # INFO - AM - 14/02/2024 - Adding manually the filter_field and pagination_field if existing to the list message
-                if additional_action_fields:
-                    fields += additional_action_fields
-
-                if getattr(service, "pagination_class", None):
-                    fields.append(
-                        ProtoField(
-                            name="count",
-                            field_type="int32",
-                        )
-                    ),
-
-                base_list_name = action_name
-                prefixable = True
-                if isinstance(proto_message, str):
-                    proto_message_name = proto_message
-                elif not proto_message.imported_from:
-                    proto_message_name = proto_message.base_name
-                    prefixable = proto_message.prefixable
-                else:
-                    proto_message_name = action_name
-
-                base_list_name = rreplace(proto_message_name, message_class.suffix, "", 1)
-
-                list_message = message_class(
-                    base_name=f"{base_list_name}List",
-                    fields=fields,
-                    prefix=prefix,
-                    prefixable=prefixable,
-                )
-
-                if not proto_message.serializer:
-                    list_message.comments = proto_message.comments
-                    proto_message.comments = None
-
-                return list_message
-
-            return proto_message
-
-        except TypeError:
-            raise ProtoRegistrationError(
-                f"GRPCAction {action_name} has an invalid message type: {type(message)}"
-            )
-
     def make_proto_rpc(self, action_name: str, service: Type["Service"]) -> ProtoRpc:
+        assert not isinstance(self.request, Placeholder)
+        assert not isinstance(self.response, Placeholder)
+
         req_class = res_class = ProtoMessage
         if grpc_settings.SEPARATE_READ_WRITE_MODEL:
             req_class = RequestProtoMessage
             res_class = ResponseProtoMessage
 
-        additional_action_fields = service._additional_action_fields()
+        # additional_action_fields = service._additional_action_fields()
 
-        request = self.create_proto_message(
-            self.request,
-            self.request_name,
-            req_class,
-            action_name,
-            service,
-            self.use_request_list,
-            self.request_message_list_attr,
-            additional_action_fields,
+        message_name_constructor = self.message_name_constructor_class(
+            action_name=action_name, service=service
         )
-        response = self.create_proto_message(
-            self.response,
-            self.response_name,
-            res_class,
-            action_name,
-            service,
-            self.use_response_list,
-            self.response_message_list_attr,
+
+        request_name = message_name_constructor.construct_request_name(
+            message=self.request, message_name=self.request_name
         )
+        request = req_class.create(value=self.request, name=request_name)
+
+        response_name = message_name_constructor.construct_response_name(
+            message=self.response, message_name=self.response_name
+        )
+        response = res_class.create(value=self.response, name=response_name)
+
+        # DEPRECATED - AM - 22/02/2024
+        self._maintain_compat()
+
+        for generation_plugin in self.use_generation_plugins:
+            request, response = generation_plugin.run_validation_and_transform(
+                service=service,
+                request_message=request,
+                response_message=response,
+                message_name_constructor=message_name_constructor,
+            )
+
+        if not request.fields and not request.serializer and not self.request_name:
+            request = EmptyMessage
+
+        if not response.fields and not response.serializer and not self.response_name:
+            response = EmptyMessage
 
         return ProtoRpc(
             name=action_name,

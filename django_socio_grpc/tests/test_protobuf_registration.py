@@ -11,6 +11,11 @@ from django_socio_grpc import proto_serializers
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.generics import GenericService
 from django_socio_grpc.protobuf import ProtoComment, ProtoRegistrationError
+from django_socio_grpc.protobuf.generation_plugin import (
+    FilterGenerationPlugin,
+    PaginationGenerationPlugin,
+    RequestAndResponseAsListGenerationPlugin,
+)
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
     FieldCardinality,
@@ -370,13 +375,13 @@ class TestProtoMessage:
         assert proto_message.fields[2].cardinality == FieldCardinality.NONE
 
     def test_from_serializer(self):
-        proto_message = ProtoMessage.from_serializer(MySerializer)
+        proto_message = ProtoMessage.from_serializer(MySerializer, name="My")
 
         assert proto_message.name == "My"
         assert len(proto_message.fields) == 11
 
     def test_from_serializer_request(self):
-        proto_message = RequestProtoMessage.from_serializer(MySerializer)
+        proto_message = RequestProtoMessage.from_serializer(MySerializer, name="MyRequest")
 
         assert proto_message.name == "MyRequest"
         assert len(proto_message.fields) == 6
@@ -389,13 +394,15 @@ class TestProtoMessage:
         assert len(proto_message.fields) == 6
 
     def test_from_serializer_response(self):
-        proto_message = ResponseProtoMessage.from_serializer(MySerializer)
+        proto_message = ResponseProtoMessage.from_serializer(MySerializer, name="MyResponse")
 
         assert proto_message.name == "MyResponse"
         assert len(proto_message.fields) == 10
 
     def test_from_serializer_nested(self):
-        proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer)
+        proto_message = ResponseProtoMessage.from_serializer(
+            MyOtherSerializer, name="MyOtherResponse"
+        )
 
         assert proto_message.name == "MyOtherResponse"
         assert len(proto_message.fields) == 4
@@ -404,21 +411,21 @@ class TestProtoMessage:
         assert proto_message.fields[0].name == "serializer"
         assert len(proto_message.fields[0].field_type.fields) == 10
 
-    def test_as_list_message(self):
-        proto_message = ResponseProtoMessage.from_serializer(MySerializer)
-        list_message = ResponseProtoMessage.as_list_message(proto_message)
-        assert "results" in list_message
+    # def test_as_list_message(self):
+    #     proto_message = ResponseProtoMessage.from_serializer(MySerializer)
+    #     list_message = ResponseProtoMessage.as_list_message(proto_message)
+    #     assert "results" in list_message
 
-        proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer)
-        list_message = ResponseProtoMessage.as_list_message(proto_message)
+    #     proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer)
+    #     list_message = ResponseProtoMessage.as_list_message(proto_message)
 
-        assert list_message.name == "MyOtherListResponse"
-        assert len(list_message.fields) == 2
-        results_field = list_message["custom_results"]
-        assert results_field.cardinality == FieldCardinality.REPEATED
-        results_type = results_field.field_type
+    #     assert list_message.name == "MyOtherListResponse"
+    #     assert len(list_message.fields) == 2
+    #     results_field = list_message["custom_results"]
+    #     assert results_field.cardinality == FieldCardinality.REPEATED
+    #     results_type = results_field.field_type
 
-        assert results_type.name == "MyOtherResponse"
+    #     assert results_type.name == "MyOtherResponse"
 
 
 class TestGrpcActionProto:
@@ -429,8 +436,7 @@ class TestGrpcActionProto:
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
-            use_response_list=True,
-            use_request_list=True,
+            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
         )
         async def BasicList(self, request, context):
             ...
@@ -442,10 +448,18 @@ class TestGrpcActionProto:
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
+            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+        )
+        async def BasicList(self, request, context):
+            ...
+
+        @grpc_action(
+            request=[],
+            response=BasicProtoListChildSerializer,
             use_response_list=True,
             use_request_list=True,
         )
-        async def BasicList(self, request, context):
+        async def BasicListOldCompat(self, request, context):
             ...
 
         @grpc_action(
@@ -480,6 +494,7 @@ class TestGrpcActionProto:
             request_name="ReqNameRequest",
             use_response_list=True,
             use_request_list=True,
+            use_generation_plugins=[FilterGenerationPlugin()],
         )
         async def BasicListWithFilter(self, request, context):
             ...
@@ -487,6 +502,7 @@ class TestGrpcActionProto:
         @grpc_action(
             request=[],
             response="google.protobuf.Empty",
+            use_generation_plugins=[FilterGenerationPlugin()],
         )
         async def FilterInEmpty(self, request, context):
             ...
@@ -494,6 +510,7 @@ class TestGrpcActionProto:
         @grpc_action(
             request=[{"name": "test", "type": "bool"}],
             response="google.protobuf.Empty",
+            use_generation_plugins=[FilterGenerationPlugin()],
         )
         async def FilterInRequest(self, request, context):
             ...
@@ -508,6 +525,7 @@ class TestGrpcActionProto:
             request_name="ReqNameRequest",
             use_response_list=True,
             use_request_list=True,
+            use_generation_plugins=[PaginationGenerationPlugin()],
         )
         async def BasicListWithPagination(self, request, context):
             ...
@@ -515,6 +533,7 @@ class TestGrpcActionProto:
         @grpc_action(
             request=[],
             response="google.protobuf.Empty",
+            use_generation_plugins=[PaginationGenerationPlugin()],
         )
         async def PaginationInEmpty(self, request, context):
             ...
@@ -522,6 +541,7 @@ class TestGrpcActionProto:
         @grpc_action(
             request=[{"name": "test", "type": "bool"}],
             response="google.protobuf.Empty",
+            use_generation_plugins=[PaginationGenerationPlugin()],
         )
         async def PaginationInRequest(self, request, context):
             ...
@@ -545,6 +565,15 @@ class TestGrpcActionProto:
         request = proto_rpc.request
 
         assert request.name == "MyActionImportedReqListRequest"
+
+    def test_register_action_list_imported_old_compat(self):
+        proto_rpc = self.MyAction.BasicListOldCompat.make_proto_rpc(
+            "BasicListOldCompat", self.MyAction
+        )
+
+        request = proto_rpc.request
+
+        assert request.name == "MyActionBasicListOldCompatListRequest"
 
     def test_register_action_with_optional(self):
         proto_rpc = self.MyAction.Optional.make_proto_rpc("Optional", self.MyAction)
@@ -571,30 +600,6 @@ class TestGrpcActionProto:
             "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
         }
     )
-    def test_register_action_with_struct_filters_on_settings_request_struct_strict(self):
-        proto_rpc = self.MyAction.Optional.make_proto_rpc("Optional", self.MyAction)
-
-        request = proto_rpc.request
-        assert "_filters" in request
-
-    @override_settings(
-        GRPC_FRAMEWORK={
-            "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
-            "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
-        }
-    )
-    def test_register_action_with_struct_filters_on_settings_METADATA_AND_REQUEST_STRUCT(self):
-        proto_rpc = self.MyAction.Optional.make_proto_rpc("Optional", self.MyAction)
-
-        request = proto_rpc.request
-        assert "_filters" in request
-
-    @override_settings(
-        GRPC_FRAMEWORK={
-            "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
-            "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
-        }
-    )
     def test_register_action_empty_message_with_struct_filters(self):
         proto_rpc = self.MyActionWithFilter.FilterInEmpty.make_proto_rpc(
             "FilterInEmpty", self.MyActionWithFilter
@@ -605,7 +610,7 @@ class TestGrpcActionProto:
 
         assert request.name == "MyActionWithFilterFilterInEmptyRequest"
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_filters"].field_type.name == "google.protobuf.Struct"
 
         assert response is EmptyMessage
 
@@ -630,7 +635,7 @@ class TestGrpcActionProto:
         assert request.name == "ReqNameListRequest"
         assert request["results"].field_type.name == "ReqNameRequest"
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_filters"].field_type.name == "google.protobuf.Struct"
 
     @override_settings(
         GRPC_FRAMEWORK={
@@ -649,38 +654,12 @@ class TestGrpcActionProto:
         assert request.name == "MyActionWithFilterFilterInRequestRequest"
         assert len(request.fields) == 2
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_filters"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_filters"].field_type.name == "google.protobuf.Struct"
         assert "test" in request
 
         assert response is EmptyMessage
 
     # TESTING STRUCT PAGINATION #########################
-    @override_settings(
-        GRPC_FRAMEWORK={
-            "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
-            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-        }
-    )
-    def test_register_action_with_struct_pagination_on_settings_request_struct_strict(self):
-        proto_rpc = self.MyAction.Optional.make_proto_rpc("Optional", self.MyAction)
-
-        request = proto_rpc.request
-        assert "_pagination" in request
-
-    @override_settings(
-        GRPC_FRAMEWORK={
-            "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
-            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-        }
-    )
-    def test_register_action_with_struct_pagination_on_settings_METADATA_AND_REQUEST_STRUCT(
-        self,
-    ):
-        proto_rpc = self.MyAction.Optional.make_proto_rpc("Optional", self.MyAction)
-
-        request = proto_rpc.request
-        assert "_pagination" in request
-
     @override_settings(
         GRPC_FRAMEWORK={
             "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
@@ -697,7 +676,7 @@ class TestGrpcActionProto:
 
         assert request.name == "MyActionWithPaginationPaginationInEmptyRequest"
         assert request["_pagination"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_pagination"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_pagination"].field_type.name == "google.protobuf.Struct"
 
         assert response is EmptyMessage
 
@@ -722,7 +701,7 @@ class TestGrpcActionProto:
         assert request.name == "ReqNameListRequest"
         assert request["results"].field_type.name == "ReqNameRequest"
         assert request["_pagination"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_pagination"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_pagination"].field_type.name == "google.protobuf.Struct"
 
     @override_settings(
         GRPC_FRAMEWORK={
@@ -741,7 +720,7 @@ class TestGrpcActionProto:
         assert request.name == "MyActionWithPaginationPaginationInRequestRequest"
         assert len(request.fields) == 2
         assert request["_pagination"].cardinality == FieldCardinality.OPTIONAL
-        assert request["_pagination"].field_type.base_name == "google.protobuf.Struct"
+        assert request["_pagination"].field_type.name == "google.protobuf.Struct"
         assert "test" in request
 
         assert response is EmptyMessage

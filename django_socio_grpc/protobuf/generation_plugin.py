@@ -1,32 +1,11 @@
 import logging
-from dataclasses import dataclass, field
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, ClassVar, Tuple, Type
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
-from django_socio_grpc.protobuf.proto_classes import (
-    EmptyMessage,
-    FieldCardinality,
-    ProtoField,
-    ProtoMessage,
-)
+from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField, ProtoMessage
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
-from django_socio_grpc.utils.constants import (
-    DEFAULT_LIST_FIELD_NAME,
-    LIST_ATTR_MESSAGE_NAME,
-    REQUEST_SUFFIX,
-    RESPONSE_SUFFIX,
-)
+from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -266,3 +245,9 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
             response_constructed_name = response_constructed_name[: -len(RESPONSE_SUFFIX)]
         list_name = response_constructed_name + "List" + RESPONSE_SUFFIX
         return self.transform_message_to_list(service, proto_message, list_name)
+
+
+class RequestAndResponseAsListGenerationPlugin(
+    RequestAsListGenerationPlugin, ResponseAsListGenerationPlugin
+):
+    ...

@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
-from django_socio_grpc.protobuf.proto_classes import ProtoMessage, get_proto_type
+from django_socio_grpc.protobuf.proto_classes import get_proto_type
 
 if TYPE_CHECKING:
     from django_socio_grpc.generics import GenericService

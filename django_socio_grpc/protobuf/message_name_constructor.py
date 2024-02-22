@@ -1,15 +1,10 @@
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Optional, Type, Union
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, List, Optional, Type, Union
 
 from rest_framework.serializers import BaseSerializer
 
 from django_socio_grpc.settings import grpc_settings
-from django_socio_grpc.utils.constants import (
-    DEFAULT_LIST_FIELD_NAME,
-    LIST_ATTR_MESSAGE_NAME,
-    REQUEST_SUFFIX,
-    RESPONSE_SUFFIX,
-)
+from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 from django_socio_grpc.utils.tools import rreplace
 
 if TYPE_CHECKING:

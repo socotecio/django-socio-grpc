@@ -11,7 +11,6 @@ from django_socio_grpc.protobuf.generation_plugin import (
     PaginationGenerationPlugin,
     ResponseAsListGenerationPlugin,
 )
-from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -51,7 +50,7 @@ class UnitTestModelWithStructFilterService(
         ],
     )
     async def List(self, request, context):
-        return super().List(request, context)
+        return await super().List(request, context)
 
     @grpc_action(
         request=[],

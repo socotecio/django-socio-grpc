@@ -24,15 +24,9 @@ from rest_framework.fields import HiddenField
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
-from django_socio_grpc.utils.constants import (
-    DEFAULT_LIST_FIELD_NAME,
-    LIST_ATTR_MESSAGE_NAME,
-    REQUEST_SUFFIX,
-    RESPONSE_SUFFIX,
-)
+from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 from django_socio_grpc.utils.model_meta import get_model_pk
-from django_socio_grpc.utils.tools import rreplace
 
 from .exceptions import ProtoRegistrationError
 from .typing import FieldCardinality, FieldDict

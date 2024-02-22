@@ -14,10 +14,8 @@ from django_socio_grpc.protobuf import ProtoComment, ProtoRegistrationError
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
     PaginationGenerationPlugin,
-    RequestAsListGenerationPlugin,
-    ResponseAsListGenerationPlugin,
+    RequestAndResponseAsListGenerationPlugin,
 )
-from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
     FieldCardinality,
@@ -208,7 +206,7 @@ class TestFields:
         proto_field = ProtoField.from_field(field)
 
         assert proto_field.name == "smf_with_serializer"
-        assert proto_field.field_type.name == "BasicService"
+        assert proto_field.field_type.name == "BasicServiceResponse"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
     def test_from_field_serializer_method_field_with_list_serializer(self):
@@ -218,7 +216,7 @@ class TestFields:
         proto_field = ProtoField.from_field(field)
 
         assert proto_field.name == "smf_with_list_serializer"
-        assert proto_field.field_type.name == "BasicService"
+        assert proto_field.field_type.name == "BasicServiceResponse"
         assert proto_field.cardinality == FieldCardinality.REPEATED
 
     def test_from_field_serializer_method_field_with_list_serializer_child_serializer(self):
@@ -438,8 +436,7 @@ class TestGrpcActionProto:
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
-            use_response_list=True,
-            use_request_list=True,
+            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
         )
         async def BasicList(self, request, context):
             ...
@@ -451,10 +448,18 @@ class TestGrpcActionProto:
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
+            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+        )
+        async def BasicList(self, request, context):
+            ...
+
+        @grpc_action(
+            request=[],
+            response=BasicProtoListChildSerializer,
             use_response_list=True,
             use_request_list=True,
         )
-        async def BasicList(self, request, context):
+        async def BasicListOldCompat(self, request, context):
             ...
 
         @grpc_action(
@@ -560,6 +565,15 @@ class TestGrpcActionProto:
         request = proto_rpc.request
 
         assert request.name == "MyActionImportedReqListRequest"
+
+    def test_register_action_list_imported_old_compat(self):
+        proto_rpc = self.MyAction.BasicListOldCompat.make_proto_rpc(
+            "BasicListOldCompat", self.MyAction
+        )
+
+        request = proto_rpc.request
+
+        assert request.name == "MyActionBasicListOldCompatListRequest"
 
     def test_register_action_with_optional(self):
         proto_rpc = self.MyAction.Optional.make_proto_rpc("Optional", self.MyAction)

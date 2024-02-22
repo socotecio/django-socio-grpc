@@ -198,8 +198,6 @@ class GRPCAction:
             req_class = RequestProtoMessage
             res_class = ResponseProtoMessage
 
-        # additional_action_fields = service._additional_action_fields()
-
         message_name_constructor = self.message_name_constructor_class(
             action_name=action_name, service=service
         )

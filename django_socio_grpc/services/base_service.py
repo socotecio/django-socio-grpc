@@ -14,7 +14,6 @@ from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
     from django_socio_grpc.protobuf import AppHandlerRegistry
-    from django_socio_grpc.protobuf.proto_classes import ProtoField
 
 from logging import getLogger
 
@@ -34,10 +33,6 @@ class Service(GRPCActionMixin):
     _servicer_proxy: Type[ServicerProxy] = ServicerProxy
 
     _is_auth_performed: bool = False
-
-    @classmethod
-    def _additional_action_fields(self) -> List["ProtoField"]:
-        return []
 
     def __init__(self, **kwargs):
         """

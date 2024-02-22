@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from typing import Optional
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.core.exceptions import ValidationError
@@ -10,8 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from django_socio_grpc import mixins, services
 from django_socio_grpc.exceptions import NotFound
-from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField
-from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
+from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 from django_socio_grpc.utils.tools import rreplace
 
@@ -45,75 +43,6 @@ class GenericService(services.Service):
             return cls.service_name
         else:
             return rreplace(cls.__name__, "Service", "", 1)
-
-    @classmethod
-    def _additional_action_fields(cls):
-        """
-        Allow to add custom field in all the generated message of a service.
-        Used for filtering and pagination if FILTER_BEHAVIOR or PAGINATION_BEHAVIOR settings allow it
-        """
-        additional_fields = super()._additional_action_fields()
-
-        if filter_field := cls.get_filter_field():
-            additional_fields.append(filter_field)
-
-        if pagination_field := cls.get_pagination_field():
-            additional_fields.append(pagination_field)
-
-        return additional_fields
-
-    @classmethod
-    def get_filter_field(cls) -> Optional[ProtoField]:
-        """
-        Get the ProtoField describing the field used for filtering in request if needed else None
-        """
-        # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
-        if (
-            not hasattr(cls, "filter_backends")
-            or not cls.filter_backends
-            and not grpc_settings.DEFAULT_FILTER_BACKENDS
-        ):
-            return None
-
-        if grpc_settings.FILTER_BEHAVIOR == FilterAndPaginationBehaviorOptions.METADATA_STRICT:
-            return None
-
-        # TODO - AM - 13/02/2024 - Add here in elif when wanting filtering in request with detailled field and not struct
-        return ProtoField.from_field_dict(
-            {
-                "name": "_filters",
-                "type": "google.protobuf.Struct",
-                "cardinality": FieldCardinality.OPTIONAL,
-            }
-        )
-
-    @classmethod
-    def get_pagination_field(cls) -> Optional[ProtoField]:
-        """
-        Get the ProtoField describing the field used for pagination in request if needed else Non
-        """
-        # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
-        if (
-            not hasattr(cls, "pagination_class")
-            or not cls.pagination_class
-            and not grpc_settings.DEFAULT_PAGINATION_CLASS
-        ):
-            return None
-
-        if (
-            grpc_settings.PAGINATION_BEHAVIOR
-            == FilterAndPaginationBehaviorOptions.METADATA_STRICT
-        ):
-            return None
-
-        # TODO - AM - 13/02/2024 - Add here in elif when wanting pagination in request with detailled field and not struct
-        return ProtoField.from_field_dict(
-            {
-                "name": "_pagination",
-                "type": "google.protobuf.Struct",
-                "cardinality": FieldCardinality.OPTIONAL,
-            }
-        )
 
     def get_queryset(self):
         """

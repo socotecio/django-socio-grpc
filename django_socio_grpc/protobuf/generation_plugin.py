@@ -130,13 +130,13 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
             or not service.filter_backends
             and not grpc_settings.DEFAULT_FILTER_BACKENDS
         ):
-            logger.warning(
+            logger.debug(
                 "You are using FilterGenerationPlugin but no filter_backends as been found on the service. Please set a filter_backends in the service or set it globally with DEFAULT_FILTER_BACKENDS setting."
             )
             return False
 
         if grpc_settings.FILTER_BEHAVIOR == FilterAndPaginationBehaviorOptions.METADATA_STRICT:
-            logger.warning(
+            logger.debug(
                 "You are using FilterGenerationPlugin but FILTER_BEHAVIOR settings is set to 'METADATA_STRICT' so it will have no effect. Please change FILTER_BEHAVIOR."
             )
             return False
@@ -166,7 +166,7 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
             or not service.pagination_class
             and not grpc_settings.DEFAULT_PAGINATION_CLASS
         ):
-            logger.warning(
+            logger.debug(
                 "You are using PaginationGenerationPlugin but no pagination_class as been found on the service. Please set a pagination_class in the service or set it globally with DEFAULT_PAGINATION_CLASS setting."
             )
             return False
@@ -175,7 +175,7 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
             grpc_settings.PAGINATION_BEHAVIOR
             == FilterAndPaginationBehaviorOptions.METADATA_STRICT
         ):
-            logger.warning(
+            logger.debug(
                 "You are using PaginationGenerationPlugin but PAGINATION_BEHAVIOR settings is set to 'METADATA_STRICT' so it will have no effect. Please change PAGINATION_BEHAVIOR."
             )
             return False
@@ -247,7 +247,9 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
         # HACK - AM - 22/02/2024 - If dev used specific message name that end by request we can't known without doing this
         if request_constructed_name.endswith(REQUEST_SUFFIX):
             request_constructed_name = request_constructed_name[: -len(REQUEST_SUFFIX)]
-        list_name = request_constructed_name + "List" + REQUEST_SUFFIX
+        if not request_constructed_name.endswith("List"):
+            request_constructed_name = request_constructed_name + "List"
+        list_name = request_constructed_name + REQUEST_SUFFIX
         return self.transform_message_to_list(service, proto_message, list_name)
 
 
@@ -266,7 +268,9 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
         # HACK - AM - 22/02/2024 - If dev used specific message name that end by response we can't known without doing this
         if response_constructed_name.endswith(RESPONSE_SUFFIX):
             response_constructed_name = response_constructed_name[: -len(RESPONSE_SUFFIX)]
-        list_name = response_constructed_name + "List" + RESPONSE_SUFFIX
+        if not response_constructed_name.endswith("List"):
+            response_constructed_name = response_constructed_name + "List"
+        list_name = response_constructed_name + RESPONSE_SUFFIX
         return self.transform_message_to_list(service, proto_message, list_name)
 
 

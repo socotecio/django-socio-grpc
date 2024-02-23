@@ -15,6 +15,7 @@ from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
     PaginationGenerationPlugin,
     RequestAndResponseAsListGenerationPlugin,
+    RequestAsListGenerationPlugin,
 )
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
@@ -453,15 +454,14 @@ class TestGrpcActionProto:
         @grpc_action(
             request=[],
             response=BasicProtoListChildSerializer,
-            use_response_list=True,
-            use_request_list=True,
+            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
         )
         async def BasicListOldCompat(self, request, context):
             ...
 
         @grpc_action(
             request="google.protobuf.Struct",
-            use_request_list=True,
+            use_generation_plugins=[RequestAsListGenerationPlugin()],
         )
         async def ImportedReq(self, request, context):
             ...
@@ -489,9 +489,10 @@ class TestGrpcActionProto:
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
-            use_response_list=True,
-            use_request_list=True,
-            use_generation_plugins=[FilterGenerationPlugin()],
+            use_generation_plugins=[
+                RequestAndResponseAsListGenerationPlugin(),
+                FilterGenerationPlugin(),
+            ],
         )
         async def BasicListWithFilter(self, request, context):
             ...
@@ -520,9 +521,10 @@ class TestGrpcActionProto:
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
-            use_response_list=True,
-            use_request_list=True,
-            use_generation_plugins=[PaginationGenerationPlugin()],
+            use_generation_plugins=[
+                RequestAndResponseAsListGenerationPlugin(),
+                PaginationGenerationPlugin(),
+            ],
         )
         async def BasicListWithPagination(self, request, context):
             ...

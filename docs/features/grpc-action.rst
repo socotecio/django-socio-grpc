@@ -282,6 +282,7 @@ Here the ``UserProtoSerializer`` is used to generate the response message.
     from rest_framework import serializers
     from rest_framework.pagination import PageNumberPagination
     from django.contrib.auth.models import User
+    from django_socio_grpc.protobuf.generation_plugin import ResponseAsListGenerationPlugin
 
     class UserProtoSerializer(ModelProtoSerializer):
         username = serializers.CharField()
@@ -299,7 +300,7 @@ Here the ``UserProtoSerializer`` is used to generate the response message.
         @grpc_action(
             request=[],
             response=UserProtoSerializer,
-            use_response_list=True,
+            use_generation_plugins=[ResponseAsListGenerationPlugin()],
         )
         async def List(self, request, context):
             ...
@@ -341,6 +342,7 @@ Usage of Request And Response List
     from rest_framework import serializers
     from django_socio_grpc.decorators import grpc_action
     from django_socio_grpc.proto_serializers import ModelProtoSerializer
+    from django_socio_grpc.protobuf.generation_plugin import RequestAndResponseAsListGenerationPlugin
 
     class UserProtoSerializer(ModelProtoSerializer):
         uuid = serializers.UUIDField(read_only=True)
@@ -353,9 +355,8 @@ Usage of Request And Response List
 
     @grpc_action(
         request=UserProtoSerializer,
-        use_request_list=True,
         response=UserProtoSerializer,
-        use_response_list=True,
+        use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()]
     )
     async def BulkCreate(self, request, context):
         return await self._bulk_create(request, context)

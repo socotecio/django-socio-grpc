@@ -20,8 +20,8 @@ To use pagination you may use metadata or request depending on the :ref:`PAGINAT
 
 .. _pagination-using-it-globally:
 
-Using it globally
------------------
+Using it globally on all List and Stream actions
+------------------------------------------------
 
 To enable pagination gloablly you need to set the :ref:`DEFAULT_PAGINATION_CLASS settings<default_pagination_class_settings>` to the pagination class you want to use.
 
@@ -38,8 +38,8 @@ To enable pagination gloablly you need to set the :ref:`DEFAULT_PAGINATION_CLASS
 
 .. _pagination-using-it-by-service:
 
-Using it by service
--------------------
+Using it by service on List action
+----------------------------------
 
 To enable pagination only for one or some service you can override the :func:`pagination_class <django_socio_grpc.generics.GenericService.pagination_class>` attribute.
 
@@ -58,6 +58,52 @@ To enable pagination only for one or some service you can override the :func:`pa
         queryset = Post.objects.all()
         serializer_class = PostProtoSerializer
         pagination_class = PageNumberPagination
+
+
+.. _pagination-using-it-by-service:
+
+Using it on specific action when using filter in message
+--------------------------------------------------------
+
+If your :ref:`PAGINATION_BEHAVIOR setting<settings-pagination-behavior>` is set to ``REQUEST_STRUCT_STRICT`` or ``METADATA_AND_REQUEST_STRUCT`` 
+and you want to use filtering for your custom action by message and not metadata (:ref:`See Using It section <pagination-using-it>`) 
+you need to use the :func:`PaginationGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.PaginationGenerationPlugin>`
+as demonstrated below (:ref:`See Generation Plugin documentation <proto-generation-plugins>`): 
+
+.. code-block:: python
+
+    # server
+    # quickstart/services.py
+    from django_socio_grpc import generics
+    from quickstart.models import Post
+    from quickstart.serializer import PostProtoSerializer
+    from rest_framework.pagination import PageNumberPagination
+    from django_socio_grpc.decorators import grpc_action
+    from django_socio_grpc.protobuf.generation_plugin import RequestAsListGenerationPlugin, PaginationGenerationPlugin
+
+
+    # This service will have all the CRUD actions
+    class PostService(generics.GenericService):
+        queryset = Post.objects.all()
+        serializer_class = PostProtoSerializer
+        pagination_class = PageNumberPagination
+
+        @grpc_action(
+            request=[],
+            response=PostProtoSerializer,
+            use_generation_plugins=[RequestAsListGenerationPlugin(), PaginationGenerationPlugin()],
+        )
+        async def CustomListWithPagination(self, request, context):
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                if hasattr(serializer.message, "count"):
+                    serializer.message.count = self.paginator.page.paginator.count
+                return serializer.message
+            else:
+                serializer = self.get_serializer(queryset, many=True)
+                return serializer.message
 
 .. _pagination-using-it:
 

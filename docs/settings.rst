@@ -38,6 +38,7 @@ See the documentation on django settings if your not familiar with it: `Django s
     "IGNORE_LOG_FOR_ACTION": [],
     "FILTER_BEHAVIOR": "METADATA_STRICT",
     "PAGINATION_BEHAVIOR": "METADATA_STRICT",
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor",
   }
 
 .. _root-handler-hook-setting:
@@ -377,3 +378,31 @@ The differents options possibles are described in :func:`django_socio_grpc.setti
   from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
   
   "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT
+
+
+.. _settings-default-message-name-constructor:
+
+DEFAULT_MESSAGE_NAME_CONSTRUCTOR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Variable that indicate the class used to generate the name of the proto messages. Default is :func:`MessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`.
+
+For more informations see :ref:`the specific associated documentation <proto-generation-message-name-constructor>`
+
+.. code-block:: python
+  
+  "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor"
+
+.. _settings-default-generation-plugin:
+
+DEFAULT_GENERATION_PLUGINS
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+List of class inherited from :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`
+to specify plugin that are used globally for all actions.
+
+:ref:`See specific documentation <proto-generation-plugins>`
+
+.. code-block:: python
+  
+  "DEFAULT_GENERATION_PLUGINS": ["django_socio_grpc.protobuf.generation_plugin.FilterGenerationPlugin"]

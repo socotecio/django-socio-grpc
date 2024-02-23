@@ -92,8 +92,12 @@ class GRPCAction:
     use_response_list: bool = False
     request_message_list_attr: Optional[str] = None
     response_message_list_attr: Optional[str] = None
-    message_name_constructor_class: Type[MessageNameConstructor] = MessageNameConstructor
-    use_generation_plugins: List[Type[BaseGenerationPlugin]] = field(default_factory=list)
+    message_name_constructor_class: Type[
+        MessageNameConstructor
+    ] = grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
+    use_generation_plugins: List[Type[BaseGenerationPlugin]] = field(
+        default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS
+    )
 
     proto_rpc: Optional[ProtoRpc] = field(init=False, default=None)
 
@@ -119,9 +123,10 @@ class GRPCAction:
         """
         Transform old arguments to the correct plugins
         """
+        # copy_plugin = self.use_generation_plugins.copy
         warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: TODO"
         if self.use_request_list:
-            # logger.warning(warning_message.format("use_request_list"))
+            logger.warning(warning_message.format("use_request_list"))
 
             if self.request_message_list_attr:
                 logger.warning(warning_message.format("request_message_list_attr"))
@@ -133,7 +138,7 @@ class GRPCAction:
             )
 
         if self.use_response_list:
-            # logger.warning(warning_message.format("use_response_list"))
+            logger.warning(warning_message.format("use_response_list"))
             if self.response_message_list_attr:
                 logger.warning(warning_message.format("response_message_list_attr"))
             self.use_generation_plugins.insert(

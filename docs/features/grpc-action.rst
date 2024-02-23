@@ -43,6 +43,10 @@ Before looking at each argument of this decorator let see its definition:
 
 .. code-block:: python
 
+    from typing import List, Type
+    from django_socio_grpc.protobuf.generation_plugin import BaseGenerationPlugin
+    from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
+
     grpc_action(
         request: RequestResponseType | None = None,
         response: RequestResponseType | None = None,
@@ -52,6 +56,12 @@ Before looking at each argument of this decorator let see its definition:
         response_stream: bool = False,
         use_request_list: bool = False,
         use_response_list: bool = False,
+        message_name_constructor_class: Type[
+            MessageNameConstructor
+        ] = grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
+        use_generation_plugins: List[Type[BaseGenerationPlugin]] = field(
+            default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS
+        )
     )
 
 .. _grpc-action-request-response:
@@ -88,6 +98,8 @@ the name of the serializer if a serializer is used, and the service name.
 
 Those arguments are used to override this name. Example: :ref:`grpc-action-overriding-request-and-response-proto-name`.
 
+If not set will use the :ref:`message_name_constructor_class argument <grpc-action-message-name-constructor>` as :ref:`specified in doc <proto-generation-message-name-constructor>`
+
 ======================================
 ``request_stream`` ``response_stream``
 ======================================
@@ -98,8 +110,40 @@ Those arguments are used to mark the RPC request/response as a stream. Example: 
 ``use_request_list`` ``use_response_list``
 ==========================================
 
+.. warning::
+
+    Both of this arguments are deprecated and will be removed in version 1.0.0.
+    They are replaced by the :ref:`GenerationPlugin mechanisme <proto-generation-plugins>` combinated with
+    :func:`RequestAsListGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.RequestAsListGenerationPlugin>` and
+    :func:`ResponseAsListGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.ResponseAsListGenerationPlugin>`
+
 Those arguments are used to encapsulate the message inside a List message.
 It is useful when returning a list of object with a serializer. Example: :ref:`grpc-action-use-request-and-response-list`
+
+
+.. _grpc-action-message-name-constructor:
+
+============================
+``message_name_constructor``
+============================
+
+This argument allow you to customize the proto message names generated when no ``request_name`` and/or ``response_name``
+are specified. It expect a class with specific method and behavior and it's instance is passed as arguments in the :ref:`generation plugin mechanisme <proto-generation-plugins>`.
+For more information, please read :ref:`the specified documentation <proto-generation-message-name-constructor>`.
+
+Defaulting to the :ref:`DEFAULT_MESSAGE_NAME_CONSTRUCTOR setting <settings-default-message-name-constructor>`
+
+
+.. _grpc-action-request-response:
+
+==========================
+``use_generation_plugins``
+==========================
+
+This argument allow to customize the proto generated dynamically by DSG to match your need.
+It accept a list of instance of class inherited from :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`.
+
+For more information, please read :ref:`the generation plugin documentation <proto-generation-plugins>`
 
 
 .. _grpc-action-use-cases:

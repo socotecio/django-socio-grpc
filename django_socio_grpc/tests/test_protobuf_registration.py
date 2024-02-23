@@ -16,6 +16,7 @@ from django_socio_grpc.protobuf.generation_plugin import (
     PaginationGenerationPlugin,
     RequestAndResponseAsListGenerationPlugin,
 )
+from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
     FieldCardinality,
@@ -33,6 +34,18 @@ from django_socio_grpc.tests.fakeapp.serializers import (
     BasicServiceSerializer,
     RelatedFieldModelSerializer,
 )
+
+
+class CustomMessageNameConstructor(MessageNameConstructor):
+    def construct_response_name(
+        self,
+        message,
+        message_name,
+    ):
+        name = super().construct_response_name(message, message_name)
+        self._response_full_name = name + "Custom"
+
+        return self._response_full_name
 
 
 class MyIntModel(models.Model):
@@ -411,22 +424,6 @@ class TestProtoMessage:
         assert proto_message.fields[0].name == "serializer"
         assert len(proto_message.fields[0].field_type.fields) == 10
 
-    # def test_as_list_message(self):
-    #     proto_message = ResponseProtoMessage.from_serializer(MySerializer)
-    #     list_message = ResponseProtoMessage.as_list_message(proto_message)
-    #     assert "results" in list_message
-
-    #     proto_message = ResponseProtoMessage.from_serializer(MyOtherSerializer)
-    #     list_message = ResponseProtoMessage.as_list_message(proto_message)
-
-    #     assert list_message.name == "MyOtherListResponse"
-    #     assert len(list_message.fields) == 2
-    #     results_field = list_message["custom_results"]
-    #     assert results_field.cardinality == FieldCardinality.REPEATED
-    #     results_type = results_field.field_type
-
-    #     assert results_type.name == "MyOtherResponse"
-
 
 class TestGrpcActionProto:
     class MyBaseAction(Service):
@@ -724,3 +721,52 @@ class TestGrpcActionProto:
         assert "test" in request
 
         assert response is EmptyMessage
+
+    # TEST WITH PLUGIN GLOBAL SETTINGS ##############
+    @override_settings(
+        GRPC_FRAMEWORK={
+            "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
+            "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+            "DEFAULT_GENERATION_PLUGINS": [FilterGenerationPlugin()],
+        }
+    )
+    def test_register_action_with_default_generation_plugins(self):
+        # INFO - AM - 23/02/2024 - Need to declare action in test because settings only overrided in the test
+        class MyActionBis(GenericService):
+            serializer_class = MySerializer
+
+            @grpc_action(
+                request=[{"name": "optional_title", "type": "optional string"}],
+                response=MySerializer,
+            )
+            async def Optional(self, request, context):
+                ...
+
+        proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
+
+        request = proto_rpc.request
+        assert "_filters" in request
+
+    # TEST WITH MESSAGE NAME CONSTRUCTOR GLOBAL SETTINGS ##############
+    @override_settings(
+        GRPC_FRAMEWORK={
+            "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
+            "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+            "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.tests.test_protobuf_registration.CustomMessageNameConstructor",
+        }
+    )
+    def test_register_action_with_default_message_name_constructor(self):
+        # INFO - AM - 23/02/2024 - Need to declare action in test because settings only overrided in the test
+        class MyActionBis(GenericService):
+            serializer_class = MySerializer
+
+            @grpc_action(
+                request=[{"name": "optional_title", "type": "optional string"}],
+                response=MySerializer,
+            )
+            async def Optional(self, request, context):
+                ...
+
+        proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
+
+        assert proto_rpc.response.name == "MyResponseCustom"

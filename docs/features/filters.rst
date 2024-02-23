@@ -236,6 +236,46 @@ There is two way to defining filter fields.
         filterset_class = PostFilter
 
 
+=============================================
+Add filter field in request for custom action
+=============================================
+
+If your :ref:`FILTER_BEHAVIOR setting<settings-filter-behavior>` is set to ``REQUEST_STRUCT_STRICT`` or ``METADATA_AND_REQUEST_STRUCT`` 
+and you want to use filtering for your custom action by message and not metadata (:ref:`See Using It section <filters-using-it>`) 
+you need to use the :func:`FilterGenerationPlugin<django_socio_grpc.protobuf.generation_plugin.FilterGenerationPlugin>`
+as demonstrated below (:ref:`See Generation Plugin documentation <proto-generation-plugins>`): 
+
+.. code-block:: python
+
+    # server
+    # quickstart/services.py
+    from django_socio_grpc import generics
+    from quickstart.models import Post
+    from quickstart.serializer import PostProtoSerializer
+    from rest_framework.pagination import PageNumberPagination
+    from django_socio_grpc.decorators import grpc_action
+    from django_socio_grpc.protobuf.generation_plugin import RequestAsListGenerationPlugin, FilterGenerationPlugin
+
+
+    # This service will have all the CRUD actions
+    class PostService(generics.GenericService):
+        queryset = Post.objects.all()
+        serializer_class = PostProtoSerializer
+        pagination_class = PageNumberPagination
+
+        @grpc_action(
+            request=[],
+            response=PostProtoSerializer,
+            use_generation_plugins=[RequestAsListGenerationPlugin(), FilterGenerationPlugin()],
+        )
+        async def CustomListWithFilter(self, request, context):
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            return serializer.message
+
+
+.. _filters-using-it:
+
 ========
 Using it
 ========

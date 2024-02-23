@@ -100,6 +100,10 @@ DEFAULTS = {
     # Prefered pagination mode capability. See FilterAndPaginationBehaviorOptions for options
     # /!\ for 1.O.0 the default behavior will change from METADATA_STRICT to METADATA_AND_FILTER_MESSAGE
     "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT,
+    # Variable that indicate the class used to generate the name of the proto messages
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor",
+    # Variable that indicate the plugins used in proto generation by default
+    "DEFAULT_GENERATION_PLUGINS": [],
 }
 
 
@@ -111,6 +115,7 @@ IMPORT_STRINGS = [
     "DEFAULT_PAGINATION_CLASS",
     "DEFAULT_FILTER_BACKENDS",
     "LOG_EXTRA_CONTEXT_FUNCTION",
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR",
 ]
 
 

@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, List, Type
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
+from django_socio_grpc.settings import grpc_settings
 
 from .grpc_actions.actions import GRPCAction
 
@@ -17,7 +18,7 @@ def grpc_action(
     response_stream=False,
     use_request_list=False,
     use_response_list=False,
-    message_name_constructor_class: Type[MessageNameConstructor] = MessageNameConstructor,
+    message_name_constructor_class: Type[MessageNameConstructor] = None,
     use_generation_plugins: List[Type["BaseGenerationPlugin"]] = None,
 ):
     """
@@ -46,8 +47,10 @@ def grpc_action(
             response_stream,
             use_request_list,
             use_response_list,
-            message_name_constructor_class=message_name_constructor_class,
-            use_generation_plugins=use_generation_plugins or [],
+            message_name_constructor_class=message_name_constructor_class
+            or grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR,
+            use_generation_plugins=use_generation_plugins
+            or grpc_settings.DEFAULT_GENERATION_PLUGINS.copy(),
         )
 
     return wrapper

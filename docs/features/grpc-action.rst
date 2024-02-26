@@ -59,7 +59,7 @@ Before looking at each argument of this decorator let see its definition:
         message_name_constructor_class: Type[
             MessageNameConstructor
         ] = grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
-        use_generation_plugins: List[Type[BaseGenerationPlugin]] = field(
+        use_generation_plugins: List[BaseGenerationPlugin] = field(
             default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS
         )
     )

@@ -13,58 +13,22 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class MessageNameConstructor:
+class BaseNameConstructor:
     action_name: str
     service: Type["Service"]
-
-    _request_constructed_name: Optional[str] = None
-    _response_constructed_name: Optional[str] = None
-
-    _request_full_name: Optional[str] = None
-    _response_full_name: Optional[str] = None
+    action_request: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]]
+    request_name: Optional[str]
+    action_response: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]]
+    response_name: Optional[str]
 
     def __post_init__(self):
         self.service_name = self.service.get_service_name()
 
-    @property
-    def request_constructed_name(self) -> str:
-        """
-        That name of the request constructed from the message and message_name(name specifically specified by the dev)
-        This property can only be call after construct_request_name
-        """
-        if self._request_constructed_name is None:
-            raise Exception("request_constructed_name called before construct_request_name")
-        return self._request_constructed_name
 
-    @property
-    def response_constructed_name(self) -> str:
-        """
-        That name of the response constructed from the message and message_name(name specifically specified by the dev)
-        This property can only be call after construct_response_name
-        """
-        if self._response_constructed_name is None:
-            raise Exception("response_constructed_name called before construct_response_name")
-        return self._response_constructed_name
-
-    @property
-    def request_full_name(self) -> str:
-        """
-        The request_constructed_name with the correct suffix if SEPARATE_READ_WRITE_MODEL settings is True
-        This property can only be call after construct_request_name
-        """
-        if self._request_full_name is None:
-            raise Exception("request_full_name called before construct_request_name")
-        return self._request_full_name
-
-    @property
-    def response_full_name(self) -> str:
-        """
-        The response_constructed_name with the correct suffix if SEPARATE_READ_WRITE_MODEL settings is True
-        This property can only be call after construct_response_name
-        """
-        if self._response_full_name is None:
-            raise Exception("response_full_name called before construct_response_name")
-        return self._response_full_name
+@dataclass
+class MessageNameConstructor(BaseNameConstructor):
+    def __post_init__(self):
+        self.service_name = self.service.get_service_name()
 
     @classmethod
     def get_base_name_from_serializer(cls, serializer: Type[BaseSerializer]) -> str:
@@ -91,51 +55,81 @@ class MessageNameConstructor:
 
         return base_name + suffix
 
-    def construct_name(
-        self,
-        message: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]],
-        message_name: Optional[str],
-    ):
-        """
-        Construct the ProtoMessage name without the suffix ("REQUEST", "RESPONSE", "") from the message and potentialy the name the user specified
-        """
-        if message_name:
-            return message_name
-        if isinstance(message, type) and issubclass(message, BaseSerializer):
-            return self.get_base_name_from_serializer(message)
+    def construct_base_name(self, is_request: bool = True):
+        action_message = self.action_request if is_request else self.action_response
+
+        if isinstance(action_message, type) and issubclass(action_message, BaseSerializer):
+            return self.get_base_name_from_serializer(action_message)
         else:
             return f"{self.service_name}{self.action_name}"
 
+    def construct_name(
+        self,
+        is_request: bool = True,
+        before_suffix: str = "",
+    ):
+        """
+        Construct the ProtoMessage name from the message and potentialy the name the user specified
+        """
+
+        message_name = self.request_name if is_request else self.response_name
+        suffix = REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX
+
+        name = ""
+        if message_name:
+            name = message_name
+        else:
+            name = self.construct_base_name(is_request=is_request)
+
+        # HACK - AM - 22/02/2024 - If dev used specific message name that end by "Request" or "Response" we can't known without doing this.
+        # We put it back after inserting the before_suffix thank to force_suffix
+        force_suffix = False
+        if name.endswith(suffix) and grpc_settings.SEPARATE_READ_WRITE_MODEL:
+            name = name[: -len(suffix)]
+            force_suffix = True
+
+        # INFO - AM - 27/02/2024 - We choose to not duplicate if the name end by the before suffix. If you want something different please just create your own name constructor class
+        if before_suffix and not name.endswith(before_suffix):
+            name += before_suffix
+
+        # INFO - AM - 27/02/2024 - Finally add the suffix only if not already finishing by the suffix
+        if (
+            grpc_settings.SEPARATE_READ_WRITE_MODEL
+            and not name.endswith(suffix)
+            and (not message_name or force_suffix)
+        ):
+            name += suffix
+
+        return name
+
+    def construct_request_list_name(self):
+        """
+        Get the name of the request list message as displayed in the proto file
+        """
+        return self.construct_name(is_request=True, before_suffix="List")
+
+    def construct_response_list_name(self):
+        """
+        Get the name of the response list message as displayed in the proto file
+        """
+        return self.construct_name(is_request=False, before_suffix="List")
+
     def construct_request_name(
         self,
-        message: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]],
-        message_name: Optional[str],
+        before_suffix: str = "",
     ):
         """
         Get the name of the request as displayed in the proto file
         """
-        self._request_constructed_name = self._request_full_name = self.construct_name(
-            message, message_name
-        )
 
-        if grpc_settings.SEPARATE_READ_WRITE_MODEL and not message_name:
-            self._request_full_name += REQUEST_SUFFIX
-
-        return self._request_full_name
+        return self.construct_name(is_request=True, before_suffix=before_suffix)
 
     def construct_response_name(
         self,
-        message: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]],
-        message_name: Optional[str],
+        before_suffix: str = "",
     ):
         """
         Get the name of the response as displayed in the proto file
         """
-        self._response_constructed_name = self._response_full_name = self.construct_name(
-            message, message_name
-        )
 
-        if grpc_settings.SEPARATE_READ_WRITE_MODEL and not message_name:
-            self._response_full_name += RESPONSE_SUFFIX
-
-        return self._response_full_name
+        return self.construct_name(is_request=False, before_suffix=before_suffix)

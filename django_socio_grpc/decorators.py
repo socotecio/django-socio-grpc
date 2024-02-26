@@ -19,7 +19,7 @@ def grpc_action(
     use_request_list=False,
     use_response_list=False,
     message_name_constructor_class: Type[MessageNameConstructor] = None,
-    use_generation_plugins: List[Type["BaseGenerationPlugin"]] = None,
+    use_generation_plugins: List["BaseGenerationPlugin"] = None,
 ):
     """
     Easily register a grpc action into the registry to generate it into the proto file.

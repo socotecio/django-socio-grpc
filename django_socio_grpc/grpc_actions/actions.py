@@ -95,7 +95,7 @@ class GRPCAction:
     message_name_constructor_class: Type[
         MessageNameConstructor
     ] = grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
-    use_generation_plugins: List[Type[BaseGenerationPlugin]] = field(
+    use_generation_plugins: List[BaseGenerationPlugin] = field(
         default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS
     )
 
@@ -205,18 +205,19 @@ class GRPCAction:
 
         # INFO - AM - 22/02/2024 - Get the instance of the class that will be used to construct the names of the request and response message. Defautl class is MessageNameConstructor
         message_name_constructor = self.message_name_constructor_class(
-            action_name=action_name, service=service
+            action_name=action_name,
+            service=service,
+            action_request=self.request,
+            request_name=self.request_name,
+            action_response=self.response,
+            response_name=self.response_name,
         )
 
         # INFO - AM - 22/02/2024 - Get the actual request name
-        request_name: str = message_name_constructor.construct_request_name(
-            message=self.request, message_name=self.request_name
-        )
+        request_name: str = message_name_constructor.construct_request_name()
         request: ProtoMessage = req_class.create(value=self.request, name=request_name)
 
-        response_name: str = message_name_constructor.construct_response_name(
-            message=self.response, message_name=self.response_name
-        )
+        response_name: str = message_name_constructor.construct_response_name()
         response: ProtoMessage = res_class.create(value=self.response, name=response_name)
 
         # DEPRECATED - AM - 22/02/2024 - Used to keep compat before plugin

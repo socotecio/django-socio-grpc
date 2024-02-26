@@ -1,11 +1,10 @@
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, ClassVar, Tuple, Type
+from typing import TYPE_CHECKING, Tuple, Type, Union
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField, ProtoMessage
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
-from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -76,14 +75,14 @@ class BaseGenerationPlugin:
 class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
     """
     Util class to inherit for adding a field in a request proto message.
-    By inerhit it and fill field_name, field_cardinality and field_type classVar it will create a plugin that add a field without having to override any method.
+    By inerhit it and fill field_name, field_cardinality and field_type it will create a plugin that add a field without having to override any method.
     """
 
-    field_name: ClassVar[str] = None
-    field_cardinality: ClassVar[str] = None
-    field_type: ClassVar[str] = None
+    field_name: str = None
+    field_type: Union[str | ProtoMessage] = None
+    field_cardinality: FieldCardinality = None
 
-    def __post_init__(self):
+    def __init__(self):
         error_message = "You try to instanciate a class that inherit from BaseGenerationPlugin. to do that you need to specify a {0} attribute"
 
         assert self.field_name is not None, error_message.format("field_name")
@@ -113,9 +112,9 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     Plugin to add the _filters field in the request ProtoMessage. See https://django-socio-grpc.readthedocs.io/en/stable/features/filters.html#djangofilterbackend
     """
 
-    field_name: ClassVar[str] = "_filters"
-    field_type: ClassVar[str] = "google.protobuf.Struct"
-    field_cardinality: ClassVar[str] = FieldCardinality.OPTIONAL
+    field_name: str = "_filters"
+    field_type: Union[str | ProtoMessage] = "google.protobuf.Struct"
+    field_cardinality: FieldCardinality = FieldCardinality.OPTIONAL
 
     def check_condition(
         self,
@@ -149,9 +148,9 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     Plugin to add the _pagination field in the request ProtoMessage. See https://django-socio-grpc.readthedocs.io/en/stable/features/pagination.html
     """
 
-    field_name: ClassVar[str] = "_pagination"
-    field_type: ClassVar[str] = "google.protobuf.Struct"
-    field_cardinality: ClassVar[str] = FieldCardinality.OPTIONAL
+    field_name: str = "_pagination"
+    field_type: Union[str | ProtoMessage] = "google.protobuf.Struct"
+    field_cardinality: FieldCardinality = FieldCardinality.OPTIONAL
 
     def check_condition(
         self,
@@ -243,13 +242,7 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
         proto_message: ProtoMessage,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
-        request_constructed_name = message_name_constructor.request_constructed_name
-        # HACK - AM - 22/02/2024 - If dev used specific message name that end by request we can't known without doing this
-        if request_constructed_name.endswith(REQUEST_SUFFIX):
-            request_constructed_name = request_constructed_name[: -len(REQUEST_SUFFIX)]
-        if not request_constructed_name.endswith("List"):
-            request_constructed_name = request_constructed_name + "List"
-        list_name = request_constructed_name + REQUEST_SUFFIX
+        list_name = message_name_constructor.construct_request_list_name()
         return self.transform_message_to_list(service, proto_message, list_name)
 
 
@@ -264,13 +257,7 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
         proto_message: ProtoMessage,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
-        response_constructed_name = message_name_constructor.response_constructed_name
-        # HACK - AM - 22/02/2024 - If dev used specific message name that end by response we can't known without doing this
-        if response_constructed_name.endswith(RESPONSE_SUFFIX):
-            response_constructed_name = response_constructed_name[: -len(RESPONSE_SUFFIX)]
-        if not response_constructed_name.endswith("List"):
-            response_constructed_name = response_constructed_name + "List"
-        list_name = response_constructed_name + RESPONSE_SUFFIX
+        list_name = message_name_constructor.construct_response_list_name()
         return self.transform_message_to_list(service, proto_message, list_name)
 
 

@@ -38,15 +38,11 @@ from django_socio_grpc.tests.fakeapp.serializers import (
 
 
 class CustomMessageNameConstructor(MessageNameConstructor):
-    def construct_response_name(
-        self,
-        message,
-        message_name,
-    ):
-        name = super().construct_response_name(message, message_name)
-        self._response_full_name = name + "Custom"
+    def construct_response_name(self, before_suffix=""):
+        name = super().construct_response_name(before_suffix=before_suffix)
+        name += "Custom"
 
-        return self._response_full_name
+        return name
 
 
 class MyIntModel(models.Model):
@@ -650,7 +646,7 @@ class TestGrpcActionProto:
         request = proto_rpc.request
         response = proto_rpc.response
 
-        assert request.name == "MyActionWithFilterFilterInRequestRequest"
+        assert request.name == "MyActionWithFilterFilterInRequest"
         assert len(request.fields) == 2
         assert request["_filters"].cardinality == FieldCardinality.OPTIONAL
         assert request["_filters"].field_type.name == "google.protobuf.Struct"
@@ -716,7 +712,7 @@ class TestGrpcActionProto:
         request = proto_rpc.request
         response = proto_rpc.response
 
-        assert request.name == "MyActionWithPaginationPaginationInRequestRequest"
+        assert request.name == "MyActionWithPaginationPaginationInRequest"
         assert len(request.fields) == 2
         assert request["_pagination"].cardinality == FieldCardinality.OPTIONAL
         assert request["_pagination"].field_type.name == "google.protobuf.Struct"

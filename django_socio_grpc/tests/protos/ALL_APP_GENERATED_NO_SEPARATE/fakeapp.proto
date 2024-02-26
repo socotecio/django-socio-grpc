@@ -6,22 +6,22 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service BasicController {
-    rpc BasicList(BasicProtoListChildListRequest) returns (BasicProtoListChildListResponse) {}
+    rpc BasicList(BasicProtoListChildList) returns (BasicProtoListChildList) {}
     rpc Create(BasicService) returns (BasicService) {}
     rpc FetchDataForUser(BasicFetchDataForUser) returns (BasicService) {}
     rpc FetchTranslatedKey(google.protobuf.Empty) returns (BasicFetchTranslatedKey) {}
-    rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceListResponse) {}
+    rpc GetMultiple(google.protobuf.Empty) returns (BasicServiceList) {}
     rpc ListIds(google.protobuf.Empty) returns (BasicListIds) {}
     rpc ListName(google.protobuf.Empty) returns (BasicListName) {}
-    rpc MixParam(CustomMixParamForListRequest) returns (BasicMixParamListResponse) {}
-    rpc MixParamWithSerializer(BasicParamWithSerializerListRequest) returns (BasicMixParamWithSerializerListResponse) {}
+    rpc MixParam(CustomMixParamForRequestList) returns (BasicMixParamList) {}
+    rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerList) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
-    rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleListResponse) {}
+    rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleList) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 service ForeignModelController {
-    rpc List(ForeignModelListRequest) returns (ForeignModelListResponse) {}
+    rpc List(ForeignModelListRequest) returns (ForeignModelList) {}
     rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustom) {}
 }
 
@@ -32,7 +32,7 @@ service ImportStructEvenInArrayModelController {
 service RecursiveTestModelController {
     rpc Create(RecursiveTestModel) returns (RecursiveTestModel) {}
     rpc Destroy(RecursiveTestModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(RecursiveTestModelListRequest) returns (RecursiveTestModelListResponse) {}
+    rpc List(RecursiveTestModelListRequest) returns (RecursiveTestModelList) {}
     rpc PartialUpdate(RecursiveTestModelPartialUpdateRequest) returns (RecursiveTestModel) {}
     rpc Retrieve(RecursiveTestModelRetrieveRequest) returns (RecursiveTestModel) {}
     rpc Update(RecursiveTestModel) returns (RecursiveTestModel) {}
@@ -41,7 +41,7 @@ service RecursiveTestModelController {
 service RelatedFieldModelController {
     rpc Create(RelatedFieldModel) returns (RelatedFieldModel) {}
     rpc Destroy(RelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelListResponse) {}
+    rpc List(RelatedFieldModelListRequest) returns (RelatedFieldModelList) {}
     rpc PartialUpdate(RelatedFieldModelPartialUpdateRequest) returns (RelatedFieldModel) {}
     rpc Retrieve(RelatedFieldModelRetrieveRequest) returns (RelatedFieldModel) {}
     rpc Update(RelatedFieldModel) returns (RelatedFieldModel) {}
@@ -50,7 +50,7 @@ service RelatedFieldModelController {
 service SimpleRelatedFieldModelController {
     rpc Create(SimpleRelatedFieldModel) returns (SimpleRelatedFieldModel) {}
     rpc Destroy(SimpleRelatedFieldModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(SimpleRelatedFieldModelListRequest) returns (SimpleRelatedFieldModelListResponse) {}
+    rpc List(SimpleRelatedFieldModelListRequest) returns (SimpleRelatedFieldModelList) {}
     rpc PartialUpdate(SimpleRelatedFieldModelPartialUpdateRequest) returns (SimpleRelatedFieldModel) {}
     rpc Retrieve(SimpleRelatedFieldModelRetrieveRequest) returns (SimpleRelatedFieldModel) {}
     rpc Update(SimpleRelatedFieldModel) returns (SimpleRelatedFieldModel) {}
@@ -59,21 +59,21 @@ service SimpleRelatedFieldModelController {
 service SpecialFieldsModelController {
     rpc Create(SpecialFieldsModel) returns (SpecialFieldsModel) {}
     rpc Destroy(SpecialFieldsModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelListResponse) {}
+    rpc List(SpecialFieldsModelListRequest) returns (SpecialFieldsModelList) {}
     rpc PartialUpdate(SpecialFieldsModelPartialUpdateRequest) returns (SpecialFieldsModel) {}
     rpc Retrieve(SpecialFieldsModelRetrieve) returns (CustomRetrieveResponseSpecialFieldsModel) {}
     rpc Update(SpecialFieldsModel) returns (SpecialFieldsModel) {}
 }
 
 service StreamInController {
-    rpc StreamIn(stream StreamInStreamIn) returns (StreamInStreamInListResponse) {}
+    rpc StreamIn(stream StreamInStreamIn) returns (StreamInStreamInList) {}
     rpc StreamToStream(stream StreamInStreamToStream) returns (stream StreamInStreamToStream) {}
 }
 
 service SyncUnitTestModelController {
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelList) {}
     rpc ListWithExtraArgs(SyncUnitTestModelListWithExtraArgs) returns (UnitTestModelListExtraArgs) {}
     rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -84,7 +84,7 @@ service SyncUnitTestModelController {
 service UnitTestModelController {
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
+    rpc List(UnitTestModelListRequest) returns (UnitTestModelList) {}
     rpc ListWithExtraArgs(UnitTestModelListWithExtraArgs) returns (UnitTestModelListExtraArgs) {}
     rpc PartialUpdate(UnitTestModelPartialUpdateRequest) returns (UnitTestModel) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModel) {}
@@ -96,7 +96,7 @@ service UnitTestModelWithStructFilterController {
     rpc Create(UnitTestModelWithStructFilter) returns (UnitTestModelWithStructFilter) {}
     rpc Destroy(UnitTestModelWithStructFilterDestroyRequest) returns (google.protobuf.Empty) {}
     rpc EmptyWithFilter(UnitTestModelWithStructFilterEmptyWithFilter) returns (google.protobuf.Empty) {}
-    rpc List(UnitTestModelWithStructFilterList) returns (UnitTestModelWithStructFilterListResponse) {}
+    rpc List(UnitTestModelWithStructFilterList) returns (UnitTestModelWithStructFilterList) {}
     rpc PartialUpdate(UnitTestModelWithStructFilterPartialUpdateRequest) returns (UnitTestModelWithStructFilter) {}
     rpc Retrieve(UnitTestModelWithStructFilterRetrieveRequest) returns (UnitTestModelWithStructFilter) {}
     rpc Stream(UnitTestModelWithStructFilterStreamRequest) returns (stream UnitTestModelWithStructFilter) {}
@@ -109,7 +109,7 @@ message BaseProtoExample {
     bool is_archived = 3;
 }
 
-message BaseProtoExampleListResponse {
+message BaseProtoExampleList {
     repeated BaseProtoExample results = 1;
     int32 count = 2;
 }
@@ -134,18 +134,13 @@ message BasicMixParam {
     string user_name = 1;
 }
 
-message BasicMixParamListResponse {
+message BasicMixParamList {
     repeated BasicMixParam results = 1;
     int32 count = 2;
 }
 
-message BasicMixParamWithSerializerListResponse {
+message BasicMixParamWithSerializerList {
     repeated google.protobuf.Struct results = 1;
-    int32 count = 2;
-}
-
-message BasicParamWithSerializerListRequest {
-    repeated BasicParamWithSerializerRequest results = 1;
     int32 count = 2;
 }
 
@@ -160,18 +155,18 @@ message BasicParamWithSerializerRequest {
     repeated google.protobuf.Struct list_of_dict = 5;
 }
 
+message BasicParamWithSerializerRequestList {
+    repeated BasicParamWithSerializerRequest results = 1;
+    int32 count = 2;
+}
+
 message BasicProtoListChild {
     int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
 
-message BasicProtoListChildListRequest {
-    repeated BasicProtoListChild results = 1;
-    int32 count = 2;
-}
-
-message BasicProtoListChildListResponse {
+message BasicProtoListChildList {
     repeated BasicProtoListChild results = 1;
     int32 count = 2;
 }
@@ -187,18 +182,18 @@ message BasicService {
     repeated google.protobuf.Struct list_of_dict = 5;
 }
 
-message BasicServiceListResponse {
+message BasicServiceList {
     repeated BasicService results = 1;
-    int32 count = 2;
-}
-
-message CustomMixParamForListRequest {
-    repeated CustomMixParamForRequest results = 1;
     int32 count = 2;
 }
 
 message CustomMixParamForRequest {
     string user_name = 1;
+}
+
+message CustomMixParamForRequestList {
+    repeated CustomMixParamForRequest results = 1;
+    int32 count = 2;
 }
 
 message CustomNameForRequest {
@@ -222,12 +217,12 @@ message ForeignModel {
     string name = 2;
 }
 
-message ForeignModelListRequest {
-}
-
-message ForeignModelListResponse {
+message ForeignModelList {
     repeated ForeignModel results = 1;
     int32 count = 2;
+}
+
+message ForeignModelListRequest {
 }
 
 message ForeignModelRetrieveCustom {
@@ -260,12 +255,12 @@ message RecursiveTestModelDestroyRequest {
     string uuid = 1;
 }
 
-message RecursiveTestModelListRequest {
-}
-
-message RecursiveTestModelListResponse {
+message RecursiveTestModelList {
     repeated RecursiveTestModel results = 1;
     int32 count = 2;
+}
+
+message RecursiveTestModelListRequest {
 }
 
 message RecursiveTestModelPartialUpdateRequest {
@@ -295,12 +290,12 @@ message RelatedFieldModelDestroyRequest {
     string uuid = 1;
 }
 
-message RelatedFieldModelListRequest {
-}
-
-message RelatedFieldModelListResponse {
+message RelatedFieldModelList {
     repeated RelatedFieldModel list_custom_field_name = 1;
     int32 count = 2;
+}
+
+message RelatedFieldModelListRequest {
 }
 
 message RelatedFieldModelPartialUpdateRequest {
@@ -333,12 +328,12 @@ message SimpleRelatedFieldModelDestroyRequest {
     string uuid = 1;
 }
 
-message SimpleRelatedFieldModelListRequest {
-}
-
-message SimpleRelatedFieldModelListResponse {
+message SimpleRelatedFieldModelList {
     repeated SimpleRelatedFieldModel results = 1;
     int32 count = 2;
+}
+
+message SimpleRelatedFieldModelListRequest {
 }
 
 message SimpleRelatedFieldModelPartialUpdateRequest {
@@ -368,12 +363,12 @@ message SpecialFieldsModelDestroyRequest {
     string uuid = 1;
 }
 
-message SpecialFieldsModelListRequest {
-}
-
-message SpecialFieldsModelListResponse {
+message SpecialFieldsModelList {
     repeated SpecialFieldsModel results = 1;
     int32 count = 2;
+}
+
+message SpecialFieldsModelListRequest {
 }
 
 // Special Fields Model
@@ -394,7 +389,7 @@ message StreamInStreamIn {
     int32 count = 1;
 }
 
-message StreamInStreamInListResponse {
+message StreamInStreamInList {
     repeated StreamInStreamIn results = 1;
     int32 count = 2;
 }
@@ -417,6 +412,11 @@ message UnitTestModelDestroyRequest {
     int32 id = 1;
 }
 
+message UnitTestModelList {
+    repeated UnitTestModel results = 1;
+    int32 count = 2;
+}
+
 message UnitTestModelListExtraArgs {
     int32 count = 1;
     string query_fetched_datetime = 2;
@@ -424,11 +424,6 @@ message UnitTestModelListExtraArgs {
 }
 
 message UnitTestModelListRequest {
-}
-
-message UnitTestModelListResponse {
-    repeated UnitTestModel results = 1;
-    int32 count = 2;
 }
 
 message UnitTestModelListWithExtraArgs {
@@ -465,11 +460,6 @@ message UnitTestModelWithStructFilterEmptyWithFilter {
 }
 
 message UnitTestModelWithStructFilterList {
-    optional google.protobuf.Struct _filters = 1;
-    optional google.protobuf.Struct _pagination = 2;
-}
-
-message UnitTestModelWithStructFilterListResponse {
     repeated UnitTestModelWithStructFilter results = 1;
     int32 count = 2;
 }

@@ -16,7 +16,7 @@ Description
 
 **Protobuf** is a serialization format developed by Google and used in gRPC. It is a binary format that is optimized to be sent over the network. It is also used to generate code for the client and server side.
 
-This format is developed in a large community in its own project. The following documentation expects that you are at least familiar with the concepts of **Protobuf**. 
+This format is developed in a large community in its own project. The following documentation expects that you are at least familiar with the concepts of **Protobuf**.
 If you are not, please read `their documentation <https://protobuf.dev/getting-started/pythontutorial/>_` first.
 
 Proto files contain the classes, descriptors and controller logic (``pb2.py`` files) and proto message syntax (``.proto`` file) necessary to run a grpc server.
@@ -66,6 +66,10 @@ Usage
       - -d
       - None
       - Directory where the proto files will be generated. Default will be in the apps directories
+    * - --with-types
+      - -t
+      - None
+      - Generate types for mypy. /!\ this requires mypy-protobuf to be installed.
 
 
 
@@ -186,7 +190,7 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
     }
 
 
-Note: these files are meant to be read only, please do not modify, since they might be overwritten by a next generation call. 
+Note: these files are meant to be read only, please do not modify, since they might be overwritten by a next generation call.
 You can use the .proto file as a reference to verify whether
 or not your serializer fields were correctly mapped but you should not try to modify them manually.
 

@@ -20,6 +20,7 @@ This command accepts the following arguments:
 - ``--check``: Return an error if the file generated is different from the file existent
 - ``--custom-verbose``: Number from 1 to 4 indicating the verbose level of the generation
 - ``--directory``: Directory where the proto files will be generated. Default will be in the apps directories
+- ``--with-types``: Generate types for mypy. /!\ this requires mypy-protobuf to be installed.
 
 .. _commands-aio-run-server:
 

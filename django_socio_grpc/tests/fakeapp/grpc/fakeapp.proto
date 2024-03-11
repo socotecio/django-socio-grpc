@@ -20,6 +20,15 @@ service BasicController {
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
+service DefaultValueController {
+    rpc Create(DefaultValueRequest) returns (DefaultValueResponse) {}
+    rpc Destroy(DefaultValueDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(DefaultValueListRequest) returns (DefaultValueListResponse) {}
+    rpc PartialUpdate(DefaultValuePartialUpdateRequest) returns (DefaultValueResponse) {}
+    rpc Retrieve(DefaultValueRetrieveRequest) returns (DefaultValueResponse) {}
+    rpc Update(DefaultValueRequest) returns (DefaultValueResponse) {}
+}
+
 service ExceptionController {
     rpc APIException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GRPCException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -99,6 +108,17 @@ service UnitTestModelController {
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
+service UnitTestModelWithStructFilterController {
+    rpc Create(UnitTestModelWithStructFilterRequest) returns (UnitTestModelWithStructFilterResponse) {}
+    rpc Destroy(UnitTestModelWithStructFilterDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc EmptyWithFilter(UnitTestModelWithStructFilterEmptyWithFilterRequest) returns (google.protobuf.Empty) {}
+    rpc List(UnitTestModelWithStructFilterListRequest) returns (UnitTestModelWithStructFilterListResponse) {}
+    rpc PartialUpdate(UnitTestModelWithStructFilterPartialUpdateRequest) returns (UnitTestModelWithStructFilterResponse) {}
+    rpc Retrieve(UnitTestModelWithStructFilterRetrieveRequest) returns (UnitTestModelWithStructFilterResponse) {}
+    rpc Stream(UnitTestModelWithStructFilterStreamRequest) returns (stream UnitTestModelWithStructFilterResponse) {}
+    rpc Update(UnitTestModelWithStructFilterRequest) returns (UnitTestModelWithStructFilterResponse) {}
+}
+
 message BaseProtoExampleListResponse {
     repeated BaseProtoExampleResponse results = 1;
     int32 count = 2;
@@ -174,18 +194,14 @@ message BasicProtoListChildListResponse {
 
 message BasicProtoListChildRequest {
     optional int32 id = 1;
-    optional int32 some_default_counter = 2;
-    string title = 3;
-    optional string text = 4;
-    optional bool is_validated = 5;
+    string title = 2;
+    optional string text = 3;
 }
 
 message BasicProtoListChildResponse {
     optional int32 id = 1;
-    optional int32 some_default_counter = 2;
-    string title = 3;
-    optional string text = 4;
-    optional bool is_validated = 5;
+    string title = 2;
+    optional string text = 3;
 }
 
 message BasicServiceListResponse {
@@ -237,6 +253,89 @@ message CustomRetrieveResponseSpecialFieldsModelResponse {
     optional string uuid = 1;
     optional int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message DefaultValueDestroyRequest {
+    int32 id = 1;
+}
+
+message DefaultValueListRequest {
+}
+
+message DefaultValueListResponse {
+    repeated DefaultValueResponse results = 1;
+    int32 count = 2;
+}
+
+message DefaultValuePartialUpdateRequest {
+    optional int32 id = 1;
+    optional string string_required_but_serializer_default = 2;
+    optional int32 int_required_but_serializer_default = 3;
+    optional bool boolean_required_but_serializer_default = 4;
+    optional string string_default_but_serializer_default = 5;
+    optional string string_nullable_default_but_serializer_default = 6;
+    repeated string _partial_update_fields = 7;
+    string string_required = 8;
+    optional string string_blank = 9;
+    optional string string_nullable = 10;
+    optional string string_default = 11;
+    optional string string_default_and_blank = 12;
+    optional string string_null_default_and_blank = 13;
+    int32 int_required = 14;
+    optional int32 int_nullable = 15;
+    optional int32 int_default = 16;
+    bool boolean_required = 17;
+    optional bool boolean_nullable = 18;
+    optional bool boolean_default_false = 19;
+    optional bool boolean_default_true = 20;
+}
+
+message DefaultValueRequest {
+    optional int32 id = 1;
+    optional string string_required_but_serializer_default = 2;
+    optional int32 int_required_but_serializer_default = 3;
+    optional bool boolean_required_but_serializer_default = 4;
+    optional string string_default_but_serializer_default = 5;
+    optional string string_nullable_default_but_serializer_default = 6;
+    string string_required = 7;
+    optional string string_blank = 8;
+    optional string string_nullable = 9;
+    optional string string_default = 10;
+    optional string string_default_and_blank = 11;
+    optional string string_null_default_and_blank = 12;
+    int32 int_required = 13;
+    optional int32 int_nullable = 14;
+    optional int32 int_default = 15;
+    bool boolean_required = 16;
+    optional bool boolean_nullable = 17;
+    optional bool boolean_default_false = 18;
+    optional bool boolean_default_true = 19;
+}
+
+message DefaultValueResponse {
+    optional int32 id = 1;
+    optional string string_required_but_serializer_default = 2;
+    optional int32 int_required_but_serializer_default = 3;
+    optional bool boolean_required_but_serializer_default = 4;
+    optional string string_default_but_serializer_default = 5;
+    optional string string_nullable_default_but_serializer_default = 6;
+    string string_required = 7;
+    optional string string_blank = 8;
+    optional string string_nullable = 9;
+    optional string string_default = 10;
+    optional string string_default_and_blank = 11;
+    optional string string_null_default_and_blank = 12;
+    int32 int_required = 13;
+    optional int32 int_nullable = 14;
+    optional int32 int_default = 15;
+    bool boolean_required = 16;
+    optional bool boolean_nullable = 17;
+    optional bool boolean_default_false = 18;
+    optional bool boolean_default_true = 19;
+}
+
+message DefaultValueRetrieveRequest {
+    int32 id = 1;
 }
 
 message ExceptionStreamRaiseExceptionResponse {
@@ -499,27 +598,21 @@ message UnitTestModelListWithExtraArgsRequest {
 
 message UnitTestModelPartialUpdateRequest {
     optional int32 id = 1;
-    optional int32 some_default_counter = 2;
-    optional bool is_validated = 3;
-    repeated string _partial_update_fields = 4;
-    string title = 5;
-    optional string text = 6;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    optional string text = 4;
 }
 
 message UnitTestModelRequest {
     optional int32 id = 1;
-    optional int32 some_default_counter = 2;
-    optional bool is_validated = 3;
-    string title = 4;
-    optional string text = 5;
+    string title = 2;
+    optional string text = 3;
 }
 
 message UnitTestModelResponse {
     optional int32 id = 1;
-    optional int32 some_default_counter = 2;
-    optional bool is_validated = 3;
-    string title = 4;
-    optional string text = 5;
+    string title = 2;
+    optional string text = 3;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -527,5 +620,50 @@ message UnitTestModelRetrieveRequest {
 }
 
 message UnitTestModelStreamRequest {
+}
+
+message UnitTestModelWithStructFilterDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelWithStructFilterEmptyWithFilterRequest {
+    optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
+}
+
+message UnitTestModelWithStructFilterListRequest {
+    optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
+}
+
+message UnitTestModelWithStructFilterListResponse {
+    repeated UnitTestModelWithStructFilterResponse results = 1;
+    int32 count = 2;
+}
+
+message UnitTestModelWithStructFilterPartialUpdateRequest {
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    optional string text = 4;
+}
+
+message UnitTestModelWithStructFilterRequest {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+}
+
+message UnitTestModelWithStructFilterResponse {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+}
+
+message UnitTestModelWithStructFilterRetrieveRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelWithStructFilterStreamRequest {
 }
 

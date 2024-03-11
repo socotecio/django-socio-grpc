@@ -33,7 +33,7 @@ class TestSyncModelService(TestCase):
         for idx in range(10):
             title = "z" * (idx + 1)
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
-            UnitTestModel(title=title, text=text, some_default_counter=50).save()
+            UnitTestModel(title=title, text=text).save()
 
     def test_create(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
@@ -119,7 +119,23 @@ class TestSyncModelService(TestCase):
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
 
+        # Test partial update takes into account None value for allow_null field
+        request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
+            id=instance.id, text=None, **{PARTIAL_UPDATE_FIELD_NAME: ["text"]}
+        )
+        response = grpc_stub.PartialUpdate(request=request)
+
+        self.assertEqual(response.title, "newTitle")
+
+        # https://www.django-rest-framework.org/api-guide/fields/#default
+        # Note that, without an explicit default, setting this argument to True will imply a default value of null for serialization output, but does not imply a default for input deserialization.
+        self.assertFalse(response.HasField("text"))
+        instance.refresh_from_db()
+        self.assertIsNone(instance.text)
+
         # Test partial update takes into account empty optional fields
+        instance.text = old_text
+        instance.save()
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
             id=instance.id, **{PARTIAL_UPDATE_FIELD_NAME: ["text"]}
         )
@@ -127,7 +143,7 @@ class TestSyncModelService(TestCase):
 
         self.assertEqual(response.title, "newTitle")
 
-        # Directly getting `text` would return default value, which is empty string
+        # Note that, without an explicit default, setting this argument to True will imply a default value of null for serialization output, but does not imply a default for input deserialization.
         self.assertFalse(response.HasField("text"))
 
     def test_async_list_custom_action(self):

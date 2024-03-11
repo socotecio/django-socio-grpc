@@ -430,6 +430,232 @@ class BasicController(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
 
+class DefaultValueControllerStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Create = channel.unary_unary(
+                '/myproject.fakeapp.DefaultValueController/Create',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+                )
+        self.Destroy = channel.unary_unary(
+                '/myproject.fakeapp.DefaultValueController/Destroy',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueDestroyRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+        self.List = channel.unary_unary(
+                '/myproject.fakeapp.DefaultValueController/List',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueListRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueListResponse.FromString,
+                )
+        self.PartialUpdate = channel.unary_unary(
+                '/myproject.fakeapp.DefaultValueController/PartialUpdate',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValuePartialUpdateRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+                )
+        self.Retrieve = channel.unary_unary(
+                '/myproject.fakeapp.DefaultValueController/Retrieve',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRetrieveRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+                )
+        self.Update = channel.unary_unary(
+                '/myproject.fakeapp.DefaultValueController/Update',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+                )
+
+
+class DefaultValueControllerServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Create(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Destroy(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def List(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PartialUpdate(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Retrieve(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Update(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_DefaultValueControllerServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Create': grpc.unary_unary_rpc_method_handler(
+                    servicer.Create,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.SerializeToString,
+            ),
+            'Destroy': grpc.unary_unary_rpc_method_handler(
+                    servicer.Destroy,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueDestroyRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'List': grpc.unary_unary_rpc_method_handler(
+                    servicer.List,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueListRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueListResponse.SerializeToString,
+            ),
+            'PartialUpdate': grpc.unary_unary_rpc_method_handler(
+                    servicer.PartialUpdate,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValuePartialUpdateRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.SerializeToString,
+            ),
+            'Retrieve': grpc.unary_unary_rpc_method_handler(
+                    servicer.Retrieve,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRetrieveRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.SerializeToString,
+            ),
+            'Update': grpc.unary_unary_rpc_method_handler(
+                    servicer.Update,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'myproject.fakeapp.DefaultValueController', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class DefaultValueController(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Create(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.DefaultValueController/Create',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Destroy(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.DefaultValueController/Destroy',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueDestroyRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def List(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.DefaultValueController/List',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueListRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueListResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PartialUpdate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.DefaultValueController/PartialUpdate',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValuePartialUpdateRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Retrieve(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.DefaultValueController/Retrieve',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRetrieveRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Update(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.DefaultValueController/Update',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.DefaultValueResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
 class ExceptionControllerStub(object):
     """Missing associated documentation comment in .proto file."""
 
@@ -2323,5 +2549,297 @@ class UnitTestModelController(object):
         return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelController/Update',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+
+class UnitTestModelWithStructFilterControllerStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.Create = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/Create',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+                )
+        self.Destroy = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/Destroy',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterDestroyRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+        self.EmptyWithFilter = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/EmptyWithFilter',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterEmptyWithFilterRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+        self.List = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/List',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterListRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterListResponse.FromString,
+                )
+        self.PartialUpdate = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/PartialUpdate',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterPartialUpdateRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+                )
+        self.Retrieve = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/Retrieve',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRetrieveRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+                )
+        self.Stream = channel.unary_stream(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/Stream',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterStreamRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+                )
+        self.Update = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithStructFilterController/Update',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+                )
+
+
+class UnitTestModelWithStructFilterControllerServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def Create(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Destroy(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def EmptyWithFilter(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def List(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PartialUpdate(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Retrieve(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Stream(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Update(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_UnitTestModelWithStructFilterControllerServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'Create': grpc.unary_unary_rpc_method_handler(
+                    servicer.Create,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.SerializeToString,
+            ),
+            'Destroy': grpc.unary_unary_rpc_method_handler(
+                    servicer.Destroy,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterDestroyRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'EmptyWithFilter': grpc.unary_unary_rpc_method_handler(
+                    servicer.EmptyWithFilter,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterEmptyWithFilterRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'List': grpc.unary_unary_rpc_method_handler(
+                    servicer.List,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterListRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterListResponse.SerializeToString,
+            ),
+            'PartialUpdate': grpc.unary_unary_rpc_method_handler(
+                    servicer.PartialUpdate,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterPartialUpdateRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.SerializeToString,
+            ),
+            'Retrieve': grpc.unary_unary_rpc_method_handler(
+                    servicer.Retrieve,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRetrieveRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.SerializeToString,
+            ),
+            'Stream': grpc.unary_stream_rpc_method_handler(
+                    servicer.Stream,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterStreamRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.SerializeToString,
+            ),
+            'Update': grpc.unary_unary_rpc_method_handler(
+                    servicer.Update,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'myproject.fakeapp.UnitTestModelWithStructFilterController', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+
+
+ # This class is part of an EXPERIMENTAL API.
+class UnitTestModelWithStructFilterController(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def Create(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/Create',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Destroy(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/Destroy',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterDestroyRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def EmptyWithFilter(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/EmptyWithFilter',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterEmptyWithFilterRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def List(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/List',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterListRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterListResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PartialUpdate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/PartialUpdate',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterPartialUpdateRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Retrieve(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/Retrieve',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRetrieveRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Stream(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/Stream',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterStreamRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Update(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/myproject.fakeapp.UnitTestModelWithStructFilterController/Update',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithStructFilterResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

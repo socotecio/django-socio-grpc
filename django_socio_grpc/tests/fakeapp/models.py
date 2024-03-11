@@ -16,8 +16,6 @@ class UnitTestModel(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=20)
     text = models.CharField(max_length=100, null=True)
-    some_default_counter = models.IntegerField()
-    is_validated = models.BooleanField(default=False)
 
     class Meta:
         grpc_messages = {
@@ -191,3 +189,30 @@ class RecursiveTestModel(models.Model):
     parent = models.ForeignKey(
         "self", blank=True, null=True, on_delete=models.CASCADE, related_name="children"
     )
+
+
+class DefaultValueModel(models.Model):
+    string_required = models.CharField(max_length=20)
+    string_blank = models.CharField(max_length=20, blank=True)
+    string_nullable = models.CharField(max_length=20, null=True)
+    string_default = models.CharField(max_length=20, default="default")
+    string_default_and_blank = models.CharField(
+        max_length=60, default="default_and_blank", blank=True
+    )
+    string_null_default_and_blank = models.CharField(
+        max_length=60, default="null_default_and_blank", blank=True, null=True
+    )
+    string_required_but_serializer_default = models.CharField(max_length=20)
+    string_default_but_serializer_default = models.CharField(max_length=60, default="default")
+    string_nullable_default_but_serializer_default = models.CharField(
+        max_length=60, default="default"
+    )
+    int_required = models.IntegerField()
+    int_nullable = models.IntegerField(null=True)
+    int_default = models.IntegerField(default=5)
+    int_required_but_serializer_default = models.IntegerField()
+    boolean_required = models.BooleanField()
+    boolean_nullable = models.BooleanField(null=True)
+    boolean_default_false = models.BooleanField(default=False)
+    boolean_default_true = models.BooleanField(default=True)
+    boolean_required_but_serializer_default = models.BooleanField()

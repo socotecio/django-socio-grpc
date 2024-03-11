@@ -215,32 +215,34 @@ There are multiple ways to have proto fields with ``optional``:
 - In ``ModelProtoSerializer``, model fields with ``null=True`` will be converted to ``optional`` fields.
 - In ``GRPCAction`` you can set ``cardinality`` to ``optional`` in the `request` or `response` :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>`.
 
+How the values are choosen by DSG when **values are not set in the message** (this behavior is possible only if field is optional and should be automatic depending of what you specified in your model or serializer but can be customized depending on your need):
 
-If you want to use the default value of the model field use:
+- If create or update, and the field has ``required=True``: Set to the default grpc value for the type ("" for string, 0 for int, False for boolean, ...)
+- If create or update, and the field has ``required=True`` and a **default in the serializer field** : Set to None
 
-.. code-block:: python
+------
 
-    # you can use any serializers field. BooleanField is only an example
-    is_validated = serializers.BooleanField(required=False)
+- If update, and the field has ``allow_null=True``: Set to None
+- If create, and the field has ``allow_null=True`` and the field have a **default in the model**: Set to the model field default
+- If create, and the field has ``allow_null=True`` and the field have a **default in the serializer**: Set to serializer field default
+- If create, and the field has ``allow_null=True`` and the field haven't a **default in the model or the serializer**: Set to None
+
+------
+
+- If partial update, and the field is **not in the list of field to update**: delete the field
+- If partial update, and the field is **in the list of field to update** and ``allow_null=True``: Set to None
+- If partial update, and the field is **in the list of field to update** and the field have a ``default in the serializer``: Set to serializer field default
+- If partial update, and the field is **in the list of field to update** and none of the above option: Set to the default grpc value for the type
 
 
-If you want to set ``None`` as field value:
+How the values are choosen by DSG when **values are set to default gRPC values**:
 
-.. code-block:: python
+- If create or update, and the field has ``required=True``: Use the default grpc value
+- Else use same logic than value not set. 
 
-    # you can use any serializers field. Note that required=False will always be false if allow_null=True or blank=True
-    some_field = serializers.CharField(allow_null=True, required=False)
+.. note::
 
-.. warning::
-
-    Be aware than even if the value in DB will be ``None`` the value that you get in response will follow the same gRPC constraints and will be the default value of the field type if using :ref:`grpc-web without BUF<how-to-web>`.
-
-If you want to set a specific default as field value:
-
-.. code-block:: python
-
-    # you can use any serializers field.
-    some_field = serializers.CharField(default="default value")
+    To see real examples of this behavior please see `Model <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/models.py>`_, `Serializer <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/serializers.py>`_ and `Tests <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_default_value.py>`_
 
 ==============================
 Read-Only and Write-Only Props

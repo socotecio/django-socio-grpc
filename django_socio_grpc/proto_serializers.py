@@ -2,6 +2,7 @@ from typing import MutableSequence
 
 from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
+from django.db.models.fields import NOT_PROVIDED
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
@@ -27,6 +28,13 @@ from django_socio_grpc.utils.constants import (
 LIST_PROTO_SERIALIZER_KWARGS = (*LIST_SERIALIZER_KWARGS, LIST_ATTR_MESSAGE_NAME, "message")
 
 
+def get_default_value(field_default):
+    if callable(field_default):
+        return field_default()
+    else:
+        return field_default
+
+
 class BaseProtoSerializer(BaseSerializer):
     def __init__(self, *args, **kwargs):
         message = kwargs.pop("message", None)
@@ -42,7 +50,7 @@ class BaseProtoSerializer(BaseSerializer):
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
         data_dict = message_to_dict(message)
-        data_dict = self.populate_dict_with_none_if_not_required(data_dict, message)
+        data_dict = self.populate_dict_with_none_if_not_required(data_dict, message=message)
         return data_dict
 
     def populate_dict_with_none_if_not_required(self, data_dict, message=None):
@@ -53,9 +61,11 @@ class BaseProtoSerializer(BaseSerializer):
         We can't rely only on required True/False as in DSG if a field is required it will have the default value of it's type (empty string for string type) and not None
 
         When refactoring serializer to only use message we will be able to determine the default value of the field depending of the same logic followed here
+
+        set default value for field except if optional or partial update
         """
-        # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the message. If not we raise an exception
-        if self.partial and not hasattr(message, PARTIAL_UPDATE_FIELD_NAME):
+        # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the data_dict. If not we raise an exception
+        if self.partial and PARTIAL_UPDATE_FIELD_NAME not in data_dict:
             raise ValidationError(
                 {
                     PARTIAL_UPDATE_FIELD_NAME: [
@@ -65,13 +75,13 @@ class BaseProtoSerializer(BaseSerializer):
                 code="missing_partial_message_attribute",
             )
 
+        is_update_process = (
+            hasattr(self.Meta, "model") and self.Meta.model._meta.pk.name in data_dict
+        )
         for field in self.fields.values():
-            # INFO - AM - 04/01/2024 - If we are in a partial serializer we need to only have field specified in PARTIAL_UPDATE_FIELD_NAME attribute. Meaning bot deleting field that should not be here and not adding None to allow_null field that are not specified
-            if (
-                message
-                and self.partial
-                and hasattr(message, PARTIAL_UPDATE_FIELD_NAME)
-                and field.field_name not in getattr(message, PARTIAL_UPDATE_FIELD_NAME)
+            # INFO - AM - 04/01/2024 - If we are in a partial serializer we only need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute in the data. Meaning deleting fields that should not be here and not adding None to allow_null field that are not specified
+            if self.partial and field.field_name not in data_dict.get(
+                PARTIAL_UPDATE_FIELD_NAME, {}
             ):
                 if field.field_name in data_dict:
                     del data_dict[field.field_name]
@@ -79,8 +89,44 @@ class BaseProtoSerializer(BaseSerializer):
             # INFO - AM - 04/01/2024 - if field already existing in the data_dict we do not need to do something else
             if field.field_name in data_dict:
                 continue
-            # INFO - AM - 04/01/2024 - Adding default None value only for optional field that are required and allowing null or having a default value
-            if field.allow_null or field.default in [None, empty] and field.required is True:
+
+            # INFO - AM - 04/01/2024 - if field is not in the data_dict but in PARTIAL_UPDATE_FIELD_NAME we need to set the default value if existing or raise exception to avoid having default grpc value by mistake
+            if self.partial and field.field_name in data_dict.get(
+                PARTIAL_UPDATE_FIELD_NAME, {}
+            ):
+                if field.allow_null:
+                    data_dict[field.field_name] = None
+                    continue
+                if field.default not in [None, empty]:
+                    data_dict[field.field_name] = get_default_value(field.default)
+                    continue
+
+                # INFO - AM - 11/03/2024 - Here we set the default value especially for the blank authorized data. We debated about raising a ValidaitonError but prefered this behavior. Can be changed if it create issue with users
+                data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[
+                    field.field_name
+                ].default_value
+
+            if field.allow_null or (field.default in [None, empty] and field.required is True):
+                if is_update_process:
+                    data_dict[field.field_name] = None
+                    continue
+
+                if field.default not in [None, empty]:
+                    data_dict[field.field_name] = None
+                    continue
+
+                if (
+                    hasattr(self, "Meta")
+                    and hasattr(self.Meta, "model")
+                    and hasattr(self.Meta.model, field.field_name)
+                ):
+                    deferred_attribute = getattr(self.Meta.model, field.field_name)
+                    if deferred_attribute.field.default != NOT_PROVIDED:
+                        data_dict[field.field_name] = get_default_value(
+                            deferred_attribute.field.default
+                        )
+                        continue
+
                 data_dict[field.field_name] = None
         return data_dict
 

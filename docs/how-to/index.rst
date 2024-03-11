@@ -11,3 +11,4 @@ Here is a collection of how-to guides for common tasks.
    define-proto-and-service-in-a-shared-library
    make-a-custom-retrieve
    upload-file
+   work-with-secure-port

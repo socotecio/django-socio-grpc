@@ -1,4 +1,5 @@
 from fakeapp.services.basic_service import BasicService
+from fakeapp.services.default_value_service import DefaultValueService
 from fakeapp.services.exception_service import ExceptionService
 from fakeapp.services.foreign_model_service import ForeignModelService
 from fakeapp.services.import_struct_even_in_array_model_service import (
@@ -15,6 +16,9 @@ from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelServi
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
+from django_socio_grpc.tests.fakeapp.services.unit_test_model_with_struct_filter_service import (
+    UnitTestModelWithStructFilterService,
+)
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = []
@@ -33,6 +37,8 @@ def grpc_handlers(server):
     app_registry.register(StreamInService)
     app_registry.register(ExceptionService)
     app_registry.register(RecursiveTestModelService)
+    app_registry.register(UnitTestModelWithStructFilterService)
+    app_registry.register(DefaultValueService)
 
 
 services = (
@@ -46,4 +52,5 @@ services = (
     UnitTestModelService,
     StreamInService,
     RecursiveTestModelService,
+    UnitTestModelWithStructFilterService,
 )

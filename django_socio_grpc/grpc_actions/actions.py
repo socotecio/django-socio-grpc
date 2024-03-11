@@ -92,9 +92,9 @@ class GRPCAction:
     use_response_list: bool = False
     request_message_list_attr: Optional[str] = None
     response_message_list_attr: Optional[str] = None
-    message_name_constructor_class: Type[
-        MessageNameConstructor
-    ] = grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
+    message_name_constructor_class: Type[MessageNameConstructor] = (
+        grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
+    )
     use_generation_plugins: List[BaseGenerationPlugin] = field(
         default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS
     )
@@ -325,8 +325,7 @@ class GRPCActionMixin(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def get_controller_name(cls) -> str:
-        ...
+    def get_controller_name(cls) -> str: ...
 
     @classmethod
     def before_registration(cls, service_class=None):

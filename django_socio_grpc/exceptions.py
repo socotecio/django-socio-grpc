@@ -4,6 +4,7 @@ This module contains all the exceptions that can be raised by DSG.
 It builds on top of DRF APIException and adds gRPC status codes to the exceptions.
 https://www.django-rest-framework.org/api-guide/exceptions/#apiexception
 """
+
 import json
 from typing import Literal, Tuple
 

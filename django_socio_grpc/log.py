@@ -1,6 +1,7 @@
 """
 logging utils
 """
+
 import logging
 import logging.config
 from typing import TYPE_CHECKING

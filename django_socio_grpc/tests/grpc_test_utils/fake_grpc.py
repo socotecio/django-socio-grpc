@@ -2,6 +2,7 @@
 # this file is inspirated by pytest-grpc to be able to use django TestCase
 # https://github.com/kataev/pytest-grpc/blob/master/pytest_grpc/plugin.py
 """
+
 import asyncio
 import inspect
 import queue

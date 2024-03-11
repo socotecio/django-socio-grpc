@@ -110,12 +110,10 @@ class MiddlewareCapable(metaclass=abc.ABCMeta):
         self._middleware_chain = handler
 
     @abc.abstractmethod
-    def _get_response(self, request_container: GRPCRequestContainer):
-        ...
+    def _get_response(self, request_container: GRPCRequestContainer): ...
 
     @abc.abstractmethod
-    async def _get_response_async(self, request_container: GRPCRequestContainer):
-        ...
+    async def _get_response_async(self, request_container: GRPCRequestContainer): ...
 
 
 class ServicerProxy(MiddlewareCapable):

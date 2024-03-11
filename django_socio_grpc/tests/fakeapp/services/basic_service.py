@@ -51,8 +51,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         request=[],
         response="google.protobuf.Empty",
     )
-    async def TestEmptyMethod(self, request, context):
-        ...
+    async def TestEmptyMethod(self, request, context): ...
 
     @grpc_action(
         request=[],

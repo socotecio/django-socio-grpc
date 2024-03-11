@@ -164,9 +164,11 @@ class InternalHttpRequest:
         return "{}{}{}".format(
             escape_uri_path(path),
             "/" if force_append_slash and not path.endswith("/") else "",
-            ("?" + iri_to_uri(self.META.get("QUERY_STRING", "")))
-            if self.META.get("QUERY_STRING", "")
-            else "",
+            (
+                ("?" + iri_to_uri(self.META.get("QUERY_STRING", "")))
+                if self.META.get("QUERY_STRING", "")
+                else ""
+            ),
         )
 
     def _get_scheme(self):

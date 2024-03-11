@@ -124,11 +124,9 @@ class Service(GRPCActionMixin):
             return self._async_before_action()
         return self._before_action()
 
-    def _after_action(self):
-        ...
+    def _after_action(self): ...
 
-    async def _async_after_action(self):
-        ...
+    async def _async_after_action(self): ...
 
     def after_action(self):
         """

@@ -269,8 +269,7 @@ def _get_partial_update_request(service):
             return super().__new__(cls, name, bases, attrs)
 
     class PartialUpdateRequest(serializer_class, metaclass=PartialUpdateMetaClass):
-        class Meta(serializer_class.Meta):
-            ...
+        class Meta(serializer_class.Meta): ...
 
     # INFO - L.G. - 19/06/2022 - extra field needs to be appended to
     # the serializer.

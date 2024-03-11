@@ -70,8 +70,7 @@ class MyIntSerializer(proto_serializers.ModelProtoSerializer):
         fields = "__all__"
 
 
-class MyIntField(serializers.IntegerField):
-    ...
+class MyIntField(serializers.IntegerField): ...
 
 
 class MyOtherSerializer(proto_serializers.ProtoSerializer):
@@ -95,14 +94,11 @@ class MySerializer(proto_serializers.ProtoSerializer):
     read_only_field1 = serializers.CharField(read_only=True)
     write_only_field = serializers.CharField(write_only=True)
 
-    def get_smf(self, obj) -> List[int]:
-        ...
+    def get_smf(self, obj) -> List[int]: ...
 
-    def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]:
-        ...
+    def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]: ...
 
-    def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]:
-        ...
+    def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]: ...
 
 
 class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
@@ -453,8 +449,7 @@ class TestGrpcActionProto(TestCase):
             request_name="ReqNameRequest",
             use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
         )
-        async def BasicList(self, request, context):
-            ...
+        async def BasicList(self, request, context): ...
 
     class MyAction(GenericService):
         serializer_class = MySerializer
@@ -465,37 +460,32 @@ class TestGrpcActionProto(TestCase):
             request_name="ReqNameRequest",
             use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
         )
-        async def BasicList(self, request, context):
-            ...
+        async def BasicList(self, request, context): ...
 
         @grpc_action(
             request=[],
             response=BasicProtoListChildSerializer,
             use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
         )
-        async def BasicListOldCompat(self, request, context):
-            ...
+        async def BasicListOldCompat(self, request, context): ...
 
         @grpc_action(
             request="google.protobuf.Struct",
             use_generation_plugins=[RequestAsListGenerationPlugin()],
         )
-        async def ImportedReq(self, request, context):
-            ...
+        async def ImportedReq(self, request, context): ...
 
         @grpc_action(
             request=[{"name": "optional_title", "type": "optional string"}],
             response=MySerializer,
         )
-        async def Optional(self, request, context):
-            ...
+        async def Optional(self, request, context): ...
 
         @grpc_action(
             request=[],
             response="google.protobuf.Empty",
         )
-        async def EmptyMessages(self, request, context):
-            ...
+        async def EmptyMessages(self, request, context): ...
 
     class MyActionWithFilter(GenericService):
         serializer_class = MySerializer
@@ -511,24 +501,21 @@ class TestGrpcActionProto(TestCase):
                 FilterGenerationPlugin(),
             ],
         )
-        async def BasicListWithFilter(self, request, context):
-            ...
+        async def BasicListWithFilter(self, request, context): ...
 
         @grpc_action(
             request=[],
             response="google.protobuf.Empty",
             use_generation_plugins=[FilterGenerationPlugin()],
         )
-        async def FilterInEmpty(self, request, context):
-            ...
+        async def FilterInEmpty(self, request, context): ...
 
         @grpc_action(
             request=[{"name": "test", "type": "bool"}],
             response="google.protobuf.Empty",
             use_generation_plugins=[FilterGenerationPlugin()],
         )
-        async def FilterInRequest(self, request, context):
-            ...
+        async def FilterInRequest(self, request, context): ...
 
     class MyActionWithPagination(GenericService):
         serializer_class = MySerializer
@@ -543,24 +530,21 @@ class TestGrpcActionProto(TestCase):
                 PaginationGenerationPlugin(),
             ],
         )
-        async def BasicListWithPagination(self, request, context):
-            ...
+        async def BasicListWithPagination(self, request, context): ...
 
         @grpc_action(
             request=[],
             response="google.protobuf.Empty",
             use_generation_plugins=[PaginationGenerationPlugin()],
         )
-        async def PaginationInEmpty(self, request, context):
-            ...
+        async def PaginationInEmpty(self, request, context): ...
 
         @grpc_action(
             request=[{"name": "test", "type": "bool"}],
             response="google.protobuf.Empty",
             use_generation_plugins=[PaginationGenerationPlugin()],
         )
-        async def PaginationInRequest(self, request, context):
-            ...
+        async def PaginationInRequest(self, request, context): ...
 
     def test_register_action_on_base_service_list(self):
         proto_rpc = self.MyBaseAction.BasicList.make_proto_rpc("BasicList", self.MyBaseAction)
@@ -758,8 +742,7 @@ class TestGrpcActionProto(TestCase):
                 request=[{"name": "optional_title", "type": "optional string"}],
                 response=MySerializer,
             )
-            async def Optional(self, request, context):
-                ...
+            async def Optional(self, request, context): ...
 
         proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
 
@@ -783,8 +766,7 @@ class TestGrpcActionProto(TestCase):
                 request=[{"name": "optional_title", "type": "optional string"}],
                 response=MySerializer,
             )
-            async def Optional(self, request, context):
-                ...
+            async def Optional(self, request, context): ...
 
         proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
 
@@ -806,8 +788,7 @@ class TestGrpcActionProto(TestCase):
                 request=[{"name": "optional_title", "type": "optional string"}],
                 response=MySerializer,
             )
-            async def Optional(self, request, context):
-                ...
+            async def Optional(self, request, context): ...
 
         with self.assertRaises(TypeError):
             MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)

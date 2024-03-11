@@ -48,8 +48,7 @@ class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
 
 
 # INFO - AM - 14/02/2024 - This serializer exist just to be sure we do not override UnitTestModelSerializer in the proto
-class UnitTestModelWithStructFilterSerializer(UnitTestModelSerializer):
-    ...
+class UnitTestModelWithStructFilterSerializer(UnitTestModelSerializer): ...
 
 
 class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):

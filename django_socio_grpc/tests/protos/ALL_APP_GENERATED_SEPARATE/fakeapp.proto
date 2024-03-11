@@ -642,20 +642,20 @@ message UnitTestModelWithStructFilterListResponse {
 }
 
 message UnitTestModelWithStructFilterPartialUpdateRequest {
-    int32 id = 1;
-    string title = 2;
-    optional string text = 3;
-    repeated string _partial_update_fields = 4;
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    optional string text = 4;
 }
 
 message UnitTestModelWithStructFilterRequest {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
 
 message UnitTestModelWithStructFilterResponse {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }

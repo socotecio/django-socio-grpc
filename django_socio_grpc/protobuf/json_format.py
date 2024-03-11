@@ -10,7 +10,7 @@ def message_to_dict(message, **kwargs):
     Uses the default `google.protobuf.json_format.MessageToDict` function.
     Adds None values for optional fields that are not set.
     """
-
+    kwargs.setdefault("including_default_value_fields", True)
     kwargs.setdefault("preserving_proto_field_name", True)
 
     return MessageToDict(message, **kwargs)

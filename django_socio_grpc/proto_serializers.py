@@ -28,6 +28,13 @@ from django_socio_grpc.utils.constants import (
 LIST_PROTO_SERIALIZER_KWARGS = (*LIST_SERIALIZER_KWARGS, LIST_ATTR_MESSAGE_NAME, "message")
 
 
+def get_default_value(field_default):
+    if callable(field_default):
+        return field_default()
+    else:
+        return field_default
+
+
 class BaseProtoSerializer(BaseSerializer):
     def __init__(self, *args, **kwargs):
         message = kwargs.pop("message", None)
@@ -68,7 +75,9 @@ class BaseProtoSerializer(BaseSerializer):
                 code="missing_partial_message_attribute",
             )
 
-        is_update_process = bool(data_dict.get(self.Meta.model._meta.pk.name, ""))
+        is_update_process = (
+            hasattr(self.Meta, "model") and self.Meta.model._meta.pk.name in data_dict
+        )
         for field in self.fields.values():
             # INFO - AM - 04/01/2024 - If we are in a partial serializer we only need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute in the data. Meaning deleting fields that should not be here and not adding None to allow_null field that are not specified
             if self.partial and field.field_name not in data_dict.get(
@@ -81,6 +90,7 @@ class BaseProtoSerializer(BaseSerializer):
             if field.field_name in data_dict:
                 continue
 
+            # INFO - AM - 04/01/2024 - if field is not in the data_dict but in PARTIAL_UPDATE_FIELD_NAME we need to set the default value if existing or raise exception to avoid having default grpc value by mistake
             if self.partial and field.field_name in data_dict.get(
                 PARTIAL_UPDATE_FIELD_NAME, {}
             ):
@@ -88,20 +98,13 @@ class BaseProtoSerializer(BaseSerializer):
                     data_dict[field.field_name] = None
                     continue
                 if field.default not in [None, empty]:
-                    # TODO - AM - 12/01/2024 - is field.default a possible callable here ?
-                    data_dict[field.field_name] = field.default
+                    data_dict[field.field_name] = get_default_value(field.default)
                     continue
 
+                # INFO - AM - 11/03/2024 - Here we set the default value especially for the blank authorized data. We debated about raising a ValidaitonError but prefered this behavior. Can be changed if it create issue with users
                 data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[
                     field.field_name
                 ].default_value
-
-            # INFO - AM - 12/01/2024 - if field name is not in data_dict but is required that mean that it's a default value deleted when transforming proto to dict
-            if field.required and field.field_name in message.DESCRIPTOR.fields_by_name:
-                data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[
-                    field.field_name
-                ].default_value
-                continue
 
             if field.allow_null or (field.default in [None, empty] and field.required is True):
                 if is_update_process:
@@ -119,14 +122,12 @@ class BaseProtoSerializer(BaseSerializer):
                 ):
                     deferred_attribute = getattr(self.Meta.model, field.field_name)
                     if deferred_attribute.field.default != NOT_PROVIDED:
-                        data_dict[field.field_name] = deferred_attribute.field.default
+                        data_dict[field.field_name] = get_default_value(
+                            deferred_attribute.field.default
+                        )
                         continue
 
                 data_dict[field.field_name] = None
-                continue
-
-            # elif field.required and field.field_name in message.DESCRIPTOR.fields_by_name:
-            #     data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[field.field_name].default_value
         return data_dict
 
     def data_to_message(self, data):

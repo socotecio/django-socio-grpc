@@ -17,9 +17,8 @@ from .grpc_actions.placeholders import (
     StrTemplatePlaceholder,
 )
 from .grpc_actions.utils import get_serializer_base_name
-from .protobuf.json_format import message_to_dict
 from .settings import grpc_settings
-from .utils.constants import DEFAULT_LIST_FIELD_NAME, REQUEST_SUFFIX
+from .utils.constants import DEFAULT_LIST_FIELD_NAME, PARTIAL_UPDATE_FIELD_NAME, REQUEST_SUFFIX
 
 
 ############################################################
@@ -253,9 +252,23 @@ class UpdateModelMixin(GRPCActionMixin):
 def _get_partial_update_request(service):
     serializer_class = service.get_serializer_class()
 
-    class PartialUpdateRequest(serializer_class):
+    class PartialUpdateMetaClass(serializers.SerializerMetaclass):
+        """
+        This metaclass exists so we can set the PARTIAL_UPDATE_FIELD_NAME variable as an attribute name of PartialUpdateRequest.
+        This can be replaced by just declaring in PartialUpdateRequest:
         _partial_update_fields = serializers.ListField(child=serializers.CharField())
+        but this would not be dynamic if a constant changes or if we want it to be configurable in settings in the future.
+        This metaclass should inherit from DRF SerializerMetaclass as serializer has it's own metaclass to add _declared_fields attribute
+        Using PartialUpdateRequest.setattr is not enough as _declared_fields is done in metaclass so all fields should be declared before
+        """
 
+        def __new__(cls, name, bases, attrs):
+            attrs[PARTIAL_UPDATE_FIELD_NAME] = serializers.ListField(
+                child=serializers.CharField()
+            )
+            return super().__new__(cls, name, bases, attrs)
+
+    class PartialUpdateRequest(serializer_class, metaclass=PartialUpdateMetaClass):
         class Meta(serializer_class.Meta):
             ...
 
@@ -264,7 +277,7 @@ def _get_partial_update_request(service):
     if (fields := getattr(PartialUpdateRequest.Meta, "fields", None)) and not isinstance(
         fields, str
     ):
-        PartialUpdateRequest.Meta.fields = (*fields, "_partial_update_fields")
+        PartialUpdateRequest.Meta.fields = (*fields, PARTIAL_UPDATE_FIELD_NAME)
 
     return PartialUpdateRequest
 
@@ -281,18 +294,14 @@ class PartialUpdateModelMixin(GRPCActionMixin):
         """
         Partial update a model instance.
 
-        Performs a partial update on the given `_partial_update_fields`.
+        Performs a partial update on the given PARTIAL_UPDATE_FIELD_NAME(`_partial_update_fields`).
         """
-
-        content = message_to_dict(request)
-
-        data = {k: v for k, v in content.items() if k in request._partial_update_fields}
 
         instance = self.get_object()
 
         # INFO - L.G. - 11/07/2022 - We use the data parameter instead of message
         # because we handle a dict not a grpc message.
-        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer = self.get_serializer(instance, message=request, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_partial_update(serializer)
 
@@ -483,18 +492,14 @@ class AsyncPartialUpdateModelMixin(PartialUpdateModelMixin):
         """
         Partial update a model instance.
 
-        Performs a partial update on the given `_partial_update_fields`.
+        Performs a partial update on the given PARTIAL_UPDATE_FIELD_NAME(`_partial_update_fields`).
         """
-
-        content = message_to_dict(request)
-
-        data = {k: v for k, v in content.items() if k in request._partial_update_fields}
 
         instance = await self.aget_object()
 
         # INFO - L.G. - 11/07/2022 - We use the data parameter instead of message
         # because we handle a dict not a grpc message.
-        serializer = await self.aget_serializer(instance, data=data, partial=True)
+        serializer = await self.aget_serializer(instance, message=request, partial=True)
         await sync_to_async(serializer.is_valid)(raise_exception=True)
         await self.aperform_partial_update(serializer)
 

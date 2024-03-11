@@ -14,18 +14,18 @@ service RelatedFieldModelController {
 }
 
 message ForeignModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
 }
 
 message ManyManyModelRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
     string test_write_only_on_nested = 3;
 }
 
 message ManyManyModelResponse {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
 }
 
@@ -42,7 +42,7 @@ message RelatedFieldModelListResponse {
 }
 
 message RelatedFieldModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
     repeated string _partial_update_fields = 4;
@@ -50,20 +50,20 @@ message RelatedFieldModelPartialUpdateRequest {
 }
 
 message RelatedFieldModelRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated ManyManyModelRequest many_many = 2;
     string custom_field_name = 3;
     repeated string many_many_foreigns = 4;
 }
 
 message RelatedFieldModelResponse {
-    string uuid = 1;
-    ForeignModelResponse foreign = 2;
+    optional string uuid = 1;
+    optional ForeignModelResponse foreign = 2;
     repeated ManyManyModelResponse many_many = 3;
-    int32 slug_test_model = 4;
+    optional int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string proto_slug_related_field = 7;
+    optional string proto_slug_related_field = 7;
     string custom_field_name = 8;
     repeated string many_many_foreigns = 9;
 }

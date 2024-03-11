@@ -38,20 +38,20 @@ message UnitTestModelListWithExtraArgsRequest {
 }
 
 message UnitTestModelPartialUpdateRequest {
-    int32 id = 1;
-    string title = 2;
-    optional string text = 3;
-    repeated string _partial_update_fields = 4;
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    optional string text = 4;
 }
 
 message UnitTestModelRequest {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
 
 message UnitTestModelResponse {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }

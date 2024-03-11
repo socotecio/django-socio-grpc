@@ -19,6 +19,7 @@ from django_socio_grpc.tests.fakeapp.services.related_field_model_service import
     RelatedFieldModelService,
     SimpleRelatedFieldModelService,
 )
+from django_socio_grpc.utils.constants import PARTIAL_UPDATE_FIELD_NAME
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
@@ -133,7 +134,7 @@ class TestAsyncModelService(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
 
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
-            id=instance.id, _partial_update_fields=["title"], title="newTitle"
+            id=instance.id, title="newTitle", **{PARTIAL_UPDATE_FIELD_NAME: ["title"]}
         )
         response = await grpc_stub.PartialUpdate(request=request)
 
@@ -145,11 +146,13 @@ class TestAsyncModelService(TestCase):
         request = fakeapp_pb2.UnitTestModelRequest(title="fake")
         response = await grpc_stub.Create(request=request)
 
+        # INFO - AM - 03/01/2023 - text is optional and can be null and is null so it's not send
         self.assertFalse(response.HasField("text"))
 
         request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=response.id)
         response = await grpc_stub.Retrieve(request=request)
 
+        # INFO - AM - 03/01/2023 - text is optional and can be null and is null so it's not send
         self.assertFalse(response.HasField("text"))
 
         instance = await UnitTestModel.objects.aget(id=response.id)

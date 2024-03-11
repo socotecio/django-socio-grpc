@@ -161,7 +161,7 @@ message BasicParamWithSerializerRequestList {
 }
 
 message BasicProtoListChild {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
@@ -207,13 +207,13 @@ message CustomNameForResponse {
 
 // Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModel {
-    string uuid = 1;
-    int32 default_method_field = 2;
+    optional string uuid = 1;
+    optional int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 
 message ForeignModel {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
 }
 
@@ -227,7 +227,7 @@ message ForeignModelListRequest {
 
 message ForeignModelRetrieveCustom {
     string name = 1;
-    string custom = 2;
+    optional string custom = 2;
 }
 
 message ForeignModelRetrieveCustomRetrieveRequest {
@@ -235,19 +235,19 @@ message ForeignModelRetrieveCustomRetrieveRequest {
 }
 
 message ImportStructEvenInArrayModel {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
 message ManyManyModel {
-    string uuid = 1;
+    optional string uuid = 1;
     string name = 2;
     string test_write_only_on_nested = 3;
 }
 
 message RecursiveTestModel {
-    string uuid = 1;
-    RecursiveTestModel parent = 2;
+    optional string uuid = 1;
+    optional RecursiveTestModel parent = 2;
     repeated RecursiveTestModel children = 3;
 }
 
@@ -264,9 +264,9 @@ message RecursiveTestModelListRequest {
 }
 
 message RecursiveTestModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
-    RecursiveTestModel parent = 3;
+    optional RecursiveTestModel parent = 3;
     repeated RecursiveTestModel children = 4;
 }
 
@@ -275,13 +275,13 @@ message RecursiveTestModelRetrieveRequest {
 }
 
 message RelatedFieldModel {
-    string uuid = 1;
-    ForeignModel foreign = 2;
+    optional string uuid = 1;
+    optional ForeignModel foreign = 2;
     repeated ManyManyModel many_many = 3;
-    int32 slug_test_model = 4;
+    optional int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string proto_slug_related_field = 7;
+    optional string proto_slug_related_field = 7;
     string custom_field_name = 8;
     repeated string many_many_foreigns = 9;
 }
@@ -299,13 +299,13 @@ message RelatedFieldModelListRequest {
 }
 
 message RelatedFieldModelPartialUpdateRequest {
-    string uuid = 1;
-    ForeignModel foreign = 2;
+    optional string uuid = 1;
+    optional ForeignModel foreign = 2;
     repeated ManyManyModel many_many = 3;
-    int32 slug_test_model = 4;
+    optional int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    string proto_slug_related_field = 7;
+    optional string proto_slug_related_field = 7;
     string custom_field_name = 8;
     repeated string _partial_update_fields = 9;
     repeated string many_many_foreigns = 10;
@@ -316,7 +316,7 @@ message RelatedFieldModelRetrieveRequest {
 }
 
 message SimpleRelatedFieldModel {
-    string uuid = 1;
+    optional string uuid = 1;
     optional string foreign = 2;
     optional string slug_test_model = 3;
     repeated string many_many = 4;
@@ -337,7 +337,7 @@ message SimpleRelatedFieldModelListRequest {
 }
 
 message SimpleRelatedFieldModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
     optional string foreign = 3;
     optional string slug_test_model = 4;
@@ -353,10 +353,10 @@ message SimpleRelatedFieldModelRetrieveRequest {
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModel {
-    string uuid = 1;
-    google.protobuf.Struct meta_datas = 2;
+    optional string uuid = 1;
+    optional google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
-    bytes binary = 4;
+    optional bytes binary = 4;
 }
 
 message SpecialFieldsModelDestroyRequest {
@@ -374,11 +374,11 @@ message SpecialFieldsModelListRequest {
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelPartialUpdateRequest {
-    string uuid = 1;
+    optional string uuid = 1;
     repeated string _partial_update_fields = 2;
-    google.protobuf.Struct meta_datas = 3;
+    optional google.protobuf.Struct meta_datas = 3;
     repeated int32 list_datas = 4;
-    bytes binary = 5;
+    optional bytes binary = 5;
 }
 
 message SpecialFieldsModelRetrieve {
@@ -403,7 +403,7 @@ message SyncUnitTestModelListWithExtraArgs {
 }
 
 message UnitTestModel {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
@@ -431,10 +431,10 @@ message UnitTestModelListWithExtraArgs {
 }
 
 message UnitTestModelPartialUpdateRequest {
-    int32 id = 1;
-    string title = 2;
-    optional string text = 3;
-    repeated string _partial_update_fields = 4;
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    optional string text = 4;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -445,7 +445,7 @@ message UnitTestModelStreamRequest {
 }
 
 message UnitTestModelWithStructFilter {
-    int32 id = 1;
+    optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
@@ -465,10 +465,10 @@ message UnitTestModelWithStructFilterList {
 }
 
 message UnitTestModelWithStructFilterPartialUpdateRequest {
-    int32 id = 1;
-    string title = 2;
-    optional string text = 3;
-    repeated string _partial_update_fields = 4;
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string title = 3;
+    optional string text = 4;
 }
 
 message UnitTestModelWithStructFilterRetrieveRequest {

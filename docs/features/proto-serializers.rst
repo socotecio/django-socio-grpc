@@ -194,30 +194,55 @@ Use Cases
 
 .. _proto-serializers-nullable-fields:
 
-===========================
-Nullable fieds (`optional`)
-===========================
+=============================================================
+Required, Nullable and default values for fields (`optional`)
+=============================================================
 
 In gRPC, all fields have a default value. For example, if you have a field of type `int32` and you don't set a value, the default value will be `0`.
 To know if this field was set (so its value is actually `0`) or not, the field needs to be declared as `optional`
 (see `proto3 <https://protobuf.dev/programming-guides/proto3/#field-labels>`_ documentation).
 
-.. warning::
+To work with this different behavior between REST and gRPC we use the combination of 
+`required <https://www.django-rest-framework.org/api-guide/fields/#required>`_, 
+`allow_null <https://www.django-rest-framework.org/api-guide/fields/#allow_null>`_ and 
+`default <https://www.django-rest-framework.org/api-guide/fields/#default>`_ field parameters to find the adapted behavior.
 
-    There is no way to differentiate between a field that was not set and a field that was set to `None`.
-    Therefore ``{}`` and ``{"field": None}`` will be converted to the same gRPC message.
-    By default, we decided to interpret no presence of a field as ``None`` to have an intuitive way to use nullable fields which
-    are extensively used in Django (``null=True``) and DRF (``allow_null=True``) options.
-    This behavior has an unintended consequence with default values in ``ModelProtoSerializer``, because
-    the value will be `None` instead of being absent.
-    There is an `open issue <https://github.com/socotecio/django-socio-grpc/issues/171>`_ on the subject, with a workaround.
 
 There are multiple ways to have proto fields with ``optional``:
 
-- In ``ProtoSerializer``, you can use ``allow_null=True`` in the field kwargs.
+- In ``ProtoSerializer``, you can use ``allow_null=True``, ``required=False`` or ``default=<xxxx>`` in the field kwargs. Note that default should not be ``None`` or ``rest_framework.fields.empty``. If default is None just set ``allow_null`` to ``True``
 - In ``SerializerMethodField``, you can use the return annotation ``Optional[...]`` or ``... | None`` for Python 3.10+.
 - In ``ModelProtoSerializer``, model fields with ``null=True`` will be converted to ``optional`` fields.
 - In ``GRPCAction`` you can set ``cardinality`` to ``optional`` in the `request` or `response` :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>`.
+
+How the values are choosen by DSG when **values are not set in the message** (this behavior is possible only if field is optional and should be automatic depending of what you specified in your model or serializer but can be customized depending on your need):
+
+- If create or update, and the field has ``required=True``: Set to the default grpc value for the type ("" for string, 0 for int, False for boolean, ...)
+- If create or update, and the field has ``required=True`` and a **default in the serializer field** : Set to None
+
+------
+
+- If update, and the field has ``allow_null=True``: Set to None
+- If create, and the field has ``allow_null=True`` and the field have a **default in the model**: Set to the model field default
+- If create, and the field has ``allow_null=True`` and the field have a **default in the serializer**: Set to serializer field default
+- If create, and the field has ``allow_null=True`` and the field haven't a **default in the model or the serializer**: Set to None
+
+------
+
+- If partial update, and the field is **not in the list of field to update**: delete the field
+- If partial update, and the field is **in the list of field to update** and ``allow_null=True``: Set to None
+- If partial update, and the field is **in the list of field to update** and the field have a ``default in the serializer``: Set to serializer field default
+- If partial update, and the field is **in the list of field to update** and none of the above option: Set to the default grpc value for the type
+
+
+How the values are choosen by DSG when **values are set to default gRPC values**:
+
+- If create or update, and the field has ``required=True``: Use the default grpc value
+- Else use same logic than value not set. 
+
+.. note::
+
+    To see real examples of this behavior please see `Model <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/models.py>`_, `Serializer <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/fakeapp/serializers.py>`_ and `Tests <https://github.com/socotecio/django-socio-grpc/blob/master/django_socio_grpc/tests/test_default_value.py>`_
 
 ==============================
 Read-Only and Write-Only Props
@@ -227,6 +252,7 @@ Read-Only and Write-Only Props
 If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, DSG will automatically use `read_only` and `write_only` field kwargs to generate fields only in the request or response message. This is also true for Django fields with specific values (e.g., ``editable=False``).
 
 .. warning::
+
     This setting is deprecated. See :ref:`setting documentation<grpc-settings-separate-read-write-model>` 
 
 
@@ -347,8 +373,6 @@ To circumvent this problem, DSG introduces function introspection where we are l
     from rest_framework import serializers
 
     class ExampleSerializer(proto_serializers.ProtoSerializer):
-
-       :TODO: module "serializers" does not exist, please add the correct import
 
         default_method_field = serializers.SerializerMethodField()
         custom_method_field = serializers.SerializerMethodField(method_name="custom_method")

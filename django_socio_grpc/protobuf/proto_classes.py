@@ -20,7 +20,7 @@ from typing import (
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from rest_framework import serializers
-from rest_framework.fields import HiddenField
+from rest_framework.fields import HiddenField, empty
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
@@ -89,7 +89,18 @@ class ProtoField:
 
     @classmethod
     def _get_cardinality(self, field: serializers.Field):
-        return FieldCardinality.OPTIONAL if field.allow_null else FieldCardinality.NONE
+        ProtoGeneratorPrintHelper.print("field.default: ", field.default)
+        """
+        INFO - AM - 04/01/2023
+        If field can be null -> optional
+        if field is not required -> optional. Since DRF 3.0 When using model default, only required is set to False. The model default is not set into the field as just passing None will result in model default. https://github.com/encode/django-rest-framework/issues/2683
+        if field.default is set (meaning not None or empty) -> optional
+
+        Not dealing with field.allow_blank now as it doesn't seem to be related to OPTIONAl and more about validation and only exist for charfield
+        """
+        if field.allow_null or not field.required or field.default not in [None, empty]:
+            return FieldCardinality.OPTIONAL
+        return FieldCardinality.NONE
 
     @classmethod
     def from_field_dict(cls, field_dict: FieldDict) -> "ProtoField":

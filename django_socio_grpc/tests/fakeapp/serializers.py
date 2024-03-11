@@ -7,6 +7,7 @@ from django_socio_grpc import proto_serializers
 from django_socio_grpc.protobuf import ProtoComment
 
 from .models import (
+    DefaultValueModel,
     ForeignModel,
     ImportStructEvenInArrayModel,
     ManyManyModel,
@@ -43,7 +44,7 @@ class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
         model = UnitTestModel
         proto_class = fakeapp_pb2.UnitTestModelResponse
         proto_class_list = fakeapp_pb2.UnitTestModelListResponse
-        fields = ("id", "title", "text")
+        fields = "__all__"
 
 
 # INFO - AM - 14/02/2024 - This serializer exist just to be sure we do not override UnitTestModelSerializer in the proto
@@ -201,4 +202,25 @@ class RecursiveTestModelSerializer(proto_serializers.ModelProtoSerializer):
         model = RecursiveTestModel
         # proto_class = fakeapp_pb2.BasicProtoListChildResponse
         # proto_class_list = fakeapp_pb2.BasicProtoListChildListResponse
+        fields = "__all__"
+
+
+class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
+    string_required_but_serializer_default = serializers.CharField(
+        default="default_serializer"
+    )
+    int_required_but_serializer_default = serializers.IntegerField(default=10)
+    boolean_required_but_serializer_default = serializers.BooleanField(default=False)
+
+    string_default_but_serializer_default = serializers.CharField(
+        default="default_serializer_override"
+    )
+    string_nullable_default_but_serializer_default = serializers.CharField(
+        default="default_serializer_override"
+    )
+
+    class Meta:
+        model = DefaultValueModel
+        proto_class = fakeapp_pb2.DefaultValueResponse
+        proto_class_list = fakeapp_pb2.DefaultValueListResponse
         fields = "__all__"

@@ -23,15 +23,10 @@ from rest_framework import serializers
 from rest_framework.fields import HiddenField
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
-from django_socio_grpc.utils.constants import (
-    DEFAULT_LIST_FIELD_NAME,
-    LIST_ATTR_MESSAGE_NAME,
-    REQUEST_SUFFIX,
-    RESPONSE_SUFFIX,
-)
+from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
+from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 from django_socio_grpc.utils.model_meta import get_model_pk
-from django_socio_grpc.utils.tools import rreplace
 
 from .exceptions import ProtoRegistrationError
 from .typing import FieldCardinality, FieldDict
@@ -355,6 +350,7 @@ class ProtoField:
         )
 
 
+# TODO Frozen
 @dataclass
 class ProtoMessage:
     """
@@ -367,22 +363,11 @@ class ProtoMessage:
     }
     """
 
-    base_name: str
+    name: str
     fields: List["ProtoField"] = dataclass_field(default_factory=list)
     comments: Optional[List[str]] = None
     serializer: Optional[serializers.BaseSerializer] = None
     imported_from: Optional[str] = None
-    suffixable: bool = True
-    prefixable: bool = True
-
-    prefix: str = ""
-    suffix: ClassVar[str] = ""
-
-    @property
-    def name(self) -> str:
-        if self.imported_from:
-            return self.base_name
-        return self.append_name()
 
     def get_all_messages(self) -> Dict[str, "ProtoMessage"]:
         messages = {self.name: self}
@@ -414,58 +399,24 @@ class ProtoMessage:
                 curr_idx += 1
                 field.index = curr_idx
 
-    def append_name(self) -> str:
-        name = self.base_name
-        if self.suffixable:
-            name = f"{name}{self.suffix}"
-        if self.prefixable:
-            name = f"{self.prefix}{name}"
-        return name
-
-    @classmethod
-    def create_name(cls, base_name: str, suffixable: bool, prefixable: bool) -> str:
-        """
-        This method only exist for stopping serializer recursion and using the correct ProtoMessage name
-        """
-        name = base_name
-        if suffixable:
-            name = f"{name}{cls.suffix}"
-        if prefixable:
-            name = f"{cls.prefix}{name}"
-        return name
-
-    @classmethod
-    def get_base_name_from_serializer(
-        cls, serializer: Type[serializers.BaseSerializer]
-    ) -> str:
-        name = serializer.__name__
-        if "ProtoSerializer" in name:
-            name = rreplace(name, "ProtoSerializer", "", 1)
-        elif "Serializer" in name:
-            name = rreplace(name, "Serializer", "", 1)
-
-        return name
-
     @classmethod
     def create(
         cls,
         value: Optional[Union[Type[serializers.BaseSerializer], List[FieldDict], str]],
-        base_name: str,
-        appendable_name: bool,
-        prefix: str = "",
+        name: str,
     ) -> Union["ProtoMessage", str]:
         if isinstance(value, type) and issubclass(value, serializers.BaseSerializer):
             ProtoGeneratorPrintHelper.print("Message from serializer")
-            return cls.from_serializer(value, name=None if appendable_name else base_name)
+            proto_message = cls.from_serializer(value, name=name)
+            return proto_message
         elif isinstance(value, str):
             ProtoGeneratorPrintHelper.print("Message from string")
             return PRIMITIVE_TYPES.get(value, value)
         # Empty value means an EmptyMessage, this is handled in the from_field_dicts
         elif isinstance(value, list) or not value:
             ProtoGeneratorPrintHelper.print("Message from field dicts")
-            return cls.from_field_dicts(
-                value, base_name=base_name, appendable_name=appendable_name, prefix=prefix
-            )
+            proto_message = cls.from_field_dicts(value, name=name)
+            return proto_message
         else:
             raise TypeError()
 
@@ -473,19 +424,13 @@ class ProtoMessage:
     def from_field_dicts(
         cls,
         fields: List[FieldDict],
-        base_name: str,
-        appendable_name: bool = True,
-        prefix: str = "",
+        name: str,
     ) -> "ProtoMessage":
-        if not fields and appendable_name:
-            return EmptyMessage
-
+        if fields is None:
+            fields = []
         return cls(
-            base_name=base_name,
+            name=name,
             fields=[ProtoField.from_field_dict(field) for field in fields],
-            suffixable=appendable_name,
-            prefixable=appendable_name,
-            prefix=prefix,
         )
 
     @classmethod
@@ -525,11 +470,9 @@ class ProtoMessage:
                             field,
                             cls.from_serializer,
                             parent_serializer=serializer,
-                            name_if_recursive=cls.create_name(
-                                base_name=name
-                                or cls.get_base_name_from_serializer(serializer),
-                                suffixable=not name,
-                                prefixable=False,
+                            name_if_recursive=name
+                            or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
+                                serializer, getattr(cls, "suffix", "")
                             ),
                         )
                     )
@@ -542,11 +485,9 @@ class ProtoMessage:
                             field,
                             cls.from_serializer,
                             parent_serializer=serializer,
-                            name_if_recursive=cls.create_name(
-                                base_name=name
-                                or cls.get_base_name_from_serializer(serializer),
-                                suffixable=not name,
-                                prefixable=False,
+                            name_if_recursive=name
+                            or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
+                                serializer, getattr(cls, "suffix", "")
                             ),
                         )
                     )
@@ -563,12 +504,13 @@ class ProtoMessage:
             )
 
         proto_message = cls(
-            base_name=name or cls.get_base_name_from_serializer(serializer),
+            name=name
+            or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
+                serializer, getattr(cls, "suffix", "")
+            ),
             fields=fields,
             comments=comments,
             serializer=serializer,
-            suffixable=not name,
-            prefixable=False,
         )
 
         return proto_message
@@ -579,44 +521,6 @@ class ProtoMessage:
     ) -> bool:
         # INFO - AM - 21/01/2022 - HiddenField are not used in api so not showed in protobuf file
         return isinstance(field, HiddenField)
-
-    @classmethod
-    def as_list_message(
-        cls,
-        base_message: "ProtoMessage",
-        base_name: Optional[str] = None,
-        list_field_name: Optional[str] = None,
-    ) -> "ProtoMessage":
-        if list_field_name is None:
-            try:
-                list_field_name = getattr(base_message.serializer.Meta, LIST_ATTR_MESSAGE_NAME)
-            except AttributeError:
-                list_field_name = DEFAULT_LIST_FIELD_NAME
-
-        fields = [
-            ProtoField(
-                name=list_field_name,
-                field_type=base_message,
-                cardinality=FieldCardinality.REPEATED,
-            ),
-            ProtoField(
-                name="count",
-                field_type="int32",
-            ),
-        ]
-
-        list_message = cls(
-            base_name=f"{base_name or rreplace(base_message.base_name, cls.suffix, '', 1)}List",
-            fields=fields,
-            prefixable=base_message.prefixable,
-            prefix=base_message.prefix,
-        )
-
-        if not base_message.serializer:
-            list_message.comments = base_message.comments
-            base_message.comments = None
-
-        return list_message
 
     def __getitem__(self, key: str) -> "ProtoField":
         for field in self.fields:
@@ -667,13 +571,13 @@ class ResponseProtoMessage(ProtoMessage):
 
 
 EmptyMessage = ProtoMessage(
-    base_name="google.protobuf.Empty",
+    name="google.protobuf.Empty",
     fields=[],
     imported_from="google/protobuf/empty.proto",
 )
 
 StructMessage = ProtoMessage(
-    base_name="google.protobuf.Struct",
+    name="google.protobuf.Struct",
     fields=[],
     imported_from="google/protobuf/struct.proto",
 )

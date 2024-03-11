@@ -13,11 +13,45 @@ This module provides the `grpc_setting` object, that is used to access
 gRPC framework settings, checking for user settings first, then falling
 back to the defaults.
 """
+from enum import Enum
+
 from django.conf import settings
 from django.core.signals import setting_changed
 from django.utils.module_loading import import_string
 
 __all__ = ["grpc_settings"]
+
+
+# TODO - AM - 20/02/2024 - replace (str, Enum) by (StrEnum) when python requirements > 3.11. https://docs.python.org/fr/3/library/enum.html#enum.StrEnum
+class FilterAndPaginationBehaviorOptions(str, Enum):
+    """
+    FilterAndPaginationBehaviorOptions is an StrEnum that present the congiguration possibilities for PAGINATION_BEHAVIOR and FILTER_BEHAVIOR.
+
+    The mains differences between metadata and request are:
+    - Metadata are not specified in the proto file so adding or removing a filter in a new version is not documented and may cause breaking changes.
+    - Requests allows helping developpers understand which endpoint accept filtering and automatically document it
+    - Requests are serialized so it can improve performance when filtering large amount of data
+    """
+
+    METADATA_STRICT = "METADATA_STRICT"
+    """
+    Only allow the element choosen against metadata. This is the default behavior as it's the legacy way of pagination. This will change for 1.0.0. This mode doesn't add additional fields into the messages.
+    """
+
+    REQUEST_STRUCT_STRICT = "REQUEST_STRUCT_STRICT"
+    """
+    Only allow to use the element choosen against request field (``_filters`` or ``_pagination``). This mode add the specifis key (``_filters`` or ``_pagination``) in every message except if service specifically disable it.
+    """
+
+    METADATA_AND_REQUEST_STRUCT = "METADATA_AND_REQUEST_STRUCT"
+    """
+    Allow pagination against metadata and request field (``_filters`` or ``_pagination``). This mode add the specific key (``_filters`` or ``_pagination``) in every message except if service specifically disable it. If filter is present in both metadata and request field, the one in request field have priority. You should only use this mode when transitionning from metadata to request as having both is not recommended and could bring clarity issues
+    """
+
+    # More complicated and will be implented late 2024: https://github.com/socotecio/django-socio-grpc/issues/247
+    # FILTER_MESSAGE_STRICT = "METADATA_STRICT"
+    # METADATA_AND_FILTER_MESSAGE = "METADATA_AND_FILTER_MESSAGE"
+
 
 DEFAULTS = {
     # Root grpc handlers hook configuration
@@ -66,6 +100,16 @@ DEFAULTS = {
     "ROOT_CERTIFICATES_PATH": None,
     # Set the ssl_server_credentials require_client_auth attribute
     "REQUIRE_CLIENT_AUTH": False,
+    # Prefered filter mode capability. See FilterAndPaginationBehaviorOptions for options
+    # /!\ for 1.O.0 the default behavior will change from METADATA_STRICT to METADATA_AND_FILTER_MESSAGE
+    "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT,
+    # Prefered pagination mode capability. See FilterAndPaginationBehaviorOptions for options
+    # /!\ for 1.O.0 the default behavior will change from METADATA_STRICT to METADATA_AND_FILTER_MESSAGE
+    "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT,
+    # Variable that indicate the class used to generate the name of the proto messages
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
+    # Variable that indicate the plugins used in proto generation by default
+    "DEFAULT_GENERATION_PLUGINS": [],
 }
 
 
@@ -77,6 +121,7 @@ IMPORT_STRINGS = [
     "DEFAULT_PAGINATION_CLASS",
     "DEFAULT_FILTER_BACKENDS",
     "LOG_EXTRA_CONTEXT_FUNCTION",
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR",
 ]
 
 

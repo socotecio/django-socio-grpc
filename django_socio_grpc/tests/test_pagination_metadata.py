@@ -7,45 +7,54 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
     add_UnitTestModelControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
+from fakeapp.serializers import UnitTestModelSerializer
 from fakeapp.services.unit_test_model_service import UnitTestModelService
+from rest_framework.pagination import PageNumberPagination
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
+class UnitTestModelServiceWithDifferentPagination(UnitTestModelService):
+    queryset = UnitTestModel.objects.all().order_by("id")
+    serializer_class = UnitTestModelSerializer
+    pagination_class = StandardResultsSetPagination
+
+
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
-class TestFiltering(TestCase):
+class TestPaginationMetadata(TestCase):
     def setUp(self):
         for idx in range(10):
             title = "z" * (idx + 1)
             text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
             UnitTestModel(title=title, text=text).save()
-
-        UnitTestModel(title="zzzz", text=text).save()
         self.fake_grpc = FakeFullAIOGRPC(
-            add_UnitTestModelControllerServicer_to_server, UnitTestModelService.as_servicer()
+            add_UnitTestModelControllerServicer_to_server,
+            UnitTestModelServiceWithDifferentPagination.as_servicer(),
         )
 
     def tearDown(self):
         self.fake_grpc.close()
 
-    async def test_django_filter(self):
+    async def test_page_number_pagination(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = UnitTestModelListRequest()
-        filter_as_dict = {"title": "zzzzzzz"}
-        metadata = (("filters", (json.dumps(filter_as_dict))),)
-        response = await grpc_stub.List(request=request, metadata=metadata)
+        response = await grpc_stub.List(request=request)
 
-        self.assertEqual(len(response.results), 1)
-        # responses_as_list[0] is type of django_socio_grpc.tests.grpc_test_utils.unittest_pb2.Test
-        self.assertEqual(response.results[0].title, "zzzzzzz")
+        self.assertEqual(response.count, 10)
+        self.assertEqual(len(response.results), 3)
 
-        # INFO - AM - 05/02/2023 - This test verify that metadata are well overiden in unit test
+    async def test_another_page_number_pagination(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = UnitTestModelListRequest()
-        filter_as_dict = {"title": "zzzz"}
-        metadata = (("filters", (json.dumps(filter_as_dict))),)
+        pagination_as_dict = {"page_size": 6}
+        metadata = (("PAGINATION", (json.dumps(pagination_as_dict))),)
         response = await grpc_stub.List(request=request, metadata=metadata)
 
-        self.assertEqual(len(response.results), 2)
-        # responses_as_list[0] is type of django_socio_grpc.tests.grpc_test_utils.unittest_pb2.Test
-        self.assertEqual(response.results[0].title, "zzzz")
+        self.assertEqual(response.count, 10)
+        self.assertEqual(len(response.results), 6)

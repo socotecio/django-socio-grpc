@@ -2,6 +2,12 @@ from asgiref.sync import sync_to_async
 from google.protobuf import empty_pb2
 from rest_framework import serializers
 
+from django_socio_grpc.protobuf.generation_plugin import (
+    FilterGenerationPlugin,
+    PaginationGenerationPlugin,
+    ResponseAsListGenerationPlugin,
+)
+
 from .decorators import grpc_action
 from .grpc_actions.actions import GRPCActionMixin
 from .grpc_actions.placeholders import (
@@ -57,11 +63,16 @@ class CreateModelMixin(GRPCActionMixin):
 class ListModelMixin(GRPCActionMixin):
     @grpc_action(
         request=[],
+        # DEPRECATED - AM - 23/02/2024 - request_name only keept because will generate emptyMessage. Need to be removed in version 1.0.0
         request_name=StrTemplatePlaceholder(
             f"{{}}List{REQUEST_SUFFIX}", get_serializer_base_name
         ),
         response=SelfSerializer,
-        use_response_list=True,
+        use_generation_plugins=[
+            ResponseAsListGenerationPlugin(),
+            FilterGenerationPlugin(display_warning_message=False),
+            PaginationGenerationPlugin(display_warning_message=False),
+        ],
     )
     def List(self, request, context):
         """
@@ -119,6 +130,10 @@ class StreamModelMixin(GRPCActionMixin):
         ),
         response=SelfSerializer,
         response_stream=True,
+        use_generation_plugins=[
+            FilterGenerationPlugin(display_warning_message=False),
+            PaginationGenerationPlugin(display_warning_message=False),
+        ],
     )
     def Stream(self, request, context):
         """

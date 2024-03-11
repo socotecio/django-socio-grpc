@@ -193,6 +193,104 @@ or not your serializer fields were correctly mapped but you should not try to mo
 For more example and use case go to :ref:`Generic Mixins <Generic Mixins>` and :ref:`grpc action <grpc_action>`
 
 
+.. _proto-generation-plugins:
+
+Proto Generation Plugins
+------------------------
+
+DSG allow you to customize the ProtoMessage generated with a Plugin system.
+A plugin is a class that inherit from :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`.
+It will expose 4 methods that you can override to customize behavior: 
+:func:`check_condition <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin.check_condition>`,
+:func:`transform_request_message <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin.transform_request_message>`,
+:func:`transform_response_message <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin.transform_response_message>` and
+:func:`run_validation_and_transform <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin.run_validation_and_transform>`
+
+Basically ``run_validation_and_transform`` will call ``check_condition`` and if the return value of this call is ``True`` it will then call ``transform_request_message`` and ``transform_response_message``.
+
+``check_condition`` and ``run_validation_and_transform`` will take the same arguments that are:
+- :func:`service <django_socio_grpc.services.Service>`: That is the instance of the service that being transformed into protobuf format.
+- :func:`request_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: That is the proto message as a python object of the request
+- :func:`response_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: That is the proto message as a python object of the response
+- :func:`message_name_constructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`: That is the instance of the NameConstructor class used to generate the request and response proto name. It is usefull if you need a plugin that need to transform the name of the proto message. By default the class used is :func:`DefaultMessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor>`
+
+Some helper class for transforming message to list, adding field and other exist. Please refer to :func:`the list of existing plugin <django_socio_grpc.protobuf.generation_plugin>` 
+
+Example of a plugin that change the type to all responses fields to string:
+
+
+.. code-block:: python
+
+    from django_socio_grpc.protobuf.generation_plugin import BaseGenerationPlugin
+
+    class ReplaceAllTypeToStringGenerationPlugin(BaseGenerationPlugin):
+
+        def __init__(self, type_to_put="string"):
+            self.type_to_put = type_to_put
+
+        def transform_response_message(
+            self,
+            service,
+            proto_message,
+            message_name_constructor,
+        ):
+            for field in proto_message.fields:
+                field.field_type = self.type_to_put
+            return proto_message
+
+
+Then you can use it for a specific action or globally.
+
+Globally: :ref:`See setting doc <settings-default-generation-plugin>`
+
+For a specific action:
+
+
+.. code-block:: python
+    
+    # quickstart/services.py
+    from django_socio_grpc import generics
+    from quickstart.models import Post
+    from quickstart.serializer import PostProtoSerializer
+    from django_socio_grpc.decorators import grpc_action
+
+
+    # This service will have all the CRUD actions
+    class PostService(generics.GenericService):
+        queryset = Post.objects.all()
+        serializer_class = PostProtoSerializer
+
+        @grpc_action(
+            request=[],
+            response=PostProtoSerializer,
+            use_generation_plugins=[ReplaceAllTypeGenerationPlugin(type_to_put="string")],
+        )
+        async def CustomActionWithPlugin(self, request, context):
+            ...
+
+
+.. _proto-generation-message-name-constructor:
+
+MessageNameConstructor
+----------------------
+
+DSG uses a :func:`MessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>` to construct the names of unspecified messages.
+
+By default :func:`DefaultMessageNameConstructor` is used, it follow this logic:
+
+- If a specific request or response name is set we use it.
+- If not
+    - If the message is a string we use it 
+    - If the message is a Serializer we use the name of the Serializer without the "Serializer" or "ProtoSerializer" ending
+    - If the message is a list of FieldDict we use the concatenation of the service name and the action name.
+- If SEPARATE_READ_WRITE_MODEL settings is True we add the "REQUEST" or "RESPONSE" suffix.
+
+If you want to change this behavior by your own you can inherit from :func:`MessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`
+and override it's methods.
+
+Once you have your own message name constructor class you :ref:`pass it to your specific grpc_action <grpc-action-message-name-constructor>` or :ref:`change it globally <settings-default-message-name-constructor>`
+
+
 
 Field number attribution
 -------------------------

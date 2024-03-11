@@ -35,7 +35,10 @@ See the documentation on django settings if your not familiar with it: `Django s
       "FILTERS": "FILTERS",
     },
     "LOG_OK_RESPONSE": False,
-    "IGNORE_LOG_FOR_ACTION": []
+    "IGNORE_LOG_FOR_ACTION": [],
+    "FILTER_BEHAVIOR": "METADATA_STRICT",
+    "PAGINATION_BEHAVIOR": "METADATA_STRICT",
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
   }
 
 .. _root-handler-hook-setting:
@@ -129,6 +132,8 @@ For instance, to use django-filter backend (`doc <https://django-filter.readthed
 
 
 For more details, see the `DRF documentation on filters <https://www.django-rest-framework.org/api-guide/filtering/#setting-filter-backends>`_ as DSG use the same system.
+
+.. _default_pagination_class_settings:
 
 DEFAULT_PAGINATION_CLASS
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -332,3 +337,72 @@ A boolean indicating whether or not to require clients to be authenticated. May 
 .. code-block:: python
 
   "REQUIRE_CLIENT_AUTH": True
+
+
+.. _settings-filter-behavior:
+
+FILTER_BEHAVIOR
+^^^^^^^^^^^^^^^
+
+.. warning::
+  
+  Default behavior will change in 1.0.0 to accept only request filtering. If you start a new project please consider setting FILTER_BEHAVIOR to REQUEST_STRUCT_STRICT
+
+Variable allowing user to configure how the filter work.
+
+
+The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
+
+.. code-block:: python
+
+  from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
+
+  "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT
+
+
+.. _settings-pagination-behavior:
+
+PAGINATION_BEHAVIOR
+^^^^^^^^^^^^^^^^^^^
+
+.. warning::
+  
+  Default behavior will change in 1.0.0 to accept only request filtering. If you start a new project please consider setting PAGINATION_BEHAVIOR to REQUEST_STRUCT_STRICT
+
+Variable allowing user to configure how the pagination work.
+
+The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
+
+.. code-block:: python
+
+  from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
+  
+  "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT
+
+
+.. _settings-default-message-name-constructor:
+
+DEFAULT_MESSAGE_NAME_CONSTRUCTOR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Variable that indicate the class used to generate the name of the proto messages. Default is :func:`DefaultMessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor>`.
+
+For more informations see :ref:`the documentation <proto-generation-message-name-constructor>`
+
+.. code-block:: python
+  
+  "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor"
+
+.. _settings-default-generation-plugin:
+
+DEFAULT_GENERATION_PLUGINS
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+List of class inherited from :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`
+to specify plugin that are used globally for all actions.
+
+:ref:`See documentation <proto-generation-plugins>`
+
+.. code-block:: python
+  
+  "DEFAULT_GENERATION_PLUGINS": ["django_socio_grpc.protobuf.generation_plugin.FilterGenerationPlugin"]

@@ -21,7 +21,7 @@ class TestLocaleMiddleware(TestCase):
     def tearDown(self):
         self.fake_grpc.close()
 
-    async def test_middleware_called_with_generator(self):
+    async def test_locale_middleware(self):
         self.fake_grpc = FakeFullAIOGRPC(
             add_BasicControllerServicer_to_server, BasicService.as_servicer()
         )

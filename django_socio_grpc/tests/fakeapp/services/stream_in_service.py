@@ -33,3 +33,5 @@ class StreamInService(generics.GenericService):
             if name == "abort":
                 raise NotFound()
             yield fakeapp_pb2.StreamInStreamToStreamResponse(name=f"{name}Response")
+            if name == "finish":
+                break

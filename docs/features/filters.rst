@@ -280,7 +280,7 @@ as demonstrated below (:ref:`See Generation Plugin documentation <proto-generati
 Using it
 ========
 
-You can use metadata or ``_filters`` request field to make the filters works out of the box.
+You can use metadata or ``_filters`` request field to make the filters work out of the box.
 
 For more example you can see the `client in DSG example repo <https://github.com/socotecio/django-socio-grpc-example/blob/main/backend/bib_example_filter_client.py>`_
 

@@ -78,11 +78,11 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
     By inerhit it and fill field_name, field_cardinality and field_type it will create a plugin that add a field without having to override any method.
     """
 
-    field_name: str = None
-    field_type: Union[str | ProtoMessage] = None
-    field_cardinality: FieldCardinality = None
+    field_name: str
+    field_type: Union[str, ProtoMessage]
+    field_cardinality: FieldCardinality
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         error_message = "You try to instanciate a class that inherit from BaseGenerationPlugin. to do that you need to specify a {0} attribute"
 
         assert self.field_name is not None, error_message.format("field_name")
@@ -113,8 +113,12 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     """
 
     field_name: str = "_filters"
-    field_type: Union[str | ProtoMessage] = "google.protobuf.Struct"
+    field_type: Union[str, ProtoMessage] = "google.protobuf.Struct"
     field_cardinality: FieldCardinality = FieldCardinality.OPTIONAL
+
+    def __init__(self, display_warning_message=True):
+        self.display_warning_message = display_warning_message
+        super().__init__()
 
     def check_condition(
         self,
@@ -129,15 +133,17 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
             or not service.filter_backends
             and not grpc_settings.DEFAULT_FILTER_BACKENDS
         ):
-            logger.debug(
-                "You are using FilterGenerationPlugin but no filter_backends as been found on the service. Please set a filter_backends in the service or set it globally with DEFAULT_FILTER_BACKENDS setting."
-            )
+            if self.display_warning_message:
+                logger.warning(
+                    "You are using FilterGenerationPlugin but no filter_backends as been found on the service. Please set a filter_backends in the service or set it globally with DEFAULT_FILTER_BACKENDS setting."
+                )
             return False
 
         if grpc_settings.FILTER_BEHAVIOR == FilterAndPaginationBehaviorOptions.METADATA_STRICT:
-            logger.debug(
-                "You are using FilterGenerationPlugin but FILTER_BEHAVIOR settings is set to 'METADATA_STRICT' so it will have no effect. Please change FILTER_BEHAVIOR."
-            )
+            if self.display_warning_message:
+                logger.warning(
+                    "You are using FilterGenerationPlugin but FILTER_BEHAVIOR settings is set to 'METADATA_STRICT' so it will have no effect. Please change FILTER_BEHAVIOR."
+                )
             return False
 
         return True
@@ -149,8 +155,12 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     """
 
     field_name: str = "_pagination"
-    field_type: Union[str | ProtoMessage] = "google.protobuf.Struct"
+    field_type: Union[str, ProtoMessage] = "google.protobuf.Struct"
     field_cardinality: FieldCardinality = FieldCardinality.OPTIONAL
+
+    def __init__(self, display_warning_message=True):
+        self.display_warning_message = display_warning_message
+        super().__init__()
 
     def check_condition(
         self,
@@ -165,18 +175,20 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
             or not service.pagination_class
             and not grpc_settings.DEFAULT_PAGINATION_CLASS
         ):
-            logger.debug(
-                "You are using PaginationGenerationPlugin but no pagination_class as been found on the service. Please set a pagination_class in the service or set it globally with DEFAULT_PAGINATION_CLASS setting."
-            )
+            if self.display_warning_message:
+                logger.warning(
+                    "You are using PaginationGenerationPlugin but no pagination_class as been found on the service. Please set a pagination_class in the service or set it globally with DEFAULT_PAGINATION_CLASS setting."
+                )
             return False
 
         if (
             grpc_settings.PAGINATION_BEHAVIOR
             == FilterAndPaginationBehaviorOptions.METADATA_STRICT
         ):
-            logger.debug(
-                "You are using PaginationGenerationPlugin but PAGINATION_BEHAVIOR settings is set to 'METADATA_STRICT' so it will have no effect. Please change PAGINATION_BEHAVIOR."
-            )
+            if self.display_warning_message:
+                logger.warning(
+                    "You are using PaginationGenerationPlugin but PAGINATION_BEHAVIOR settings is set to 'METADATA_STRICT' so it will have no effect. Please change PAGINATION_BEHAVIOR."
+                )
             return False
 
         return True
@@ -214,9 +226,6 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
                     field_type="int32",
                 )
             ),
-
-        if grpc_settings.SEPARATE_READ_WRITE_MODEL:
-            pass
 
         list_message = ProtoMessage(
             name=list_name,

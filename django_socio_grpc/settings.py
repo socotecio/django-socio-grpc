@@ -27,11 +27,6 @@ class FilterAndPaginationBehaviorOptions(str, Enum):
     """
     FilterAndPaginationBehaviorOptions is an StrEnum that present the congiguration possibilities for PAGINATION_BEHAVIOR and FILTER_BEHAVIOR.
 
-    The different possibilities are:
-    - ``METADATA_STRICT`` that only allow the element choosen against metadata. This is the default behavior as it's the legacy way of pagination. This will change for 1.0.0. This mode doesn't add additional fields into the messages.
-    - ``REQUEST_STRUCT_STRICT`` that only allow to use the element choosen against request field (``_filters`` or ``_pagination``). This mode add the specifis key (``_filters`` or ``_pagination``) in every message except if service specifically disable it.
-    - ``METADATA_AND_REQUEST_STRUCT`` that allow pagination against metadata and request field (``_filters`` or ``_pagination``). This mode add the specific key (``_filters`` or ``_pagination``) in every message except if service specifically disable it. If filter is present in both metadata and request field, the one in request field have priority. You should onmy use this mode when transitionning from metadata to request as having both is not recommended and could bring clarity issues.
-
     The mains differences between metadata and request are:
     - Metadata are not specified in the proto file so adding or removing a filter in a new version is not documented and may cause breaking changes.
     - Requests allows helping developpers understand which endpoint accept filtering and automatically document it
@@ -39,8 +34,19 @@ class FilterAndPaginationBehaviorOptions(str, Enum):
     """
 
     METADATA_STRICT = "METADATA_STRICT"
+    """
+    Only allow the element choosen against metadata. This is the default behavior as it's the legacy way of pagination. This will change for 1.0.0. This mode doesn't add additional fields into the messages.
+    """
+
     REQUEST_STRUCT_STRICT = "REQUEST_STRUCT_STRICT"
+    """
+    Only allow to use the element choosen against request field (``_filters`` or ``_pagination``). This mode add the specifis key (``_filters`` or ``_pagination``) in every message except if service specifically disable it.
+    """
+
     METADATA_AND_REQUEST_STRUCT = "METADATA_AND_REQUEST_STRUCT"
+    """
+    Allow pagination against metadata and request field (``_filters`` or ``_pagination``). This mode add the specific key (``_filters`` or ``_pagination``) in every message except if service specifically disable it. If filter is present in both metadata and request field, the one in request field have priority. You should only use this mode when transitionning from metadata to request as having both is not recommended and could bring clarity issues
+    """
 
     # More complicated and will be implented late 2024: https://github.com/socotecio/django-socio-grpc/issues/247
     # FILTER_MESSAGE_STRICT = "METADATA_STRICT"
@@ -101,7 +107,7 @@ DEFAULTS = {
     # /!\ for 1.O.0 the default behavior will change from METADATA_STRICT to METADATA_AND_FILTER_MESSAGE
     "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT,
     # Variable that indicate the class used to generate the name of the proto messages
-    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor",
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
     # Variable that indicate the plugins used in proto generation by default
     "DEFAULT_GENERATION_PLUGINS": [],
 }

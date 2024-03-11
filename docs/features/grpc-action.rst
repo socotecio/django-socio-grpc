@@ -112,8 +112,8 @@ Those arguments are used to mark the RPC request/response as a stream. Example: 
 
 .. warning::
 
-    Both of this arguments are deprecated and will be removed in version 1.0.0.
-    They are replaced by the :ref:`GenerationPlugin mechanisme <proto-generation-plugins>` combinated with
+    Both of these arguments are deprecated and will be removed in version 1.0.0.
+    They are replaced by the :ref:`GenerationPlugin mechanism <proto-generation-plugins>` combined with
     :func:`RequestAsListGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.RequestAsListGenerationPlugin>` and
     :func:`ResponseAsListGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.ResponseAsListGenerationPlugin>`
 
@@ -127,8 +127,7 @@ It is useful when returning a list of object with a serializer. Example: :ref:`g
 ``message_name_constructor``
 ============================
 
-This argument allow you to customize the proto message names generated when no ``request_name`` and/or ``response_name``
-are specified. It expect a class with specific method and behavior and it's instance is passed as arguments in the :ref:`generation plugin mechanisme <proto-generation-plugins>`.
+This argument allows you to customize the proto message names generated when no ``request_name`` and/or ``response_name`` are specified. It expect a class with specific method and behavior and its instance is passed as arguments in the :ref:`generation plugin mechanism <proto-generation-plugins>`.
 For more information, please read :ref:`the specified documentation <proto-generation-message-name-constructor>`.
 
 Defaulting to the :ref:`DEFAULT_MESSAGE_NAME_CONSTRUCTOR setting <settings-default-message-name-constructor>`
@@ -140,8 +139,8 @@ Defaulting to the :ref:`DEFAULT_MESSAGE_NAME_CONSTRUCTOR setting <settings-defau
 ``use_generation_plugins``
 ==========================
 
-This argument allow to customize the proto generated dynamically by DSG to match your need.
-It accept a list of instance of class inherited from :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`.
+This argument allows to customize the proto generated dynamically by DSG to match your needs.
+It accepts a list of instances of :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`.
 
 For more information, please read :ref:`the generation plugin documentation <proto-generation-plugins>`
 

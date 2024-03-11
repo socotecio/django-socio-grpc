@@ -11,7 +11,7 @@ Description
 
 DSG works with pagination the same way `DRF Pagination <https://www.django-rest-framework.org/api-guide/pagination/>`_ does. It uses the `Django Pagination system <https://docs.djangoproject.com/en/5.0/topics/pagination/>`_ and its `Paginator` class.
 
-That means DSG supports the default pagination class from DRF as `PageNumberPagination <https://www.django-rest-framework.org/api-guide/pagination/#pagenumberpagination>`_, `LimitOffsetPagination <https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination>`_ and `CursorPagination <https://www.django-rest-framework.org/api-guide/pagination/#cursorpagination>`_. It also supports creating your `own class <https://www.django-rest-framework.org/api-guide/pagination/#custom-pagination-styles>`_ for advanced pagination functionalities.
+That means DSG supports the default pagination class from DRF like `PageNumberPagination <https://www.django-rest-framework.org/api-guide/pagination/#pagenumberpagination>`_, `LimitOffsetPagination <https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination>`_ and `CursorPagination <https://www.django-rest-framework.org/api-guide/pagination/#cursorpagination>`_. It also supports creating your `own Pagination <https://www.django-rest-framework.org/api-guide/pagination/#custom-pagination-styles>`_ for advanced pagination functionalities.
 
 Pagination can be :ref:`enabled globally<pagination-using-it-globally>` for the all the project or for :ref:`only some services<pagination-using-it-by-service>`.
 
@@ -23,7 +23,7 @@ To use pagination you may use metadata or request depending on the :ref:`PAGINAT
 Using it globally on all List and Stream actions
 ------------------------------------------------
 
-To enable pagination gloablly you need to set the :ref:`DEFAULT_PAGINATION_CLASS settings<default_pagination_class_settings>` to the pagination class you want to use.
+To enable pagination globally you need to set the :ref:`DEFAULT_PAGINATION_CLASS settings<default_pagination_class_settings>` to the pagination class you want to use.
 
 
 .. code-block:: python
@@ -110,7 +110,7 @@ as demonstrated below (:ref:`See Generation Plugin documentation <proto-generati
 Using it
 --------
 
-You can use metadata or ``_pagination`` request field to make the filters works out of the box.
+You can use metadata or ``_pagination`` request field to make the filters work out of the box.
 
 For more example you can see the `client in DSG example repo <https://github.com/socotecio/django-socio-grpc-example/blob/main/backend/bib_example_filter_client.py>`_
 

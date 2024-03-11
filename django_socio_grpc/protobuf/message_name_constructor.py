@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Optional, Type, Union
 
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class BaseNameConstructor:
+class MessageNameConstructor(ABC):
     action_name: str
     service: Type["Service"]
     action_request: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]]
@@ -21,12 +22,6 @@ class BaseNameConstructor:
     action_response: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]]
     response_name: Optional[str]
 
-    def __post_init__(self):
-        self.service_name = self.service.get_service_name()
-
-
-@dataclass
-class MessageNameConstructor(BaseNameConstructor):
     def __post_init__(self):
         self.service_name = self.service.get_service_name()
 
@@ -54,6 +49,46 @@ class MessageNameConstructor(BaseNameConstructor):
         base_name = cls.get_base_name_from_serializer(serializer)
 
         return base_name + suffix
+
+    @abstractmethod
+    def construct_request_list_name(self):
+        """
+        Inherit from this method to get the name of the request list message as displayed in the proto file
+        """
+        pass
+
+    @abstractmethod
+    def construct_response_list_name(self):
+        """
+        Inherit from this method to get the name of the response list message as displayed in the proto file
+        """
+        pass
+
+    @abstractmethod
+    def construct_request_name(
+        self,
+        before_suffix: str = "",
+    ):
+        """
+        Inherit from this method to get the name of the request as displayed in the proto file
+        """
+        pass
+
+    @abstractmethod
+    def construct_response_name(
+        self,
+        before_suffix: str = "",
+    ):
+        """
+        Inherit from this method to get the name of the response as displayed in the proto file
+        """
+        pass
+
+
+@dataclass
+class DefaultMessageNameConstructor(MessageNameConstructor):
+    def __post_init__(self):
+        self.service_name = self.service.get_service_name()
 
     def construct_base_name(self, is_request: bool = True):
         action_message = self.action_request if is_request else self.action_response

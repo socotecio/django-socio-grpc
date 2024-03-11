@@ -124,7 +124,7 @@ class GRPCAction:
         Transform old arguments to the correct plugins
         """
         # copy_plugin = self.use_generation_plugins.copy
-        warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: TODO"
+        warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: https://django-socio-grpc.readthedocs.io/en/stable/features/proto-generation.html#proto-generation-plugins"
         if self.use_request_list:
             logger.warning(warning_message.format("use_request_list"))
 

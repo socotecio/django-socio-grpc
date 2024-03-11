@@ -212,7 +212,7 @@ Basically ``run_validation_and_transform`` will call ``check_condition`` and if 
 - :func:`service <django_socio_grpc.services.Service>`: That is the instance of the service that being transformed into protobuf format.
 - :func:`request_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: That is the proto message as a python object of the request
 - :func:`response_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: That is the proto message as a python object of the response
-- :func:`message_name_constructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`: That is the instance of the NameConstructor class used to generate the request and response proto name. It is usefull if you need a plugin that need to transform the name of the proto message
+- :func:`message_name_constructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`: That is the instance of the NameConstructor class used to generate the request and response proto name. It is usefull if you need a plugin that need to transform the name of the proto message. By default the class used is :func:`DefaultMessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor>`
 
 Some helper class for transforming message to list, adding field and other exist. Please refer to :func:`the list of existing plugin <django_socio_grpc.protobuf.generation_plugin>` 
 
@@ -247,6 +247,7 @@ For a specific action:
 
 
 .. code-block:: python
+    
     # quickstart/services.py
     from django_socio_grpc import generics
     from quickstart.models import Post
@@ -273,9 +274,10 @@ For a specific action:
 MessageNameConstructor
 ----------------------
 
-DSG use a dedicated class to implement the proto name generated. By default this class is :func:`MessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`.
+DSG uses a :func:`MessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>` to construct the names of unspecified messages.
 
-It follow the simple logic of:
+By default :func:`DefaultMessageNameConstructor` is used, it follow this logic:
+
 - If a specific request or response name is set we use it.
 - If not
     - If the message is a string we use it 
@@ -284,8 +286,7 @@ It follow the simple logic of:
 - If SEPARATE_READ_WRITE_MODEL settings is True we add the "REQUEST" or "RESPONSE" suffix.
 
 If you want to change this behavior by your own you can inherit from :func:`MessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`
-and override it's message. Be just aware that when ``construct_request_name`` and ``construct_response_name`` are call they may need to set 
-``_request_constructed_name``, ``_response_constructed_name``, ``_request_full_name``, ``_response_full_name`` as used in the different list transformation plugin to insert ``List`` keyword into the proto message name.
+and override it's methods.
 
 Once you have your own message name constructor class you :ref:`pass it to your specific grpc_action <grpc-action-message-name-constructor>` or :ref:`change it globally <settings-default-message-name-constructor>`
 

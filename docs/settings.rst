@@ -38,7 +38,7 @@ See the documentation on django settings if your not familiar with it: `Django s
     "IGNORE_LOG_FOR_ACTION": [],
     "FILTER_BEHAVIOR": "METADATA_STRICT",
     "PAGINATION_BEHAVIOR": "METADATA_STRICT",
-    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor",
+    "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
   }
 
 .. _root-handler-hook-setting:
@@ -351,7 +351,7 @@ FILTER_BEHAVIOR
 Variable allowing user to configure how the filter work.
 
 
-The differents options possibles are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
+The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
 
 .. code-block:: python
 
@@ -371,7 +371,7 @@ PAGINATION_BEHAVIOR
 
 Variable allowing user to configure how the pagination work.
 
-The differents options possibles are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
+The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
 
 .. code-block:: python
 
@@ -385,13 +385,13 @@ The differents options possibles are described in :func:`django_socio_grpc.setti
 DEFAULT_MESSAGE_NAME_CONSTRUCTOR
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Variable that indicate the class used to generate the name of the proto messages. Default is :func:`MessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`.
+Variable that indicate the class used to generate the name of the proto messages. Default is :func:`DefaultMessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor>`.
 
-For more informations see :ref:`the specific associated documentation <proto-generation-message-name-constructor>`
+For more informations see :ref:`the documentation <proto-generation-message-name-constructor>`
 
 .. code-block:: python
   
-  "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor"
+  "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor"
 
 .. _settings-default-generation-plugin:
 
@@ -401,7 +401,7 @@ DEFAULT_GENERATION_PLUGINS
 List of class inherited from :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`
 to specify plugin that are used globally for all actions.
 
-:ref:`See specific documentation <proto-generation-plugins>`
+:ref:`See documentation <proto-generation-plugins>`
 
 .. code-block:: python
   

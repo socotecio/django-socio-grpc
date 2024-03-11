@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pytest
 from django.db import models
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
@@ -17,7 +17,10 @@ from django_socio_grpc.protobuf.generation_plugin import (
     RequestAndResponseAsListGenerationPlugin,
     RequestAsListGenerationPlugin,
 )
-from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
+from django_socio_grpc.protobuf.message_name_constructor import (
+    DefaultMessageNameConstructor,
+    MessageNameConstructor,
+)
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
     FieldCardinality,
@@ -37,12 +40,16 @@ from django_socio_grpc.tests.fakeapp.serializers import (
 )
 
 
-class CustomMessageNameConstructor(MessageNameConstructor):
+class CustomMessageNameConstructor(DefaultMessageNameConstructor):
     def construct_response_name(self, before_suffix=""):
         name = super().construct_response_name(before_suffix=before_suffix)
         name += "Custom"
 
         return name
+
+
+class WrongMessageNameConstructor(MessageNameConstructor):
+    pass
 
 
 class MyIntModel(models.Model):
@@ -422,7 +429,7 @@ class TestProtoMessage:
         assert len(proto_message.fields[0].field_type.fields) == 10
 
 
-class TestGrpcActionProto:
+class TestGrpcActionProto(TestCase):
     class MyBaseAction(Service):
         serializer_class = MySerializer
 
@@ -768,3 +775,25 @@ class TestGrpcActionProto:
         proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
 
         assert proto_rpc.response.name == "MyResponseCustom"
+
+    @override_settings(
+        GRPC_FRAMEWORK={
+            "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.REQUEST_STRUCT_STRICT,
+            "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+            "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.tests.test_protobuf_registration.WrongMessageNameConstructor",
+        }
+    )
+    def test_register_action_with_wrong_message_name_constructor(self):
+        # INFO - AM - 23/02/2024 - Need to declare action in test because settings only overrided in the test
+        class MyActionBis(GenericService):
+            serializer_class = MySerializer
+
+            @grpc_action(
+                request=[{"name": "optional_title", "type": "optional string"}],
+                response=MySerializer,
+            )
+            async def Optional(self, request, context):
+                ...
+
+        with self.assertRaises(TypeError):
+            MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)

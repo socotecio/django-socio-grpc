@@ -1,12 +1,40 @@
-from typing import TYPE_CHECKING, List, Type
+import logging
+from typing import List, Type
 
+from django_socio_grpc.protobuf.generation_plugin import (
+    BaseGenerationPlugin,
+    RequestAsListGenerationPlugin,
+    ResponseAsListGenerationPlugin,
+)
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.settings import grpc_settings
 
 from .grpc_actions.actions import GRPCAction
 
-if TYPE_CHECKING:
-    from django_socio_grpc.protobuf.generation_plugin import BaseGenerationPlugin
+logger = logging.getLogger("django_scoio_grpc.generation")
+
+
+def _maintain_compat(use_request_list, use_response_list, use_generation_plugins):
+    """
+    Transform old arguments to the correct plugins
+    """
+    internal_plugins = [] if use_generation_plugins is None else use_generation_plugins
+    warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: https://django-socio-grpc.readthedocs.io/en/stable/features/proto-generation.html#proto-generation-plugins"
+    if use_request_list:
+        logger.warning(warning_message.format("use_request_list"))
+        internal_plugins.insert(
+            0,
+            RequestAsListGenerationPlugin(list_field_name="results"),
+        )
+
+    if use_response_list:
+        logger.warning(warning_message.format("use_response_list"))
+        internal_plugins.insert(
+            0,
+            ResponseAsListGenerationPlugin(list_field_name="results"),
+        )
+
+    return internal_plugins
 
 
 def grpc_action(
@@ -36,6 +64,11 @@ def grpc_action(
     :param use_generation_plugins: List of generation plugin to use to customize the message.
     """
 
+    # INFO - AM - 03/12/2024 - transform old arguments to the correct plugins.
+    use_generation_plugins = _maintain_compat(
+        use_request_list, use_response_list, use_generation_plugins
+    )
+
     def wrapper(function):
         return GRPCAction(
             function,
@@ -45,8 +78,6 @@ def grpc_action(
             response_name,
             request_stream,
             response_stream,
-            use_request_list,
-            use_response_list,
             message_name_constructor_class=message_name_constructor_class
             or grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR,
             use_generation_plugins=use_generation_plugins

@@ -1,4 +1,5 @@
 from typing import List, Optional
+from unittest import mock
 
 import pytest
 from django.db import models
@@ -10,6 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from django_socio_grpc import proto_serializers
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.generics import GenericService
+from django_socio_grpc.grpc_actions.actions import GRPCAction
 from django_socio_grpc.protobuf import ProtoComment, ProtoRegistrationError
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
@@ -451,6 +453,12 @@ class TestGrpcActionProto(TestCase):
         )
         async def BasicList(self, request, context): ...
 
+        @grpc_action(
+            request="TestRequest",
+            response="TestResponse",
+        )
+        async def BasicActionWithString(self, request, context): ...
+
     class MyAction(GenericService):
         serializer_class = MySerializer
 
@@ -546,6 +554,14 @@ class TestGrpcActionProto(TestCase):
         )
         async def PaginationInRequest(self, request, context): ...
 
+    def test_instanciate_GRPCAction_with_defualt_value(self):
+        fake_func = mock.Mock()
+        grpc_action = GRPCAction(
+            function=fake_func,
+        )
+
+        self.assertEqual(grpc_action.function, fake_func)
+
     def test_register_action_on_base_service_list(self):
         proto_rpc = self.MyBaseAction.BasicList.make_proto_rpc("BasicList", self.MyBaseAction)
 
@@ -558,6 +574,14 @@ class TestGrpcActionProto(TestCase):
 
         assert request.name == "ReqNameListRequest"
         assert request["results"].field_type.name == "ReqNameRequest"
+
+    def test_register_action_on_base_service_with_message_str(self):
+        proto_rpc = self.MyBaseAction.BasicActionWithString.make_proto_rpc(
+            "BasicActionWithString", self.MyBaseAction
+        )
+
+        assert proto_rpc.response == "TestResponse"
+        assert proto_rpc.request == "TestRequest"
 
     def test_register_action_list_imported(self):
         proto_rpc = self.MyAction.ImportedReq.make_proto_rpc("ImportedReq", self.MyAction)

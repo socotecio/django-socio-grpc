@@ -48,11 +48,7 @@ from asgiref.sync import SyncToAsync
 from rest_framework.serializers import BaseSerializer
 
 from django_socio_grpc.protobuf.exceptions import ProtoRegistrationError
-from django_socio_grpc.protobuf.generation_plugin import (
-    BaseGenerationPlugin,
-    RequestAsListGenerationPlugin,
-    ResponseAsListGenerationPlugin,
-)
+from django_socio_grpc.protobuf.generation_plugin import BaseGenerationPlugin
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
@@ -88,15 +84,11 @@ class GRPCAction:
     response_name: Optional[str] = None
     request_stream: bool = False
     response_stream: bool = False
-    use_request_list: bool = False
-    use_response_list: bool = False
-    request_message_list_attr: Optional[str] = None
-    response_message_list_attr: Optional[str] = None
     message_name_constructor_class: Type[
         MessageNameConstructor
     ] = grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
     use_generation_plugins: List[BaseGenerationPlugin] = field(
-        default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS
+        default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS.copy
     )
 
     proto_rpc: Optional[ProtoRpc] = field(init=False, default=None)
@@ -118,35 +110,6 @@ class GRPCAction:
 
         if isgeneratorfunction(self.function):
             self._is_generator = _is_generator
-
-    def _maintain_compat(self):
-        """
-        Transform old arguments to the correct plugins
-        """
-        # copy_plugin = self.use_generation_plugins.copy
-        warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: https://django-socio-grpc.readthedocs.io/en/stable/features/proto-generation.html#proto-generation-plugins"
-        if self.use_request_list:
-            logger.warning(warning_message.format("use_request_list"))
-
-            if self.request_message_list_attr:
-                logger.warning(warning_message.format("request_message_list_attr"))
-            self.use_generation_plugins.insert(
-                0,
-                RequestAsListGenerationPlugin(
-                    list_field_name=self.request_message_list_attr or "results"
-                ),
-            )
-
-        if self.use_response_list:
-            logger.warning(warning_message.format("use_response_list"))
-            if self.response_message_list_attr:
-                logger.warning(warning_message.format("response_message_list_attr"))
-            self.use_generation_plugins.insert(
-                0,
-                ResponseAsListGenerationPlugin(
-                    list_field_name=self.response_message_list_attr or "results"
-                ),
-            )
 
     def __set_name__(self, owner, name):
         """
@@ -171,11 +134,9 @@ class GRPCAction:
             "request": self.request,
             "request_name": self.request_name,
             "request_stream": self.request_stream,
-            "use_request_list": self.use_request_list,
             "response": self.response,
             "response_name": self.response_name,
             "response_stream": self.response_stream,
-            "use_response_list": self.use_response_list,
             "message_name_constructor_class": self.message_name_constructor_class,
             "use_generation_plugins": self.use_generation_plugins,
         }
@@ -220,9 +181,6 @@ class GRPCAction:
         response_name: str = message_name_constructor.construct_response_name()
         response: ProtoMessage = res_class.create(value=self.response, name=response_name)
 
-        # DEPRECATED - AM - 22/02/2024 - Used to keep compat before plugin
-        self._maintain_compat()
-
         for generation_plugin in self.use_generation_plugins:
             request, response = generation_plugin.run_validation_and_transform(
                 service=service,
@@ -232,11 +190,21 @@ class GRPCAction:
             )
 
         # DEPRECATED - AM - 22/02/2024 - In version 1.0.0 all empty message will be Empty message
-        if not request.fields and not request.serializer and not self.request_name:
+        if (
+            not isinstance(request, str)
+            and not request.fields
+            and not request.serializer
+            and not self.request_name
+        ):
             request = EmptyMessage
 
         # DEPRECATED - AM - 22/02/2024 - In version 1.0.0 all empty message will be Empty message
-        if not response.fields and not response.serializer and not self.response_name:
+        if (
+            not isinstance(response, str)
+            and not response.fields
+            and not response.serializer
+            and not self.response_name
+        ):
             response = EmptyMessage
 
         return ProtoRpc(

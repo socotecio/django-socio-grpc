@@ -176,10 +176,10 @@ class GRPCAction:
 
         # INFO - AM - 22/02/2024 - Get the actual request name
         request_name: str = message_name_constructor.construct_request_name()
-        request: ProtoMessage = req_class.create(value=self.request, name=request_name)
+        request: Union[ProtoMessage, str] = req_class.create(value=self.request, name=request_name)
 
         response_name: str = message_name_constructor.construct_response_name()
-        response: ProtoMessage = res_class.create(value=self.response, name=response_name)
+        response: Union[ProtoMessage, str] = res_class.create(value=self.response, name=response_name)
 
         for generation_plugin in self.use_generation_plugins:
             request, response = generation_plugin.run_validation_and_transform(

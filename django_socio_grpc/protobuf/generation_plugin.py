@@ -20,8 +20,8 @@ class BaseGenerationPlugin:
     def check_condition(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         """
@@ -32,7 +32,7 @@ class BaseGenerationPlugin:
     def transform_request_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         """
@@ -43,7 +43,7 @@ class BaseGenerationPlugin:
     def transform_response_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         """
@@ -54,8 +54,8 @@ class BaseGenerationPlugin:
     def run_validation_and_transform(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> Tuple[ProtoMessage, ProtoMessage]:
         """
@@ -92,7 +92,7 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
     def transform_request_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ):
         proto_message.fields.append(
@@ -123,8 +123,8 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     def check_condition(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
@@ -165,8 +165,8 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     def check_condition(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
@@ -204,7 +204,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
     list_field_name: str = "results"
 
     def transform_message_to_list(
-        self, service: Type["Service"], proto_message: ProtoMessage, list_name: str
+        self, service: Type["Service"], proto_message: Union[ProtoMessage, str], list_name: str
     ) -> ProtoMessage:
         try:
             list_field_name = proto_message.serializer.Meta.message_list_attr
@@ -248,7 +248,7 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
     def transform_request_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_request_list_name()
@@ -263,7 +263,7 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
     def transform_response_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_response_list_name()

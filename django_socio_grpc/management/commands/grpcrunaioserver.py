@@ -14,6 +14,9 @@ from django.utils import autoreload
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.ssl_credentials import get_server_credentials
 
+from grpc_health.v1 import health_pb2_grpc
+from grpc_health.v1 import _async as async_health
+
 logger = logging.getLogger("django_socio_grpc.internal")
 
 
@@ -81,6 +84,11 @@ class Command(BaseCommand):
                 interceptors=grpc_settings.SERVER_INTERCEPTORS,
                 options=grpc_settings.SERVER_OPTIONS,
             )
+            
+            health_pb2_grpc.add_HealthServicer_to_server(
+                async_health.HealthServicer(), server
+            )
+
             # INFO - AM - 05/04/202 - Make sure that ROOT_HANDLERS_HOOK is called with correct context to be able to use SynchronousOnlyOperation in it
             if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
                 await grpc_settings.ROOT_HANDLERS_HOOK(server)

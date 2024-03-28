@@ -39,6 +39,7 @@ See the documentation on django settings if your not familiar with it: `Django s
     "FILTER_BEHAVIOR": "METADATA_STRICT",
     "PAGINATION_BEHAVIOR": "METADATA_STRICT",
     "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
+    "ENABLE_HEALTH_CHECK": False,
   }
 
 .. _root-handler-hook-setting:
@@ -406,3 +407,16 @@ to specify plugin that are used globally for all actions.
 .. code-block:: python
   
   "DEFAULT_GENERATION_PLUGINS": ["django_socio_grpc.protobuf.generation_plugin.FilterGenerationPlugin"]
+
+.. _settings-enable-health-check:
+
+ENABLE_HEALTH_CHECK
+^^^^^^^^^^^^^^^^^^^
+
+A boolean indicating wether or not the health checking is enabled. Default is False.
+
+For more informations see :ref:`the documentation <health_check>`
+
+.. code-block:: python
+  
+  "ENABLE_HEALTH_CHECK": False

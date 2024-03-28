@@ -18,3 +18,4 @@ Features
    logging
    streaming
    commands
+   health-check

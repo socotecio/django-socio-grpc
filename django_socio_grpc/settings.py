@@ -111,6 +111,8 @@ DEFAULTS = {
     "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
     # Variable that indicate the plugins used in proto generation by default
     "DEFAULT_GENERATION_PLUGINS": [],
+    # Enable the healthcheck service
+    "ENABLE_HEALTH_CHECK": False,
 }
 
 

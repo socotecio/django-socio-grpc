@@ -407,3 +407,16 @@ to specify plugin that are used globally for all actions.
 .. code-block:: python
   
   "DEFAULT_GENERATION_PLUGINS": ["django_socio_grpc.protobuf.generation_plugin.FilterGenerationPlugin"]
+
+.. _settings-enable-health-check:
+
+ENABLE_HEALTH_CHECK
+^^^^^^^^^^^^^^^^^^^
+
+A boolean indicating wether or not the health checking is enabled. Default is False.
+
+For more informations see :ref:`the documentation <health_check>`
+
+.. code-block:: python
+  
+  "ENABLE_HEALTH_CHECK": False

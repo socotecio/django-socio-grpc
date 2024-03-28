@@ -3,7 +3,7 @@
 Health Check
 ============
 
-DSG has support for health checking through the standard service API `health/v1 <https://github.com/grpc/grpc-proto/blob/master/grpc/health/v1/health.proto>`_.
+DSG has support for health checking through the standard service API `health/v1 <https://grpc.io/docs/guides/health-checking/>`_.
 
 Usage
 -----

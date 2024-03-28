@@ -39,6 +39,7 @@ See the documentation on django settings if your not familiar with it: `Django s
     "FILTER_BEHAVIOR": "METADATA_STRICT",
     "PAGINATION_BEHAVIOR": "METADATA_STRICT",
     "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
+    "ENABLE_HEALTH_CHECK": False,
   }
 
 .. _root-handler-hook-setting:

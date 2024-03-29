@@ -10,6 +10,7 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import autoreload
+from grpc_health.v1 import health, health_pb2_grpc
 
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.ssl_credentials import get_server_credentials
@@ -81,6 +82,12 @@ class Command(BaseCommand):
                 interceptors=grpc_settings.SERVER_INTERCEPTORS,
                 options=grpc_settings.SERVER_OPTIONS,
             )
+
+            if grpc_settings.ENABLE_HEALTH_CHECK:
+                health_pb2_grpc.add_HealthServicer_to_server(
+                    health.aio.HealthServicer(), server
+                )
+
             # INFO - AM - 05/04/202 - Make sure that ROOT_HANDLERS_HOOK is called with correct context to be able to use SynchronousOnlyOperation in it
             if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
                 await grpc_settings.ROOT_HANDLERS_HOOK(server)

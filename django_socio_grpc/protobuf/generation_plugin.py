@@ -225,7 +225,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
                     name="count",
                     field_type="int32",
                 )
-            ),
+            )
 
         list_message = ProtoMessage(
             name=list_name,

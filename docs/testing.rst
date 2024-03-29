@@ -6,13 +6,13 @@ Testing
 Overview
 --------
 
-When it comes to testing, DSG follows the same conventions as `Django <https://docs.djangoproject.com/en/5.0/topics/testing/>`_ 
-and `DRF <https://www.django-rest-framework.org/api-guide/testing/>`_. 
-It use the `unittest <https://docs.python.org/3/library/unittest.html>`_ library, 
-a built-in Python module for testing. This allows for the creation of robust and comprehensive unit tests, 
+When it comes to testing, DSG follows the same conventions as `Django <https://docs.djangoproject.com/en/5.0/topics/testing/>`_
+and `DRF <https://www.django-rest-framework.org/api-guide/testing/>`_.
+It use the `unittest <https://docs.python.org/3/library/unittest.html>`_ library,
+a built-in Python module for testing. This allows for the creation of robust and comprehensive unit tests,
 ensuring the reliability and stability of the codebase.
 
-To enable unit test of your gRPC services, DSG provides a **mock gRPC server** that allows you to test your services 
+To enable unit test of your gRPC services, DSG provides a **mock gRPC server** that allows you to test your services
 as if they were being handled by a real gRPC server, **replacing the networking calls by function calls**.
 
 The following sections will guide you through the process of writing and running tests for DSG.

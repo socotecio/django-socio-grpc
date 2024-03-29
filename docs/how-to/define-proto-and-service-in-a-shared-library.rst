@@ -18,8 +18,8 @@ See :ref:`Service registry handler positioning recommandation<services-registry-
 Usage
 -----
 
-To define a shared service in a library that can be reused across different projects, you will first need to create your service with its functions. 
-To ensure the service can be shared, you must use the ``to_root_grpc`` argument in the `handler` and set it to ``True`` 
+To define a shared service in a library that can be reused across different projects, you will first need to create your service with its functions.
+To ensure the service can be shared, you must use the ``to_root_grpc`` argument in the `handler` and set it to ``True``
 as shown in the example below.
 
 This argument allows the proto generation to create a ``.proto`` and ``_pb2.py`` file in a **special folder at the root of the library**, with the path defined

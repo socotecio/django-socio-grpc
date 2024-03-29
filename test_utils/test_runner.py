@@ -10,7 +10,7 @@ class PytestTestRunner:
         self.keepdb = keepdb
         self.show_local = show_local
 
-    def run_tests(self, test_labels, ignore_labels=[]):
+    def run_tests(self, test_labels, ignore_labels=()):
         """Run pytest and return the exitcode.
 
         It translates some of Django's test command option to pytest's.

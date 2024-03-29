@@ -65,10 +65,10 @@ To enable pagination only for one or some service you can override the :func:`pa
 Using it on specific action when using filter in message
 --------------------------------------------------------
 
-If your :ref:`PAGINATION_BEHAVIOR setting<settings-pagination-behavior>` is set to ``REQUEST_STRUCT_STRICT`` or ``METADATA_AND_REQUEST_STRUCT`` 
-and you want to use filtering for your custom action by message and not metadata (:ref:`See Using It section <pagination-using-it>`) 
+If your :ref:`PAGINATION_BEHAVIOR setting<settings-pagination-behavior>` is set to ``REQUEST_STRUCT_STRICT`` or ``METADATA_AND_REQUEST_STRUCT``
+and you want to use filtering for your custom action by message and not metadata (:ref:`See Using It section <pagination-using-it>`)
 you need to use the :func:`PaginationGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.PaginationGenerationPlugin>`
-as demonstrated below (:ref:`See Generation Plugin documentation <proto-generation-plugins>`): 
+as demonstrated below (:ref:`See Generation Plugin documentation <proto-generation-plugins>`):
 
 .. code-block:: python
 
@@ -135,7 +135,7 @@ For more example you can see the `client in DSG example repo <https://github.com
             metadata = (("PAGINATION", (json.dumps(pagination_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
-        
+
 
         ################################################################################################################
         # Working if PAGINATION_BEHAVIOR settings is equal to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #

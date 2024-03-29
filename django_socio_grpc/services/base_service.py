@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, List, Type
+from typing import TYPE_CHECKING, List, Optional, Type
 
 from asgiref.sync import sync_to_async
 from django.db.models.query import QuerySet
@@ -13,7 +13,7 @@ from django_socio_grpc.services.servicer_proxy import ServicerProxy
 from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
-    from django_socio_grpc.protobuf import AppHandlerRegistry
+    from django_socio_grpc.services import AppHandlerRegistry
 
 from logging import getLogger
 
@@ -24,9 +24,9 @@ class Service(GRPCActionMixin):
     authentication_classes = grpc_settings.DEFAULT_AUTHENTICATION_CLASSES
     permission_classes = grpc_settings.DEFAULT_PERMISSION_CLASSES
 
-    action: str = None
-    request: Message = None
-    context: GRPCInternalProxyContext = None
+    action: Optional[str] = None
+    request: Optional[Message] = None
+    context: Optional[GRPCInternalProxyContext] = None
 
     _app_handler: "AppHandlerRegistry" = None
 
@@ -56,7 +56,7 @@ class Service(GRPCActionMixin):
         try:
             user_auth_tuple = self.resolve_user()
         except Exception as e:
-            raise Unauthenticated(detail=e)
+            raise Unauthenticated(detail=e) from e
 
         if not user_auth_tuple:
             self.context.user = None
@@ -154,9 +154,9 @@ class Service(GRPCActionMixin):
         for key in initkwargs:
             if not hasattr(cls, key):
                 raise TypeError(
-                    "%s() received an invalid keyword %r. as_servicer only "
+                    f"{cls.__name__}() received an invalid keyword {key!r}. as_servicer only "
                     "accepts arguments that are already attributes of the "
-                    "class." % (cls.__name__, key)
+                    "class."
                 )
         if isinstance(getattr(cls, "queryset", None), QuerySet):
 

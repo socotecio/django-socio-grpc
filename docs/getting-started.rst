@@ -144,9 +144,9 @@ See :ref:`ProtoSerialzer doc page <proto-serializers>` for more information.
 Defining gRPC services
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Services define the gRPC actions that can be performed, e.g., on your models. :ref:`Its what is used to 
-generate the protobuf files and gRPC stubs<quickstart-generate-proto>`. So all the gRPC actions that you want in 
-your proto file should be declared or inhetited in your service. 
+Services define the gRPC actions that can be performed, e.g., on your models. :ref:`Its what is used to
+generate the protobuf files and gRPC stubs<quickstart-generate-proto>`. So all the gRPC actions that you want in
+your proto file should be declared or inhetited in your service.
 
 The gRPC service is the equivalent of the `DRF APIView <https://www.django-rest-framework.org/api-guide/generic-views/>`_ and behaves in a similar way
 (it only contains an additional internal layer). See additional note after example for comparaison.
@@ -248,7 +248,7 @@ Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`setti
     }
 
 .. note::
-  
+
   To better understand the register process and have recommandation about the ``handlers.py`` file for more complex project please read the :ref:`Service Registry documentation<services-registry>`
 
 .. _quickstart-generate-proto:

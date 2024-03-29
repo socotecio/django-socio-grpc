@@ -88,7 +88,7 @@ class ProtoField:
         return " ".join(values)
 
     @classmethod
-    def _get_cardinality(self, field: serializers.Field):
+    def _get_cardinality(cls, field: serializers.Field):
         ProtoGeneratorPrintHelper.print("field.default: ", field.default)
         """
         INFO - AM - 04/01/2023
@@ -136,9 +136,8 @@ class ProtoField:
                 f"Unknown cardinality `{cardinality}` for field `{name}`"
             )
 
-        if comments := field_dict.get("comment"):
-            if isinstance(comments, str):
-                comments = [comments]
+        if (comments := field_dict.get("comment")) and isinstance(comments, str):
+            comments = [comments]
 
         if field_type in PRIMITIVE_TYPES:
             field_type = PRIMITIVE_TYPES[field_type]
@@ -261,11 +260,11 @@ class ProtoField:
             source_attrs = []
             try:
                 model = field.queryset.model
-            except AttributeError:
+            except AttributeError as e:
                 raise ProtoRegistrationError(
                     f"No Model in serializer {serializer.__class__.__name__} "
                     f"related to field {field.field_name}"
-                )
+                ) from e
 
         for source in source_attrs:
             relationships: OrderedDict[str, RelationInfo] = get_field_info(model).relations
@@ -281,10 +280,10 @@ class ProtoField:
         elif isinstance(field, serializers.SlugRelatedField):
             try:
                 slug_field = model._meta.get_field(field.slug_field)
-            except FieldDoesNotExist:
+            except FieldDoesNotExist as e:
                 raise ProtoRegistrationError(
                     f"Related Model {model} has no field {field.slug_field} ({serializer.__class__})"
-                )
+                ) from e
             field_type = get_proto_type(slug_field)
 
         # INFO - LG - 20/12/2022 - Other RelatedField need to implement their own proto_type else default is string
@@ -306,10 +305,10 @@ class ProtoField:
 
         try:
             method = getattr(field.parent, method_name)
-        except AttributeError:
+        except AttributeError as e:
             raise ProtoRegistrationError(
                 f"Method {method_name} not found in {field.parent.__class__.__name__}"
-            )
+            ) from e
 
         if not (return_type := get_type_hints(method).get("return")):
             raise ProtoRegistrationError(
@@ -675,7 +674,7 @@ def get_proto_type(
     if isinstance(field, serializers.ChoiceField):
         choices = field.choices
         first_type = type(list(choices.keys())[0])
-        if all(isinstance(choice, first_type) for choice in choices.keys()):
+        if all(isinstance(choice, first_type) for choice in choices):
             return TYPING_TO_PROTO_TYPES.get(first_type, "string")
 
     proto_type = None

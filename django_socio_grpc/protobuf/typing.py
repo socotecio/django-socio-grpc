@@ -28,5 +28,5 @@ class FieldDict(TypedDict):
 
     name: str
     type: str
-    cardinality: NotRequired[FieldCardinality]
-    comment: NotRequired[str | list[str]]
+    cardinality: NotRequired[FieldCardinality]  # noqa: UP007
+    comment: NotRequired[str | list[str]]  # noqa: UP007

@@ -463,7 +463,7 @@ class TestDefaultValueService(TestCase):
                     "boolean_default_true",
                     "boolean_required_but_serializer_default",
                 ]
-            }
+            },
         )
         response = await grpc_stub.PartialUpdate(request=request)
 
@@ -563,7 +563,7 @@ class TestDefaultValueService(TestCase):
                 PARTIAL_UPDATE_FIELD_NAME: [
                     "string_default",
                 ]
-            }
+            },
         )
 
         with self.assertRaises(grpc.RpcError) as error:
@@ -613,7 +613,7 @@ class TestDefaultValueService(TestCase):
                     "int_nullable",
                     "boolean_nullable",
                 ]
-            }
+            },
         )
         response = await grpc_stub.PartialUpdate(request=request)
 

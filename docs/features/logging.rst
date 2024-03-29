@@ -36,7 +36,7 @@ Example
 With the following service :
 
 .. code-block:: python
-    
+
     from django_socio_grpc.exceptions import NotFound
 
     class SomethingService(Service):

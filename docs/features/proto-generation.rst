@@ -16,7 +16,7 @@ Description
 
 **Protobuf** is a serialization format developed by Google and used in gRPC. It is a binary format that is optimized to be sent over the network. It is also used to generate code for the client and server side.
 
-This format is developed in a large community in its own project. The following documentation expects that you are at least familiar with the concepts of **Protobuf**. 
+This format is developed in a large community in its own project. The following documentation expects that you are at least familiar with the concepts of **Protobuf**.
 If you are not, please read `their documentation <https://protobuf.dev/getting-started/pythontutorial/>_` first.
 
 Proto files contain the classes, descriptors and controller logic (``pb2.py`` files) and proto message syntax (``.proto`` file) necessary to run a grpc server.
@@ -186,7 +186,7 @@ and a ``user.proto`` file. ``user.proto`` file should contain these lines:
     }
 
 
-Note: these files are meant to be read only, please do not modify, since they might be overwritten by a next generation call. 
+Note: these files are meant to be read only, please do not modify, since they might be overwritten by a next generation call.
 You can use the .proto file as a reference to verify whether
 or not your serializer fields were correctly mapped but you should not try to modify them manually.
 
@@ -200,7 +200,7 @@ Proto Generation Plugins
 
 DSG allow you to customize the ProtoMessage generated with a Plugin system.
 A plugin is a class that inherit from :func:`BaseGenerationPlugin <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin>`.
-It will expose 4 methods that you can override to customize behavior: 
+It will expose 4 methods that you can override to customize behavior:
 :func:`check_condition <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin.check_condition>`,
 :func:`transform_request_message <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin.transform_request_message>`,
 :func:`transform_response_message <django_socio_grpc.protobuf.generation_plugin.BaseGenerationPlugin.transform_response_message>` and
@@ -214,7 +214,7 @@ Basically ``run_validation_and_transform`` will call ``check_condition`` and if 
 - :func:`response_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: That is the proto message as a python object of the response
 - :func:`message_name_constructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`: That is the instance of the NameConstructor class used to generate the request and response proto name. It is usefull if you need a plugin that need to transform the name of the proto message. By default the class used is :func:`DefaultMessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor>`
 
-Some helper class for transforming message to list, adding field and other exist. Please refer to :func:`the list of existing plugin <django_socio_grpc.protobuf.generation_plugin>` 
+Some helper class for transforming message to list, adding field and other exist. Please refer to :func:`the list of existing plugin <django_socio_grpc.protobuf.generation_plugin>`
 
 Example of a plugin that change the type to all responses fields to string:
 
@@ -247,7 +247,7 @@ For a specific action:
 
 
 .. code-block:: python
-    
+
     # quickstart/services.py
     from django_socio_grpc import generics
     from quickstart.models import Post
@@ -280,7 +280,7 @@ By default :func:`DefaultMessageNameConstructor` is used, it follow this logic:
 
 - If a specific request or response name is set we use it.
 - If not
-    - If the message is a string we use it 
+    - If the message is a string we use it
     - If the message is a Serializer we use the name of the Serializer without the "Serializer" or "ProtoSerializer" ending
     - If the message is a list of FieldDict we use the concatenation of the service name and the action name.
 - If SEPARATE_READ_WRITE_MODEL settings is True we add the "REQUEST" or "RESPONSE" suffix.

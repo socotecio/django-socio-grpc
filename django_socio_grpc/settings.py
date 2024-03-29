@@ -156,9 +156,8 @@ def import_from_string(val, setting_name):
         return import_string(val)
     except ImportError as e:
         raise ImportError(
-            "Could not import '%s' for GRPC setting '%s'. %s: %s."
-            % (val, setting_name, e.__class__.__name__, e)
-        )
+            f"Could not import '{val}' for GRPC setting '{setting_name}'."
+        ) from e
 
 
 class GRPCSettings:

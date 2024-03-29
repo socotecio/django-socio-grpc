@@ -9,8 +9,8 @@ Description
 
 DSG has built-in mixins for actions, both for synchronous and asynchronous services.
 
-.. note:: 
-    
+.. note::
+
     We recommend using the **async mixins** as they are more performant and will be the only ones supported in the future.
 
 Usage

@@ -5,6 +5,9 @@ description = "Fork of django-grpc-framework with more feature maintained by the
 authors = ["Adrien Montagu <adrienmontagu@gmail.com>"]
 license = "Apache-2.0"
 
+[tool.poetry.scripts]
+tests = "test_utils.load_tests:launch"
+
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
 django = ">=2.2"

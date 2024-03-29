@@ -216,7 +216,7 @@ class ModelProtoGeneratorOldWay:
             grpc_message_fields_name = self.order_message_by_existing_number(
                 grpc_message_name, grpc_message_fields_name
             )
-            for number, field_name in enumerate(grpc_message_fields_name):
+            for number, field_name in enumerate(grpc_message_fields_name, 1):
                 proto_type, field_name = self.get_proto_type_and_field_name(model, field_name)
 
                 if "google.protobuf.Empty" in proto_type:

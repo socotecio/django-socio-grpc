@@ -6,7 +6,7 @@ authors = ["Adrien Montagu <adrienmontagu@gmail.com>"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
+python = ">=3.8.1,<4.0"
 django = ">=2.2"
 djangorestframework = "*"
 grpcio-tools = "^1.50.0"
@@ -15,7 +15,7 @@ grpcio-health-checking = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
-flake8 = "*"
+flake8 = "^7.0"
 black = "*"
 isort = "*"
 django-filter = "^2.4.0"

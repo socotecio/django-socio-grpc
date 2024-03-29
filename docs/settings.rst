@@ -47,7 +47,7 @@ See the documentation on django settings if your not familiar with it: `Django s
 ROOT_HANDLERS_HOOK
 ^^^^^^^^^^^^^^^^^^
 
-This setting points to the `grpc_handlers` function responsible for registering all gRPC Services for the project's applications. 
+This setting points to the `grpc_handlers` function responsible for registering all gRPC Services for the project's applications.
 
 This function runs just before the start of the server, making it useful for any other kind of initialization
 
@@ -66,7 +66,7 @@ SERVER_INTERCEPTORS
 ^^^^^^^^^^^^^^^^^^^
 
 .. note::
-  
+
   ``SERVER_INTERCEPTORS`` settings allow you to make actions at the grpc request level. To have all the DSG functionnalities like ``request.user`` and more please use :ref:`GRPC_MIDDLEWARE setting <settings-grpc-middleware>`
 
 This setting specifies a list of gRPC server interceptors. Interceptors allow you to run custom code before or after a gRPC method gets executed. Common uses for interceptors include logging, authentication, and request/response transformations.
@@ -167,7 +167,7 @@ For a hypothetical project that uses `DRF IsAuthenticated <https://www.django-re
 For more details, see the `DRF documentation on permissions <https://www.django-rest-framework.org/api-guide/permissions/>`_ as DSG use the same system.
 
 .. note::
-  
+
   All `DRF permissions <https://www.django-rest-framework.org/api-guide/permissions/>`_ are supported out of the box.
 
 
@@ -346,13 +346,13 @@ FILTER_BEHAVIOR
 ^^^^^^^^^^^^^^^
 
 .. warning::
-  
+
   Default behavior will change in 1.0.0 to accept only request filtering. If you start a new project please consider setting FILTER_BEHAVIOR to REQUEST_STRUCT_STRICT
 
 Variable allowing user to configure how the filter work.
 
 
-The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
+The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions`
 
 .. code-block:: python
 
@@ -367,17 +367,17 @@ PAGINATION_BEHAVIOR
 ^^^^^^^^^^^^^^^^^^^
 
 .. warning::
-  
+
   Default behavior will change in 1.0.0 to accept only request filtering. If you start a new project please consider setting PAGINATION_BEHAVIOR to REQUEST_STRUCT_STRICT
 
 Variable allowing user to configure how the pagination work.
 
-The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions` 
+The differents options are described in :func:`django_socio_grpc.settings.FilterAndPaginationBehaviorOptions`
 
 .. code-block:: python
 
   from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
-  
+
   "PAGINATION_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_STRICT
 
 
@@ -391,7 +391,7 @@ Variable that indicate the class used to generate the name of the proto messages
 For more informations see :ref:`the documentation <proto-generation-message-name-constructor>`
 
 .. code-block:: python
-  
+
   "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor"
 
 .. _settings-default-generation-plugin:
@@ -405,7 +405,7 @@ to specify plugin that are used globally for all actions.
 :ref:`See documentation <proto-generation-plugins>`
 
 .. code-block:: python
-  
+
   "DEFAULT_GENERATION_PLUGINS": ["django_socio_grpc.protobuf.generation_plugin.FilterGenerationPlugin"]
 
 .. _settings-enable-health-check:
@@ -418,5 +418,5 @@ A boolean indicating wether or not the health checking is enabled. Default is Fa
 For more informations see :ref:`the documentation <health_check>`
 
 .. code-block:: python
-  
+
   "ENABLE_HEALTH_CHECK": False

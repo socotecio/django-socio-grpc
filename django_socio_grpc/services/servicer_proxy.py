@@ -291,7 +291,7 @@ class ServicerProxy(MiddlewareCapable):
         status_code, details = get_exception_status_code_and_details(exc)
         await context.abort(status_code, details)
 
-    def log_exception(self, exception: Exception, message: str, extra={}):
+    def log_exception(self, exception: Exception, message: str, extra=None):
         """
         Exception logging levels:
         - GRPCException: `exception.logging_level`
@@ -299,6 +299,8 @@ class ServicerProxy(MiddlewareCapable):
         - Other: ERROR
         """
 
+        if extra is None:
+            extra = {}
         logging_level = "ERROR"
         if isinstance(exception, GRPCException):
             logging_level = exception.logging_level

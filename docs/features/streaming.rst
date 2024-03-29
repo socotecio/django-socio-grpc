@@ -73,7 +73,7 @@ Client code:
 
             async def generate_requests():
                 """
-                You can add more complex logic here like user input or async behavior. 
+                You can add more complex logic here like user input or async behavior.
                 Please consider usind asyncio.queue if you want to populate message from the main thread.
                 """
                 yield app_example_pb2.QuestionStreamRequest(question_text="Do you like gRPC ?")

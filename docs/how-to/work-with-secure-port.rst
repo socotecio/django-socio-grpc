@@ -23,7 +23,7 @@ Usage
 Server:
 
 .. code-block:: python
-    
+
     # settings.py
     GRPC_FRAMEWORK = {
         "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [("/path/to/server-key.pem", "/path/to/server.pem")],

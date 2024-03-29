@@ -6,7 +6,7 @@ authors = ["Adrien Montagu <adrienmontagu@gmail.com>"]
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = ">=3.8.1,<4.0"
+python = ">=3.8,<4.0"
 django = ">=2.2"
 djangorestframework = "*"
 grpcio-tools = "^1.50.0"
@@ -15,14 +15,12 @@ grpcio-health-checking = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
-flake8 = "^7.0"
-black = "*"
-isort = "*"
 django-filter = "^2.4.0"
 psycopg2-binary = "^2.8.6"
 pytest-django = "^4.2.0"
 freezegun = "^1.1.0"
 pre-commit = "^2.19.0"
+ruff = "^0.3.4"
 
 [tool.poetry.group.docs]
 optional = true
@@ -42,28 +40,22 @@ sphinx-autodoc2 = "^0.5"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
+[tool.ruff]
+exclude = [
+  "migrations",
+  "grpc",
+  "*_pb2.py",
+]
 line-length = 95
-include = '\.pyi?$'
-force-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.venv
-  | build
-  | dist
-  | migrations
-  | grpc
-)/
-'''
+target-version = "py38"
 
-[tool.isort]
-profile = "black"
-include_trailing_comma = true
-line_length = 95
-multi_line_output = 3
-use_parentheses = true
-skip_glob = ["**/migrations/*","**/grpc/*"]
-
-[tool.poetry.scripts]
-tests = "test_utils.load_tests:launch"
+[tool.ruff.lint]
+ignore = ["E501"]
+select = [
+  "E",
+  "F",
+  "UP",
+  "B",
+  "SIM",
+  "I",
+]

@@ -67,10 +67,7 @@ class Command(BaseCommand):
                 autoreload.main(self.inner_run, None, options)
         else:
             logger.info(
-                ("Starting async gRPC server at %(address)s\n")
-                % {
-                    "address": self.address,
-                },
+                (f"Starting async gRPC server at {self.address}\n"),
                 extra={"emit_to_server": False},
             )
             await self._serve()
@@ -112,8 +109,8 @@ class Command(BaseCommand):
                 error_text = ERRORS[e.errno]
             except KeyError:
                 error_text = e
-            errorData = f"Error: {error_text}"
-            logger.error(errorData)
+            error_data = f"Error: {error_text}"
+            logger.error(error_data)
             # Need to use an OS exit because sys.exit doesn't work in a thread
             os._exit(1)
 
@@ -141,7 +138,7 @@ class Command(BaseCommand):
         # -----------------------------------------------------------
         self.check_migrations()
         quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
-        serverStartDta = (
+        server_start_data = (
             f"Django version {self.get_version()}, using settings {settings.SETTINGS_MODULE}\n"
             f"Starting development async gRPC server at {self.address}\n"
             f"Quit the server with {quit_command}s.\n"
@@ -150,5 +147,5 @@ class Command(BaseCommand):
         # --------------------------------------------
         # ---  START ASYNC GRPC SERVER             ---
         # --------------------------------------------
-        logger.info(serverStartDta, extra={"emit_to_server": False})
+        logger.info(server_start_data, extra={"emit_to_server": False})
         asyncio.run(self._serve())

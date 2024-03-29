@@ -1,3 +1,4 @@
+import contextlib
 import io
 import json
 import os
@@ -58,10 +59,8 @@ class ModelProtoGeneratorOldWay:
 
         type_mapping[JSONField.__name__] = "google.protobuf.Struct"
 
-    try:
+    with contextlib.suppress(AttributeError):
         type_mapping[models.PositiveBigIntegerField.__name__] = "int64"
-    except AttributeError:
-        pass
 
     def __init__(self, project_name, app_name, model_name=None, existing_proto_path=None):
         self.model_name = model_name
@@ -213,14 +212,11 @@ class ModelProtoGeneratorOldWay:
         # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {grpc_message_name} {{")
         with self._writer.indent():
-            number = 0
             # Info - AM - 30/04/2021 - Write all fields as defined in the meta of the model
             grpc_message_fields_name = self.order_message_by_existing_number(
                 grpc_message_name, grpc_message_fields_name
             )
-            for field_name in grpc_message_fields_name:
-                number += 1
-
+            for number, field_name in enumerate(grpc_message_fields_name):
                 proto_type, field_name = self.get_proto_type_and_field_name(model, field_name)
 
                 if "google.protobuf.Empty" in proto_type:
@@ -281,12 +277,12 @@ class ModelProtoGeneratorOldWay:
             item_type = field_name_splitted[2]
             item_name = field_name_splitted[3]
             return item_type, item_name
-        except Exception:
+        except Exception as e:
             raise ProtobufGenerationException(
                 self.app_name,
                 self.model_name,
                 detail=f"Wrong formated custom field name {field_name}",
-            )
+            ) from e
 
 
 class _CodeWriter:
@@ -307,7 +303,7 @@ class _CodeWriter:
         self._indent -= 1
 
     def write_line(self, line):
-        for i in range(self._indent):
+        for _i in range(self._indent):
             self.buffer.write("    ")
         print(line, file=self.buffer)
 

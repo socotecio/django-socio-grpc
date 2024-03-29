@@ -112,7 +112,7 @@ class TestSyncModelService(TestCase):
             id=instance.id,
             text="notUpdated",
             title="newTitle",
-            **{PARTIAL_UPDATE_FIELD_NAME: ["title"]}
+            **{PARTIAL_UPDATE_FIELD_NAME: ["title"]},
         )
         response = grpc_stub.PartialUpdate(request=request)
 

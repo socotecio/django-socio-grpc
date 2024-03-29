@@ -240,10 +240,10 @@ There is two way to defining filter fields.
 Add filter field in request for custom action
 =============================================
 
-If your :ref:`FILTER_BEHAVIOR setting<settings-filter-behavior>` is set to ``REQUEST_STRUCT_STRICT`` or ``METADATA_AND_REQUEST_STRUCT`` 
-and you want to use filtering for your custom action by message and not metadata (:ref:`See Using It section <filters-using-it>`) 
+If your :ref:`FILTER_BEHAVIOR setting<settings-filter-behavior>` is set to ``REQUEST_STRUCT_STRICT`` or ``METADATA_AND_REQUEST_STRUCT``
+and you want to use filtering for your custom action by message and not metadata (:ref:`See Using It section <filters-using-it>`)
 you need to use the :func:`FilterGenerationPlugin<django_socio_grpc.protobuf.generation_plugin.FilterGenerationPlugin>`
-as demonstrated below (:ref:`See Generation Plugin documentation <proto-generation-plugins>`): 
+as demonstrated below (:ref:`See Generation Plugin documentation <proto-generation-plugins>`):
 
 .. code-block:: python
 
@@ -304,7 +304,7 @@ For more example you can see the `client in DSG example repo <https://github.com
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
-        
+
 
         ############################################################################################################
         # Working if FILTER_BEHAVIOR settings is equal to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
@@ -316,7 +316,7 @@ For more example you can see the `client in DSG example repo <https://github.com
             filter_as_dict = {"user": "be76adbb-73c3-4d65-b823-66b3276df38b"}
             filter_as_struct = struct_pb2.Struct()
             filter_as_struct.update(filter_as_dict)
-            
+
             # _filters field is only generated if you set FILTER_BEHAVIOR to the correct options. Think to regenerate proto after changing it.
             request = quickstart_pb2.PostListRequest(_filters=filter_as_struct)
 
@@ -370,17 +370,17 @@ Refer to the DRF docs for implementation details and specific lookup.
 
             response = await quickstart_client.List(request, metadata=metadata)
 
-        
+
         ############################################################################################################
         # Working if FILTER_BEHAVIOR settings is equal to "REQUEST_STRUCT_STRICT" or "METADATA_AND_REQUEST_STRUCT" #
         ############################################################################################################
         async with grpc.aio.insecure_channel("localhost:50051") as channel:
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
-            filter_as_dict = {"search": "test-user"} 
+            filter_as_dict = {"search": "test-user"}
             filter_as_struct = struct_pb2.Struct()
             filter_as_struct.update(filter_as_dict)
-            
+
             # _filters field is only generated if you set FILTER_BEHAVIOR to the correct options. Think to regenerate proto after changing it.
             request = quickstart_pb2.PostListRequest(_filters=filter_as_struct)
 
@@ -428,7 +428,7 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
             request = quickstart_pb2.PostListRequest()
-            # order by descending pub_date 
+            # order by descending pub_date
             filter_as_dict = {"ordering": "-pub_date"}
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
@@ -444,7 +444,7 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
             filter_as_dict = {"ordering": "-pub_date"}
             filter_as_struct = struct_pb2.Struct()
             filter_as_struct.update(filter_as_dict)
-            
+
             # _filters field is only generated if you set FILTER_BEHAVIOR to the correct options. Think to regenerate proto after changing it.
             request = quickstart_pb2.PostListRequest(_filters=filter_as_struct)
 

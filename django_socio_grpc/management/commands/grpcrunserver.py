@@ -72,12 +72,7 @@ class Command(BaseCommand):
             else:
                 autoreload.main(self.inner_run, None, options)
         else:
-            logger.info(
-                ("Starting gRPC server at %(address)s\n")
-                % {
-                    "address": self.address,
-                }
-            )
+            logger.info(f"Starting gRPC server at {self.address}\n")
             self._serve()
 
     def _serve(self):
@@ -125,7 +120,7 @@ class Command(BaseCommand):
         # -----------------------------------------------------------
         self.check_migrations()
         quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
-        serverStartDta = (
+        server_start_data = (
             f"Django version {self.get_version()}, using settings {settings.SETTINGS_MODULE}\n"
             f"Starting development gRPC server at {self.address}\n"
             f"Quit the server with {quit_command}s.\n"
@@ -134,7 +129,7 @@ class Command(BaseCommand):
         # --------------------------------------------
         # ---  START GRPC   SERVER                 ---
         # --------------------------------------------
-        logger.info(serverStartDta)
+        logger.info(server_start_data)
         try:
             self._serve()
         except OSError as e:
@@ -148,8 +143,8 @@ class Command(BaseCommand):
                 error_text = ERRORS[e.errno]
             except KeyError:
                 error_text = e
-            errorData = f"Error: {error_text}"
-            logger.error(errorData)
+            error_data = f"Error: {error_text}"
+            logger.error(error_data)
             # Need to use an OS exit because sys.exit doesn't work in a thread
             os._exit(1)
 

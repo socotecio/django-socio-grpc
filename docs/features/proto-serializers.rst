@@ -85,11 +85,11 @@ It also need to define the method to_proto_message to be able to correctly gener
 ListProtoSerializer
 -------------------
 
-The ListProtoSerializer class provides the behavior for serializing and validating multiple objects at once. 
-You won't typically need to use ListProtoSerializer directly, 
+The ListProtoSerializer class provides the behavior for serializing and validating multiple objects at once.
+You won't typically need to use ListProtoSerializer directly,
 but should instead simply pass ``many=True`` when instantiating a serializer.
 
-When a serializer is instantiated and ``many=True`` is passed, a ``ListSerializer`` instance will be created. 
+When a serializer is instantiated and ``many=True`` is passed, a ``ListSerializer`` instance will be created.
 The serializer class then becomes a child of the parent ListSerializer
 
 The following argument can also be passed to a ListSerializer field or a serializer that is passed ``many=True``:
@@ -162,7 +162,7 @@ proto_class and proto_class_list
 
 ``proto_class`` and ``proto_class_list`` will be used to convert incoming gRPC messages or Python data into gRPC messages.
 
-``proto_class_list`` is used when the parameter ``many=True`` is passed to the serializer. 
+``proto_class_list`` is used when the parameter ``many=True`` is passed to the serializer.
 It allows us to have two different proto messages with the same models for list and retrieve methods in a ModelService.
 
 **If the message received in the request is different than the one used in the response, then you will have to create two serializers.**
@@ -170,7 +170,7 @@ It allows us to have two different proto messages with the same models for list 
 serializer.data vs serializer.message
 -------------------------------------
 
-DSG supports retro compatibility, so ``serializer.data`` is still accessible and still in dictionary format. 
+DSG supports retro compatibility, so ``serializer.data`` is still accessible and still in dictionary format.
 However, it's recommended to use ``serializer.message`` that is in the gRPC message format and should always return ``serializer.message`` as response data.
 
 Note that async method ``serializer.adata`` and ``serializer.amessage`` exist. See :ref:`Sync vs Async page <sync-vs-async>`
@@ -202,9 +202,9 @@ In gRPC, all fields have a default value. For example, if you have a field of ty
 To know if this field was set (so its value is actually `0`) or not, the field needs to be declared as `optional`
 (see `proto3 <https://protobuf.dev/programming-guides/proto3/#field-labels>`_ documentation).
 
-To work with this different behavior between REST and gRPC we use the combination of 
-`required <https://www.django-rest-framework.org/api-guide/fields/#required>`_, 
-`allow_null <https://www.django-rest-framework.org/api-guide/fields/#allow_null>`_ and 
+To work with this different behavior between REST and gRPC we use the combination of
+`required <https://www.django-rest-framework.org/api-guide/fields/#required>`_,
+`allow_null <https://www.django-rest-framework.org/api-guide/fields/#allow_null>`_ and
 `default <https://www.django-rest-framework.org/api-guide/fields/#default>`_ field parameters to find the adapted behavior.
 
 
@@ -238,7 +238,7 @@ How the values are choosen by DSG when **values are not set in the message** (th
 How the values are choosen by DSG when **values are set to default gRPC values**:
 
 - If create or update, and the field has ``required=True``: Use the default grpc value
-- Else use same logic than value not set. 
+- Else use same logic than value not set.
 
 .. note::
 
@@ -253,7 +253,7 @@ If the setting `SEPARATE_READ_WRITE_MODEL` is `True`, DSG will automatically use
 
 .. warning::
 
-    This setting is deprecated. See :ref:`setting documentation<grpc-settings-separate-read-write-model>` 
+    This setting is deprecated. See :ref:`setting documentation<grpc-settings-separate-read-write-model>`
 
 
 Example:
@@ -298,7 +298,7 @@ You can see full example of it in `our app <https://github.com/socotecio/django-
     from django_socio_grpc import proto_serializers
 
     class ExampleRelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
-        
+
         # foreign_obj id the name of the foreign key in RelatedFieldModel and ForeignModelSerializer it's serializer. These are only example taken from unit test of DSG.
         foreign_obj = ForeignModelSerializer(read_only=True)
         # many_many_obj id the name of the many to many key in RelatedFieldModel and ManyManyModelSerializer it's serializer. These are only example taken from unit test of DSG.
@@ -363,7 +363,7 @@ Generated Proto:
 Special Case of SerializerMethodField
 =====================================
 
-DRF ``SerializerMethodField`` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field. 
+DRF ``SerializerMethodField`` class is a field type that returns the result of a method. So there is no possibility to automatically find the type of this field.
 To circumvent this problem, DSG introduces function introspection where we are looking for return annotation in the method to find the prototype.
 
 .. code-block:: python
@@ -486,7 +486,7 @@ It's what's coming before the type of a field in a proto message:
 
 See :func:`FieldCardinality<django_socio_grpc.protobuf.typing.FieldCardinality>` for exhaustive list of cardinality DSG support.
 
-It is actually **not possible to specifically choose cardinality for a serializer field** for now. 
+It is actually **not possible to specifically choose cardinality for a serializer field** for now.
 ``optional`` cardinality is set following what is described :ref:`here<proto-serializers-nullable-fields>`.
 ``repeated`` cardinality is set when using ``ListField``, ``ListSerializer`` or ``Serializer`` with ``many=true`` argument.
 

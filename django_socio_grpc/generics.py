@@ -98,17 +98,18 @@ class GenericService(services.Service):
         queryset = self.filter_queryset(self.get_queryset())
         lookup_request_field = self.get_lookup_request_field(queryset)
         assert hasattr(self.request, lookup_request_field), (
-            "Expected service %s to be called with request that has a field "
-            'named "%s". Fix your request protocol definition, or set the '
+            f"Expected service {self.__class__.__name__} to be called with request that has a field "
+            f'named "{lookup_request_field}". Fix your request protocol definition, or set the '
             "`.lookup_field` attribute on the service correctly."
-            % (self.__class__.__name__, lookup_request_field)
         )
         lookup_value = getattr(self.request, lookup_request_field)
         filter_kwargs = {lookup_request_field: lookup_value}
         try:
             obj = get_object_or_404(queryset, **filter_kwargs)
-        except (TypeError, ValueError, ValidationError, Http404):
-            raise NotFound(detail=f"{queryset.model.__name__}: {lookup_value} not found!")
+        except (TypeError, ValueError, ValidationError, Http404) as e:
+            raise NotFound(
+                detail=f"{queryset.model.__name__}: {lookup_value} not found!"
+            ) from e
         self.check_object_permissions(obj)
         return obj
 
@@ -122,17 +123,18 @@ class GenericService(services.Service):
         queryset = await self.afilter_queryset(queryset)
         lookup_request_field = self.get_lookup_request_field(queryset)
         assert hasattr(self.request, lookup_request_field), (
-            "Expected service %s to be called with request that has a field "
-            'named "%s". Fix your request protocol definition, or set the '
+            f"Expected service {self.__class__.__name__} to be called with request that has a field "
+            f'named "{lookup_request_field}". Fix your request protocol definition, or set the '
             "`.lookup_field` attribute on the service correctly."
-            % (self.__class__.__name__, lookup_request_field)
         )
         lookup_value = getattr(self.request, lookup_request_field)
         filter_kwargs = {lookup_request_field: lookup_value}
         try:
             obj = await sync_to_async(get_object_or_404)(queryset, **filter_kwargs)
-        except (TypeError, ValueError, ValidationError, Http404):
-            raise NotFound(detail=f"{queryset.model.__name__}: {lookup_value} not found!")
+        except (TypeError, ValueError, ValidationError, Http404) as e:
+            raise NotFound(
+                detail=f"{queryset.model.__name__}: {lookup_value} not found!"
+            ) from e
         await self.acheck_object_permissions(obj)
         return obj
 

@@ -176,7 +176,7 @@ class _CodeWriter:
         self._indent -= 1
 
     def write_line(self, line):
-        for i in range(self._indent):
+        for _i in range(self._indent):
             self.buffer.write("    ")
         print(line, file=self.buffer)
 

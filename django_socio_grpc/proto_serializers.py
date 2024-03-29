@@ -134,14 +134,10 @@ class BaseProtoSerializer(BaseSerializer):
         """Protobuf message <- Dict of python primitive datatypes."""
         assert hasattr(
             self, "Meta"
-        ), 'Class {serializer_class} missing "Meta" attribute'.format(
-            serializer_class=self.__class__.__name__
-        )
+        ), f'Class {self.__class__.__name__} missing "Meta" attribute'
         assert hasattr(
             self.Meta, "proto_class"
-        ), 'Class {serializer_class} missing "Meta.proto_class" attribute'.format(
-            serializer_class=self.__class__.__name__
-        )
+        ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
         return parse_dict(data, self.Meta.proto_class())
 
     @property

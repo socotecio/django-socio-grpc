@@ -233,7 +233,7 @@ class GRPCAction:
         except Exception as e:
             raise ProtoRegistrationError(
                 e, action=action_name, service=owner.get_service_name()
-            )
+            ) from e
 
         owner.proto_service.add_rpc(self.proto_rpc)
 
@@ -355,6 +355,7 @@ class GRPCActionMixin(abc.ABC):
         This should be overriden in your service or mixin if you want a specific behavior for a mixin
         Method called before gRPC actions registration
         """
+        return None
 
     def _dynamic_grpc_action_registry(service) -> Dict[str, Dict[str, Any]]:
         """Dynamic gRPC action registry"""

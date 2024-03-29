@@ -11,7 +11,7 @@ Usage
 The service is automatically added to the server if you enable it in the gRPC settings :
 
 .. code-block:: python
-    
+
     GRPC_FRAMEWORK = {
         "ENABLE_HEALTH_CHECK": True,
     }

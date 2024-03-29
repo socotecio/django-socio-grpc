@@ -220,12 +220,14 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
         ]
 
         if hasattr(service, "pagination_class"):
-            fields.append(
-                ProtoField(
-                    name="count",
-                    field_type="int32",
-                )
-            ),
+            (
+                fields.append(
+                    ProtoField(
+                        name="count",
+                        field_type="int32",
+                    )
+                ),
+            )
 
         list_message = ProtoMessage(
             name=list_name,

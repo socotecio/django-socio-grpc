@@ -8,9 +8,9 @@ import grpc
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import autoreload
-from utils.ssl_credentials import get_server_credentials
 
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.utils.ssl_credentials import get_server_credentials
 
 logger = logging.getLogger("django_socio_grpc.internal")
 
@@ -36,7 +36,10 @@ class Command(BaseCommand):
             help="Number of maximum worker threads.",
         )
         parser.add_argument(
-            "--reflection", default="", dest="reflection", help="Start gRPC Server Reflection."
+            "--reflection",
+            default="",
+            dest="reflection",
+            help="Start gRPC Server Reflection.",
         )
         parser.add_argument(
             "--dev",

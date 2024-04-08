@@ -95,6 +95,10 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
         proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ):
+        if isinstance(proto_message, str):
+            logger.warning(
+                f"Plugin {self.__class__.__name__} can't be used with a string message. Please use the plugin directly on the grpc_action that generate the message"
+            )
         proto_message.fields.append(
             ProtoField.from_field_dict(
                 {
@@ -233,7 +237,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
         )
 
         # INFO - AM - If the original proto message is a serializer then we keep the comment at the serializer level. Else we put them at the list level
-        if not proto_message.serializer:
+        if not isinstance(proto_message, str) and not proto_message.serializer:
             list_message.comments = proto_message.comments
             proto_message.comments = None
 
@@ -278,3 +282,37 @@ class RequestAndResponseAsListGenerationPlugin(
     """
 
     ...
+
+
+@dataclass
+class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerationPlugin):
+    """
+    Transform both request and response ProtoMessage in list ProtoMessage
+    """
+
+    request: bool = False
+    response: bool = False
+
+    def transform_response_message(
+        self,
+        service: Type["Service"],
+        proto_message: Union[ProtoMessage, str],
+        message_name_constructor: MessageNameConstructor,
+    ) -> ProtoMessage:
+        if self.response:
+            return super().transform_response_message(
+                service, proto_message, message_name_constructor
+            )
+        return proto_message
+
+    def transform_request_message(
+        self,
+        service: Type["Service"],
+        proto_message: Union[ProtoMessage, str],
+        message_name_constructor: MessageNameConstructor,
+    ) -> ProtoMessage:
+        if self.request:
+            return super().transform_request_message(
+                service, proto_message, message_name_constructor
+            )
+        return proto_message

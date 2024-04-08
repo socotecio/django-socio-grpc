@@ -254,7 +254,7 @@ as demonstrated below (:ref:`See Generation Plugin documentation <proto-generati
     from quickstart.serializer import PostProtoSerializer
     from rest_framework.pagination import PageNumberPagination
     from django_socio_grpc.decorators import grpc_action
-    from django_socio_grpc.protobuf.generation_plugin import RequestAsListGenerationPlugin, FilterGenerationPlugin
+    from django_socio_grpc.protobuf.generation_plugin import ListGenerationPlugin, FilterGenerationPlugin
 
 
     # This service will have all the CRUD actions
@@ -266,7 +266,7 @@ as demonstrated below (:ref:`See Generation Plugin documentation <proto-generati
         @grpc_action(
             request=[],
             response=PostProtoSerializer,
-            use_generation_plugins=[RequestAsListGenerationPlugin(), FilterGenerationPlugin()],
+            use_generation_plugins=[ListGenerationPlugin(request=True), FilterGenerationPlugin()],
         )
         async def CustomListWithFilter(self, request, context):
             queryset = self.filter_queryset(self.get_queryset())

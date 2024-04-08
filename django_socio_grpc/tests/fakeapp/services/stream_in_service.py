@@ -4,7 +4,7 @@ from fakeapp.models import UnitTestModel
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.exceptions import NotFound
-from django_socio_grpc.protobuf.generation_plugin import ResponseAsListGenerationPlugin
+from django_socio_grpc.protobuf.generation_plugin import ListGenerationPlugin
 
 
 class StreamInService(generics.GenericService):
@@ -14,7 +14,7 @@ class StreamInService(generics.GenericService):
         request=[{"name": "name", "type": "string"}],
         response=[{"name": "count", "type": "int32"}],
         request_stream=True,
-        use_generation_plugins=[ResponseAsListGenerationPlugin()],
+        use_generation_plugins=[ListGenerationPlugin(response=True)],
     )
     async def StreamIn(self, request, context):
         messages = [message async for message in request]

@@ -8,8 +8,8 @@ from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
+    ListGenerationPlugin,
     PaginationGenerationPlugin,
-    ResponseAsListGenerationPlugin,
 )
 
 
@@ -44,7 +44,7 @@ class UnitTestModelWithStructFilterService(
         request=[],
         response=UnitTestModelWithStructFilterSerializer,
         use_generation_plugins=[
-            ResponseAsListGenerationPlugin(),
+            ListGenerationPlugin(response=True),
             FilterGenerationPluginForce(),
             PaginationGenerationPluginForce(),
         ],

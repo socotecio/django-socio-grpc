@@ -94,16 +94,14 @@ class ProtoField:
         """
         INFO - AM - 04/01/2023
         If field can be null -> optional
-        if field is not required and there is no default or we are in a request message -> optional. Since DRF 3.0 When using model default, only required is set to False. The model default is not set into the field as just passing None will result in model default. https://github.com/encode/django-rest-framework/issues/2683
-        if field.default is set (meaning not None or empty) and we are in a request message -> optional
+        if we are in a request message and field is not required -> optional. Since DRF 3.0 When using model default, only required is set to False. The model default is not set into the field as just passing None will result in model default. https://github.com/encode/django-rest-framework/issues/2683
+        if we are in a request message and field.default is set (meaning not None or empty) -> optional
 
         Not dealing with field.allow_blank now as it doesn't seem to be related to OPTIONAl and more about validation and only exist for charfield
         """
-        if (
-            field.allow_null
-            or (not field.required or field.default not in [None, empty])
-            and (in_request or field.default not in [None, empty])
-        ):
+        if field.allow_null:
+            return FieldCardinality.OPTIONAL
+        if in_request and (not field.required or field.default not in [None, empty]):
             return FieldCardinality.OPTIONAL
         return FieldCardinality.NONE
 

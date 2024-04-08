@@ -314,11 +314,11 @@ message DefaultValueRequest {
 
 message DefaultValueResponse {
     int32 id = 1;
-    optional string string_required_but_serializer_default = 2;
-    optional int32 int_required_but_serializer_default = 3;
-    optional bool boolean_required_but_serializer_default = 4;
-    optional string string_default_but_serializer_default = 5;
-    optional string string_nullable_default_but_serializer_default = 6;
+    string string_required_but_serializer_default = 2;
+    int32 int_required_but_serializer_default = 3;
+    bool boolean_required_but_serializer_default = 4;
+    string string_default_but_serializer_default = 5;
+    string string_nullable_default_but_serializer_default = 6;
     string string_required = 7;
     string string_blank = 8;
     optional string string_nullable = 9;

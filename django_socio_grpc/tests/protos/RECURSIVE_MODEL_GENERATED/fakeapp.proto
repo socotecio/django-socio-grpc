@@ -39,8 +39,8 @@ message RecursiveTestModelRequest {
 }
 
 message RecursiveTestModelResponse {
-    optional string uuid = 1;
-    optional RecursiveTestModelResponse parent = 2;
+    string uuid = 1;
+    RecursiveTestModelResponse parent = 2;
     repeated RecursiveTestModelResponse children = 3;
 }
 

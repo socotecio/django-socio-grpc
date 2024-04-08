@@ -199,7 +199,7 @@ message BasicProtoListChildRequest {
 }
 
 message BasicProtoListChildResponse {
-    optional int32 id = 1;
+    int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
@@ -250,8 +250,8 @@ message CustomNameForResponse {
 
 // Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModelResponse {
-    optional string uuid = 1;
-    optional int32 default_method_field = 2;
+    string uuid = 1;
+    int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 
@@ -313,25 +313,25 @@ message DefaultValueRequest {
 }
 
 message DefaultValueResponse {
-    optional int32 id = 1;
+    int32 id = 1;
     optional string string_required_but_serializer_default = 2;
     optional int32 int_required_but_serializer_default = 3;
     optional bool boolean_required_but_serializer_default = 4;
     optional string string_default_but_serializer_default = 5;
     optional string string_nullable_default_but_serializer_default = 6;
     string string_required = 7;
-    optional string string_blank = 8;
+    string string_blank = 8;
     optional string string_nullable = 9;
-    optional string string_default = 10;
-    optional string string_default_and_blank = 11;
+    string string_default = 10;
+    string string_default_and_blank = 11;
     optional string string_null_default_and_blank = 12;
     int32 int_required = 13;
     optional int32 int_nullable = 14;
-    optional int32 int_default = 15;
+    int32 int_default = 15;
     bool boolean_required = 16;
     optional bool boolean_nullable = 17;
-    optional bool boolean_default_false = 18;
-    optional bool boolean_default_true = 19;
+    bool boolean_default_false = 18;
+    bool boolean_default_true = 19;
 }
 
 message DefaultValueRetrieveRequest {
@@ -351,13 +351,13 @@ message ForeignModelListResponse {
 }
 
 message ForeignModelResponse {
-    optional string uuid = 1;
+    string uuid = 1;
     string name = 2;
 }
 
 message ForeignModelRetrieveCustomResponse {
     string name = 1;
-    optional string custom = 2;
+    string custom = 2;
 }
 
 message ForeignModelRetrieveCustomRetrieveRequest {
@@ -370,7 +370,7 @@ message ImportStructEvenInArrayModelRequest {
 }
 
 message ImportStructEvenInArrayModelResponse {
-    optional string uuid = 1;
+    string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 
@@ -381,7 +381,7 @@ message ManyManyModelRequest {
 }
 
 message ManyManyModelResponse {
-    optional string uuid = 1;
+    string uuid = 1;
     string name = 2;
 }
 
@@ -411,8 +411,8 @@ message RecursiveTestModelRequest {
 }
 
 message RecursiveTestModelResponse {
-    optional string uuid = 1;
-    optional RecursiveTestModelResponse parent = 2;
+    string uuid = 1;
+    RecursiveTestModelResponse parent = 2;
     repeated RecursiveTestModelResponse children = 3;
 }
 
@@ -448,13 +448,13 @@ message RelatedFieldModelRequest {
 }
 
 message RelatedFieldModelResponse {
-    optional string uuid = 1;
-    optional ForeignModelResponse foreign = 2;
+    string uuid = 1;
+    ForeignModelResponse foreign = 2;
     repeated ManyManyModelResponse many_many = 3;
-    optional int32 slug_test_model = 4;
+    int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    optional string proto_slug_related_field = 7;
+    string proto_slug_related_field = 7;
     string custom_field_name = 8;
     repeated string many_many_foreigns = 9;
 }
@@ -495,7 +495,7 @@ message SimpleRelatedFieldModelRequest {
 }
 
 message SimpleRelatedFieldModelResponse {
-    optional string uuid = 1;
+    string uuid = 1;
     optional string foreign = 2;
     optional string slug_test_model = 3;
     repeated string many_many = 4;
@@ -539,10 +539,10 @@ message SpecialFieldsModelRequest {
 // Special Fields Model
 // with two lines comment
 message SpecialFieldsModelResponse {
-    optional string uuid = 1;
-    optional google.protobuf.Struct meta_datas = 2;
+    string uuid = 1;
+    google.protobuf.Struct meta_datas = 2;
     repeated int32 list_datas = 3;
-    optional bytes binary = 4;
+    bytes binary = 4;
 }
 
 message SpecialFieldsModelRetrieveRequest {
@@ -610,7 +610,7 @@ message UnitTestModelRequest {
 }
 
 message UnitTestModelResponse {
-    optional int32 id = 1;
+    int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
@@ -655,7 +655,7 @@ message UnitTestModelWithStructFilterRequest {
 }
 
 message UnitTestModelWithStructFilterResponse {
-    optional int32 id = 1;
+    int32 id = 1;
     string title = 2;
     optional string text = 3;
 }

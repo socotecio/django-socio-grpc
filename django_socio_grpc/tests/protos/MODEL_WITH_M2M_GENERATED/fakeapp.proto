@@ -14,7 +14,7 @@ service RelatedFieldModelController {
 }
 
 message ForeignModelResponse {
-    optional string uuid = 1;
+    string uuid = 1;
     string name = 2;
 }
 
@@ -25,7 +25,7 @@ message ManyManyModelRequest {
 }
 
 message ManyManyModelResponse {
-    optional string uuid = 1;
+    string uuid = 1;
     string name = 2;
 }
 
@@ -57,13 +57,13 @@ message RelatedFieldModelRequest {
 }
 
 message RelatedFieldModelResponse {
-    optional string uuid = 1;
-    optional ForeignModelResponse foreign = 2;
+    string uuid = 1;
+    ForeignModelResponse foreign = 2;
     repeated ManyManyModelResponse many_many = 3;
-    optional int32 slug_test_model = 4;
+    int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
-    optional string proto_slug_related_field = 7;
+    string proto_slug_related_field = 7;
     string custom_field_name = 8;
     repeated string many_many_foreigns = 9;
 }

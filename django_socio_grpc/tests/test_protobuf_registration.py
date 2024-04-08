@@ -443,6 +443,7 @@ class TestProtoMessage:
 class TestGrpcActionProto(TestCase):
     class MyBaseAction(Service):
         serializer_class = MySerializer
+        pagination_class = None
 
         @grpc_action(
             request=[],
@@ -583,6 +584,7 @@ class TestGrpcActionProto(TestCase):
 
         assert response.name == "BasicProtoListChildListResponse"
         assert response["results"].field_type.name == "BasicProtoListChildResponse"
+        assert "count" not in response
 
         request = proto_rpc.request
 
@@ -763,6 +765,8 @@ class TestGrpcActionProto(TestCase):
 
         assert response.name == "BasicProtoListChildListResponse"
         assert response["results"].field_type.name == "BasicProtoListChildResponse"
+        assert "count" in response
+        assert response["count"].field_type == "int32"
 
         request = proto_rpc.request
 

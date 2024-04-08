@@ -223,7 +223,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
             ),
         ]
 
-        if hasattr(service, "pagination_class"):
+        if getattr(service, "pagination_class", None):
             fields.append(
                 ProtoField(
                     name="count",

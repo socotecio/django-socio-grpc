@@ -3,8 +3,7 @@ from typing import List, Type
 
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
-    RequestAsListGenerationPlugin,
-    ResponseAsListGenerationPlugin,
+    ListGenerationPlugin,
 )
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.settings import grpc_settings
@@ -20,18 +19,14 @@ def _maintain_compat(use_request_list, use_response_list, use_generation_plugins
     """
     internal_plugins = [] if use_generation_plugins is None else use_generation_plugins
     warning_message = "You are using {0} argument in grpc_action. This argument is deprecated and has been remplaced by a specific GenerationPlugin. Please update following the documentation: https://django-socio-grpc.readthedocs.io/en/stable/features/proto-generation.html#proto-generation-plugins"
-    if use_request_list:
-        logger.warning(warning_message.format("use_request_list"))
+    if use_request_list or use_response_list:
+        log_text = "use_request_list" if use_request_list else "use_response_list"
+        if use_request_list and use_response_list:
+            log_text = "use_request_list and use_response_list"
+        logger.warning(warning_message.format(log_text))
         internal_plugins.insert(
             0,
-            RequestAsListGenerationPlugin(list_field_name="results"),
-        )
-
-    if use_response_list:
-        logger.warning(warning_message.format("use_response_list"))
-        internal_plugins.insert(
-            0,
-            ResponseAsListGenerationPlugin(list_field_name="results"),
+            ListGenerationPlugin(request=use_request_list, response=use_response_list),
         )
 
     return internal_plugins

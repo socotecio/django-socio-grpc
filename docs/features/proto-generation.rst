@@ -210,8 +210,8 @@ Basically ``run_validation_and_transform`` will call ``check_condition`` and if 
 
 ``check_condition`` and ``run_validation_and_transform`` will take the same arguments that are:
 - :func:`service <django_socio_grpc.services.Service>`: That is the instance of the service that being transformed into protobuf format.
-- :func:`request_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: That is the proto message as a python object of the request
-- :func:`response_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: That is the proto message as a python object of the response
+- :func:`request_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>` (can also be an str if :ref:`request_name is set <grpc-action-request-name-response-name>`): That is the proto message as a python object of the request
+- :func:`response_message <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`(can also be an str if :ref:`response_name is set <grpc-action-request-name-response-name>`): That is the proto message as a python object of the response
 - :func:`message_name_constructor <django_socio_grpc.protobuf.message_name_constructor.MessageNameConstructor>`: That is the instance of the NameConstructor class used to generate the request and response proto name. It is usefull if you need a plugin that need to transform the name of the proto message. By default the class used is :func:`DefaultMessageNameConstructor <django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor>`
 
 Some helper class for transforming message to list, adding field and other exist. Please refer to :func:`the list of existing plugin <django_socio_grpc.protobuf.generation_plugin>`
@@ -234,6 +234,9 @@ Example of a plugin that change the type to all responses fields to string:
             proto_message,
             message_name_constructor,
         ):
+            # proto_message can be a string if the response_name is set. Be carreful to handle this case in your plugin
+            if isinstance(proto_message, str):
+                return proto_message
             for field in proto_message.fields:
                 field.field_type = self.type_to_put
             return proto_message

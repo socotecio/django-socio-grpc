@@ -15,9 +15,8 @@ from django_socio_grpc.grpc_actions.actions import GRPCAction
 from django_socio_grpc.protobuf import ProtoComment, ProtoRegistrationError
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
+    ListGenerationPlugin,
     PaginationGenerationPlugin,
-    RequestAndResponseAsListGenerationPlugin,
-    RequestAsListGenerationPlugin,
 )
 from django_socio_grpc.protobuf.message_name_constructor import (
     DefaultMessageNameConstructor,
@@ -444,12 +443,13 @@ class TestProtoMessage:
 class TestGrpcActionProto(TestCase):
     class MyBaseAction(Service):
         serializer_class = MySerializer
+        pagination_class = None
 
         @grpc_action(
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
-            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+            use_generation_plugins=[ListGenerationPlugin(request=True, response=True)],
         )
         async def BasicList(self, request, context): ...
 
@@ -459,6 +459,20 @@ class TestGrpcActionProto(TestCase):
         )
         async def BasicActionWithString(self, request, context): ...
 
+        @grpc_action(
+            request="TestRequest",
+            response="TestResponse",
+            use_generation_plugins=[ListGenerationPlugin(request=True, response=True)],
+        )
+        async def BasicActionListWithString(self, request, context): ...
+
+        @grpc_action(
+            request=[],
+            response=BasicProtoListChildSerializer,
+            use_generation_plugins=[ListGenerationPlugin(request=True, response=True)],
+        )
+        async def BasicListArgPlugin(self, request, context): ...
+
     class MyAction(GenericService):
         serializer_class = MySerializer
 
@@ -466,20 +480,21 @@ class TestGrpcActionProto(TestCase):
             request=[],
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
-            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+            use_generation_plugins=[ListGenerationPlugin(request=True, response=True)],
         )
         async def BasicList(self, request, context): ...
 
         @grpc_action(
             request=[],
             response=BasicProtoListChildSerializer,
-            use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+            use_response_list=True,
+            use_request_list=True,
         )
         async def BasicListOldCompat(self, request, context): ...
 
         @grpc_action(
             request="google.protobuf.Struct",
-            use_generation_plugins=[RequestAsListGenerationPlugin()],
+            use_generation_plugins=[ListGenerationPlugin(request=True)],
         )
         async def ImportedReq(self, request, context): ...
 
@@ -505,7 +520,7 @@ class TestGrpcActionProto(TestCase):
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
             use_generation_plugins=[
-                RequestAndResponseAsListGenerationPlugin(),
+                ListGenerationPlugin(request=True, response=True),
                 FilterGenerationPlugin(),
             ],
         )
@@ -534,7 +549,7 @@ class TestGrpcActionProto(TestCase):
             response=BasicProtoListChildSerializer,
             request_name="ReqNameRequest",
             use_generation_plugins=[
-                RequestAndResponseAsListGenerationPlugin(),
+                ListGenerationPlugin(request=True, response=True),
                 PaginationGenerationPlugin(),
             ],
         )
@@ -554,7 +569,7 @@ class TestGrpcActionProto(TestCase):
         )
         async def PaginationInRequest(self, request, context): ...
 
-    def test_instanciate_GRPCAction_with_defualt_value(self):
+    def test_instanciate_GRPCAction_with_default_value(self):
         fake_func = mock.Mock()
         grpc_action = GRPCAction(
             function=fake_func,
@@ -569,11 +584,27 @@ class TestGrpcActionProto(TestCase):
 
         assert response.name == "BasicProtoListChildListResponse"
         assert response["results"].field_type.name == "BasicProtoListChildResponse"
+        assert "count" not in response
 
         request = proto_rpc.request
 
         assert request.name == "ReqNameListRequest"
         assert request["results"].field_type.name == "ReqNameRequest"
+
+    def test_register_action_on_base_service_list_with_arg_plugin(self):
+        proto_rpc = self.MyBaseAction.BasicListArgPlugin.make_proto_rpc(
+            "BasicListArgPlugin", self.MyBaseAction
+        )
+
+        response = proto_rpc.response
+
+        assert response.name == "BasicProtoListChildListResponse"
+        assert response["results"].field_type.name == "BasicProtoListChildResponse"
+
+        request = proto_rpc.request
+
+        assert request.name == "MyBaseActionBasicListArgPluginListRequest"
+        assert request["results"].field_type.name == "MyBaseActionBasicListArgPluginRequest"
 
     def test_register_action_on_base_service_with_message_str(self):
         proto_rpc = self.MyBaseAction.BasicActionWithString.make_proto_rpc(
@@ -582,6 +613,21 @@ class TestGrpcActionProto(TestCase):
 
         assert proto_rpc.response == "TestResponse"
         assert proto_rpc.request == "TestRequest"
+
+    def test_register_action_on_base_service_with_message_str_and_list_plugin(self):
+        proto_rpc = self.MyBaseAction.BasicActionListWithString.make_proto_rpc(
+            "BasicActionListWithString", self.MyBaseAction
+        )
+
+        response = proto_rpc.response
+
+        assert response.name == "MyBaseActionBasicActionListWithStringListResponse"
+        assert response["results"].field_type == "TestResponse"
+
+        request = proto_rpc.request
+
+        assert request.name == "MyBaseActionBasicActionListWithStringListRequest"
+        assert request["results"].field_type == "TestRequest"
 
     def test_register_action_list_imported(self):
         proto_rpc = self.MyAction.ImportedReq.make_proto_rpc("ImportedReq", self.MyAction)
@@ -719,6 +765,8 @@ class TestGrpcActionProto(TestCase):
 
         assert response.name == "BasicProtoListChildListResponse"
         assert response["results"].field_type.name == "BasicProtoListChildResponse"
+        assert "count" in response
+        assert response["count"].field_type == "int32"
 
         request = proto_rpc.request
 

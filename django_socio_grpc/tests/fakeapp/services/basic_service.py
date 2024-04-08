@@ -9,8 +9,7 @@ from fakeapp.serializers import (
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.protobuf.generation_plugin import (
-    RequestAndResponseAsListGenerationPlugin,
-    ResponseAsListGenerationPlugin,
+    ListGenerationPlugin,
 )
 
 from .basic_mixins import ListIdsMixin, ListNameMixin
@@ -56,7 +55,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
     @grpc_action(
         request=[],
         response=BasicServiceSerializer,
-        use_generation_plugins=[ResponseAsListGenerationPlugin()],
+        use_generation_plugins=[ListGenerationPlugin(response=True)],
     )
     async def GetMultiple(self, request, context):
         # INFO - AM - 14/01/2022 - Do something here as filter user with the user name
@@ -99,7 +98,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         request=[{"name": "user_name", "type": "string"}],
         response=[{"name": "user_name", "type": "string"}],
         request_name="CustomMixParamForRequest",
-        use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+        use_generation_plugins=[ListGenerationPlugin(request=True, response=True)],
     )
     async def MixParam(self, request, context):
         pass
@@ -108,7 +107,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         request=BasicServiceSerializer,
         response="google.protobuf.Struct",
         request_name="BasicParamWithSerializerRequest",
-        use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+        use_generation_plugins=[ListGenerationPlugin(request=True, response=True)],
     )
     async def MixParamWithSerializer(self, request, context):
         pass
@@ -116,7 +115,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
     @grpc_action(
         request=BaseProtoExampleSerializer,
         response=BaseProtoExampleSerializer,
-        use_generation_plugins=[ResponseAsListGenerationPlugin()],
+        use_generation_plugins=[ListGenerationPlugin(response=True)],
     )
     async def TestBaseProtoSerializer(self, request, context):
         pass
@@ -124,7 +123,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
     @grpc_action(
         request=BasicProtoListChildSerializer,
         response=BasicProtoListChildSerializer,
-        use_generation_plugins=[RequestAndResponseAsListGenerationPlugin()],
+        use_generation_plugins=[ListGenerationPlugin(request=True, response=True)],
     )
     async def BasicList(self, request, context):
         serializer = BasicProtoListChildSerializer(message=request, many=True)

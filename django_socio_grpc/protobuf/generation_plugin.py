@@ -20,8 +20,8 @@ class BaseGenerationPlugin:
     def check_condition(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         """
@@ -32,7 +32,7 @@ class BaseGenerationPlugin:
     def transform_request_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         """
@@ -43,7 +43,7 @@ class BaseGenerationPlugin:
     def transform_response_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         """
@@ -54,8 +54,8 @@ class BaseGenerationPlugin:
     def run_validation_and_transform(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> Tuple[ProtoMessage, ProtoMessage]:
         """
@@ -92,9 +92,13 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
     def transform_request_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ):
+        if isinstance(proto_message, str):
+            logger.warning(
+                f"Plugin {self.__class__.__name__} can't be used with a string message. Please use the plugin directly on the grpc_action that generate the message"
+            )
         proto_message.fields.append(
             ProtoField.from_field_dict(
                 {
@@ -123,8 +127,8 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     def check_condition(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
@@ -165,8 +169,8 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     def check_condition(
         self,
         service: Type["Service"],
-        request_message: ProtoMessage,
-        response_message: ProtoMessage,
+        request_message: Union[ProtoMessage, str],
+        response_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
@@ -204,7 +208,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
     list_field_name: str = "results"
 
     def transform_message_to_list(
-        self, service: Type["Service"], proto_message: ProtoMessage, list_name: str
+        self, service: Type["Service"], proto_message: Union[ProtoMessage, str], list_name: str
     ) -> ProtoMessage:
         try:
             list_field_name = proto_message.serializer.Meta.message_list_attr
@@ -219,7 +223,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
             ),
         ]
 
-        if hasattr(service, "pagination_class"):
+        if getattr(service, "pagination_class", None):
             fields.append(
                 ProtoField(
                     name="count",
@@ -233,7 +237,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
         )
 
         # INFO - AM - If the original proto message is a serializer then we keep the comment at the serializer level. Else we put them at the list level
-        if not proto_message.serializer:
+        if not isinstance(proto_message, str) and not proto_message.serializer:
             list_message.comments = proto_message.comments
             proto_message.comments = None
 
@@ -248,7 +252,7 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
     def transform_request_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_request_list_name()
@@ -263,7 +267,7 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
     def transform_response_message(
         self,
         service: Type["Service"],
-        proto_message: ProtoMessage,
+        proto_message: Union[ProtoMessage, str],
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_response_list_name()
@@ -278,3 +282,37 @@ class RequestAndResponseAsListGenerationPlugin(
     """
 
     ...
+
+
+@dataclass
+class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerationPlugin):
+    """
+    Transform both request and response ProtoMessage in list ProtoMessage
+    """
+
+    request: bool = False
+    response: bool = False
+
+    def transform_response_message(
+        self,
+        service: Type["Service"],
+        proto_message: Union[ProtoMessage, str],
+        message_name_constructor: MessageNameConstructor,
+    ) -> ProtoMessage:
+        if self.response:
+            return super().transform_response_message(
+                service, proto_message, message_name_constructor
+            )
+        return proto_message
+
+    def transform_request_message(
+        self,
+        service: Type["Service"],
+        proto_message: Union[ProtoMessage, str],
+        message_name_constructor: MessageNameConstructor,
+    ) -> ProtoMessage:
+        if self.request:
+            return super().transform_request_message(
+                service, proto_message, message_name_constructor
+            )
+        return proto_message

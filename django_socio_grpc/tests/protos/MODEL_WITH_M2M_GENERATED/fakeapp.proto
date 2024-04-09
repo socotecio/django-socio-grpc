@@ -60,7 +60,7 @@ message RelatedFieldModelResponse {
     string uuid = 1;
     ForeignModelResponse foreign = 2;
     repeated ManyManyModelResponse many_many = 3;
-    int32 slug_test_model = 4;
+    optional int32 slug_test_model = 4;
     repeated bool slug_reverse_test_model = 5;
     repeated string slug_many_many = 6;
     string proto_slug_related_field = 7;

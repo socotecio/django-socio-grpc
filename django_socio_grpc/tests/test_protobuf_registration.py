@@ -74,7 +74,7 @@ class MyIntSerializer(proto_serializers.ModelProtoSerializer):
 class MyIntField(serializers.IntegerField): ...
 
 
-class MyOtherSerializer(proto_serializers.ProtoSerializer):
+class SimpleSerializer(proto_serializers.ProtoSerializer):
     uuid = serializers.UUIDField()
     name = serializers.CharField()
 
@@ -85,7 +85,7 @@ class MySerializer(proto_serializers.ProtoSerializer):
     optional_field = serializers.CharField(allow_null=True)
     default_char = serializers.CharField(default="value")
     list_field = serializers.ListField(child=serializers.CharField())
-    list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
+    list_field_with_serializer = serializers.ListField(child=SimpleSerializer())
 
     smf = serializers.SerializerMethodField()
     smf_with_serializer = serializers.SerializerMethodField()
@@ -108,6 +108,7 @@ class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
 
     pk_related_source_field = serializers.PrimaryKeyRelatedField(
         read_only=True,
+        allow_null=True,
         source="foreign.uuid",
         pk_field=serializers.UUIDField(format="hex_verbose"),
     )
@@ -125,6 +126,7 @@ class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
             "serializer_list",
             "pk_related_source_field",
             "many_related_field",
+            "foreign",
         )
 
 
@@ -178,11 +180,25 @@ class TestFields:
         ser = RelatedFieldModelSerializer()
         field = ser.fields["slug_test_model"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=False)
 
         assert proto_field.name == "slug_test_model"
         assert proto_field.field_type == "int32"
         # INFO - AM - 04/01/2024 - OPTIONAL because slug_test_model can be null in RelatedFieldModel
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+        assert proto_field.comments is None
+
+    def test_from_field_related_field(self):
+        """
+        Test that if PrimarykeyRelatedField is not redefined then allow_null is true and cardinality is optional
+        """
+        ser = MyOtherSerializer()
+        field = ser.fields["foreign"]
+        proto_field = ProtoField.from_field(field, in_request=False)
+
+        assert proto_field.name == "foreign"
+        assert proto_field.field_type == "string"
+        # INFO - AM - 04/01/2024 - OPTIONAL because foreign can be null in RelatedFieldModel
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
         assert proto_field.comments is None
 
@@ -248,29 +264,42 @@ class TestFields:
         )
 
         assert proto_field.name == "list_field_with_serializer"
-        assert proto_field.field_type.name == "MyOther"
+        assert proto_field.field_type.name == "Simple"
         assert proto_field.cardinality == FieldCardinality.REPEATED
 
     def test_from_field_serializer_choice_field(self):
         ser = MyIntSerializer()
         field = ser.fields["choice_field"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=True)
 
         assert proto_field.name == "choice_field"
         assert proto_field.field_type == "int32"
         # INFO - AM - 04/01/2024 - OPTIONAL because a default is specified in the model
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
+        proto_field = ProtoField.from_field(field, in_request=False)
+
+        assert proto_field.name == "choice_field"
+        assert proto_field.field_type == "int32"
+        # INFO - AM - 04/01/2024 - None because in response
+        assert proto_field.cardinality == FieldCardinality.NONE
+
     def test_from_field_default(self):
         ser = MySerializer()
         field_char = ser.fields["default_char"]
 
-        proto_field_char = ProtoField.from_field(field_char)
+        proto_field_char = ProtoField.from_field(field_char, in_request=True)
 
         assert proto_field_char.name == "default_char"
         assert proto_field_char.field_type == "string"
         assert proto_field_char.cardinality == FieldCardinality.OPTIONAL
+
+        proto_field_char = ProtoField.from_field(field_char, in_request=False)
+
+        assert proto_field_char.name == "default_char"
+        assert proto_field_char.field_type == "string"
+        assert proto_field_char.cardinality == FieldCardinality.NONE
 
     # FROM_SERIALIZER
 
@@ -433,7 +462,7 @@ class TestProtoMessage:
         )
 
         assert proto_message.name == "MyOtherResponse"
-        assert len(proto_message.fields) == 4
+        assert len(proto_message.fields) == 5
         assert proto_message.comments == ["serializer comment"]
 
         assert proto_message.fields[0].name == "serializer"

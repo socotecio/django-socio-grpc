@@ -17,11 +17,15 @@ from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
 class TestDefaultValueField:
     # FROM_FIELD
-    def test_from_field_string(self):
+    def test_from_field_string_in_request(self):
+        in_request = True
+
+        # ---------------------------------
+
         ser = DefaultValueSerializer()
         field = ser.fields["string_required"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "string_required"
         assert proto_field.field_type == "string"
@@ -32,7 +36,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["string_blank"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "string_blank"
         assert proto_field.field_type == "string"
@@ -43,7 +47,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["string_nullable"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "string_nullable"
         assert proto_field.field_type == "string"
@@ -54,7 +58,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["string_default"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "string_default"
         assert proto_field.field_type == "string"
@@ -65,17 +69,79 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["string_required_but_serializer_default"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "string_required_but_serializer_default"
         assert proto_field.field_type == "string"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
-    def test_from_field_integer(self):
+    def test_from_field_string_in_response(self):
+        in_request = False
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["string_required"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "string_required"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["string_blank"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "string_blank"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["string_nullable"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "string_nullable"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["string_default"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "string_default"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["string_required_but_serializer_default"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "string_required_but_serializer_default"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+    def test_from_field_integer_in_request(self):
+        in_request = True
+
+        # ---------------------------------
+
         ser = DefaultValueSerializer()
         field = ser.fields["int_required"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "int_required"
         assert proto_field.field_type == "int32"
@@ -86,7 +152,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["int_nullable"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "int_nullable"
         assert proto_field.field_type == "int32"
@@ -97,7 +163,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["int_default"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "int_default"
         assert proto_field.field_type == "int32"
@@ -108,17 +174,68 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["int_required_but_serializer_default"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "int_required_but_serializer_default"
         assert proto_field.field_type == "int32"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
-    def test_from_field_boolean(self):
+    def test_from_field_integer_in_response(self):
+        in_request = False
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_required"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "int_required"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_nullable"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "int_nullable"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_default"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "int_default"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["int_required_but_serializer_default"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "int_required_but_serializer_default"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+    def test_from_field_boolean_in_request(self):
+        in_request = True
+
+        # ---------------------------------
+
         ser = DefaultValueSerializer()
         field = ser.fields["boolean_required"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "boolean_required"
         assert proto_field.field_type == "bool"
@@ -129,7 +246,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["boolean_nullable"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "boolean_nullable"
         assert proto_field.field_type == "bool"
@@ -140,7 +257,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["boolean_default_true"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "boolean_default_true"
         assert proto_field.field_type == "bool"
@@ -151,7 +268,7 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["boolean_default_false"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "boolean_default_false"
         assert proto_field.field_type == "bool"
@@ -162,11 +279,69 @@ class TestDefaultValueField:
         ser = DefaultValueSerializer()
         field = ser.fields["boolean_required_but_serializer_default"]
 
-        proto_field = ProtoField.from_field(field)
+        proto_field = ProtoField.from_field(field, in_request=in_request)
 
         assert proto_field.name == "boolean_required_but_serializer_default"
         assert proto_field.field_type == "bool"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_boolean_in_response(self):
+        in_request = False
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_required"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "boolean_required"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_nullable"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "boolean_nullable"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_default_true"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "boolean_default_true"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_default_false"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "boolean_default_false"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        # ---------------------------------
+
+        ser = DefaultValueSerializer()
+        field = ser.fields["boolean_required_but_serializer_default"]
+
+        proto_field = ProtoField.from_field(field, in_request=in_request)
+
+        assert proto_field.name == "boolean_required_but_serializer_default"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.NONE
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
@@ -192,10 +367,8 @@ class TestDefaultValueService(TestCase):
 
         # STRING ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
-        self.assertTrue(response.HasField("string_blank"))
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("string_nullable"))
-        self.assertTrue(response.HasField("string_default_and_blank"))
         self.assertTrue(response.HasField("string_null_default_and_blank"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
@@ -229,10 +402,8 @@ class TestDefaultValueService(TestCase):
 
         # BOOLEAN ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("boolean_nullable"))
-        self.assertTrue(response.HasField("boolean_default_false"))
-        self.assertTrue(response.HasField("boolean_default_true"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
         self.assertEqual(response.boolean_required, True)
@@ -252,10 +423,8 @@ class TestDefaultValueService(TestCase):
 
         # STRING ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
-        self.assertTrue(response.HasField("string_blank"))
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("string_nullable"))
-        self.assertTrue(response.HasField("string_default_and_blank"))
         self.assertTrue(response.HasField("string_null_default_and_blank"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
@@ -287,10 +456,8 @@ class TestDefaultValueService(TestCase):
 
         # BOOLEAN ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("boolean_nullable"))
-        self.assertTrue(response.HasField("boolean_default_false"))
-        self.assertTrue(response.HasField("boolean_default_true"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
         self.assertEqual(response.boolean_required, True)
@@ -334,10 +501,8 @@ class TestDefaultValueService(TestCase):
 
         # STRING ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
-        self.assertTrue(response.HasField("string_blank"))
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("string_nullable"))
-        self.assertTrue(response.HasField("string_default_and_blank"))
         self.assertFalse(response.HasField("string_null_default_and_blank"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
@@ -381,10 +546,8 @@ class TestDefaultValueService(TestCase):
 
         # BOOLEAN ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("boolean_nullable"))
-        self.assertTrue(response.HasField("boolean_default_false"))
-        self.assertTrue(response.HasField("boolean_default_true"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
         self.assertEqual(response.boolean_required, False)
@@ -469,10 +632,8 @@ class TestDefaultValueService(TestCase):
 
         # STRING ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
-        self.assertTrue(response.HasField("string_blank"))
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("string_nullable"))
-        self.assertTrue(response.HasField("string_default_and_blank"))
         self.assertFalse(response.HasField("string_null_default_and_blank"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
@@ -517,10 +678,8 @@ class TestDefaultValueService(TestCase):
 
         # BOOLEAN ##################
 
-        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty
+        # INFO - AM - 12/01/2024 - check presence / not presence depending if element is None or empty (only for optional in response field)
         self.assertFalse(response.HasField("boolean_nullable"))
-        self.assertTrue(response.HasField("boolean_default_false"))
-        self.assertTrue(response.HasField("boolean_default_true"))
 
         # INFO - AM - 12/01/2024 - check value event if grpc default because we check presence before
         self.assertEqual(

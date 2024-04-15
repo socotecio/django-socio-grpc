@@ -73,7 +73,9 @@ class RelatedFieldModelSerializer(proto_serializers.ModelProtoSerializer):
     foreign = ForeignModelSerializer(read_only=True)
     many_many = ManyManyModelSerializer(many=True)
 
-    slug_test_model = serializers.SlugRelatedField(slug_field="special_number", read_only=True)
+    slug_test_model = serializers.SlugRelatedField(
+        slug_field="special_number", read_only=True, allow_null=True
+    )
     slug_reverse_test_model = serializers.SlugRelatedField(
         slug_field="is_active", read_only=True, many=True
     )

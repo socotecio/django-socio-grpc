@@ -51,7 +51,7 @@ message UnitTestModelRequest {
 }
 
 message UnitTestModelResponse {
-    optional int32 id = 1;
+    int32 id = 1;
     optional string text = 2;
     string title = 3;
 }

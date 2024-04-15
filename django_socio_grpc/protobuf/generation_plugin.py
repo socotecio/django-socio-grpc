@@ -105,7 +105,8 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
                     "name": self.field_name,
                     "type": self.field_type,
                     "cardinality": self.field_cardinality,
-                }
+                },
+                in_request=True,
             )
         )
         return proto_message
@@ -208,7 +209,11 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
     list_field_name: str = "results"
 
     def transform_message_to_list(
-        self, service: Type["Service"], proto_message: Union[ProtoMessage, str], list_name: str
+        self,
+        service: Type["Service"],
+        proto_message: Union[ProtoMessage, str],
+        list_name: str,
+        in_request: bool = False,
     ) -> ProtoMessage:
         try:
             list_field_name = proto_message.serializer.Meta.message_list_attr
@@ -256,7 +261,9 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_request_list_name()
-        return self.transform_message_to_list(service, proto_message, list_name)
+        return self.transform_message_to_list(
+            service, proto_message, list_name, in_request=True
+        )
 
 
 class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
@@ -271,7 +278,9 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_response_list_name()
-        return self.transform_message_to_list(service, proto_message, list_name)
+        return self.transform_message_to_list(
+            service, proto_message, list_name, in_request=False
+        )
 
 
 class RequestAndResponseAsListGenerationPlugin(

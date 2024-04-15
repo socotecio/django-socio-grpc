@@ -14,7 +14,7 @@ message ImportStructEvenInArrayModelRequest {
 }
 
 message ImportStructEvenInArrayModelResponse {
-    optional string uuid = 1;
+    string uuid = 1;
     repeated google.protobuf.Struct this_is_crazy = 2;
 }
 

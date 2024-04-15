@@ -88,22 +88,25 @@ class ProtoField:
         return " ".join(values)
 
     @classmethod
-    def _get_cardinality(cls, field: serializers.Field):
-        ProtoGeneratorPrintHelper.print("field.default: ", field.default)
+    def _get_cardinality(
+        cls, field: serializers.Field, in_request: bool = False
+    ) -> FieldCardinality:
         """
         INFO - AM - 04/01/2023
         If field can be null -> optional
-        if field is not required -> optional. Since DRF 3.0 When using model default, only required is set to False. The model default is not set into the field as just passing None will result in model default. https://github.com/encode/django-rest-framework/issues/2683
-        if field.default is set (meaning not None or empty) -> optional
+        if we are in a request message and field is not required -> optional. Since DRF 3.0 When using model default, only required is set to False. The model default is not set into the field as just passing None will result in model default. https://github.com/encode/django-rest-framework/issues/2683
+        if we are in a request message and field.default is set (meaning not None or empty) -> optional
 
         Not dealing with field.allow_blank now as it doesn't seem to be related to OPTIONAl and more about validation and only exist for charfield
         """
-        if field.allow_null or not field.required or field.default not in [None, empty]:
+        if field.allow_null:
+            return FieldCardinality.OPTIONAL
+        if in_request and (not field.required or field.default not in [None, empty]):
             return FieldCardinality.OPTIONAL
         return FieldCardinality.NONE
 
     @classmethod
-    def from_field_dict(cls, field_dict: FieldDict) -> "ProtoField":
+    def from_field_dict(cls, field_dict: FieldDict, in_request: bool = False) -> "ProtoField":
         cardinality = field_dict.get("cardinality", FieldCardinality.NONE)
         name = field_dict["name"]
         field_type = field_dict["type"]
@@ -156,20 +159,21 @@ class ProtoField:
         to_message: Callable = None,
         parent_serializer: serializers.Serializer = None,
         name_if_recursive: str = None,
+        in_request: bool = False,
     ) -> "ProtoField":
         """
         to_message, parent_serializer, name_if_recursive only used if field is ListSerializer with a child being a Serializer
         """
-        cardinality = cls._get_cardinality(field)
+        cardinality = cls._get_cardinality(field, in_request=in_request)
 
         if isinstance(field, serializers.SerializerMethodField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is SerializerMethodField")
-            return cls._from_serializer_method_field(field)
+            return cls._from_serializer_method_field(field, in_request=in_request)
 
         elif isinstance(field, serializers.ManyRelatedField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ManyRelatedField")
             proto_field = cls._from_related_field(
-                field.child_relation, source_attrs=field.source_attrs
+                field.child_relation, source_attrs=field.source_attrs, in_request=in_request
             )
             proto_field.name = field.field_name
             proto_field.cardinality = FieldCardinality.REPEATED
@@ -177,7 +181,7 @@ class ProtoField:
 
         elif isinstance(field, serializers.RelatedField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is RelatedField")
-            return cls._from_related_field(field)
+            return cls._from_related_field(field, in_request=in_request)
 
         if isinstance(field, serializers.ListField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ListField")
@@ -187,7 +191,11 @@ class ProtoField:
                     f"{field.field_name} ListField child is a serializer"
                 )
                 proto_field = cls.from_serializer(
-                    field.child, to_message, parent_serializer, name_if_recursive
+                    field.child,
+                    to_message,
+                    parent_serializer,
+                    name_if_recursive,
+                    in_request=in_request,
                 )
                 field_type = proto_field.field_type
             else:
@@ -217,11 +225,12 @@ class ProtoField:
         to_message: Callable,
         parent_serializer: serializers.Serializer = None,
         name_if_recursive: str = None,
+        in_request: bool = False,
     ) -> "ProtoField":
         """
         Create a ProtoField from a Serializer, which will be converted to a ProtoMessage with `to_message`
         """
-        cardinality = cls._get_cardinality(field)
+        cardinality = cls._get_cardinality(field, in_request=in_request)
         serializer_class = field.__class__
         if getattr(field, "many", False):
             cardinality = FieldCardinality.REPEATED
@@ -246,11 +255,14 @@ class ProtoField:
 
     @classmethod
     def _from_related_field(
-        cls, field: serializers.RelatedField, source_attrs: Optional[List[str]] = None
+        cls,
+        field: serializers.RelatedField,
+        source_attrs: Optional[List[str]] = None,
+        in_request: bool = False,
     ) -> "ProtoField":
         serializer: serializers.Serializer = field.root
 
-        cardinality = cls._get_cardinality(field)
+        cardinality = cls._get_cardinality(field, in_request=in_request)
 
         if not source_attrs:
             source_attrs = field.source_attrs
@@ -298,9 +310,9 @@ class ProtoField:
 
     @classmethod
     def _from_serializer_method_field(
-        cls, field: serializers.SerializerMethodField
+        cls, field: serializers.SerializerMethodField, in_request: bool = False
     ) -> "ProtoField":
-        cardinality = cls._get_cardinality(field)
+        cardinality = cls._get_cardinality(field, in_request=in_request)
         method_name = field.method_name
 
         try:
@@ -378,6 +390,11 @@ class ProtoMessage:
     comments: Optional[List[str]] = None
     serializer: Optional[serializers.BaseSerializer] = None
     imported_from: Optional[str] = None
+    suffix: ClassVar = ""
+
+    @classmethod
+    def in_request(cls):
+        return cls.suffix == REQUEST_SUFFIX
 
     def get_all_messages(self) -> Dict[str, "ProtoMessage"]:
         messages = {self.name: self}
@@ -440,7 +457,10 @@ class ProtoMessage:
             fields = []
         return cls(
             name=name,
-            fields=[ProtoField.from_field_dict(field) for field in fields],
+            fields=[
+                ProtoField.from_field_dict(field, in_request=cls.in_request())
+                for field in fields
+            ],
         )
 
     @classmethod
@@ -484,6 +504,7 @@ class ProtoMessage:
                             or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
                                 serializer, getattr(cls, "suffix", "")
                             ),
+                            in_request=cls.in_request(),
                         )
                     )
                 else:
@@ -499,12 +520,13 @@ class ProtoMessage:
                             or MessageNameConstructor.get_base_name_from_serializer_with_suffix(
                                 serializer, getattr(cls, "suffix", "")
                             ),
+                            in_request=cls.in_request(),
                         )
                     )
         # INFO - AM - 07/01/2022 - else the serializer needs to implement to_proto_message
         elif hasattr(serializer, "to_proto_message"):
             fields = [
-                ProtoField.from_field_dict(dict_field)
+                ProtoField.from_field_dict(dict_field, in_request=cls.in_request())
                 for dict_field in serializer().to_proto_message()
             ]
         else:

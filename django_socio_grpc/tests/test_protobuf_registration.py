@@ -1,3 +1,4 @@
+import sys
 from typing import List, Optional
 from unittest import mock
 
@@ -79,27 +80,64 @@ class MyOtherSerializer(proto_serializers.ProtoSerializer):
     name = serializers.CharField()
 
 
-class MySerializer(proto_serializers.ProtoSerializer):
-    user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
-    title = serializers.CharField()
-    optional_field = serializers.CharField(allow_null=True)
-    default_char = serializers.CharField(default="value")
-    list_field = serializers.ListField(child=serializers.CharField())
-    list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
+if sys.version_info >= (3, 10):
 
-    smf = serializers.SerializerMethodField()
-    smf_with_serializer = serializers.SerializerMethodField()
-    smf_with_list_serializer = serializers.SerializerMethodField()
+    class MySerializer(proto_serializers.ProtoSerializer):
+        user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
+        title = serializers.CharField()
+        optional_field = serializers.CharField(allow_null=True)
+        default_char = serializers.CharField(default="value")
+        list_field = serializers.ListField(child=serializers.CharField())
+        list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
 
-    read_only_field0 = serializers.CharField(read_only=True)
-    read_only_field1 = serializers.CharField(read_only=True)
-    write_only_field = serializers.CharField(write_only=True)
+        smf = serializers.SerializerMethodField()
+        smf_only_list = serializers.SerializerMethodField()
+        smf_with_serializer = serializers.SerializerMethodField()
+        smf_with_serializer_pipe = serializers.SerializerMethodField()
+        smf_with_list_serializer = serializers.SerializerMethodField()
 
-    def get_smf(self, obj) -> List[int]: ...
+        read_only_field0 = serializers.CharField(read_only=True)
+        read_only_field1 = serializers.CharField(read_only=True)
+        write_only_field = serializers.CharField(write_only=True)
 
-    def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]: ...
+        def get_smf(self, obj) -> list[int]: ...
 
-    def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]: ...
+        def get_smf_only_list(self, obj) -> list: ...
+
+        def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]: ...  # noqa: UP007
+
+        def get_smf_with_serializer_pipe(self, obj) -> BasicServiceSerializer | None: ...
+
+        def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]: ...  # noqa: UP006
+else:
+
+    class MySerializer(proto_serializers.ProtoSerializer):
+        user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
+        title = serializers.CharField()
+        optional_field = serializers.CharField(allow_null=True)
+        default_char = serializers.CharField(default="value")
+        list_field = serializers.ListField(child=serializers.CharField())
+        list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
+
+        smf = serializers.SerializerMethodField()
+        smf_only_list = serializers.SerializerMethodField()
+        smf_with_serializer = serializers.SerializerMethodField()
+        smf_with_serializer_pipe = serializers.SerializerMethodField()
+        smf_with_list_serializer = serializers.SerializerMethodField()
+
+        read_only_field0 = serializers.CharField(read_only=True)
+        read_only_field1 = serializers.CharField(read_only=True)
+        write_only_field = serializers.CharField(write_only=True)
+
+        def get_smf(self, obj) -> List[int]: ...  # noqa: UP006
+
+        def get_smf_only_list(self, obj) -> List: ...  # noqa: UP006
+
+        def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]: ...  # noqa: UP007
+
+        def get_smf_with_serializer_pipe(self, obj) -> Optional[BasicServiceSerializer]: ...  # noqa: UP007
+
+        def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]: ...  # noqa: UP006
 
 
 class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
@@ -216,6 +254,17 @@ class TestFields:
         assert proto_field.cardinality == FieldCardinality.REPEATED
         assert proto_field.comments is None
 
+    def test_from_field_serializer_method_field_only_list(self):
+        ser = MySerializer()
+        field = ser.fields["smf_only_list"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "smf_only_list"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.REPEATED
+        assert proto_field.comments is None
+
     def test_from_field_serializer_method_field_with_serializer(self):
         ser = MySerializer()
         field = ser.fields["smf_with_serializer"]
@@ -223,6 +272,16 @@ class TestFields:
         proto_field = ProtoField.from_field(field)
 
         assert proto_field.name == "smf_with_serializer"
+        assert proto_field.field_type.name == "BasicServiceResponse"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_method_field_with_serializer_pipe(self):
+        ser = MySerializer()
+        field = ser.fields["smf_with_serializer_pipe"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "smf_with_serializer_pipe"
         assert proto_field.field_type.name == "BasicServiceResponse"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
@@ -361,7 +420,7 @@ class TestFields:
                 "comment": ["comment0", "comment1"],
             }
 
-            proto_field = ProtoField.from_field_dict(field_dict)
+            ProtoField.from_field_dict(field_dict)
 
 
 class TestProtoMessage:
@@ -406,7 +465,7 @@ class TestProtoMessage:
         proto_message = ProtoMessage.from_serializer(MySerializer, name="My")
 
         assert proto_message.name == "My"
-        assert len(proto_message.fields) == 12
+        assert len(proto_message.fields) == 14
 
     def test_from_serializer_request(self):
         proto_message = RequestProtoMessage.from_serializer(MySerializer, name="MyRequest")
@@ -425,7 +484,7 @@ class TestProtoMessage:
         proto_message = ResponseProtoMessage.from_serializer(MySerializer, name="MyResponse")
 
         assert proto_message.name == "MyResponse"
-        assert len(proto_message.fields) == 11
+        assert len(proto_message.fields) == 13
 
     def test_from_serializer_nested(self):
         proto_message = ResponseProtoMessage.from_serializer(
@@ -437,7 +496,7 @@ class TestProtoMessage:
         assert proto_message.comments == ["serializer comment"]
 
         assert proto_message.fields[0].name == "serializer"
-        assert len(proto_message.fields[0].field_type.fields) == 11
+        assert len(proto_message.fields[0].field_type.fields) == 13
 
 
 class TestGrpcActionProto(TestCase):

@@ -11,7 +11,7 @@ from django_socio_grpc.settings import grpc_settings
 
 from .grpc_actions.actions import GRPCAction
 
-logger = logging.getLogger("django_scoio_grpc.generation")
+logger = logging.getLogger("django_socio_grpc.generation")
 
 
 def _maintain_compat(use_request_list, use_response_list, use_generation_plugins):

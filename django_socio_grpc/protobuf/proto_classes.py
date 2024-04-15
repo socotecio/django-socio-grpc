@@ -1,4 +1,5 @@
 import logging
+import sys
 import traceback
 from collections import OrderedDict
 from collections.abc import Iterable
@@ -30,6 +31,12 @@ from django_socio_grpc.utils.model_meta import get_model_pk
 
 from .exceptions import ProtoRegistrationError
 from .typing import FieldCardinality, FieldDict
+
+try:
+    from types import UnionType
+except ImportError:
+    # INFO - LG - 2024/04/15 - UnionType is not available in Python<3.10
+    UnionType = object()
 
 logger = logging.getLogger("django_socio_grpc.generation")
 
@@ -300,11 +307,23 @@ class ProtoField:
                 f"Method {method_name} not found in {field.parent.__class__.__name__}"
             )
 
-        if not (return_type := get_type_hints(method).get("return")):
+        try:
+            return_type = get_type_hints(method).get("return")
+        except TypeError as e:
+            if sys.version_info < (3, 10):
+                raise ProtoRegistrationError(
+                    "You have likely used a PEP 604 return type hint in "
+                    f"{field.parent.__class__.__name__}.{method_name}. "
+                    "Using `__future__.annotations` is not supported by the field inspection "
+                    "mechanism. Please use the `typing` module instead."
+                ) from e
+            raise
+
+        if not return_type:
             raise ProtoRegistrationError(
                 f"You are trying to register the serializer {field.parent.__class__.__name__} "
                 f"with a SerializerMethodField on the field {field.field_name}. "
-                f"But the method {method_name} doesn't have a return annotations. "
+                f"But the method {method_name} doesn't have a return annotation. "
                 "Please look at the example: https://github.com/socotecio/django-socio-grpc/"
                 "blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L111. "
                 "And the python doc: https://docs.python.org/3.8/library/typing.html"
@@ -312,7 +331,7 @@ class ProtoField:
 
         # https://docs.python.org/3/library/typing.html#typing.get_origin
         args = get_args(return_type)
-        if get_origin(return_type) is list:
+        if return_type is list or get_origin(return_type) is list:
             cardinality = FieldCardinality.REPEATED
             if len(args) > 1:
                 raise ProtoRegistrationError(
@@ -325,7 +344,12 @@ class ProtoField:
             (return_type,) = args or [str]
 
         # When a method returns an Optional, it is considered as an Union of the return_type with None
-        elif get_origin(return_type) is Union and len(args) == 2 and type(None) in args:
+        # get_origin(... | None) returns UnionType
+        elif (
+            get_origin(return_type) in (Union, UnionType)
+            and len(args) == 2
+            and type(None) in args
+        ):
             cardinality = FieldCardinality.OPTIONAL
             (return_type,) = (t for t in args if not issubclass(t, type(None)))
 
@@ -340,7 +364,7 @@ class ProtoField:
             raise ProtoRegistrationError(
                 f"You are trying to register the serializer {field.parent.__class__.__name__} "
                 f"with a SerializerMethodField on the field {field.field_name}. But the method "
-                "associated returns a type not supported by DSG."
+                f"associated returns a type ({return_type}) not supported by DSG."
             )
 
         return cls(

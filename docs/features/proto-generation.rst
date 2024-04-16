@@ -66,6 +66,10 @@ Usage
       - -d
       - None
       - Directory where the proto files will be generated. Default will be in the apps directories
+    * - --with-types
+      - -t
+      - None
+      - Generate types for mypy. /!\ this requires mypy-protobuf to be installed.
 
 
 

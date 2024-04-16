@@ -11,6 +11,13 @@ from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
 
+try:
+    from mypy_protobuf.main import __version__  # noqa: F401
+
+    mypy_protobuf_installed = True
+except ImportError:
+    mypy_protobuf_installed = False
+
 
 class Command(BaseCommand):
     help = "Generates proto."
@@ -58,6 +65,12 @@ class Command(BaseCommand):
             action="store_true",
             help="Do not follow old field number when generating. /!\\ this can lead to API breaking change.",
         )
+        parser.add_argument(
+            "--with-types",
+            "-t",
+            action="store_true",
+            help="Generate types for mypy. /!\\ this requires mypy-protobuf to be installed.",
+        )
 
     def handle(self, *args, **options):
         if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
@@ -79,6 +92,15 @@ class Command(BaseCommand):
         if self.directory:
             self.directory = Path(self.directory)
             self.directory.mkdir(parents=True, exist_ok=True)
+
+        generate_types = options["with_types"]
+        if generate_types and not mypy_protobuf_installed:
+            raise ProtobufGenerationException(
+                detail=(
+                    "In order to generate types (--with-types), mypy_proto must be installed. "
+                    "Please install mypy_proto with `pip install mypy-protobuf` or `poetry add mypy-protobuf`."
+                )
+            )
 
         registry_instance = RegistrySingleton()
 
@@ -119,8 +141,11 @@ class Command(BaseCommand):
                 if self.generate_pb2:
                     if not settings.BASE_DIR:
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
+                    extra_args = ""
+                    if generate_types:
+                        extra_args = "--mypy_out=./ --mypy_grpc_out=./"
                     os.system(
-                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {file_path}"
+                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {extra_args} {file_path}"
                     )
 
     def check_or_write(self, file: Path, proto, app_name):

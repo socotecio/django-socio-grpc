@@ -1,5 +1,6 @@
 import asyncio
 import os
+import subprocess
 from pathlib import Path
 
 from asgiref.sync import async_to_sync
@@ -57,6 +58,12 @@ class Command(BaseCommand):
             "-ofn",
             action="store_true",
             help="Do not follow old field number when generating. /!\\ this can lead to API breaking change.",
+        )
+        parser.add_argument(
+            "--extra-args",
+            "-a",
+            nargs="+",
+            help="Add extra arguments to the protoc command (generateproto -a --mypy_out=./ --mypy_grpc_out=./)",
         )
 
     def handle(self, *args, **options):
@@ -119,8 +126,20 @@ class Command(BaseCommand):
                 if self.generate_pb2:
                     if not settings.BASE_DIR:
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
-                    os.system(
-                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {file_path}"
+                    extra_args = options["extra_args"] if options["extra_args"] else ""
+                    # INFO - AM - 16/04/2024 - subprocess.run is safe because we are not using shell=True. Please do not change this. Unit test check this
+                    subprocess.run(
+                        [
+                            "python",
+                            "-m",
+                            "grpc_tools.protoc",
+                            f"--proto_path={settings.BASE_DIR}",
+                            "--python_out=./",
+                            "--grpc_python_out=./",
+                            *extra_args,
+                            file_path,
+                        ],
+                        shell=False,
                     )
 
     def check_or_write(self, file: Path, proto, app_name):

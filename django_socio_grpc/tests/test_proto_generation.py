@@ -1,7 +1,7 @@
 import os
 import sys
 from importlib import reload
-from pathlib import Path
+from pathlib import Path, PosixPath
 from unittest import mock
 from unittest.mock import patch
 
@@ -445,3 +445,59 @@ class TestProtoGeneration(TestCase):
             call_command("generateproto", *args, **opts)
 
         assert mocked_open.mock_calls[0].args[0] == "w+"
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
+    )
+    @mock.patch("subprocess.run")
+    def test_generate_proto_subprocess_correctly_call(self, mock_subprocess_run):
+        reload_all()
+        args = []
+        opts = {}
+        with patch_open():
+            call_command("generateproto", *args, **opts)
+
+        mock_subprocess_run.assert_called_once_with(
+            [
+                "python",
+                "-m",
+                "grpc_tools.protoc",
+                f"--proto_path={os.getcwd()}",
+                "--python_out=./",
+                "--grpc_python_out=./",
+                PosixPath(f"{os.getcwd()}/django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto"),
+            ],
+            shell=False,
+        )
+
+        self.assertFalse(mock_subprocess_run.mock_calls[0].kwargs["shell"])
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
+    )
+    @mock.patch("subprocess.run")
+    def test_generate_proto_with_extra_args(self, mock_subprocess_run):
+        reload_all()
+        args = []
+        opts = {"extra_args": ["--mypy_out=./", "--mypy_grpc_out=./"]}
+        with patch_open():
+            call_command("generateproto", *args, **opts)
+
+        mock_subprocess_run.assert_called_once_with(
+            [
+                "python",
+                "-m",
+                "grpc_tools.protoc",
+                f"--proto_path={os.getcwd()}",
+                "--python_out=./",
+                "--grpc_python_out=./",
+                "--mypy_out=./",
+                "--mypy_grpc_out=./",
+                PosixPath(f"{os.getcwd()}/django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto"),
+            ],
+            shell=False,
+        )
+
+        self.assertFalse(mock_subprocess_run.mock_calls[0].kwargs["shell"])

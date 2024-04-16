@@ -1,12 +1,13 @@
 import os
 import sys
 from importlib import reload
-from pathlib import Path, PosixPath
+from pathlib import Path
 from unittest import mock
 from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase, override_settings
+from grpc_tools import protoc
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
@@ -450,54 +451,49 @@ class TestProtoGeneration(TestCase):
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
         mock.MagicMock(return_value=None),
     )
-    @mock.patch("subprocess.run")
-    def test_generate_proto_subprocess_correctly_call(self, mock_subprocess_run):
+    @mock.patch("grpc_tools.protoc.main")
+    def test_generate_proto_subprocess_correctly_call(self, mock_protoc_main):
         reload_all()
         args = []
         opts = {}
         with patch_open():
             call_command("generateproto", *args, **opts)
 
-        mock_subprocess_run.assert_called_once_with(
+        proto_include = protoc._get_resource_file_name("grpc_tools", "_proto")
+
+        mock_protoc_main.assert_called_once_with(
             [
-                "python",
-                "-m",
-                "grpc_tools.protoc",
+                "",
                 f"--proto_path={os.getcwd()}",
                 "--python_out=./",
                 "--grpc_python_out=./",
-                PosixPath(f"{os.getcwd()}/django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto"),
-            ],
-            shell=False,
+                f"{os.getcwd()}/django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto",
+                f"-I{proto_include}",
+            ]
         )
-
-        self.assertFalse(mock_subprocess_run.mock_calls[0].kwargs["shell"])
 
     @mock.patch(
         "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
         mock.MagicMock(return_value=None),
     )
-    @mock.patch("subprocess.run")
-    def test_generate_proto_with_extra_args(self, mock_subprocess_run):
+    @mock.patch("grpc_tools.protoc.main")
+    def test_generate_proto_with_extra_args(self, mock_protoc_main):
         reload_all()
         args = []
         opts = {"extra_args": ["--mypy_out=./", "--mypy_grpc_out=./"]}
         with patch_open():
             call_command("generateproto", *args, **opts)
 
-        mock_subprocess_run.assert_called_once_with(
+        proto_include = protoc._get_resource_file_name("grpc_tools", "_proto")
+        mock_protoc_main.assert_called_once_with(
             [
-                "python",
-                "-m",
-                "grpc_tools.protoc",
+                "",
                 f"--proto_path={os.getcwd()}",
                 "--python_out=./",
                 "--grpc_python_out=./",
                 "--mypy_out=./",
                 "--mypy_grpc_out=./",
-                PosixPath(f"{os.getcwd()}/django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto"),
-            ],
-            shell=False,
+                f"{os.getcwd()}/django_socio_grpc/tests/fakeapp/grpc/fakeapp.proto",
+                f"-I{proto_include}",
+            ]
         )
-
-        self.assertFalse(mock_subprocess_run.mock_calls[0].kwargs["shell"])

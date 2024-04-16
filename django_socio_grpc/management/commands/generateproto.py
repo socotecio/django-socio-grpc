@@ -1,11 +1,11 @@
 import asyncio
 import os
-import subprocess
 from pathlib import Path
 
 from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from grpc_tools import protoc
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
@@ -128,18 +128,19 @@ class Command(BaseCommand):
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
                     extra_args = options["extra_args"] if options["extra_args"] else ""
                     # INFO - AM - 16/04/2024 - subprocess.run is safe because we are not using shell=True. Please do not change this. Unit test check this
-                    subprocess.run(
+                    proto_include = protoc._get_resource_file_name(
+                        "grpc_tools", "_proto"
+                    )  # See https://github.com/grpc/grpc/blob/master/tools/distrib/python/grpcio_tools/grpc_tools/protoc.py#L209
+                    protoc.main(
                         [
-                            "python",
-                            "-m",
-                            "grpc_tools.protoc",
+                            "",  # First comment is not taken into account as argv first argument is the command itself and its ignored by protoc
                             f"--proto_path={settings.BASE_DIR}",
                             "--python_out=./",
                             "--grpc_python_out=./",
                             *extra_args,
-                            file_path,
+                            str(file_path),
+                            f"-I{proto_include}",  # This come from https://github.com/grpc/grpc/blob/master/tools/distrib/python/grpcio_tools/grpc_tools/protoc.py#L210 and help protoc to import know proto as Struct or Empty
                         ],
-                        shell=False,
                     )
 
     def check_or_write(self, file: Path, proto, app_name):

@@ -66,6 +66,15 @@ Usage
       - -d
       - None
       - Directory where the proto files will be generated. Default will be in the apps directories
+    * - --override-fields-number
+      - -ofn
+      - False
+      - Do not follow old field number when generating. /!\\ this can lead to API breaking change.
+    * - --extra-args
+      - -a
+      - None
+      - Add extra arguments to the protoc command (generateproto -a --mypy_out=./ --mypy_grpc_out=./)
+
 
 
 

@@ -5,6 +5,7 @@ from pathlib import Path
 from asgiref.sync import async_to_sync
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from grpc_tools import protoc
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
@@ -57,6 +58,12 @@ class Command(BaseCommand):
             "-ofn",
             action="store_true",
             help="Do not follow old field number when generating. /!\\ this can lead to API breaking change.",
+        )
+        parser.add_argument(
+            "--extra-args",
+            "-a",
+            nargs="+",
+            help="Add extra arguments to the protoc command (generateproto -a --mypy_out=./ --mypy_grpc_out=./)",
         )
 
     def handle(self, *args, **options):
@@ -119,8 +126,21 @@ class Command(BaseCommand):
                 if self.generate_pb2:
                     if not settings.BASE_DIR:
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
-                    os.system(
-                        f"python -m grpc_tools.protoc --proto_path={settings.BASE_DIR} --python_out=./ --grpc_python_out=./ {file_path}"
+                    extra_args = options["extra_args"] if options["extra_args"] else ""
+                    # INFO - AM - 16/04/2024 - subprocess.run is safe because we are not using shell=True. Please do not change this. Unit test check this
+                    proto_include = protoc._get_resource_file_name(
+                        "grpc_tools", "_proto"
+                    )  # See https://github.com/grpc/grpc/blob/master/tools/distrib/python/grpcio_tools/grpc_tools/protoc.py#L209
+                    protoc.main(
+                        [
+                            "",  # First comment is not taken into account as argv first argument is the command itself and its ignored by protoc
+                            f"--proto_path={settings.BASE_DIR}",
+                            "--python_out=./",
+                            "--grpc_python_out=./",
+                            *extra_args,
+                            str(file_path),
+                            f"-I{proto_include}",  # This come from https://github.com/grpc/grpc/blob/master/tools/distrib/python/grpcio_tools/grpc_tools/protoc.py#L210 and help protoc to import know proto as Struct or Empty
+                        ],
                     )
 
     def check_or_write(self, file: Path, proto, app_name):

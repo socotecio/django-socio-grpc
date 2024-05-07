@@ -1,5 +1,6 @@
 import asyncio
 import os
+from importlib import resources
 from pathlib import Path
 
 from asgiref.sync import async_to_sync
@@ -11,18 +12,14 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
-from importlib import resources
 
-def _get_resource_file_name(
-    package_or_requirement: str, resource_name: str
-) -> str:
+
+def _get_resource_file_name(package_or_requirement: str, resource_name: str) -> str:
     """
     Obtain the filename for a resource on the file system.
-    To remove when grpcio-tools is updated. 
+    To remove when grpcio-tools is updated.
     """
-    return (
-        resources.files(package_or_requirement) / resource_name
-    ).resolve()
+    return (resources.files(package_or_requirement) / resource_name).resolve()
 
 
 class Command(BaseCommand):

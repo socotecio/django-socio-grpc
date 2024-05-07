@@ -15,7 +15,7 @@ from django_socio_grpc.protobuf.protoparser import protoparser
 from django_socio_grpc.services import AppHandlerRegistry
 from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.tests.utils import patch_open
-
+from django_socio_grpc.management.commands.generateproto import _get_resource_file_name
 
 def relatedfieldmodel_handler_hook(server):
     from fakeapp.services.related_field_model_service import RelatedFieldModelService
@@ -459,7 +459,7 @@ class TestProtoGeneration(TestCase):
         with patch_open():
             call_command("generateproto", *args, **opts)
 
-        proto_include = protoc._get_resource_file_name("grpc_tools", "_proto")
+        proto_include = _get_resource_file_name("grpc_tools", "_proto")
 
         mock_protoc_main.assert_called_once_with(
             [
@@ -484,7 +484,7 @@ class TestProtoGeneration(TestCase):
         with patch_open():
             call_command("generateproto", *args, **opts)
 
-        proto_include = protoc._get_resource_file_name("grpc_tools", "_proto")
+        proto_include = _get_resource_file_name("grpc_tools", "_proto")
         mock_protoc_main.assert_called_once_with(
             [
                 "",

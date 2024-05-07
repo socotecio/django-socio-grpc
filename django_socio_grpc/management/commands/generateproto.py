@@ -22,7 +22,6 @@ else:
 def _get_resource_file_name(package_or_requirement: str, resource_name: str) -> str:
     """
     Obtain the filename for a resource on the file system.
-    To remove when grpcio-tools is updated.
     """
     if sys.version_info >= (3, 9, 0):
         return (resources.files(package_or_requirement) / resource_name).resolve()

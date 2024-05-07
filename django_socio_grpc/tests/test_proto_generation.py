@@ -7,15 +7,15 @@ from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase, override_settings
-from grpc_tools import protoc
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django_socio_grpc.management.commands.generateproto import _get_resource_file_name
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.protoparser import protoparser
 from django_socio_grpc.services import AppHandlerRegistry
 from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.tests.utils import patch_open
-from django_socio_grpc.management.commands.generateproto import _get_resource_file_name
+
 
 def relatedfieldmodel_handler_hook(server):
     from fakeapp.services.related_field_model_service import RelatedFieldModelService

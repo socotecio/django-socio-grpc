@@ -7,9 +7,9 @@ from unittest.mock import patch
 
 from django.core.management import call_command
 from django.test import TestCase, override_settings
-from grpc_tools import protoc
 
 from django_socio_grpc.exceptions import ProtobufGenerationException
+from django_socio_grpc.management.commands.generateproto import _get_resource_file_name
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.protoparser import protoparser
 from django_socio_grpc.services import AppHandlerRegistry
@@ -459,7 +459,7 @@ class TestProtoGeneration(TestCase):
         with patch_open():
             call_command("generateproto", *args, **opts)
 
-        proto_include = protoc._get_resource_file_name("grpc_tools", "_proto")
+        proto_include = _get_resource_file_name("grpc_tools", "_proto")
 
         mock_protoc_main.assert_called_once_with(
             [
@@ -484,7 +484,7 @@ class TestProtoGeneration(TestCase):
         with patch_open():
             call_command("generateproto", *args, **opts)
 
-        proto_include = protoc._get_resource_file_name("grpc_tools", "_proto")
+        proto_include = _get_resource_file_name("grpc_tools", "_proto")
         mock_protoc_main.assert_called_once_with(
             [
                 "",

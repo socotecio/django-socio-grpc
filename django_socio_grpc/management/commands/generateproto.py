@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 from pathlib import Path
 
 from asgiref.sync import async_to_sync
@@ -11,6 +12,21 @@ from django_socio_grpc.exceptions import ProtobufGenerationException
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
 from django_socio_grpc.settings import grpc_settings
+
+if sys.version_info >= (3, 9, 0):
+    from importlib import resources
+else:
+    import pkg_resources
+
+
+def _get_resource_file_name(package_or_requirement: str, resource_name: str) -> str:
+    """
+    Obtain the filename for a resource on the file system.
+    """
+    if sys.version_info >= (3, 9, 0):
+        return (resources.files(package_or_requirement) / resource_name).resolve()
+    else:
+        return pkg_resources.resource_filename(package_or_requirement, resource_name)
 
 
 class Command(BaseCommand):
@@ -128,7 +144,7 @@ class Command(BaseCommand):
                         raise ProtobufGenerationException(detail="No BASE_DIR in settings")
                     extra_args = options["extra_args"] if options["extra_args"] else ""
                     # INFO - AM - 16/04/2024 - subprocess.run is safe because we are not using shell=True. Please do not change this. Unit test check this
-                    proto_include = protoc._get_resource_file_name(
+                    proto_include = _get_resource_file_name(
                         "grpc_tools", "_proto"
                     )  # See https://github.com/grpc/grpc/blob/master/tools/distrib/python/grpcio_tools/grpc_tools/protoc.py#L209
                     protoc.main(

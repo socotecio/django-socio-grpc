@@ -372,9 +372,9 @@ class UnaryResponseMixin:
 class StreamRequestMixin:
     _is_done_writing = False
     request = None
+    _context: FakeAsyncContext
 
     def __call__(self, request=None, metadata=None):
-        print("__call__", request)
         return super().__call__(
             request=FakeMessageReceiver(request=request, context=self._context),
             metadata=metadata,
@@ -392,12 +392,13 @@ class StreamRequestMixin:
 
 
 class StreamResponseMixin:
+    _context: FakeAsyncContext
+
     def __aiter__(self):
         return self
 
     async def __anext__(self):
-        # INFO - AM - 05/01/2024 - do not use self.read here. Don't know why (mostly because of mixed inheritance and read client instead of server pipe) but it break everything
-        response = await self._context.read_server()
+        response = await self.read()
         if isinstance(response, Exception):
             raise response
         if response == grpc.aio.EOF:
@@ -405,7 +406,7 @@ class StreamResponseMixin:
         return response
 
     async def read(self):
-        return await self._context._read_server()
+        return await self._context.read_server()
 
 
 class FakeFullAioStreamUnaryCall(

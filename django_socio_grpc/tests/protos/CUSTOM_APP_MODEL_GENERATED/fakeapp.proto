@@ -22,7 +22,7 @@ message ForeignModelResponse {
 
 message ForeignModelRetrieveCustomResponse {
     string name = 1;
-    optional string custom = 2;
+    string custom = 2;
 }
 
 message ForeignModelRetrieveCustomRetrieveRequest {

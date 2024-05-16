@@ -251,7 +251,7 @@ message CustomNameForResponse {
 // Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModelResponse {
     optional string uuid = 1;
-    optional int32 default_method_field = 2;
+    int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 
@@ -357,7 +357,7 @@ message ForeignModelResponse {
 
 message ForeignModelRetrieveCustomResponse {
     string name = 1;
-    optional string custom = 2;
+    string custom = 2;
 }
 
 message ForeignModelRetrieveCustomRetrieveRequest {
@@ -598,9 +598,9 @@ message UnitTestModelListWithExtraArgsRequest {
 
 message UnitTestModelPartialUpdateRequest {
     optional int32 id = 1;
-    repeated string _partial_update_fields = 2;
-    string title = 3;
-    optional string text = 4;
+    string title = 2;
+    optional string text = 3;
+    repeated string _partial_update_fields = 4;
 }
 
 message UnitTestModelRequest {
@@ -613,6 +613,7 @@ message UnitTestModelResponse {
     optional int32 id = 1;
     string title = 2;
     optional string text = 3;
+    int32 model_property = 4;
 }
 
 message UnitTestModelRetrieveRequest {
@@ -643,9 +644,9 @@ message UnitTestModelWithStructFilterListResponse {
 
 message UnitTestModelWithStructFilterPartialUpdateRequest {
     optional int32 id = 1;
-    repeated string _partial_update_fields = 2;
-    string title = 3;
-    optional string text = 4;
+    string title = 2;
+    optional string text = 3;
+    repeated string _partial_update_fields = 4;
 }
 
 message UnitTestModelWithStructFilterRequest {
@@ -658,6 +659,7 @@ message UnitTestModelWithStructFilterResponse {
     optional int32 id = 1;
     string title = 2;
     optional string text = 3;
+    int32 model_property = 4;
 }
 
 message UnitTestModelWithStructFilterRetrieveRequest {

@@ -19,6 +19,7 @@ from rest_framework.exceptions import APIException
 class ProtobufGenerationException(Exception):
     """
     An exception class for handling errors related to protobuf generation within DSG. It can be raised with specific information about the app name, model name, and a detail message.
+    Deprecated, only used in old generation method
     """
 
     default_detail = "Unknown"

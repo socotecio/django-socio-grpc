@@ -17,6 +17,10 @@ class UnitTestModel(models.Model):
     title = models.CharField(max_length=20)
     text = models.CharField(max_length=100, null=True)
 
+    @property
+    def model_property(self) -> int:
+        return 1
+
     class Meta:
         grpc_messages = {
             **get_default_grpc_messages("UnitTestModel"),

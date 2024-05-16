@@ -1,4 +1,5 @@
-from typing import MutableSequence
+import contextlib
+from typing import Dict, List, MutableSequence
 
 from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
@@ -13,6 +14,7 @@ from rest_framework.serializers import (
     Field,
     ListSerializer,
     ModelSerializer,
+    ReadOnlyField,
     Serializer,
 )
 from rest_framework.settings import api_settings
@@ -24,8 +26,13 @@ from django_socio_grpc.utils.constants import (
     LIST_ATTR_MESSAGE_NAME,
     PARTIAL_UPDATE_FIELD_NAME,
 )
+from django_socio_grpc.utils.model_meta import get_model_pk
 
 LIST_PROTO_SERIALIZER_KWARGS = (*LIST_SERIALIZER_KWARGS, LIST_ATTR_MESSAGE_NAME, "message")
+
+
+class _NoDictData(Exception):
+    pass
 
 
 def get_default_value(field_default):
@@ -36,6 +43,8 @@ def get_default_value(field_default):
 
 
 class BaseProtoSerializer(BaseSerializer):
+    fields: Dict[str, Field]
+
     def __init__(self, *args, **kwargs):
         message = kwargs.pop("message", None)
         self.stream = kwargs.pop("stream", None)
@@ -50,10 +59,10 @@ class BaseProtoSerializer(BaseSerializer):
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
         data_dict = message_to_dict(message)
-        data_dict = self.populate_dict_with_none_if_not_required(data_dict, message=message)
+        data_dict = self._populate_dict_with_none_if_not_required(data_dict, message=message)
         return data_dict
 
-    def populate_dict_with_none_if_not_required(self, data_dict, message=None):
+    def _populate_dict_with_none_if_not_required(self, data_dict, message=None):
         """
         This method allow to populate the data dictionary with None for optional field that allow_null and not send in the request.
         It's also allow to deal with partial update correctly.
@@ -76,59 +85,59 @@ class BaseProtoSerializer(BaseSerializer):
             )
 
         is_update_process = (
-            hasattr(self.Meta, "model") and self.Meta.model._meta.pk.name in data_dict
+            hasattr(self.Meta, "model") and get_model_pk(self.Meta.model).name in data_dict
         )
+        clean_dict = {}
+        partial_fields: list[str] = data_dict.get(PARTIAL_UPDATE_FIELD_NAME, [])
         for field in self.fields.values():
-            # INFO - AM - 04/01/2024 - If we are in a partial serializer we only need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute in the data. Meaning deleting fields that should not be here and not adding None to allow_null field that are not specified
-            if self.partial and field.field_name not in data_dict.get(
-                PARTIAL_UPDATE_FIELD_NAME, {}
-            ):
-                if field.field_name in data_dict:
-                    del data_dict[field.field_name]
+            # INFO - AM - 04/01/2024 - If we are in a partial serializer we only
+            # need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute
+            # in the data. Meaning deleting fields that should not be here and not adding
+            # None to allow_null field that are not specified
+            if self.partial and field.field_name not in partial_fields:
                 continue
-            # INFO - AM - 04/01/2024 - if field already existing in the data_dict we do not need to do something else
+
             if field.field_name in data_dict:
+                clean_dict[field.field_name] = data_dict[field.field_name]
                 continue
 
-            # INFO - AM - 04/01/2024 - if field is not in the data_dict but in PARTIAL_UPDATE_FIELD_NAME we need to set the default value if existing or raise exception to avoid having default grpc value by mistake
-            if self.partial and field.field_name in data_dict.get(
-                PARTIAL_UPDATE_FIELD_NAME, {}
-            ):
-                if field.allow_null:
-                    data_dict[field.field_name] = None
-                    continue
-                if field.default not in [None, empty]:
-                    data_dict[field.field_name] = get_default_value(field.default)
-                    continue
+            with contextlib.suppress(_NoDictData):
+                clean_dict[field.field_name] = self._get_cleaned_data(
+                    partial_fields, field, is_update_process, message
+                )
+        return clean_dict
 
-                # INFO - AM - 11/03/2024 - Here we set the default value especially for the blank authorized data. We debated about raising a ValidaitonError but prefered this behavior. Can be changed if it create issue with users
-                data_dict[field.field_name] = message.DESCRIPTOR.fields_by_name[
-                    field.field_name
-                ].default_value
+    def _get_cleaned_data(
+        self,
+        partial_fields: List[str],
+        field: Field,
+        is_update_process: bool,
+        message,
+    ):
+        # INFO - AM - 04/01/2024 - if field is not in the data_dict but in PARTIAL_UPDATE_FIELD_NAME
+        # we need to set the default value if existing or raise exception to avoid having default
+        # grpc value by mistake
+        if field.field_name in partial_fields:
+            if field.allow_null:
+                return None
+            elif field.default not in [None, empty]:
+                return get_default_value(field.default)
+            # INFO - AM - 11/03/2024 - Here we set the default value especially for the blank authorized data.
+            # We debated about raising a ValidaitonError but prefered this behavior.
+            # Can be changed if it create issue with users
+            return message.DESCRIPTOR.fields_by_name[field.field_name].default_value
 
-            if field.allow_null or (field.default in [None, empty] and field.required is True):
-                if is_update_process:
-                    data_dict[field.field_name] = None
-                    continue
+        elif field.allow_null or (field.default in [None, empty] and field.required is True):
+            if is_update_process or field.default not in [None, empty]:
+                return None
+            try:
+                deferred_attribute = getattr(self.Meta.model, field.field_name)
+                if deferred_attribute.field.default != NOT_PROVIDED:
+                    return get_default_value(deferred_attribute.field.default)
+            except AttributeError:
+                return None
 
-                if field.default not in [None, empty]:
-                    data_dict[field.field_name] = None
-                    continue
-
-                if (
-                    hasattr(self, "Meta")
-                    and hasattr(self.Meta, "model")
-                    and hasattr(self.Meta.model, field.field_name)
-                ):
-                    deferred_attribute = getattr(self.Meta.model, field.field_name)
-                    if deferred_attribute.field.default != NOT_PROVIDED:
-                        data_dict[field.field_name] = get_default_value(
-                            deferred_attribute.field.default
-                        )
-                        continue
-
-                data_dict[field.field_name] = None
-        return data_dict
+        raise _NoDictData
 
     def data_to_message(self, data):
         """Protobuf message <- Dict of python primitive datatypes."""
@@ -254,8 +263,24 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             return response
 
 
+class PropertyReadOnlyField(ReadOnlyField):
+    def __init__(self, **kwargs):
+        self.property_field: property = kwargs.pop("property_field")
+        super().__init__(**kwargs)
+
+
 class ModelProtoSerializer(ProtoSerializer, ModelSerializer):
-    pass
+    def build_property_field(self, field_name, model_class):
+        """
+        To generate the correct types of a model property field we have
+        to know that the field is a property, by default the field is only
+        a ReadOnlyField. PropertyReadOnlyField has the property information
+        we need.
+        """
+        field_class = PropertyReadOnlyField
+        field_kwargs = {"property_field": getattr(model_class, field_name)}
+
+        return field_class, field_kwargs
 
 
 class BinaryField(Field):

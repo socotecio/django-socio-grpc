@@ -1,4 +1,3 @@
-import contextlib
 from typing import Dict, List, MutableSequence
 
 from asgiref.sync import sync_to_async
@@ -101,10 +100,13 @@ class BaseProtoSerializer(BaseSerializer):
                 clean_dict[field.field_name] = data_dict[field.field_name]
                 continue
 
-            with contextlib.suppress(_NoDictData):
+            try:
                 clean_dict[field.field_name] = self._get_cleaned_data(
                     partial_fields, field, is_update_process, message
                 )
+            except _NoDictData:
+                continue
+
         return clean_dict
 
     def _get_cleaned_data(

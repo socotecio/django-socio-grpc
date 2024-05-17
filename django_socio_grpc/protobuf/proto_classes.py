@@ -24,12 +24,19 @@ from rest_framework import serializers
 from rest_framework.fields import HiddenField, empty
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
+from django_socio_grpc.proto_serializers import PropertyReadOnlyField
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 from django_socio_grpc.utils.model_meta import get_model_pk
 
-from .exceptions import ProtoRegistrationError
+from .exceptions import (
+    FutureAnnotationError,
+    ListWithMultipleArgsError,
+    NoReturnTypeError,
+    ProtoRegistrationError,
+    UnknownTypeError,
+)
 from .typing import FieldCardinality, FieldDict
 
 try:
@@ -167,7 +174,6 @@ class ProtoField:
         """
         to_message, parent_serializer, name_if_recursive only used if field is ListSerializer with a child being a Serializer
         """
-        cardinality = cls._get_cardinality(field)
 
         if isinstance(field, serializers.SerializerMethodField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is SerializerMethodField")
@@ -186,6 +192,11 @@ class ProtoField:
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is RelatedField")
             return cls._from_related_field(field)
 
+        elif isinstance(field, PropertyReadOnlyField):
+            ProtoGeneratorPrintHelper.print(f"{field.field_name} is PropertyReadOnlyField")
+            return cls._from_property_read_only_field(field)
+
+        cardinality = cls._get_cardinality(field)
         if isinstance(field, serializers.ListField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ListField")
             cardinality = FieldCardinality.REPEATED
@@ -304,52 +315,24 @@ class ProtoField:
         )
 
     @classmethod
-    def _from_serializer_method_field(
-        cls, field: serializers.SerializerMethodField
-    ) -> "ProtoField":
-        cardinality = cls._get_cardinality(field)
-        method_name = field.method_name
-
-        try:
-            method = getattr(field.parent, method_name)
-        except AttributeError as e:
-            raise ProtoRegistrationError(
-                f"Method {method_name} not found in {field.parent.__class__.__name__}"
-            ) from e
-
+    def _extract_method_info(cls, method):
+        cardinality = FieldCardinality.NONE
         try:
             return_type = get_type_hints(method).get("return")
         except TypeError as e:
             if sys.version_info < (3, 10):
-                raise ProtoRegistrationError(
-                    "You have likely used a PEP 604 return type hint in "
-                    f"{field.parent.__class__.__name__}.{method_name}. "
-                    "Using `__future__.annotations` is not supported by the field inspection "
-                    "mechanism. Please use the `typing` module instead."
-                ) from e
+                raise FutureAnnotationError from e
             raise
 
         if not return_type:
-            raise ProtoRegistrationError(
-                f"You are trying to register the serializer {field.parent.__class__.__name__} "
-                f"with a SerializerMethodField on the field {field.field_name}. "
-                f"But the method {method_name} doesn't have a return annotation. "
-                "Please look at the example: https://github.com/socotecio/django-socio-grpc/"
-                "blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L111. "
-                "And the python doc: https://docs.python.org/3.8/library/typing.html"
-            )
+            raise NoReturnTypeError
 
         # https://docs.python.org/3/library/typing.html#typing.get_origin
         args = get_args(return_type)
         if return_type is list or get_origin(return_type) is list:
             cardinality = FieldCardinality.REPEATED
             if len(args) > 1:
-                raise ProtoRegistrationError(
-                    f"You are trying to register the serializer {field.parent.__class__.__name__} "
-                    f"with a SerializerMethodField on the field {field.field_name}. But the method "
-                    "associated returns a List type with multiple arguments. DSG only supports one."
-                )
-
+                raise ListWithMultipleArgsError
             # INFO - LG - 03/01/2023 - By default a list is a list of str
             (return_type,) = args or [str]
 
@@ -371,11 +354,95 @@ class ProtoField:
             field_type = ResponseProtoMessage.from_serializer(return_type)
 
         else:
+            raise UnknownTypeError(return_type=return_type)
+
+        return field_type, cardinality
+
+    @classmethod
+    def _from_serializer_method_field(
+        cls, field: serializers.SerializerMethodField
+    ) -> "ProtoField":
+        method_name = field.method_name
+
+        try:
+            method = getattr(field.parent, method_name)
+        except AttributeError as e:
+            raise ProtoRegistrationError(
+                f"Method {method_name} not found in {field.parent.__class__.__name__}"
+            ) from e
+
+        try:
+            field_type, cardinality = cls._extract_method_info(method)
+        except FutureAnnotationError as e:
+            raise ProtoRegistrationError(
+                "You have likely used a PEP 604 return type hint in "
+                f"{field.parent.__class__.__name__}.{method_name}. "
+                "Using `__future__.annotations` is not supported by the field inspection "
+                "mechanism. Please use the `typing` module instead."
+            ) from e
+        except NoReturnTypeError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {field.parent.__class__.__name__} "
+                f"with a SerializerMethodField on the field {field.field_name}. "
+                f"But the method {method_name} doesn't have a return annotation. "
+                "Please look at the example: https://github.com/socotecio/django-socio-grpc/"
+                "blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L111. "
+                "And the python doc: https://docs.python.org/3.8/library/typing.html"
+            ) from e
+        except ListWithMultipleArgsError as e:
             raise ProtoRegistrationError(
                 f"You are trying to register the serializer {field.parent.__class__.__name__} "
                 f"with a SerializerMethodField on the field {field.field_name}. But the method "
-                f"associated returns a type ({return_type}) not supported by DSG."
-            )
+                "associated returns a List type with multiple arguments. DSG only supports one."
+            ) from e
+        except UnknownTypeError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {field.parent.__class__.__name__} "
+                f"with a SerializerMethodField on the field {field.field_name}. But the method "
+                f"associated returns a type ({e.return_type}) not supported by DSG."
+            ) from e
+
+        return cls(
+            name=field.field_name,
+            field_type=field_type,
+            cardinality=cardinality,
+        )
+
+    @classmethod
+    def _from_property_read_only_field(cls, field: PropertyReadOnlyField) -> "ProtoField":
+        method = field.property_field.fget
+        serializer: serializers.ModelSerializer = field.parent
+
+        try:
+            field_type, cardinality = cls._extract_method_info(method)
+        except FutureAnnotationError as e:
+            raise ProtoRegistrationError(
+                "You have likely used a PEP 604 return type hint in "
+                f"{serializer.Meta.model}.{field.field_name}. "
+                "Using `__future__.annotations` is not supported by the field inspection "
+                "mechanism. Please use the `typing` module instead."
+            ) from e
+        except NoReturnTypeError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {serializer.__class__.__name__} "
+                f"with a property on the model {serializer.Meta.model}.{field.field_name}. "
+                f"But this property doesn't have a return annotation. "
+                "Please look at the example: https://github.com/socotecio/django-socio-grpc/"
+                "blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L111. "
+                "And the python doc: https://docs.python.org/3.8/library/typing.html"
+            ) from e
+        except ListWithMultipleArgsError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {serializer.__class__.__name__} "
+                f"with a property on the model {serializer.Meta.model}.{field.field_name}. "
+                "But the property return type is a List with multiple arguments. DSG only supports one."
+            ) from e
+        except UnknownTypeError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {serializer.__class__.__name__} "
+                f"with a property on the model {serializer.Meta.model}.{field.field_name}. "
+                f"But the property return type ({e.return_type}) is not supported by DSG."
+            ) from e
 
         return cls(
             name=field.field_name,

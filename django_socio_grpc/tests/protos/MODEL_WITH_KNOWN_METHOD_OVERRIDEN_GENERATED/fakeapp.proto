@@ -17,7 +17,7 @@ service SpecialFieldsModelController {
 // Test comment for whole message
 message CustomRetrieveResponseSpecialFieldsModelResponse {
     optional string uuid = 1;
-    optional int32 default_method_field = 2;
+    int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
 }
 

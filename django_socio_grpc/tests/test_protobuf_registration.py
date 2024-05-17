@@ -72,6 +72,22 @@ class MyIntSerializer(proto_serializers.ModelProtoSerializer):
         fields = "__all__"
 
 
+class MyPropertyModel(models.Model):
+    @property
+    def str_property(self) -> str:
+        return "str_property"
+
+    @property
+    def int_property(self) -> int:
+        return 1
+
+
+class MyPropertySerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyPropertyModel
+        fields = ["str_property", "int_property"]
+
+
 class MyIntField(serializers.IntegerField): ...
 
 
@@ -320,6 +336,24 @@ class TestFields:
         assert proto_field.field_type == "int32"
         # INFO - AM - 04/01/2024 - OPTIONAL because a default is specified in the model
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_property_field(self):
+        ser = MyPropertySerializer()
+        field = ser.fields["str_property"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "str_property"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        field = ser.fields["int_property"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "int_property"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.NONE
 
     def test_from_field_default(self):
         ser = MySerializer()

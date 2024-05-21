@@ -4,6 +4,7 @@ from fakeapp.serializers import (
     BaseProtoExampleSerializer,
     BasicProtoListChildSerializer,
     BasicServiceSerializer,
+    NoMetaSerializer,
 )
 
 from django_socio_grpc import generics
@@ -138,3 +139,12 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         # INFO - AM - 14/04/2023 - Test translation here
         message = fakeapp_pb2.BasicFetchTranslatedKeyResponse(text=_("Test translation"))
         return message
+
+    @grpc_action(
+        request=NoMetaSerializer,
+        response=[{"name": "value", "type": "string"}],
+    )
+    async def TestNoMetaSerializer(self, request, context):
+        serializer = NoMetaSerializer(message=request)
+        serializer.is_valid(raise_exception=True)
+        return fakeapp_pb2.BasicTestNoMetaSerializerResponse(value=serializer.data["my_field"])

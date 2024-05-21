@@ -18,6 +18,7 @@ service BasicController {
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExampleRequest) returns (BaseProtoExampleListResponse) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc TestNoMetaSerializer(NoMetaRequest) returns (BasicTestNoMetaSerializerResponse) {}
 }
 
 message BaseProtoExampleListResponse {
@@ -131,6 +132,10 @@ message BasicServiceResponse {
     repeated google.protobuf.Struct list_of_dict = 4;
 }
 
+message BasicTestNoMetaSerializerResponse {
+    string value = 1;
+}
+
 message CustomMixParamForListRequest {
     repeated CustomMixParamForRequest results = 1;
     int32 count = 2;
@@ -147,5 +152,9 @@ message CustomNameForRequest {
 
 message CustomNameForResponse {
     string user_name = 1;
+}
+
+message NoMetaRequest {
+    string my_field = 1;
 }
 

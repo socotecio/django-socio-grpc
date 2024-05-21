@@ -45,3 +45,9 @@ class TestAsyncModelService(TestCase):
         request.results.append(alice)
         response = await grpc_stub.BasicList(request)
         self.assertEqual(len(response.results), 2)
+
+    async def test_no_meta_serializer(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(BasicControllerStub)
+        request = fakeapp_pb2.NoMetaRequest(my_field="test")
+        response = await grpc_stub.TestNoMetaSerializer(request)
+        self.assertEqual(response.value, "test")

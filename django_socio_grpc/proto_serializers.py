@@ -1,4 +1,4 @@
-from typing import Dict, List, MutableSequence
+from typing import Dict, MutableSequence
 
 from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
@@ -45,101 +45,22 @@ class BaseProtoSerializer(BaseSerializer):
     fields: Dict[str, Field]
 
     def __init__(self, *args, **kwargs):
+        if "message" in kwargs and "data" in kwargs:
+            raise ValueError(
+                "If you pass a 'message' you should not pass a 'data' argument. The 'data' will be generated from the 'message'."
+            )
         message = kwargs.pop("message", None)
         self.stream = kwargs.pop("stream", None)
         self.message_list_attr = kwargs.pop(LIST_ATTR_MESSAGE_NAME, DEFAULT_LIST_FIELD_NAME)
-        # INFO - AM - 04/01/2023 - Need to manually define partial before the super().__init__ as it's used in populate_dict_with_none_if_not_required that is used in message_to_data that is call before the super init
-        self.partial = kwargs.get("partial", False)
+        super().__init__(*args, **kwargs)
         if message is not None:
             self.initial_message = message
-            kwargs["data"] = self.message_to_data(message)
-        super().__init__(*args, **kwargs)
+            # INFO - LG - 23/05/2024 - initial_data is empty at this point
+            self.initial_data = self.message_to_data(message)
 
     def message_to_data(self, message):
         """Protobuf message -> Dict of python primitive datatypes."""
-        data_dict = message_to_dict(message)
-        data_dict = self._populate_dict_with_none_if_not_required(data_dict, message=message)
-        return data_dict
-
-    def _populate_dict_with_none_if_not_required(self, data_dict, message=None):
-        """
-        This method allow to populate the data dictionary with None for optional field that allow_null and not send in the request.
-        It's also allow to deal with partial update correctly.
-        This is mandatory for having null value received in request as DRF expect to have None value for field that are required.
-        We can't rely only on required True/False as in DSG if a field is required it will have the default value of it's type (empty string for string type) and not None
-
-        When refactoring serializer to only use message we will be able to determine the default value of the field depending of the same logic followed here
-
-        set default value for field except if optional or partial update
-        """
-        # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the data_dict. If not we raise an exception
-        if self.partial and PARTIAL_UPDATE_FIELD_NAME not in data_dict:
-            raise ValidationError(
-                {
-                    PARTIAL_UPDATE_FIELD_NAME: [
-                        f"Field {PARTIAL_UPDATE_FIELD_NAME} not set in message when using partial=True"
-                    ]
-                },
-                code="missing_partial_message_attribute",
-            )
-
-        is_update_process = (
-            hasattr(self.Meta, "model") and get_model_pk(self.Meta.model).name in data_dict
-        )
-        clean_dict = {}
-        partial_fields: list[str] = data_dict.get(PARTIAL_UPDATE_FIELD_NAME, [])
-        for field in self.fields.values():
-            # INFO - AM - 04/01/2024 - If we are in a partial serializer we only
-            # need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute
-            # in the data. Meaning deleting fields that should not be here and not adding
-            # None to allow_null field that are not specified
-            if self.partial and field.field_name not in partial_fields:
-                continue
-
-            if field.field_name in data_dict:
-                clean_dict[field.field_name] = data_dict[field.field_name]
-                continue
-
-            try:
-                clean_dict[field.field_name] = self._get_cleaned_data(
-                    partial_fields, field, is_update_process, message
-                )
-            except _NoDictData:
-                continue
-
-        return clean_dict
-
-    def _get_cleaned_data(
-        self,
-        partial_fields: List[str],
-        field: Field,
-        is_update_process: bool,
-        message,
-    ):
-        # INFO - AM - 04/01/2024 - if field is not in the data_dict but in PARTIAL_UPDATE_FIELD_NAME
-        # we need to set the default value if existing or raise exception to avoid having default
-        # grpc value by mistake
-        if field.field_name in partial_fields:
-            if field.allow_null:
-                return None
-            elif field.default not in [None, empty]:
-                return get_default_value(field.default)
-            # INFO - AM - 11/03/2024 - Here we set the default value especially for the blank authorized data.
-            # We debated about raising a ValidaitonError but prefered this behavior.
-            # Can be changed if it create issue with users
-            return message.DESCRIPTOR.fields_by_name[field.field_name].default_value
-
-        elif field.allow_null or (field.default in [None, empty] and field.required is True):
-            if is_update_process or field.default not in [None, empty]:
-                return None
-            try:
-                deferred_attribute = getattr(self.Meta.model, field.field_name)
-                if deferred_attribute.field.default != NOT_PROVIDED:
-                    return get_default_value(deferred_attribute.field.default)
-            except AttributeError:
-                return None
-
-        raise _NoDictData
+        return self._MessageToData(message, self).get_data()
 
     def data_to_message(self, data):
         """Protobuf message <- Dict of python primitive datatypes."""
@@ -201,6 +122,95 @@ class BaseProtoSerializer(BaseSerializer):
         raise NotImplementedError(
             "If you want to use BaseProtoSerializer instead of ProtoSerializer you need to implement 'to_proto_message' method as there is no fields to introspect from. Please read the documentation"
         )
+
+    class _MessageToData:
+        """
+        This nested class is used to handle the conversion of a protobuf message to a dict of python primitive datatypes.
+        It is responsible for dealing with edge cases such as partial updates and optional fields.
+        """
+
+        def __init__(self, message, serializer):
+            self.message = message
+            self.serializer: Serializer = serializer
+            self.base_data = message_to_dict(message)
+
+        @property
+        def partial_fields(self):
+            return self.base_data.get(PARTIAL_UPDATE_FIELD_NAME, [])
+
+        def get_data(self):
+            """
+            This method allow to populate the data dictionary with None for optional field that allow_null and not send in the request.
+            It's also allow to deal with partial update correctly.
+            This is mandatory for having null value received in request as DRF expect to have None value for field that are required.
+            We can't rely only on required True/False as in DSG if a field is required it will have the default value of it's type (empty string for string type) and not None
+
+            When refactoring serializer to only use message we will be able to determine the default value of the field depending of the same logic followed here
+
+            set default value for field except if optional or partial update
+            """
+            # INFO - AM - 04/01/2024 - If we are in a partial serializer with a message we need to have the PARTIAL_UPDATE_FIELD_NAME in the data_dict. If not we raise an exception
+            if self.serializer.partial and PARTIAL_UPDATE_FIELD_NAME not in self.base_data:
+                raise ValidationError(
+                    {
+                        PARTIAL_UPDATE_FIELD_NAME: [
+                            f"Field {PARTIAL_UPDATE_FIELD_NAME} not set in message when using partial=True"
+                        ]
+                    },
+                    code="missing_partial_message_attribute",
+                )
+
+            cleaned_data = {}
+
+            for name, field in self.serializer.fields.items():
+                try:
+                    cleaned_data[name] = self.get_cleaned_field_value(field)
+                except _NoDictData:
+                    continue
+
+            return cleaned_data
+
+        def get_nullable_field_value(self, field: Field):
+            if field.allow_null or (field.default in [None, empty] and field.required):
+                return None
+
+            raise _NoDictData
+
+        def get_partial_field_value(self, field: Field):
+            # INFO - AM - 04/01/2024 - if field is not in the data_dict but in PARTIAL_UPDATE_FIELD_NAME
+            # we need to set the default value if existing or raise exception to avoid having default
+            # grpc value by mistake
+            if field.field_name in self.partial_fields:
+                if field.allow_null:
+                    return None
+                elif field.default not in [None, empty]:
+                    return get_default_value(field.default)
+                # INFO - AM - 11/03/2024 - Here we set the default value especially for the blank authorized data.
+                # We debated about raising a ValidationError but prefered this behavior.
+                # Can be changed if it create issue with users
+                return self.message.DESCRIPTOR.fields_by_name[field.field_name].default_value
+            raise _NoDictData
+
+        def get_cleaned_field_value(
+            self,
+            field: Field,
+        ):
+            # INFO - AM - 04/01/2024 - If we are in a partial serializer we only
+            # need to have field specified in PARTIAL_UPDATE_FIELD_NAME attribute
+            # in the data. Meaning deleting fields that should not be here and not adding
+            # None to allow_null field that are not specified
+            if self.serializer.partial and field.field_name not in self.partial_fields:
+                raise _NoDictData
+
+            if field.field_name in self.base_data:
+                return self.base_data[field.field_name]
+
+            try:
+                return self.get_partial_field_value(field)
+            except _NoDictData:
+                pass
+
+            return self.get_nullable_field_value(field)
 
 
 class ProtoSerializer(BaseProtoSerializer, Serializer):
@@ -283,6 +293,34 @@ class ModelProtoSerializer(ProtoSerializer, ModelSerializer):
         field_kwargs = {"property_field": getattr(model_class, field_name)}
 
         return field_class, field_kwargs
+
+    class _MessageToData(ProtoSerializer._MessageToData):
+        """
+        ModelProtoSerializer._MessageToData should handle update/create differentially
+        and handle the default values of model fields.
+        """
+
+        @property
+        def model(self):
+            return self.serializer.Meta.model
+
+        @property
+        def updating(self):
+            return get_model_pk(self.model).name in self.base_data
+
+        def get_nullable_field_value(
+            self,
+            field: Field,
+        ):
+            value = super().get_nullable_field_value(field)
+            if self.updating or field.default not in [None, empty]:
+                return value
+            try:
+                deferred_attribute = getattr(self.model, field.field_name)
+                if deferred_attribute.field.default != NOT_PROVIDED:
+                    return get_default_value(deferred_attribute.field.default)
+            except AttributeError:
+                return value
 
 
 class BinaryField(Field):

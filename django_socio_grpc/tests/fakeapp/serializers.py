@@ -223,3 +223,7 @@ class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
         proto_class = fakeapp_pb2.DefaultValueResponse
         proto_class_list = fakeapp_pb2.DefaultValueListResponse
         fields = "__all__"
+
+
+class NoMetaSerializer(proto_serializers.ProtoSerializer):
+    my_field = serializers.CharField()

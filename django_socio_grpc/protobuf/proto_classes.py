@@ -1,3 +1,4 @@
+import abc
 import logging
 import sys
 import traceback
@@ -24,7 +25,6 @@ from rest_framework import serializers
 from rest_framework.fields import HiddenField, empty
 from rest_framework.utils.model_meta import RelationInfo, get_field_info
 
-from django_socio_grpc.proto_serializers import PropertyReadOnlyField
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
@@ -192,9 +192,14 @@ class ProtoField:
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is RelatedField")
             return cls._from_related_field(field)
 
-        elif isinstance(field, PropertyReadOnlyField):
-            ProtoGeneratorPrintHelper.print(f"{field.field_name} is PropertyReadOnlyField")
-            return cls._from_property_read_only_field(field)
+        elif isinstance(field, ProtoFieldConvertible):
+            ProtoGeneratorPrintHelper.print(f"{field.field_name} is ProtoFieldConvertible")
+            return field.to_proto_field(
+                cls,
+                to_message=to_message,
+                parent_serializer=parent_serializer,
+                name_if_recursive=name_if_recursive,
+            )
 
         cardinality = cls._get_cardinality(field)
         if isinstance(field, serializers.ListField):
@@ -400,48 +405,6 @@ class ProtoField:
                 f"You are trying to register the serializer {field.parent.__class__.__name__} "
                 f"with a SerializerMethodField on the field {field.field_name}. But the method "
                 f"associated returns a type ({e.return_type}) not supported by DSG."
-            ) from e
-
-        return cls(
-            name=field.field_name,
-            field_type=field_type,
-            cardinality=cardinality,
-        )
-
-    @classmethod
-    def _from_property_read_only_field(cls, field: PropertyReadOnlyField) -> "ProtoField":
-        method = field.property_field.fget
-        serializer: serializers.ModelSerializer = field.parent
-
-        try:
-            field_type, cardinality = cls._extract_method_info(method)
-        except FutureAnnotationError as e:
-            raise ProtoRegistrationError(
-                "You have likely used a PEP 604 return type hint in "
-                f"{serializer.Meta.model}.{field.field_name}. "
-                "Using `__future__.annotations` is not supported by the field inspection "
-                "mechanism. Please use the `typing` module instead."
-            ) from e
-        except NoReturnTypeError as e:
-            raise ProtoRegistrationError(
-                f"You are trying to register the serializer {serializer.__class__.__name__} "
-                f"with a property on the model {serializer.Meta.model}.{field.field_name}. "
-                f"But this property doesn't have a return annotation. "
-                "Please look at the example: https://github.com/socotecio/django-socio-grpc/"
-                "blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L111. "
-                "And the python doc: https://docs.python.org/3.8/library/typing.html"
-            ) from e
-        except ListWithMultipleArgsError as e:
-            raise ProtoRegistrationError(
-                f"You are trying to register the serializer {serializer.__class__.__name__} "
-                f"with a property on the model {serializer.Meta.model}.{field.field_name}. "
-                "But the property return type is a List with multiple arguments. DSG only supports one."
-            ) from e
-        except UnknownTypeError as e:
-            raise ProtoRegistrationError(
-                f"You are trying to register the serializer {serializer.__class__.__name__} "
-                f"with a property on the model {serializer.Meta.model}.{field.field_name}. "
-                f"But the property return type ({e.return_type}) is not supported by DSG."
             ) from e
 
         return cls(
@@ -833,3 +796,17 @@ TYPING_TO_PROTO_TYPES = {
     bytes: "bytes",
     Dict: StructMessage,
 }
+
+
+class ProtoFieldConvertible(abc.ABC):
+    """
+    Mixin to convert a class to a ProtoField
+    """
+
+    @abc.abstractmethod
+    def to_proto_field(
+        self,
+        proto_field_cls: Type[ProtoField],
+        **kwargs,
+    ) -> ProtoField:
+        raise NotImplementedError

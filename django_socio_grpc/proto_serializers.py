@@ -19,7 +19,15 @@ from rest_framework.serializers import (
 from rest_framework.settings import api_settings
 from rest_framework.utils.formatting import lazy_format
 
+from django_socio_grpc.protobuf.exceptions import (
+    FutureAnnotationError,
+    ListWithMultipleArgsError,
+    NoReturnTypeError,
+    ProtoRegistrationError,
+    UnknownTypeError,
+)
 from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
+from django_socio_grpc.protobuf.proto_classes import ProtoField, ProtoFieldConvertible
 from django_socio_grpc.utils.constants import (
     DEFAULT_LIST_FIELD_NAME,
     LIST_ATTR_MESSAGE_NAME,
@@ -275,10 +283,53 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             return response
 
 
-class PropertyReadOnlyField(ReadOnlyField):
+class PropertyReadOnlyField(ReadOnlyField, ProtoFieldConvertible):
     def __init__(self, **kwargs):
         self.property_field: property = kwargs.pop("property_field")
         super().__init__(**kwargs)
+
+    def to_proto_field(
+        self, proto_field_class: ProtoField = ProtoField, **kwargs
+    ) -> ProtoField:
+        method = self.property_field.fget
+        serializer: ModelSerializer = self.parent
+
+        try:
+            field_type, cardinality = proto_field_class._extract_method_info(method)
+        except FutureAnnotationError as e:
+            raise ProtoRegistrationError(
+                "You have likely used a PEP 604 return type hint in "
+                f"{serializer.Meta.model}.{self.field_name}. "
+                "Using `__future__.annotations` is not supported by the field inspection "
+                "mechanism. Please use the `typing` module instead."
+            ) from e
+        except NoReturnTypeError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {serializer.__class__.__name__} "
+                f"with a property on the model {serializer.Meta.model}.{self.field_name}. "
+                f"But this property doesn't have a return annotation. "
+                "Please look at the example: https://github.com/socotecio/django-socio-grpc/"
+                "blob/master/django_socio_grpc/tests/fakeapp/serializers.py#L111. "
+                "And the python doc: https://docs.python.org/3.8/library/typing.html"
+            ) from e
+        except ListWithMultipleArgsError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {serializer.__class__.__name__} "
+                f"with a property on the model {serializer.Meta.model}.{self.field_name}. "
+                "But the property return type is a List with multiple arguments. DSG only supports one."
+            ) from e
+        except UnknownTypeError as e:
+            raise ProtoRegistrationError(
+                f"You are trying to register the serializer {serializer.__class__.__name__} "
+                f"with a property on the model {serializer.Meta.model}.{self.field_name}. "
+                f"But the property return type ({e.return_type}) is not supported by DSG."
+            ) from e
+
+        return proto_field_class(
+            name=self.field_name,
+            field_type=field_type,
+            cardinality=cardinality,
+        )
 
 
 class ModelProtoSerializer(ProtoSerializer, ModelSerializer):

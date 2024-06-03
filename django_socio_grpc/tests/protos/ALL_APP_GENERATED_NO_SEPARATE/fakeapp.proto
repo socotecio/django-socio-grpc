@@ -69,6 +69,7 @@ service SpecialFieldsModelController {
 service StreamInController {
     rpc StreamIn(stream StreamInStreamIn) returns (StreamInStreamInList) {}
     rpc StreamToStream(stream StreamInStreamToStream) returns (stream StreamInStreamToStream) {}
+    rpc StreamToStreamReadWrite(stream StreamInStreamToStreamRequest) returns (stream StreamInStreamToStreamRequest) {}
 }
 
 service SyncUnitTestModelController {

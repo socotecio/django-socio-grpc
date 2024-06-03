@@ -35,3 +35,20 @@ class StreamInService(generics.GenericService):
             yield fakeapp_pb2.StreamInStreamToStreamResponse(name=f"{name}Response")
             if name == "finish":
                 break
+
+    @grpc_action(
+        request="StreamInStreamToStreamRequest",
+        response="StreamInStreamToStreamRequest",
+        request_stream=True,
+        response_stream=True,
+    )
+    async def StreamToStreamReadWrite(self, request, context):
+        while message := await context.read():
+            name = message.name
+            if name == "abort":
+                raise NotFound()
+            await context.write(
+                fakeapp_pb2.StreamInStreamToStreamResponse(name=f"{name}Response")
+            )
+            if name == "finish":
+                break

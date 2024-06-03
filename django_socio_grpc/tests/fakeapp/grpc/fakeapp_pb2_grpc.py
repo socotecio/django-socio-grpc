@@ -1927,6 +1927,11 @@ class StreamInControllerStub(object):
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamResponse.FromString,
                 )
+        self.StreamToStreamReadWrite = channel.stream_stream(
+                '/myproject.fakeapp.StreamInController/StreamToStreamReadWrite',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.FromString,
+                )
 
 
 class StreamInControllerServicer(object):
@@ -1944,6 +1949,12 @@ class StreamInControllerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def StreamToStreamReadWrite(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_StreamInControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -1956,6 +1967,11 @@ def add_StreamInControllerServicer_to_server(servicer, server):
                     servicer.StreamToStream,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamResponse.SerializeToString,
+            ),
+            'StreamToStreamReadWrite': grpc.stream_stream_rpc_method_handler(
+                    servicer.StreamToStreamReadWrite,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1998,6 +2014,23 @@ class StreamInController(object):
         return grpc.experimental.stream_stream(request_iterator, target, '/myproject.fakeapp.StreamInController/StreamToStream',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def StreamToStreamReadWrite(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_stream(request_iterator, target, '/myproject.fakeapp.StreamInController/StreamToStreamReadWrite',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.StreamInStreamToStreamRequest.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

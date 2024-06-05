@@ -107,7 +107,7 @@ class _BaseFakeContext:
         return self.stream_pipe_server.get_nowait()
 
     def _read_client(self):
-        return self.stream_pipe_server.get_nowait()
+        return self.stream_pipe_client.get_nowait()
 
     def code(self):
         return self._code
@@ -137,7 +137,7 @@ class FakeAsyncContext(_BaseFakeContext):
         await sync_to_async(super().abort)(code, details)
 
     async def write(self, data):
-        await sync_to_async(super().write)(data)
+        await self._write_server(data)
 
     async def _write_client(self, data):
         await sync_to_async(super()._write_client)(data)
@@ -145,10 +145,10 @@ class FakeAsyncContext(_BaseFakeContext):
     async def _write_server(self, data):
         await sync_to_async(super()._write_server)(data)
 
-    async def read_server(self):
+    async def _read_server(self):
         return await self._read(self.stream_pipe_server)
 
-    async def read_client(self):
+    async def _read_client(self):
         return await self._read(self.stream_pipe_client)
 
     async def _read(self, pipe, wait=True):
@@ -371,10 +371,32 @@ class UnaryResponseMixin:
 
 class StreamRequestMixin:
     _is_done_writing = False
-    request = None
+    _request = None
     _context: FakeAsyncContext
+    _populator_task = None
+
+    async def _async_context_populater(self, request):
+        """
+        This method will be launched in an other loop to be able to populate the stream client pipe without blocking the main thread
+        If the request is a generator it will also write grpc.aio.EOF to let the test finish correctly
+        """
+        if inspect.isasyncgen(request):
+            async for message in request:
+                await self.write(message)
+
+            await self.write(grpc.aio.EOF)
+
+        elif inspect.isgenerator(request):
+            for message in request:
+                await self.write(message)
+
+            await self.write(grpc.aio.EOF)
+        else:
+            await self.write(request)
 
     def __call__(self, request=None, metadata=None):
+        # INFO - AM - 05/01/2024 - launch the read of the client stream in an other thread
+        self._populator_task = asyncio.create_task(self._async_context_populater(request))
         return super().__call__(
             request=FakeMessageReceiver(request=request, context=self._context),
             metadata=metadata,
@@ -406,7 +428,7 @@ class StreamResponseMixin:
         return response
 
     async def read(self):
-        return await self._context.read_server()
+        return await self._context._read_server()
 
 
 class FakeFullAioStreamUnaryCall(
@@ -440,54 +462,25 @@ class FakeMessageReceiver:
 
     def __init__(self, request, context):
         self._request = request
-        self._servicer_context = context
+        self._servicer_context: FakeAsyncContext = context
         self._agen = None
-        self._is_done_writing = False
 
-    async def async_context_populater(self):
-        """
-        This method will be launched in an other loop to be able to populate the stream client pipe without blocking the main thread
-        If the request is a generator it will also write grpc.aio.EOF to let the test finish correctly
-        """
-        if inspect.isasyncgen(self._request):
-            async for message in self._request:
-                await self.write_client(message)
-
-            await self.write_client(grpc.aio.EOF)
-
-        elif inspect.isgenerator(self._request):
-            for message in self._request:
-                await self.write_client(message)
-
-            await self.write_client(grpc.aio.EOF)
-        else:
-            await self.write_client(self._request)
-
-    async def write_client(self, data):
-        if self._is_done_writing:
-            raise ValueError("write() is called after done_writing()")
-        await self._servicer_context._write_client(data)
-
-    async def done_writing(self) -> None:
-        if not self._is_done_writing:
-            await self.write_client(grpc.aio.EOF)
-            self._is_done_writing = True
+    async def _async_message_receiver(self):
+        """An async generator that receives messages."""
+        while True:
+            message = await self._servicer_context.read()
+            if message is not grpc.aio.EOF:
+                yield message
+            else:
+                break
 
     def __aiter__(self):
-        # INFO - AM - 05/01/2024 - launch the read of the client stream in an other thread
-        asyncio.create_task(self.async_context_populater())
-        return self
+        if self._agen is None:
+            self._agen = self._async_message_receiver()
+        return self._agen
 
     async def __anext__(self):
-        # INFO - AM - 05/01/2024 - this will read what client writed in the client pipe and let server read it when using generator over the FakeMessageReceiver
-        if self._is_done_writing:
-            raise ValueError("write() is called after done_writing()")
-        message = await self._servicer_context.read_client()
-        if isinstance(message, Exception):
-            raise message
-        if message == grpc.aio.EOF:
-            raise StopAsyncIteration()
-        return message
+        return await self.__aiter__().__anext__()
 
 
 class FakeAIOChannel(FakeChannel):

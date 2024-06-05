@@ -108,3 +108,47 @@ class TestAsyncStreamIn(TestCase):
                 counter += 1
 
         self.assertEqual(counter, 4)
+
+    async def test_async_stream_stream_read_write_generator(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
+
+        async def generate_requests():
+            yield fakeapp_pb2.StreamInStreamInRequest(name="a")
+            yield fakeapp_pb2.StreamInStreamInRequest(name="b")
+            yield fakeapp_pb2.StreamInStreamInRequest(name="c")
+
+        counter = 1
+
+        stream = grpc_stub.StreamToStreamReadWrite(generate_requests())
+
+        async for message in stream:
+            if counter == 1:
+                self.assertEqual(message.name, "aResponse")
+                counter += 1
+            elif counter == 2:
+                self.assertEqual(message.name, "bResponse")
+                counter += 1
+            elif counter == 3:
+                self.assertEqual(message.name, "cResponse")
+                counter += 1
+
+        self.assertEqual(counter, 4)
+
+    async def test_async_stream_stream_read_write_read_api(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(StreamInControllerStub)
+
+        async def generate_requests():
+            yield fakeapp_pb2.StreamInStreamInRequest(name="a")
+            yield fakeapp_pb2.StreamInStreamInRequest(name="b")
+            yield fakeapp_pb2.StreamInStreamInRequest(name="c")
+
+        stream = grpc_stub.StreamToStreamReadWrite(generate_requests())
+
+        response = await stream.read()
+        self.assertEqual(response.name, "aResponse")
+        response = await stream.read()
+        self.assertEqual(response.name, "bResponse")
+        response = await stream.read()
+        self.assertEqual(response.name, "cResponse")
+
+        await stream.done_writing()

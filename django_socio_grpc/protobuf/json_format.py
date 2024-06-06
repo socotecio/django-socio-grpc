@@ -1,7 +1,14 @@
+from inspect import signature
 from uuid import UUID
 
 from google.protobuf import json_format
 from google.protobuf.json_format import MessageToDict, ParseDict
+
+# Since protobuf>=26 we have to use the "always_print_fields_with_no_presence" argument
+if "including_default_value_fields" in signature(MessageToDict).parameters:
+    _NO_PRESENCE_ARG = "including_default_value_fields"
+else:
+    _NO_PRESENCE_ARG = "always_print_fields_with_no_presence"
 
 
 def message_to_dict(message, **kwargs):
@@ -10,7 +17,7 @@ def message_to_dict(message, **kwargs):
     Uses the default `google.protobuf.json_format.MessageToDict` function.
     Adds None values for optional fields that are not set.
     """
-    kwargs.setdefault("including_default_value_fields", True)
+    kwargs.setdefault(_NO_PRESENCE_ARG, True)
     kwargs.setdefault("preserving_proto_field_name", True)
 
     return MessageToDict(message, **kwargs)

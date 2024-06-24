@@ -36,6 +36,9 @@ class FakeServer:
     def add_insecure_port(self, target):
         pass
 
+    def add_registered_method_handlers(self, *args, **kwargs):
+        pass
+
 
 class _InactiveRpcError(grpc.RpcError):
     """

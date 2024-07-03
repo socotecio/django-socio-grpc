@@ -3,7 +3,7 @@
 Proto generation
 ================
 
-DSG provides an automatic way to generate proto files from your django models and serivces with the  :ref:`generateproto command <commands-generate-proto>`.
+DSG provides an automatic way to generate proto files from your django models and services with the  :ref:`generateproto command <commands-generate-proto>`.
 
 To be able to generate proto files you need to register your service first.
 To do so please refer to:

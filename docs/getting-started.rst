@@ -323,6 +323,8 @@ You can now run the gRPC server with the following command:
 
 .. code-block:: python
 
+    python manage.py makemigrations
+    python manage.py migrate
     python manage.py grpcrunaioserver --dev
 
 The server is now running on port `50051` by default. See :ref:`How To Web <how-to-web>` to see how to call this server with web client or :ref:`Python example <examples>` for python client example.

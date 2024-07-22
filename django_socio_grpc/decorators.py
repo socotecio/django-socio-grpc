@@ -8,6 +8,11 @@ from django_socio_grpc.protobuf.message_name_constructor import MessageNameConst
 from django_socio_grpc.settings import grpc_settings
 
 from .grpc_actions.actions import GRPCAction
+import functools
+from django_socio_grpc.cache import get_dsg_cache_key, learn_dsg_cache_key
+from django_socio_grpc.request_transformer import (
+    GRPCInternalProxyResponse,
+)
 
 logger = logging.getLogger("django_socio_grpc.generation")
 
@@ -77,5 +82,29 @@ def grpc_action(
             use_generation_plugins=use_generation_plugins
             or grpc_settings.DEFAULT_GENERATION_PLUGINS.copy(),
         )
+
+    return wrapper
+
+
+def cache_endpoint(func):
+    print("icicici\n" * 10, func)
+
+    @functools.wraps(func)
+    async def wrapper(service_instance, request, context):
+        print("ici2", service_instance, request, context)
+        # Ask preference between service_instance.action and func.__name__ that return the same thing
+        print(service_instance.action, func.__name__)
+
+        # func(service_instance, request, context)
+        endpoint_result = await func(service_instance, request, context)
+
+        socio_response = GRPCInternalProxyResponse(endpoint_result)
+
+        print(type(endpoint_result), endpoint_result)
+
+        cache_key = learn_dsg_cache_key(context, socio_response)
+        print(cache_key)
+
+        return endpoint_result
 
     return wrapper

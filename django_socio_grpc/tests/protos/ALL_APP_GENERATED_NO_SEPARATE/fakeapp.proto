@@ -17,6 +17,7 @@ service BasicController {
     rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerList) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleList) {}
+    rpc TestCachedAnswer(BasicTestCachedAnswer) returns (BasicService) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc TestNoMetaSerializer(NoMeta) returns (BasicTestNoMetaSerializer) {}
 }
@@ -187,6 +188,10 @@ message BasicService {
 message BasicServiceList {
     repeated BasicService results = 1;
     int32 count = 2;
+}
+
+message BasicTestCachedAnswer {
+    string cache_test = 1;
 }
 
 message BasicTestNoMetaSerializer {

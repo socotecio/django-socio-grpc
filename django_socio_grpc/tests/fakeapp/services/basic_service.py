@@ -14,6 +14,7 @@ from django_socio_grpc.protobuf.generation_plugin import (
 )
 
 from .basic_mixins import ListIdsMixin, ListNameMixin
+from django_socio_grpc.decorators import cache_endpoint
 
 
 class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
@@ -51,7 +52,8 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         request=[],
         response="google.protobuf.Empty",
     )
-    async def TestEmptyMethod(self, request, context): ...
+    async def TestEmptyMethod(self, request, context):
+        ...
 
     @grpc_action(
         request=[],
@@ -148,3 +150,25 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         serializer = NoMetaSerializer(message=request)
         serializer.is_valid(raise_exception=True)
         return fakeapp_pb2.BasicTestNoMetaSerializerResponse(value=serializer.data["my_field"])
+
+    @grpc_action(
+        request=[{"name": "cache_test", "type": "string"}],
+        response=BasicServiceSerializer,
+    )
+    @cache_endpoint
+    async def TestCachedAnswer(self, request, context):
+        user_data = {
+            "email": context.user.email if context.user else "fake_email@email.com",
+            "birth_date": "25/01/1996",
+            "slogan": "Do it better",
+        }
+
+        serializer = BasicServiceSerializer(
+            {
+                "user_name": request.cache_test,
+                "user_data": user_data,
+                "bytes_example": b"test",
+                "list_of_dict": [{"test": "test"}],
+            }
+        )
+        return serializer.message

@@ -1,5 +1,101 @@
 # Changelog
 
+## 0.22.9
+
+- Security dependencies update
+- Minor documentation fixes
+
+## 0.22.8
+
+- Add new "add_registered_method_handlers" method in FakeServer class for test
+
+## 0.22.7
+
+- use "including_default_value_fields" or "always_print_fields_with_no_presence" depending of protobuf version
+
+## 0.22.6
+
+- Fix the capacity to read from iterator stream in tests
+
+## 0.22.5
+
+- Fix circular import
+
+## 0.22.4
+
+- Improve message to data logic
+
+## 0.22.3
+
+- Fix serializer using Django model property not correctly finding the good proto type
+
+## 0.22.2
+
+- Fix stream response tests
+
+## 0.22.1
+
+- Fix _get_resource_file_name from protoc depend of grpc tools version
+
+## 0.22.0
+
+- Change the logic for default value when data are not set or set to default value in grpc message to be close of what a DRF user could expect
+- Add extra options to the runserver command to allow custom parameters to grpcrunaioserver
+- Fix ProtoMessage can be string in generation plugin
+- Fix pagination_class attr of service can be set to None isntead of not set at all
+- Change linter to ruff
+- Add healthcheck support
+- Improve Stream request unit test and example
+
+## 0.21.5
+
+- Fix type hints not correctly working for python >3.10
+
+## 0.21.3 & 0.21.4
+
+- Fix wrong import
+
+## 0.21.2
+
+- Fix old args compatibility in grpc_action decorator and not only GrpcAction class
+
+## 0.21.1
+
+- Fix docs build
+
+## 0.21.0
+
+- Add possibility to filter with request args instead of metadata
+- Present a new generation plugin system
+- Present a proto NameConstructor interace to customize the proto message names
+
+## 0.20.3
+
+- Add the new reworked documentation using read the docs
+
+## 0.20.2
+
+- Fix python packege incompatibility
+
+## 0.20.1
+
+- Clean some tests
+- Rework gRPC exception to inherit from rest_framework exception instead of python base Exception 
+
+## 0.20.0
+
+- Improve logging system and tooling to be more generic and overridable
+
+## 0.19.6
+
+- Fix wrongly formated import
+
+## 0.19.5
+
+- Add async serializer methods as asave, ais_valid, acreate and aupdate
+- Update minor doc
+- Add some HTTP request functionnality to InternalHttpRequest
+
 ## 0.19.4
 
 - Add support for serializer adata

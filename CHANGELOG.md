@@ -80,7 +80,7 @@
 ## 0.20.1
 
 - Clean some tests
-- Rework gRPC exception to inherit from rest_framework exception instead of python base Exception 
+- Rework gRPC exception to inherit from rest_framework exception instead of python base Exception
 
 ## 0.20.0
 

@@ -40,7 +40,7 @@ BaseProtoSerializer
 
 BaseProtoSerializer is the base class for all proto serializers. It doesn't have any fields and is used to convert data into a gRPC message.
 
-It needs to define the method *to_proto_message* to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action<grpc-action-request-response>` for expected return format.
+It needs to define the method *to_proto_message* to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action <grpc-action-request-response>` for expected return format.
 
 
 .. code-block:: python
@@ -78,7 +78,7 @@ ProtoSerializer
 
 You can find more information on the `DRF documentation <https://www.django-rest-framework.org/api-guide/serializers/#baseserializer>`_
 
-It also need to define the method to_proto_message to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action<grpc-action-request-response>` for expected return format.
+It also need to define the method to_proto_message to be able to correctly generate proto file. See :ref:`Proto generation <proto-generation>` for generation and :ref:`Request/Response format of grpc_action <grpc-action-request-response>` for expected return format.
 
 .. _proto-serializers-list-proto-serializer:
 

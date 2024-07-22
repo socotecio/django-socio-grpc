@@ -13,7 +13,7 @@ DSG works with pagination the same way `DRF Pagination <https://www.django-rest-
 
 That means DSG supports the default pagination class from DRF like `PageNumberPagination <https://www.django-rest-framework.org/api-guide/pagination/#pagenumberpagination>`_, `LimitOffsetPagination <https://www.django-rest-framework.org/api-guide/pagination/#limitoffsetpagination>`_ and `CursorPagination <https://www.django-rest-framework.org/api-guide/pagination/#cursorpagination>`_. It also supports creating your `own Pagination <https://www.django-rest-framework.org/api-guide/pagination/#custom-pagination-styles>`_ for advanced pagination functionalities.
 
-Pagination can be :ref:`enabled globally<pagination-using-it-globally>` for the all the project or for :ref:`only some services<pagination-using-it-by-service>`.
+Pagination can be :ref:`enabled globally<pagination-using-it-globally>` for the all the project or for :ref:`only some services <pagination-using-it-by-service>`.
 
 To use pagination you may use metadata or request depending on the :ref:`PAGINATION_BEHAVIOR setting<settings-pagination-behavior>`, See :ref:`example for how to use it<pagination-using-it>`.
 
@@ -60,7 +60,7 @@ To enable pagination only for one or some service you can override the :func:`pa
         pagination_class = PageNumberPagination
 
 
-.. _pagination-using-it-by-service:
+.. _pagination-using-it-by-action:
 
 Using it on specific action when using filter in message
 --------------------------------------------------------

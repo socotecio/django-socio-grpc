@@ -10,11 +10,11 @@ There are many ways to contribute to DSG, from writing documentation and submitt
 
 - **Write documentation**: We could always use more documentation, whether it's fixing a typo or adding a new section to the documentation. If you're not sure where to start, take a look at the [existing documentation](https://socio-django-grpc.readthedocs.io/en/latest/) and see if there's anything you can improve.
 
-- **Submit pull requests**: If you're comfortable with the codebase, you can submit a pull request with bug fixes or new features. Please make sure to follow the [coding conventions](#coding-conventions), use [Black](https://github.com/psf/black) for code formatting, and run [pre-commit](https://pre-commit.com/) hooks before submitting your changes.
+- **Submit pull requests**: If you're comfortable with the codebase, you can submit a pull request with bug fixes or new features. Please make sure to use [Ruff](https://github.com/astral-sh/ruff) for code formatting, and run [pre-commit](https://pre-commit.com/) hooks before submitting your changes.
 
 ## Coding Conventions
 
-We follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guide for Python code, but we also use [Black](https://github.com/psf/black) for code formatting. Please make sure to follow these conventions when submitting code, and run `black` on your code before submitting your changes.
+We follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guide for Python code, but we also use [Ruff](https://github.com/astral-sh/ruff) for code formatting. Please make sure to follow these conventions when submitting code.
 
 We also require the use of [pre-commit](https://pre-commit.com/) hooks to ensure that your code meets our standards. Please run `pre-commit install` to install the hooks before submitting your changes.
 

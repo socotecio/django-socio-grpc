@@ -166,7 +166,7 @@ See :ref:`Mixin section <Generic Mixins>` and :ref:`Proto generation <proto-gene
     from django_socio_grpc import generics
 
     from quickstart.models import User, Post
-    from quickstart.serializer import UserProtoSerializer, PostProtoSerializer
+    from quickstart.serializers import UserProtoSerializer, PostProtoSerializer
 
     # This service will have only the List and Retrieve actions
     class UserService(generics.AsyncReadOnlyModelService):

@@ -1,4 +1,5 @@
 import json
+import urllib.parse
 from typing import TYPE_CHECKING
 
 from django.conf import settings
@@ -42,7 +43,11 @@ class InternalHttpRequest:
     }
 
     def __init__(
-        self, grpc_context: "GRPCInternalProxyContext", grpc_request: Message, grpc_action: str
+        self,
+        grpc_context: "GRPCInternalProxyContext",
+        grpc_request: Message,
+        grpc_action: str,
+        service_class_name: str,
     ):
         """
         grpc_context is used to get all the headers and other informations
@@ -51,6 +56,9 @@ class InternalHttpRequest:
         """
         self.user = None
         self.auth = None
+
+        # INFO - AM - 23/07/2024 - We need to pass the service class name to be able to construct the request path to use cache for example
+        self.service_class_name = service_class_name
 
         self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
@@ -71,14 +79,18 @@ class InternalHttpRequest:
 
         # Computed params | grpc_request is passed as argument and not class element because we don't want developer to access to the request from the context proxy
         self.query_params = self.get_query_params(grpc_request)
+
+        # INFO - AM - 23/07/2024 - Allow to use cache system based on filter and pagination metadata or request fields
+        # See https://github.com/django/django/blob/main/django/http/request.py#L175
+        self.META["QUERY_STRING"] = urllib.parse.urlencode(self.query_params, doseq=True)
+
         # INFO - AM - 10/02/2021 - Only implementing GET because it's easier as we have metadata here. For post we will have to pass the request and transform it to python dict.
         # It's possible but it will be slow the all thing so we hava to param this behavior with settings.
         # So we are waiting for the need to implement it
         self.GET = self.query_params
 
-        # TODO - AM - 26/04/2023 - Find a way to populate this from context or request ? It is really needed ?
-        self.path = ""
-        self.path_info = ""
+        self.path = f"{self.service_class_name}/{grpc_action}"
+        self.path_info = grpc_action
 
     def get_from_metadata(self, metadata_key):
         metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key, None)
@@ -150,10 +162,13 @@ class InternalHttpRequest:
         return query_params
 
     def build_absolute_uri(self):
+        print(
+            "build_absolute_uri", self.grpc_request_metadata, self.path, self.get_full_path()
+        )
         return "NYI"
 
     def grpc_action_to_http_method_name(self, grpc_action):
-        return self.METHOD_MAP.get(grpc_action, None)
+        return self.METHOD_MAP.get(grpc_action, "POST")
 
     def get_full_path(self, force_append_slash=False):
         return self._get_full_path(self.path, force_append_slash)

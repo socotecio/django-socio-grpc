@@ -1,18 +1,18 @@
+import functools
 import logging
 
+from django_socio_grpc.cache import put_dsg_cache
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
     ListGenerationPlugin,
 )
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
-from django_socio_grpc.settings import grpc_settings
-
-from .grpc_actions.actions import GRPCAction
-import functools
-from django_socio_grpc.cache import get_dsg_cache_key, learn_dsg_cache_key
 from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
+from django_socio_grpc.settings import grpc_settings
+
+from .grpc_actions.actions import GRPCAction
 
 logger = logging.getLogger("django_socio_grpc.generation")
 
@@ -86,7 +86,7 @@ def grpc_action(
     return wrapper
 
 
-def cache_endpoint(func):
+def cache_endpoint(func, cache_timeout=None, key_prefix=None, cache=None):
     print("icicici\n" * 10, func)
 
     @functools.wraps(func)
@@ -100,10 +100,15 @@ def cache_endpoint(func):
 
         socio_response = GRPCInternalProxyResponse(endpoint_result)
 
-        print(type(endpoint_result), endpoint_result)
+        print(type(endpoint_result))
 
-        cache_key = learn_dsg_cache_key(context, socio_response)
-        print(cache_key)
+        put_dsg_cache(
+            context,
+            socio_response,
+            cache_timeout=cache_timeout,
+            key_prefix=key_prefix,
+            cache=cache,
+        )
 
         return endpoint_result
 

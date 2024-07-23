@@ -19,10 +19,13 @@ class GRPCInternalProxyContext:
     # INFO - AM - 14/02/2024 - grpc_request is used to get filter and pagination from the request. It is not acessible in GRPCInternalProxyContext.
     grpc_request: Message
     grpc_action: str
+    service_class_name: str
     http_request: InternalHttpRequest = None
 
     def __post_init__(self):
-        self.http_request = InternalHttpRequest(self, self.grpc_request, self.grpc_action)
+        self.http_request = InternalHttpRequest(
+            self, self.grpc_request, self.grpc_action, self.service_class_name
+        )
 
     def __getattr__(self, attr):
         if hasattr(self.grpc_context, attr):
@@ -45,9 +48,17 @@ class GRPCInternalProxyResponse:
         self.http_response = InternalHttpResponse()
 
     def __getattr__(self, attr):
+        print("icicicic", type(self.grpc_response), attr)
         if hasattr(self.grpc_response, attr):
             return getattr(self.grpc_response, attr)
         return getattr(self.http_response, attr)
+
+    def __getstate__(self):
+        return {"grpc_response": self.grpc_response, "http_response": self.http_response}
+
+    def __setstate__(self, state):
+        self.grpc_response = state["grpc_response"]
+        self.http_response = state["http_response"]
 
     def __aiter__(self):
         return self

@@ -8,13 +8,12 @@ from fakeapp.serializers import (
 )
 
 from django_socio_grpc import generics
-from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.decorators import cache_endpoint, grpc_action
 from django_socio_grpc.protobuf.generation_plugin import (
     ListGenerationPlugin,
 )
 
 from .basic_mixins import ListIdsMixin, ListNameMixin
-from django_socio_grpc.decorators import cache_endpoint
 
 
 class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
@@ -52,8 +51,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         request=[],
         response="google.protobuf.Empty",
     )
-    async def TestEmptyMethod(self, request, context):
-        ...
+    async def TestEmptyMethod(self, request, context): ...
 
     @grpc_action(
         request=[],

@@ -176,7 +176,9 @@ class ServicerProxy(MiddlewareCapable):
 
     def _get_async_stream_handler(self, action: str) -> Awaitable[Callable]:
         async def handler(request: Message, context) -> AsyncIterable[Message]:
-            proxy_context = GRPCInternalProxyContext(context, request, action)
+            proxy_context = GRPCInternalProxyContext(
+                context, request, action, self.service_class.__name__
+            )
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
@@ -199,7 +201,9 @@ class ServicerProxy(MiddlewareCapable):
 
     def _get_async_handler(self, action: str) -> Awaitable[Callable]:
         async def handler(request: Message, context) -> Awaitable[Message]:
-            proxy_context = GRPCInternalProxyContext(context, request, action)
+            proxy_context = GRPCInternalProxyContext(
+                context, request, action, self.service_class.__name__
+            )
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
@@ -220,7 +224,9 @@ class ServicerProxy(MiddlewareCapable):
 
     def _get_handler(self, action: str) -> Callable:
         def handler(request: Message, context) -> Message:
-            proxy_context = GRPCInternalProxyContext(context, request, action)
+            proxy_context = GRPCInternalProxyContext(
+                context, request, action, self.service_class.__name__
+            )
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
@@ -241,7 +247,9 @@ class ServicerProxy(MiddlewareCapable):
 
     def _get_stream_handler(self, action: str) -> Callable:
         def handler(request: Message, context) -> AsyncIterable[Message]:
-            proxy_context = GRPCInternalProxyContext(context, request, action)
+            proxy_context = GRPCInternalProxyContext(
+                context, request, action, self.service_class.__name__
+            )
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )

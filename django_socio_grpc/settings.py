@@ -113,6 +113,9 @@ DEFAULTS = {
     "DEFAULT_GENERATION_PLUGINS": [],
     # Enable the healthcheck service
     "ENABLE_HEALTH_CHECK": False,
+    "GRPC_CACHE_ALIAS": "default",
+    "GRPC_CACHE_SECONDS": 5 * 60,
+    "GRPC_CACHE_KEY_PREFIX": "grpc",
 }
 
 

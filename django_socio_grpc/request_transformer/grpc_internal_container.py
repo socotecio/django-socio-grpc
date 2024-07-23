@@ -24,6 +24,9 @@ class GRPCRequestContainer:
     action: str
     service: "Service"
 
+    # def __post_init__(self):
+    #     self.context.http_request.create_path(self.service)
+
     def __getattr__(self, attr):
         """
         See class documentation

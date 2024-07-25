@@ -201,6 +201,8 @@ class TestCacheService(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()
 
+        # TODO faire le test avec un header standard et non custom ou revoir le logique
+
         metadata_1 = (("custom_header", ("test1")),)
         response = await grpc_stub.List(request=request, metadata=metadata_1)
 
@@ -239,3 +241,24 @@ class TestCacheService(TestCase):
         # self.assertEqual(response.results[0].verify_custom_header, "test2")
 
         mock_custom_function_not_called_when_cached.assert_called_once()
+
+    async def test_cache_control_and_max_age_metadata_correctly_set(self):
+        pass
+
+    async def test_cache_decorators_paremeters_correctly_working(self):
+        pass
+
+    async def test_cache_not_working_when_cache_control_metadata_to_private(self):
+        pass
+
+    async def test_vary_metadata_correctly_set_when_using_decorator(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        response, call = await grpc_stub.List.with_call(request=request)
+
+        metadata_to_dict = dict(call.trailing_metadata())
+
+        print("metadata_to_dict", metadata_to_dict)
+
+        self.assertEqual(metadata_to_dict["Vary"], "CUSTOM_HEADER")

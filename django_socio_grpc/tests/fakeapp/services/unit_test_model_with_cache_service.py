@@ -4,7 +4,7 @@ from fakeapp.serializers import UnitTestModelWithCacheSerializer
 from rest_framework.pagination import PageNumberPagination
 
 from django_socio_grpc import generics, mixins
-from django_socio_grpc.decorators import cache_endpoint, grpc_action
+from django_socio_grpc.decorators import cache_endpoint, grpc_action, vary_on_metadata
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
     ListGenerationPlugin,
@@ -48,6 +48,7 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
         ],
     )
     @cache_endpoint
+    @vary_on_metadata("CUSTOM_HEADER")
     async def List(self, request, context):
         self.custom_function_not_called_when_cached()
         return await super().List(request, context)

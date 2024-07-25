@@ -67,6 +67,7 @@ class _BaseFakeContext:
         self.stream_pipe_server = queue.Queue()
 
         self._invocation_metadata = []
+        self._trailing_metadata = []
         self._code = grpc.StatusCode.OK
         self._details = None
 
@@ -93,6 +94,12 @@ class _BaseFakeContext:
 
     def invocation_metadata(self):
         return self._invocation_metadata
+
+    def trailing_metadata(self):
+        return self._trailing_metadata
+
+    def set_trailing_metadata(self, metadata):
+        self._trailing_metadata.extend((_Metadatum(k, v) for k, v in metadata))
 
     def write(self, data):
         self._write_server(data)
@@ -249,34 +256,34 @@ class FakeGRPC:
 
 
 class FakeBaseCall(grpc.aio.Call):
-    def add_done_callback(*args, **kwargs):
+    def add_done_callback(self, *args, **kwargs):
         pass
 
-    def cancel(*args, **kwargs):
+    def cancel(self, *args, **kwargs):
         pass
 
-    def cancelled(*args, **kwargs):
+    def cancelled(self, *args, **kwargs):
         pass
 
-    def code(*args, **kwargs):
+    def code(self, *args, **kwargs):
         pass
 
-    def details(*args, **kwargs):
+    def details(self, *args, **kwargs):
         pass
 
-    def done(*args, **kwargs):
+    def done(self, *args, **kwargs):
         pass
 
-    def initial_metadata(*args, **kwargs):
+    def initial_metadata(self, *args, **kwargs):
+        return self._context._invocation_metadata
+
+    def time_remaining(self, *args, **kwargs):
         pass
 
-    def time_remaining(*args, **kwargs):
-        pass
+    def trailing_metadata(self, *args, **kwargs):
+        return self._context._trailing_metadata
 
-    def trailing_metadata(*args, **kwargs):
-        pass
-
-    def wait_for_connection(*args, **kwargs):
+    def wait_for_connection(self, *args, **kwargs):
         pass
 
 
@@ -315,6 +322,9 @@ class FakeAioCall(FakeBaseCall):
 
     def read(self):
         return async_to_sync(self._context.read)()
+
+    def with_call(self, request=None, metadata=None):
+        return self.__call__(request, metadata), self
 
 
 # INFO - AM - 10/08/2022 - FakeFullAioCall use async function where FakeFullAioCall use async_to_sync
@@ -361,6 +371,10 @@ class FakeFullAioCall(FakeBaseCall):
             wrapped(request=self._request, context=self._context)
         )
         return self
+
+    async def with_call(self, request=None, metadata=None):
+        response = await self.__call__(request, metadata)
+        return response, self
 
 
 class UnaryResponseMixin:

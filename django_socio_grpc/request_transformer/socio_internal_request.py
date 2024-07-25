@@ -24,6 +24,9 @@ class InternalHttpRequest(HttpRequest):
     MAP_HEADERS = {
         "AUTHORIZATION": "HTTP_AUTHORIZATION",
         "ACCEPT-LANGUAGE": "HTTP_ACCEPT_LANGUAGE",
+        "X-FORWARDED-HOST": "HTTP_X_FORWARDED_HOST",
+        "HOST": "HTTP_HOST",
+        "X-FORWARDED-PORT": "HTTP_X_FORWARDED_PORT",
     }
     FILTERS_KEY = "FILTERS"
     PAGINATION_KEY = "PAGINATION"
@@ -61,14 +64,11 @@ class InternalHttpRequest(HttpRequest):
         self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
         )
-        self.headers = self.get_from_metadata(self.HEADERS_KEY)
-        print("la", self.headers)
+        self.headers_from_metadata = self.get_from_metadata(self.HEADERS_KEY)
         self.META = {
             self.MAP_HEADERS.get(key.upper(), key.upper()): value
-            for key, value in self.headers.items()
+            for key, value in self.headers_from_metadata.items()
         }
-
-        print("icicic ", self.META)
 
         # INFO - A.D.B - 04/01/2021 - Not implemented for now
         self.POST = {}
@@ -163,7 +163,6 @@ class InternalHttpRequest(HttpRequest):
             FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
             FilterAndPaginationBehaviorOptions.METADATA_STRICT,
         ]:
-            print(query_params, self.grpc_request_metadata.get(self.PAGINATION_KEY, {}))
             query_params = {
                 **query_params,
                 **self.parse_specific_key_from_metadata(self.PAGINATION_KEY),

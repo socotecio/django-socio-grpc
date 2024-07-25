@@ -47,12 +47,31 @@ class GRPCInternalProxyResponse:
     http_response: InternalHttpResponse = None
 
     def __post_init__(self):
-        self.http_response = InternalHttpResponse()
+        self.http_response = InternalHttpResponse(self.grpc_context)
+        self.__contains__ = self.http_response.has_header
 
     def __getattr__(self, attr):
+        if attr == "headers":
+            return self
         if hasattr(self.grpc_response, attr):
             return getattr(self.grpc_response, attr)
         return getattr(self.http_response, attr)
+
+    def __setitem__(self, header, value):
+        print("Setting header", header, value)
+        trailing_metadata = self.grpc_context.trailing_metadata()
+        self.grpc_context.set_trailing_metadata(trailing_metadata + [(header, value)])
+        self.http_response[header] = value
+
+    def __delitem__(self, header):
+        new_metadata = [
+            (k, v) for k, v in self.grpc_context.trailing_metadata() if k != header
+        ]
+        self.grpc_context.set_trailing_metadata(new_metadata)
+        del self.http_response[header]
+
+    def __getitem__(self, header):
+        return self.http_response[header]
 
     def __getstate__(self):
         return {

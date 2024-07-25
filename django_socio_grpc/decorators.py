@@ -15,6 +15,7 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
+from django.utils.cache import patch_vary_headers
 
 from .grpc_actions.actions import GRPCAction
 
@@ -116,11 +117,11 @@ def cache_endpoint(
         # func(service_instance, request, context)
         endpoint_result = await func(service_instance, request, context)
 
-        socio_response = GRPCInternalProxyResponse(endpoint_result, context)
+        response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
 
         put_response_in_cache(
             context,
-            socio_response,
+            response_proxy,
             cache_timeout=cache_timeout,
             key_prefix=key_prefix,
             cache_alias=cache,
@@ -141,11 +142,11 @@ def cache_endpoint(
 
         endpoint_result = func(service_instance, request, context)
 
-        socio_response = GRPCInternalProxyResponse(endpoint_result, context)
+        response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
 
         put_response_in_cache(
             context,
-            socio_response,
+            response_proxy,
             cache_timeout=cache_timeout,
             key_prefix=key_prefix,
             cache_alias=cache,
@@ -157,3 +158,55 @@ def cache_endpoint(
         return async_wrapper
     else:
         return wrapper
+
+
+def vary_on_metadata(*metadata_keys):
+    """
+    Same as https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/views/decorators/vary.py#L8
+    but need to wrap the response in a GRPCInternalProxyResponse.
+    A view decorator that adds the specified metdatas to the Vary metadata of the
+    response. Usage:
+
+       @vary_on_headers('Cookie', 'Accept-language')
+       def index(request):
+           ...
+
+    Note that the metdata names are not case-sensitive.
+    """
+
+    def decorator(func):
+        if asyncio.iscoroutinefunction(func):
+
+            @functools.wraps(func)
+            async def _view_wrapper(
+                service_instance: "Service",
+                request: RequestType,
+                context: "GRPCInternalProxyContext",
+            ):
+                endpoint_result = await func(service_instance, request, context)
+                response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+                patch_vary_headers(response_proxy, metadata_keys)
+                # context.set_trailing_metadata(
+                #     (
+                #         ("aaaaa", "I agree"),
+                #         ("retry", "false"),
+                #     )
+                # )
+                return endpoint_result
+
+        else:
+
+            @functools.wraps(func)
+            def _view_wrapper(
+                service_instance: "Service",
+                request: RequestType,
+                context: "GRPCInternalProxyContext",
+            ):
+                endpoint_result = func(service_instance, request, context)
+                response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+                patch_vary_headers(response_proxy, metadata_keys)
+                return endpoint_result
+
+        return _view_wrapper
+
+    return decorator

@@ -1,6 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from fakeapp.models import UnitTestModel
-from fakeapp.serializers import UnitTestModelWithCacheService
+from fakeapp.serializers import UnitTestModelWithCacheSerializer
 from rest_framework.pagination import PageNumberPagination
 
 from django_socio_grpc import generics, mixins
@@ -32,25 +32,29 @@ class PaginationGenerationPluginForce(PaginationGenerationPlugin):
 
 class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStreamModelMixin):
     queryset = UnitTestModel.objects.all().order_by("id")
-    serializer_class = UnitTestModelWithCacheService
+    serializer_class = UnitTestModelWithCacheSerializer
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["title", "text"]
 
+    def custom_function_not_called_when_cached(self):
+        pass
+
     @grpc_action(
         request=[],
-        response=UnitTestModelWithCacheService,
+        response=UnitTestModelWithCacheSerializer,
         use_generation_plugins=[
             ListGenerationPlugin(response=True),
         ],
     )
     @cache_endpoint
     async def List(self, request, context):
+        self.custom_function_not_called_when_cached()
         return await super().List(request, context)
 
     @grpc_action(
         request=[],
-        response=UnitTestModelWithCacheService,
+        response=UnitTestModelWithCacheSerializer,
         use_generation_plugins=[
             ListGenerationPlugin(response=True),
             FilterGenerationPluginForce(),

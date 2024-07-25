@@ -1,11 +1,10 @@
 import json
 from unittest import mock
 
-from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2 import (
+    UnitTestModelWithCacheListResponse,
     UnitTestModelWithCacheListWithStructFilterRequest,
-    UnitTestModelWithCacheServiceListResponse,
-    UnitTestModelWithCacheServiceResponse,
+    UnitTestModelWithCacheResponse,
 )
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelWithCacheControllerStub,
@@ -17,6 +16,7 @@ from fakeapp.services.unit_test_model_with_cache_service import (
 )
 from google.protobuf import empty_pb2, struct_pb2
 
+from django.test import TestCase, override_settings
 from django_socio_grpc.cache import get_dsg_cache
 from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
@@ -73,10 +73,10 @@ class TestCacheService(TestCase):
         mock_get_cache_key.return_value = cache_test_key
 
         results = [
-            UnitTestModelWithCacheServiceResponse(title="test_manual_1", text="test_manual_1"),
-            UnitTestModelWithCacheServiceResponse(title="test_manual_2", text="test_manual_2"),
+            UnitTestModelWithCacheResponse(title="test_manual_1", text="test_manual_1"),
+            UnitTestModelWithCacheResponse(title="test_manual_2", text="test_manual_2"),
         ]
-        grpc_response = UnitTestModelWithCacheServiceListResponse(results=results, count=2)
+        grpc_response = UnitTestModelWithCacheListResponse(results=results, count=2)
 
         fake_socio_response = GRPCInternalProxyResponse(
             grpc_response, self.fake_grpc.get_fake_channel().context
@@ -120,7 +120,7 @@ class TestCacheService(TestCase):
         request = UnitTestModelWithCacheListWithStructFilterRequest(
             _pagination=pagination_as_struct
         )
-        response = await grpc_stub.List(request=request)
+        response = await grpc_stub.ListWithStructFilter(request=request)
 
         self.assertEqual(len(response.results), 3)
         self.assertEqual(response.results[0].title, "zzzz")
@@ -168,7 +168,7 @@ class TestCacheService(TestCase):
         filter_as_struct = struct_pb2.Struct()
         filter_as_struct.update(filter_as_dict)
         request = UnitTestModelWithCacheListWithStructFilterRequest(_filters=filter_as_struct)
-        response = await grpc_stub.List(request=request)
+        response = await grpc_stub.ListWithStructFilter(request=request)
 
         self.assertEqual(len(response.results), 1)
         self.assertEqual(response.results[0].title, "zzzzzzz")
@@ -193,3 +193,49 @@ class TestCacheService(TestCase):
 
         self.assertEqual(len(response.results), 1)
         self.assertEqual(response.results[0].title, "zzzzzzz")
+
+    async def test_when_headers_vary_route_not_cached(
+        self,
+    ):
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        metadata_1 = (("custom_header", ("test1")),)
+        response = await grpc_stub.List(request=request, metadata=metadata_1)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+        self.assertEqual(response.results[0].verify_custom_header, "test1")
+
+        metadata_2 = (("custom_header", ("test2")),)
+        response = await grpc_stub.List(request=request, metadata=metadata_2)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+        self.assertEqual(response.results[0].verify_custom_header, "test2")
+
+        assert False
+
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_working_really(self, mock_custom_function_not_called_when_cached):
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        response = await grpc_stub.List(request=request)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+        response = await grpc_stub.List(request=request)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+        # self.assertEqual(response.results[0].verify_custom_header, "test2")
+
+        mock_custom_function_not_called_when_cached.assert_called_once()

@@ -34,6 +34,7 @@ def boot_django():
                 "PORT": os.environ.get("DB_PORT", 5432),
             }
         },
+        ALLOWED_HOSTS=["*"],
         INSTALLED_APPS=(
             "django.contrib.auth",  # INFO - AM - 26/04/2023 - Needed for some test on Auth
             "rest_framework",

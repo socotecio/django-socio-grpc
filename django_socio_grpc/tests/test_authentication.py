@@ -88,7 +88,7 @@ class TestAuthenticationIntegration(TestCase):
         servicer_context = get_servicer_context()
 
         self.assertEqual(
-            servicer_context.service.context.META, {"HTTP_AUTHORIZATION": "faketoken"}
+            servicer_context.service.context.META["HTTP_AUTHORIZATION"], "faketoken"
         )
         self.assertEqual(
             servicer_context.service.context.user, {"email": "john.doe@johndoe.com"}

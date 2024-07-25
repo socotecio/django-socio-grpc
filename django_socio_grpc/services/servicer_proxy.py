@@ -151,7 +151,7 @@ class ServicerProxy(MiddlewareCapable):
         try:
             request_container.service.before_action()
             response = action(request_container.grpc_request, request_container.context)
-            socio_response = GRPCInternalProxyResponse(response)
+            socio_response = GRPCInternalProxyResponse(response, request_container.context)
             response_container = GRPCResponseContainer(socio_response)
             return response_container
         finally:
@@ -168,7 +168,7 @@ class ServicerProxy(MiddlewareCapable):
         try:
             await request_container.service.before_action()
             response = await safe_async_response(wrapped_action, request_container)
-            socio_response = GRPCInternalProxyResponse(response)
+            socio_response = GRPCInternalProxyResponse(response, request_container.context)
             response_container = GRPCResponseContainer(socio_response)
             return response_container
         finally:

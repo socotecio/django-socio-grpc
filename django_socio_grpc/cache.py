@@ -22,25 +22,42 @@ https://github.com/django/django/blob/main/django/views/decorators/cache.py
 https://github.com/django/django/blob/main/django/utils/cache.py
 """
 
+from typing import TYPE_CHECKING
+
 from django.core.cache import caches
 from django.utils.cache import get_cache_key, learn_cache_key
 
 from django_socio_grpc.settings import grpc_settings
 
+if TYPE_CHECKING:
+    from django.core.cache import BaseCache
 
-def get_dsg_cache(cache_name=None):
+    from django_socio_grpc.request_transformer import (
+        GRPCInternalProxyContext,
+        GRPCInternalProxyResponse,
+    )
+
+
+def get_dsg_cache(cache_alias: str = None) -> "BaseCache":
     """
     Get a cache instance by name.
     """
-    if cache_name is None:
-        cache_name = grpc_settings.GRPC_CACHE_ALIAS
-    return caches[cache_name]
+    if cache_alias is None:
+        cache_alias = grpc_settings.GRPC_CACHE_ALIAS
+    return caches[cache_alias]
 
 
-def get_dsg_cache_key(request, key_prefix=None, method="POST", cache=None):
+def get_dsg_cache_key(
+    request: "GRPCInternalProxyContext",
+    key_prefix: str = None,
+    method: str = "POST",
+    cache: "BaseCache" = None,
+) -> str:
     """
     Return a cache key based on the request information.
     """
+    if cache is None:
+        cache = get_dsg_cache()
     cache_key = get_cache_key(
         request,
         key_prefix=key_prefix,
@@ -52,7 +69,13 @@ def get_dsg_cache_key(request, key_prefix=None, method="POST", cache=None):
     return cache_key
 
 
-def learn_dsg_cache_key(request, response, cache_timeout=None, key_prefix=None, cache=None):
+def learn_dsg_cache_key(
+    request: "GRPCInternalProxyContext",
+    response: "GRPCInternalProxyResponse",
+    cache_timeout: int = None,
+    key_prefix: str = None,
+    cache: "BaseCache" = None,
+) -> str:
     """
     Learn a cache key for the request and response.
 
@@ -62,7 +85,7 @@ def learn_dsg_cache_key(request, response, cache_timeout=None, key_prefix=None, 
     <origin: Fix>.<middleware or method: Fixed>.<cache: Fixed>.<cache_page: Fixed>.<key_prefix: Dynamic>.<method: Dynamic>.<url hexdigest: dynamic>.<headers hexdigest: dynamic>.<accept-language: dynamic>.<timezone: dynamic>
     """
     if cache is None:
-        cache = get_dsg_cache(cache_name=cache)
+        cache = get_dsg_cache()
     cache_key = learn_cache_key(
         request,
         response,
@@ -75,12 +98,36 @@ def learn_dsg_cache_key(request, response, cache_timeout=None, key_prefix=None, 
     return cache_key
 
 
-def put_dsg_cache(request, response, cache_timeout=None, key_prefix=None, cache=None):
+def get_response_from_cache(
+    request: "GRPCInternalProxyContext",
+    key_prefix: str = None,
+    method: str = "POST",
+    cache_alias: str = None,
+) -> "GRPCInternalProxyResponse":
+    cache = get_dsg_cache(cache_alias=cache_alias)
+    cache_key = get_dsg_cache_key(request, key_prefix=key_prefix, method=method, cache=cache)
+    print("django cache key in get_response_in_cache:", cache_key)
+    if cache_key is None:
+        return None
+    response = cache.get(cache_key)
+    print("cached resposne: ", response)
+    if response is None:
+        return None
+
+    return response
+
+
+def put_response_in_cache(
+    request: "GRPCInternalProxyContext",
+    response: "GRPCInternalProxyResponse",
+    cache_timeout: int = None,
+    key_prefix: str = None,
+    cache_alias: str = None,
+) -> None:
     """
     Persist a response in the cache.
     """
-    if cache is None:
-        cache = get_dsg_cache(cache_name=cache)
+    cache = get_dsg_cache(cache_alias=cache_alias)
     if cache_timeout is None:
         cache_timeout = grpc_settings.GRPC_CACHE_SECONDS
     if key_prefix is None:

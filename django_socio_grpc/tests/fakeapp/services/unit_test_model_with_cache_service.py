@@ -1,17 +1,15 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelWithCacheService
-from google.protobuf import empty_pb2
 from rest_framework.pagination import PageNumberPagination
 
 from django_socio_grpc import generics, mixins
-from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.decorators import cache_endpoint, grpc_action
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
     ListGenerationPlugin,
     PaginationGenerationPlugin,
 )
-from django_socio_grpc.decorators import cache_endpoint
 
 
 class StandardResultsSetPagination(PageNumberPagination):

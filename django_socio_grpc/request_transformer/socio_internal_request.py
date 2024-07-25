@@ -2,9 +2,7 @@ import json
 import urllib.parse
 from typing import TYPE_CHECKING
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.encoding import escape_uri_path, iri_to_uri
+from django.http.request import HttpRequest
 from google.protobuf.message import Message
 
 from django_socio_grpc.protobuf.json_format import message_to_dict
@@ -16,7 +14,7 @@ if TYPE_CHECKING:
     )
 
 
-class InternalHttpRequest:
+class InternalHttpRequest(HttpRequest):
     """
     Class mocking django.http.HttpRequest to make some django behavior like middleware, filtering, authentication, ... still work.
     TODO - AM - Inherit this directly from django.http.HttpRequest ?
@@ -83,6 +81,17 @@ class InternalHttpRequest:
         # INFO - AM - 23/07/2024 - Allow to use cache system based on filter and pagination metadata or request fields
         # See https://github.com/django/django/blob/main/django/http/request.py#L175
         self.META["QUERY_STRING"] = urllib.parse.urlencode(self.query_params, doseq=True)
+
+        # INFO - AM - 25/07/2024 - We need to set the server name to be able to use the cache system.
+        # In Django if there is no HTTP_X_FORWARDED_HOST or HTTP_HOST, it will use the SERVER_NAME set by the ASGI handler
+        # As we do not use an ASGI server and grpc does not seem to support an access to the server name we default it to unknown if not specified directly into the metadata
+        # If requirements change in futur it will be easily possible to use the ip address or a setting to set it
+        # See https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/http/request.py#L113
+        # And https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/core/handlers/asgi.py#L80
+        if "SERVER_NAME" not in self.META:
+            self.META["SERVER_NAME"] = "unkown"
+        if "SERVER_PORT" not in self.META:
+            self.META["SERVER_PORT"] = grpc_settings.GRPC_CHANNEL_PORT
 
         # INFO - AM - 10/02/2021 - Only implementing GET because it's easier as we have metadata here. For post we will have to pass the request and transform it to python dict.
         # It's possible but it will be slow the all thing so we hava to param this behavior with settings.
@@ -161,53 +170,5 @@ class InternalHttpRequest:
 
         return query_params
 
-    def build_absolute_uri(self):
-        print(
-            "build_absolute_uri", self.grpc_request_metadata, self.path, self.get_full_path()
-        )
-        return "NYI"
-
     def grpc_action_to_http_method_name(self, grpc_action):
         return self.METHOD_MAP.get(grpc_action, "POST")
-
-    def get_full_path(self, force_append_slash=False):
-        return self._get_full_path(self.path, force_append_slash)
-
-    def _get_full_path(self, path, force_append_slash):
-        # RFC 3986 requires query string arguments to be in the ASCII range.
-        # Rather than crash if this doesn't happen, we encode defensively.
-        return "{}{}{}".format(
-            escape_uri_path(path),
-            "/" if force_append_slash and not path.endswith("/") else "",
-            (
-                ("?" + iri_to_uri(self.META.get("QUERY_STRING", "")))
-                if self.META.get("QUERY_STRING", "")
-                else ""
-            ),
-        )
-
-    def _get_scheme(self):
-        """
-        Hook for subclasses like WSGIRequest to implement. Return 'http' by
-        default.
-        """
-        return "http"
-
-    @property
-    def scheme(self):
-        if settings.SECURE_PROXY_SSL_HEADER:
-            try:
-                header, secure_value = settings.SECURE_PROXY_SSL_HEADER
-            except ValueError as e:
-                raise ImproperlyConfigured(
-                    "The SECURE_PROXY_SSL_HEADER setting must be a tuple containing "
-                    "two values."
-                ) from e
-            header_value = self.META.get(header)
-            if header_value is not None:
-                header_value, *_ = header_value.split(",", 1)
-                return "https" if header_value.strip() == secure_value else "http"
-        return self._get_scheme()
-
-    def is_secure(self):
-        return self.scheme == "https"

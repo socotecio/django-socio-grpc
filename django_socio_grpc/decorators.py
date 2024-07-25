@@ -1,8 +1,9 @@
+import asyncio
 import functools
 import logging
-from typing import TYPE_CHECKING, List, Type
+from typing import TYPE_CHECKING, List, Optional, Type
 
-from grpc.aio._typing import ResponseType
+from grpc.aio._typing import RequestType, ResponseType
 
 from django_socio_grpc.cache import get_response_from_cache, put_response_in_cache
 from django_socio_grpc.protobuf.generation_plugin import (
@@ -95,18 +96,19 @@ def grpc_action(
     return wrapper
 
 
-def cache_endpoint(func, cache_timeout=None, key_prefix=None, cache=None):
-    print("icicici\n" * 10, func)
-
+def cache_endpoint(
+    func,
+    cache_timeout: Optional[int] = None,
+    key_prefix: Optional[str] = None,
+    cache: Optional[str] = None,
+):
     @functools.wraps(func)
-    async def wrapper(
-        service_instance: "Service", request: ResponseType, context: "GRPCInternalProxyContext"
-    ):
+    async def async_wrapper(
+        service_instance: "Service", request: RequestType, context: "GRPCInternalProxyContext"
+    ) -> ResponseType:
         response_cached = get_response_from_cache(
-            request, key_prefix=key_prefix, method=context.method, cache_alias=cache
+            request=context, key_prefix=key_prefix, method=context.method, cache_alias=cache
         )
-
-        print("response_cached", response_cached)
 
         if response_cached:
             return response_cached.grpc_response
@@ -115,8 +117,6 @@ def cache_endpoint(func, cache_timeout=None, key_prefix=None, cache=None):
         endpoint_result = await func(service_instance, request, context)
 
         socio_response = GRPCInternalProxyResponse(endpoint_result, context)
-
-        print(type(endpoint_result))
 
         put_response_in_cache(
             context,
@@ -128,4 +128,32 @@ def cache_endpoint(func, cache_timeout=None, key_prefix=None, cache=None):
 
         return endpoint_result
 
-    return wrapper
+    @functools.wraps(func)
+    def wrapper(
+        service_instance: "Service", request: RequestType, context: "GRPCInternalProxyContext"
+    ) -> ResponseType:
+        response_cached = get_response_from_cache(
+            request=context, key_prefix=key_prefix, method=context.method, cache_alias=cache
+        )
+
+        if response_cached:
+            return response_cached.grpc_response
+
+        endpoint_result = func(service_instance, request, context)
+
+        socio_response = GRPCInternalProxyResponse(endpoint_result, context)
+
+        put_response_in_cache(
+            context,
+            socio_response,
+            cache_timeout=cache_timeout,
+            key_prefix=key_prefix,
+            cache_alias=cache,
+        )
+
+        return endpoint_result
+
+    if asyncio.iscoroutinefunction(func):
+        return async_wrapper
+    else:
+        return wrapper

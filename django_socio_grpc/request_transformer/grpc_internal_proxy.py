@@ -42,19 +42,26 @@ class GRPCInternalProxyResponse:
     """
 
     grpc_response: ResponseType
+    # INFO - AM - 25/07/2024 - grpc context is used to pass response header to client
+    grpc_context: ServicerContext
     http_response: InternalHttpResponse = None
 
     def __post_init__(self):
         self.http_response = InternalHttpResponse()
 
     def __getattr__(self, attr):
-        print("icicicic", type(self.grpc_response), attr)
         if hasattr(self.grpc_response, attr):
             return getattr(self.grpc_response, attr)
         return getattr(self.http_response, attr)
 
     def __getstate__(self):
-        return {"grpc_response": self.grpc_response, "http_response": self.http_response}
+        return {
+            "grpc_response": self.grpc_response,
+            "http_response": self.http_response,
+        }
+
+    def __repr__(self):
+        return f"GRPCInternalProxyResponse<{self.grpc_response.__repr__()}>, {self.http_response.__repr__()}"
 
     def __setstate__(self, state):
         self.grpc_response = state["grpc_response"]
@@ -68,7 +75,7 @@ class GRPCInternalProxyResponse:
         Used to iterate over the proxy to the grpc_response as the http response can't be iterate over
         """
         next_item = await self.grpc_response.__anext__()
-        return GRPCInternalProxyResponse(next_item)
+        return GRPCInternalProxyResponse(next_item, self.grpc_context)
 
     def __iter__(self):
         return self
@@ -78,4 +85,4 @@ class GRPCInternalProxyResponse:
         Used to iterate over the proxy to the grpc_response as the http response can't be iterate over
         """
         next_item = self.grpc_response.__next__()
-        return GRPCInternalProxyResponse(next_item)
+        return GRPCInternalProxyResponse(next_item, self.grpc_context)

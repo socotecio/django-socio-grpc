@@ -17,4 +17,4 @@ class InternalHttpResponse:
 
     # INFO - AM - 26/04/2023 - This is used by session middleware
     def has_header(self, header_name):
-        return False
+        return header_name in self.headers

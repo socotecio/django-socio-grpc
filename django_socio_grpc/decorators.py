@@ -1,7 +1,10 @@
 import functools
 import logging
+from typing import TYPE_CHECKING, List, Type
 
-from django_socio_grpc.cache import put_dsg_cache
+from grpc.aio._typing import ResponseType
+
+from django_socio_grpc.cache import get_response_from_cache, put_response_in_cache
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
     ListGenerationPlugin,
@@ -13,6 +16,12 @@ from django_socio_grpc.request_transformer import (
 from django_socio_grpc.settings import grpc_settings
 
 from .grpc_actions.actions import GRPCAction
+
+if TYPE_CHECKING:
+    from django_socio_grpc.request_transformer.grpc_internal_proxy import (
+        GRPCInternalProxyContext,
+    )
+    from django_socio_grpc.services import Service
 
 logger = logging.getLogger("django_socio_grpc.generation")
 
@@ -90,24 +99,31 @@ def cache_endpoint(func, cache_timeout=None, key_prefix=None, cache=None):
     print("icicici\n" * 10, func)
 
     @functools.wraps(func)
-    async def wrapper(service_instance, request, context):
-        print("ici2", service_instance, request, context)
-        # Ask preference between service_instance.action and func.__name__ that return the same thing
-        print(service_instance.action, func.__name__)
+    async def wrapper(
+        service_instance: "Service", request: ResponseType, context: "GRPCInternalProxyContext"
+    ):
+        response_cached = get_response_from_cache(
+            request, key_prefix=key_prefix, method=context.method, cache_alias=cache
+        )
+
+        print("response_cached", response_cached)
+
+        if response_cached:
+            return response_cached.grpc_response
 
         # func(service_instance, request, context)
         endpoint_result = await func(service_instance, request, context)
 
-        socio_response = GRPCInternalProxyResponse(endpoint_result)
+        socio_response = GRPCInternalProxyResponse(endpoint_result, context)
 
         print(type(endpoint_result))
 
-        put_dsg_cache(
+        put_response_in_cache(
             context,
             socio_response,
             cache_timeout=cache_timeout,
             key_prefix=key_prefix,
-            cache=cache,
+            cache_alias=cache,
         )
 
         return endpoint_result

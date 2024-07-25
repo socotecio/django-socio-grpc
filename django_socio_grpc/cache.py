@@ -26,12 +26,10 @@ from typing import TYPE_CHECKING, Optional
 
 from django.core.cache import caches
 from django.utils.cache import get_cache_key, learn_cache_key
-
 from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
     from django.core.cache import BaseCache
-
     from django_socio_grpc.request_transformer import (
         GRPCInternalProxyContext,
         GRPCInternalProxyResponse,
@@ -57,6 +55,8 @@ def get_dsg_cache_key(
     Return a cache key based on the request information.
     To understand the format please read the desription of the learn_dsg_cache_key function.
     """
+    if key_prefix is None:
+        key_prefix = grpc_settings.GRPC_CACHE_KEY_PREFIX
     if cache is None:
         cache = get_dsg_cache()
     cache_key = get_cache_key(
@@ -83,6 +83,8 @@ def learn_dsg_cache_key(
     which is explained like:
     <origin: Fix>.<middleware or method: Fixed>.<cache: Fixed>.<cache_page: Fixed>.<key_prefix: Dynamic>.<method: Dynamic>.<url hexdigest: dynamic>.<headers hexdigest: dynamic>.<accept-language: dynamic>.<timezone: dynamic>
     """
+    if key_prefix is None:
+        key_prefix = grpc_settings.GRPC_CACHE_KEY_PREFIX
     if cache is None:
         cache = get_dsg_cache()
     cache_key = learn_cache_key(
@@ -105,8 +107,11 @@ def get_response_from_cache(
     """
     Get the cache key from the request and return the response stored with this key in
     """
+    if key_prefix is None:
+        key_prefix = grpc_settings.GRPC_CACHE_KEY_PREFIX
     cache = get_dsg_cache(cache_alias=cache_alias)
     cache_key = get_dsg_cache_key(request, key_prefix=key_prefix, method=method, cache=cache)
+    print("cache key to get: ", cache_key)
     if cache_key is None:
         return None
     response = cache.get(cache_key)
@@ -138,5 +143,6 @@ def put_response_in_cache(
         key_prefix=key_prefix,
         cache=cache,
     )
+    print("cahce key to put: ", cache_key)
 
     return cache.set(cache_key, response, cache_timeout)

@@ -112,14 +112,14 @@ service UnitTestModelController {
 }
 
 service UnitTestModelWithCacheController {
-    rpc Create(UnitTestModelWithCacheServiceRequest) returns (UnitTestModelWithCacheServiceResponse) {}
-    rpc Destroy(UnitTestModelWithCacheServiceDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheServiceListResponse) {}
-    rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilterRequest) returns (UnitTestModelWithCacheServiceListResponse) {}
-    rpc PartialUpdate(UnitTestModelWithCacheServicePartialUpdateRequest) returns (UnitTestModelWithCacheServiceResponse) {}
-    rpc Retrieve(UnitTestModelWithCacheServiceRetrieveRequest) returns (UnitTestModelWithCacheServiceResponse) {}
-    rpc Stream(UnitTestModelWithCacheServiceStreamRequest) returns (stream UnitTestModelWithCacheServiceResponse) {}
-    rpc Update(UnitTestModelWithCacheServiceRequest) returns (UnitTestModelWithCacheServiceResponse) {}
+    rpc Create(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilterRequest) returns (UnitTestModelWithCacheListResponse) {}
+    rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Retrieve(UnitTestModelWithCacheRetrieveRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Stream(UnitTestModelWithCacheStreamRequest) returns (stream UnitTestModelWithCacheResponse) {}
+    rpc Update(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
 }
 
 service UnitTestModelWithStructFilterController {
@@ -649,45 +649,46 @@ message UnitTestModelRetrieveRequest {
 message UnitTestModelStreamRequest {
 }
 
+message UnitTestModelWithCacheDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelWithCacheListResponse {
+    repeated UnitTestModelWithCacheResponse results = 1;
+    int32 count = 2;
+}
+
 message UnitTestModelWithCacheListWithStructFilterRequest {
     optional google.protobuf.Struct _filters = 1;
     optional google.protobuf.Struct _pagination = 2;
 }
 
-message UnitTestModelWithCacheServiceDestroyRequest {
-    int32 id = 1;
-}
-
-message UnitTestModelWithCacheServiceListResponse {
-    repeated UnitTestModelWithCacheServiceResponse results = 1;
-    int32 count = 2;
-}
-
-message UnitTestModelWithCacheServicePartialUpdateRequest {
+message UnitTestModelWithCachePartialUpdateRequest {
     optional int32 id = 1;
     string title = 2;
     optional string text = 3;
     repeated string _partial_update_fields = 4;
 }
 
-message UnitTestModelWithCacheServiceRequest {
+message UnitTestModelWithCacheRequest {
     optional int32 id = 1;
     string title = 2;
     optional string text = 3;
 }
 
-message UnitTestModelWithCacheServiceResponse {
+message UnitTestModelWithCacheResponse {
     optional int32 id = 1;
     string title = 2;
     optional string text = 3;
     int32 model_property = 4;
+    string verify_custom_header = 5;
 }
 
-message UnitTestModelWithCacheServiceRetrieveRequest {
+message UnitTestModelWithCacheRetrieveRequest {
     int32 id = 1;
 }
 
-message UnitTestModelWithCacheServiceStreamRequest {
+message UnitTestModelWithCacheStreamRequest {
 }
 
 message UnitTestModelWithStructFilterDestroyRequest {

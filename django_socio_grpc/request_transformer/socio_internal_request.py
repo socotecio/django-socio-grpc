@@ -2,9 +2,9 @@ import json
 import urllib.parse
 from typing import TYPE_CHECKING
 
-from django.http.request import HttpRequest
 from google.protobuf.message import Message
 
+from django.http.request import HttpRequest
 from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
 
@@ -62,10 +62,13 @@ class InternalHttpRequest(HttpRequest):
             grpc_context.invocation_metadata()
         )
         self.headers = self.get_from_metadata(self.HEADERS_KEY)
+        print("la", self.headers)
         self.META = {
             self.MAP_HEADERS.get(key.upper(), key.upper()): value
             for key, value in self.headers.items()
         }
+
+        print("icicic ", self.META)
 
         # INFO - A.D.B - 04/01/2021 - Not implemented for now
         self.POST = {}
@@ -102,6 +105,9 @@ class InternalHttpRequest(HttpRequest):
         self.path_info = grpc_action
 
     def get_from_metadata(self, metadata_key):
+        """
+        Allow to override defautl metadata with qome passed in HEADERS metadata key to have custom advanced behavior
+        """
         metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key, None)
         if not metadata_key:
             return self.grpc_request_metadata
@@ -110,6 +116,9 @@ class InternalHttpRequest(HttpRequest):
             **self.grpc_request_metadata,
             **json.loads(user_custom_headers),
         }
+
+    def parse_specific_key_from_metadata(self, metadata_key):
+        return json.loads(self.grpc_request_metadata.get(metadata_key, "{}"))
 
     def get_from_request_struct(self, grpc_request, struct_field_name):
         # INFO - AM - 14/02/2024 - Need to check both if the request have a _filters key and if this optional _filters is filled
@@ -138,7 +147,7 @@ class InternalHttpRequest(HttpRequest):
         ]:
             query_params = {
                 **query_params,
-                **self.get_from_metadata(self.FILTERS_KEY),
+                **self.parse_specific_key_from_metadata(self.FILTERS_KEY),
             }
 
         if grpc_settings.FILTER_BEHAVIOR in [
@@ -154,9 +163,10 @@ class InternalHttpRequest(HttpRequest):
             FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT,
             FilterAndPaginationBehaviorOptions.METADATA_STRICT,
         ]:
+            print(query_params, self.grpc_request_metadata.get(self.PAGINATION_KEY, {}))
             query_params = {
                 **query_params,
-                **self.get_from_metadata(self.PAGINATION_KEY),
+                **self.parse_specific_key_from_metadata(self.PAGINATION_KEY),
             }
 
         if grpc_settings.PAGINATION_BEHAVIOR in [

@@ -8,10 +8,9 @@ from django.http.request import HttpHeaders, HttpRequest
 from django.utils.datastructures import (
     CaseInsensitiveMapping,
 )
+from django.utils.functional import cached_property
 from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
-
-from django.utils.functional import cached_property
 
 if TYPE_CHECKING:
     from django_socio_grpc.request_transformer.grpc_internal_proxy import (

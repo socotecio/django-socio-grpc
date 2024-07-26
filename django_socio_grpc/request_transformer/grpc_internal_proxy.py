@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from google.protobuf.message import Message
 from grpc.aio import ServicerContext
@@ -44,7 +45,8 @@ class GRPCInternalProxyResponse:
     grpc_response: ResponseType
     # INFO - AM - 25/07/2024 - grpc context is used to pass response header to client
     grpc_context: ServicerContext
-    http_response: InternalHttpResponse = None
+    http_response: Optional[InternalHttpResponse] = None
+    _cached_metadata: Optional[list] = None
 
     def __post_init__(self):
         self.http_response = InternalHttpResponse(self.grpc_context)
@@ -76,6 +78,7 @@ class GRPCInternalProxyResponse:
         return {
             "grpc_response": self.grpc_response,
             "http_response": self.http_response,
+            "response_metadata": dict(self.grpc_context.trailing_metadata()),
         }
 
     def __repr__(self):
@@ -84,6 +87,20 @@ class GRPCInternalProxyResponse:
     def __setstate__(self, state):
         self.grpc_response = state["grpc_response"]
         self.http_response = state["http_response"]
+        self._cached_metadata = [
+            (key, value) for key, value in state["response_metadata"].items()
+        ]
+
+    def set_current_context(self, grpc_context):
+        """
+        This method is used to set the current context to the response object when fetched from cache
+        It also enable the copy of the cache metdata
+        """
+        self.grpc_context = grpc_context
+        self.grpc_context.set_trailing_metadata(self._cached_metadata)
+        # METADATA_KEY_TO_GET = ["cache-control", "expires"]
+        # for header, value in self._cached_metadata:
+        #     self[header] = value
 
     def __aiter__(self):
         return self

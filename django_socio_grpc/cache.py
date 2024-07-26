@@ -22,10 +22,18 @@ https://github.com/django/django/blob/main/django/views/decorators/cache.py
 https://github.com/django/django/blob/main/django/utils/cache.py
 """
 
+import time
 from typing import TYPE_CHECKING, Optional
 
 from django.core.cache import caches
-from django.utils.cache import get_cache_key, get_max_age, has_vary_header, learn_cache_key
+from django.utils.cache import (
+    get_cache_key,
+    get_max_age,
+    has_vary_header,
+    learn_cache_key,
+    patch_response_headers,
+)
+from django.utils.http import parse_http_date_safe
 from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
@@ -117,6 +125,15 @@ def get_response_from_cache(
     response = cache.get(cache_key)
     if response is None:
         return None
+    response.set_current_context(request.grpc_context)
+
+    max_age_seconds = get_max_age(response)
+
+    expires_timestamp = parse_http_date_safe(response.get("Expires"))
+    if expires_timestamp is not None and max_age_seconds is not None:
+        now_timestamp = int(time.time())
+        remaining_seconds = expires_timestamp - now_timestamp
+        response["Age"] = max(0, max_age_seconds - remaining_seconds)
 
     return response
 
@@ -137,7 +154,7 @@ def put_response_in_cache(
         return
 
     if "private" in response.get("Cache-Control", ()):
-        return response
+        return
 
     cache = get_dsg_cache(cache_alias=cache_alias)
     if cache_timeout is None:
@@ -155,9 +172,14 @@ def put_response_in_cache(
     print("cahce key to put: ", cache_key)
 
     timeout = get_max_age(response)
+    print("timeout: ", timeout)
+    # if the max_age_seconds is None, we will use the default cache_timeout
     if timeout is None:
         timeout = cache_timeout
+    # if the max_age_seconds is 0, we will not cache the response
     elif timeout == 0:
         return
 
-    return cache.set(cache_key, response, cache_timeout)
+    patch_response_headers(response, timeout)
+
+    return cache.set(key=cache_key, value=response, timeout=timeout)

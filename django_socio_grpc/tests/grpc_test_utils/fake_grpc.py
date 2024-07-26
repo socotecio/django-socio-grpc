@@ -66,8 +66,8 @@ class _BaseFakeContext:
         # The stream_pipe_server, in which server writes responses and reads by the client
         self.stream_pipe_server = queue.Queue()
 
-        self._invocation_metadata = []
-        self._trailing_metadata = []
+        self._invocation_metadata = ()
+        self._trailing_metadata = ()
         self._code = grpc.StatusCode.OK
         self._details = None
 
@@ -99,7 +99,7 @@ class _BaseFakeContext:
         return self._trailing_metadata
 
     def set_trailing_metadata(self, metadata):
-        self._trailing_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+        self._trailing_metadata += tuple(_Metadatum(k, v) for k, v in metadata)
 
     def write(self, data):
         self._write_server(data)
@@ -202,8 +202,8 @@ class FakeChannel:
                 self.context = FakeAsyncContext()
 
             if metadata:
-                self.context._invocation_metadata.extend(
-                    (_Metadatum(k, v) for k, v in metadata)
+                self.context._invocation_metadata += tuple(
+                    _Metadatum(k, v) for k, v in metadata
                 )
 
             return real_method(request, self.context)
@@ -300,7 +300,7 @@ class FakeAioCall(FakeBaseCall):
 
         if metadata:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            self._context._invocation_metadata += tuple(_Metadatum(k, v) for k, v in metadata)
 
     def __call__(self, request=None, metadata=None):
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
@@ -308,7 +308,7 @@ class FakeAioCall(FakeBaseCall):
             self._request = request
         if metadata is not None:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            self._context._invocation_metadata += tuple(_Metadatum(k, v) for k, v in metadata)
         # INFO - AM - 18/02/2022 - Use FakeFullAioCall for stream testing
         self.method_awaitable = self._real_method(request=self._request, context=self._context)
         return self
@@ -339,7 +339,7 @@ class FakeFullAioCall(FakeBaseCall):
 
         if metadata:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            self._context._invocation_metadata += tuple(_Metadatum(k, v) for k, v in metadata)
 
     def __call__(self, request=None, metadata=None):
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
@@ -347,7 +347,7 @@ class FakeFullAioCall(FakeBaseCall):
             self._request = request
         if metadata is not None:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            self._context._invocation_metadata += tuple(_Metadatum(k, v) for k, v in metadata)
 
         async def wrapped(*args, **kwargs):
             method = self._real_method(request=self._request, context=self._context)

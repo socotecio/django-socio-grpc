@@ -57,8 +57,9 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
         return await super().List(request, context)
 
     @grpc_action(
-        request=[{"name": "id", "type": "int"}],
+        request=[{"name": "id", "type": "int32"}],
         response=UnitTestModelWithCacheSerializer,
+        request_name="UnitTestModelWithCacheRetrieveRequest",
     )
     @cache_endpoint(cache_timeout=1000, key_prefix="second", cache="second")
     async def Retrieve(self, request, context):

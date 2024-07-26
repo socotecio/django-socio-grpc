@@ -11,6 +11,8 @@ from django.utils.datastructures import (
 from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
 
+from django.utils.functional import cached_property
+
 if TYPE_CHECKING:
     from django_socio_grpc.request_transformer.grpc_internal_proxy import (
         GRPCInternalProxyContext,
@@ -108,6 +110,13 @@ class InternalHttpRequest(HttpRequest):
         self.content_type = None
         self.content_params = None
 
+    @cached_property
+    def headers(self):
+        # INFO - AM - 26/07/2024 - As grpc not follow the HTTP headers from env specification, we manually match it
+        # Maybe this should be restricted to only know HTTP headers ?
+        add_http_to_metadata = {f"HTTP_{key}": value for key, value in self.META.items()}
+        return HttpHeaders(add_http_to_metadata)
+
     def get_from_metadata(self, metadata_key):
         """
         Allow to override defautl metadata with qome passed in HEADERS metadata key to have custom advanced behavior
@@ -195,8 +204,12 @@ class RequestMeta(CaseInsensitiveMapping):
         As HTTP headers are prefixed by HTTP_ by proxy server or CGI, Django store and retrieve headers with HTTP_ prefix
         As there is no same rule/restriction in gRPC, we need to check if the key is in the dict without HTTP_ prefix if not existing with
         """
+        # INFO - AM - 27/07/2024 - First we detect that the key is not existing and that it's a HTTP header
         if key.lower() not in self._store and key.startswith(self.HTTP_PREFIX):
             key = key[len(self.HTTP_PREFIX) :]
+            # INFO - AM - 27/07/2024 - Then we check if maybe the key exist but with hypen instead of underscore
+            if key.lower() not in self._store and key.replace("_", "-").lower() in self._store:
+                key = key.replace("_", "-")
         return super().__getitem__(key=key)
 
     def __setitem__(self, key, value):

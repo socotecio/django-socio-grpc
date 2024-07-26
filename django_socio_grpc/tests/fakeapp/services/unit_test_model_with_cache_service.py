@@ -37,7 +37,7 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["title", "text"]
 
-    def custom_function_not_called_when_cached(self):
+    def custom_function_not_called_when_cached(self, *args, **kwargs):
         pass
 
     @grpc_action(
@@ -50,8 +50,7 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
     @cache_endpoint
     @vary_on_metadata("CUSTOM_HEADER")
     async def List(self, request, context):
-        print("ccccccccccccccccc")
-        self.custom_function_not_called_when_cached()
+        self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)
 
     @grpc_action(

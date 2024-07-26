@@ -3,6 +3,7 @@ from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelWithCacheSerializer
 from rest_framework.pagination import PageNumberPagination
 
+from django.core.cache import caches
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import cache_endpoint, grpc_action, vary_on_metadata
 from django_socio_grpc.protobuf.generation_plugin import (
@@ -10,6 +11,8 @@ from django_socio_grpc.protobuf.generation_plugin import (
     ListGenerationPlugin,
     PaginationGenerationPlugin,
 )
+
+second_cache = caches["second"]
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -47,11 +50,19 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
             ListGenerationPlugin(response=True),
         ],
     )
-    @cache_endpoint
+    @cache_endpoint()
     @vary_on_metadata("CUSTOM_HEADER")
     async def List(self, request, context):
         self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)
+
+    @grpc_action(
+        request=[{"name": "id", "type": "int"}],
+        response=UnitTestModelWithCacheSerializer,
+    )
+    @cache_endpoint(cache_timeout=1000, key_prefix="second", cache="second")
+    async def Retrieve(self, request, context):
+        return await super().Retrieve(request, context)
 
     @grpc_action(
         request=[],
@@ -62,6 +73,6 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
             PaginationGenerationPluginForce(),
         ],
     )
-    @cache_endpoint
+    @cache_endpoint()
     async def ListWithStructFilter(self, request, context):
         return await super().List(request, context)

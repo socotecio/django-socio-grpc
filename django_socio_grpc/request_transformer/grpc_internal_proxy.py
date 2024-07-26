@@ -82,7 +82,7 @@ class GRPCInternalProxyResponse:
         }
 
     def __repr__(self):
-        return f"GRPCInternalProxyResponse<{self.grpc_response.__repr__()}>, {self.http_response.__repr__()}"
+        return f"GRPCInternalProxyResponse<{self.grpc_response.__repr__()}, {self.http_response.__repr__()}>"
 
     def __setstate__(self, state):
         self.grpc_response = state["grpc_response"]

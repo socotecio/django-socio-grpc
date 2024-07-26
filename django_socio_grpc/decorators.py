@@ -98,66 +98,83 @@ def grpc_action(
 
 
 def cache_endpoint(
-    func,
     cache_timeout: Optional[int] = None,
     key_prefix: Optional[str] = None,
     cache: Optional[str] = None,
 ):
-    @functools.wraps(func)
-    async def async_wrapper(
-        service_instance: "Service", request: RequestType, context: "GRPCInternalProxyContext"
-    ) -> ResponseType:
-        response_cached = get_response_from_cache(
-            request=context, key_prefix=key_prefix, method=context.method, cache_alias=cache
-        )
+    print("------------------------------")
+    print("cache_timeout", cache_timeout)
 
-        if response_cached:
-            return response_cached.grpc_response
+    def decorator(func):
+        if asyncio.iscoroutinefunction(func):
 
-        # func(service_instance, request, context)
-        endpoint_result = await func(service_instance, request, context)
+            @functools.wraps(func)
+            async def async_wrapper(
+                service_instance: "Service",
+                request: RequestType,
+                context: "GRPCInternalProxyContext",
+            ) -> ResponseType:
+                response_cached = get_response_from_cache(
+                    request=context,
+                    key_prefix=key_prefix,
+                    method=context.method,
+                    cache_alias=cache,
+                )
+                if response_cached:
+                    return response_cached.grpc_response
 
-        response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+                # func(service_instance, request, context)
+                endpoint_result = await func(service_instance, request, context)
 
-        put_response_in_cache(
-            context,
-            response_proxy,
-            cache_timeout=cache_timeout,
-            key_prefix=key_prefix,
-            cache_alias=cache,
-        )
+                response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
 
-        return endpoint_result
+                print("inside", cache_timeout)
 
-    @functools.wraps(func)
-    def wrapper(
-        service_instance: "Service", request: RequestType, context: "GRPCInternalProxyContext"
-    ) -> ResponseType:
-        response_cached = get_response_from_cache(
-            request=context, key_prefix=key_prefix, method=context.method, cache_alias=cache
-        )
+                put_response_in_cache(
+                    context,
+                    response_proxy,
+                    cache_timeout=cache_timeout,
+                    key_prefix=key_prefix,
+                    cache_alias=cache,
+                )
 
-        if response_cached:
-            return response_cached.grpc_response
+                return endpoint_result
 
-        endpoint_result = func(service_instance, request, context)
+            return async_wrapper
+        else:
 
-        response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+            @functools.wraps(func)
+            def wrapper(
+                service_instance: "Service",
+                request: RequestType,
+                context: "GRPCInternalProxyContext",
+            ) -> ResponseType:
+                response_cached = get_response_from_cache(
+                    request=context,
+                    key_prefix=key_prefix,
+                    method=context.method,
+                    cache_alias=cache,
+                )
+                if response_cached:
+                    return response_cached.grpc_response
 
-        put_response_in_cache(
-            context,
-            response_proxy,
-            cache_timeout=cache_timeout,
-            key_prefix=key_prefix,
-            cache_alias=cache,
-        )
+                endpoint_result = func(service_instance, request, context)
 
-        return endpoint_result
+                response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
 
-    if asyncio.iscoroutinefunction(func):
-        return async_wrapper
-    else:
-        return wrapper
+                put_response_in_cache(
+                    context,
+                    response_proxy,
+                    cache_timeout=cache_timeout,
+                    key_prefix=key_prefix,
+                    cache_alias=cache,
+                )
+
+                return endpoint_result
+
+            return wrapper
+
+    return decorator
 
 
 def vary_on_metadata(*metadata_keys):

@@ -50,6 +50,7 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
     @cache_endpoint
     @vary_on_metadata("CUSTOM_HEADER")
     async def List(self, request, context):
+        print("ccccccccccccccccc")
         self.custom_function_not_called_when_cached()
         return await super().List(request, context)
 

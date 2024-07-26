@@ -25,7 +25,7 @@ https://github.com/django/django/blob/main/django/utils/cache.py
 from typing import TYPE_CHECKING, Optional
 
 from django.core.cache import caches
-from django.utils.cache import get_cache_key, learn_cache_key
+from django.utils.cache import get_cache_key, get_max_age, has_vary_header, learn_cache_key
 from django_socio_grpc.settings import grpc_settings
 
 if TYPE_CHECKING:
@@ -131,11 +131,20 @@ def put_response_in_cache(
     """
     Persist a response in the cache.
     """
+    # Don't cache responses that set a user-specific (and maybe security
+    # sensitive) cookie in response to a cookie-less request.
+    if not request.COOKIES and response.cookies and has_vary_header(response, "Cookie"):
+        return
+
+    if "private" in response.get("Cache-Control", ()):
+        return response
+
     cache = get_dsg_cache(cache_alias=cache_alias)
     if cache_timeout is None:
         cache_timeout = grpc_settings.GRPC_CACHE_SECONDS
     if key_prefix is None:
         key_prefix = grpc_settings.GRPC_CACHE_KEY_PREFIX
+
     cache_key = learn_dsg_cache_key(
         request,
         response,
@@ -144,5 +153,11 @@ def put_response_in_cache(
         cache=cache,
     )
     print("cahce key to put: ", cache_key)
+
+    timeout = get_max_age(response)
+    if timeout is None:
+        timeout = cache_timeout
+    elif timeout == 0:
+        return
 
     return cache.set(cache_key, response, cache_timeout)

@@ -16,6 +16,7 @@ from fakeapp.services.unit_test_model_with_cache_service import (
 )
 from google.protobuf import empty_pb2, struct_pb2
 
+from django.core.cache import caches
 from django.test import TestCase, override_settings
 from django_socio_grpc.cache import get_dsg_cache
 from django_socio_grpc.request_transformer import (
@@ -23,7 +24,7 @@ from django_socio_grpc.request_transformer import (
 )
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
 
-from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
+from .grpc_test_utils.fake_grpc import FakeAsyncContext, FakeFullAIOGRPC
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
@@ -41,6 +42,9 @@ class TestCacheService(TestCase):
 
     def tearDown(self):
         self.fake_grpc.close()
+        # INFO - AM - 26/07/2024 - Clear all cache after each test to be sure none conflict
+        for cache in caches.all():
+            cache.clear()
 
     @mock.patch("django_socio_grpc.cache.get_cache_key")
     @mock.patch("django_socio_grpc.cache.learn_cache_key")
@@ -78,9 +82,7 @@ class TestCacheService(TestCase):
         ]
         grpc_response = UnitTestModelWithCacheListResponse(results=results, count=2)
 
-        fake_socio_response = GRPCInternalProxyResponse(
-            grpc_response, self.fake_grpc.get_fake_channel().context
-        )
+        fake_socio_response = GRPCInternalProxyResponse(grpc_response, FakeAsyncContext())
 
         cache = get_dsg_cache()
         cache.set(
@@ -272,10 +274,19 @@ class TestCacheService(TestCase):
     async def test_cache_control_and_max_age_metadata_correctly_set(self):
         pass
 
+    async def test_cache_not_set_when_max_age_0_in_cache_control(self):
+        pass
+
+    async def test_cache_not_set_when_not_successfull_request(self):
+        pass
+
     async def test_cache_decorators_paremeters_correctly_working(self):
         pass
 
     async def test_cache_not_working_when_cache_control_metadata_to_private(self):
+        pass
+
+    async def test_cache_not_set_when_private_in_cache_control(self):
         pass
 
     async def test_vary_metadata_correctly_set_when_using_decorator(self):
@@ -285,7 +296,5 @@ class TestCacheService(TestCase):
         response, call = await grpc_stub.List.with_call(request=request)
 
         metadata_to_dict = dict(call.trailing_metadata())
-
-        print("metadata_to_dict", metadata_to_dict)
 
         self.assertEqual(metadata_to_dict["Vary"], "CUSTOM_HEADER")

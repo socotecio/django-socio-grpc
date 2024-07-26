@@ -47,6 +47,7 @@ class GRPCInternalProxyResponse:
     http_response: InternalHttpResponse = None
 
     def __post_init__(self):
+        print("iccicicic ", self.grpc_context)
         self.http_response = InternalHttpResponse(self.grpc_context)
         self.__contains__ = self.http_response.has_header
 

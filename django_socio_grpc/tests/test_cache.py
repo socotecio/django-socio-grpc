@@ -197,11 +197,13 @@ class TestCacheService(TestCase):
     async def test_when_headers_vary_route_not_cached(
         self,
     ):
+        """
+        In this test we verify that by setting different value on the custom_header metadata the cache is not used
+        This is done by the vary_on_metadata decorator used in the service
+        """
         self.assertEqual(await UnitTestModel.objects.acount(), 10)
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()
-
-        # TODO faire le test avec un header standard et non custom ou revoir le logique
 
         metadata_1 = (("custom_header", ("test1")),)
         response = await grpc_stub.List(request=request, metadata=metadata_1)
@@ -210,14 +212,39 @@ class TestCacheService(TestCase):
         self.assertEqual(response.results[0].title, "z")
         self.assertEqual(response.results[0].verify_custom_header, "test1")
 
+        await UnitTestModel.objects.filter(title="z").aupdate(title="a")
+
         metadata_2 = (("custom_header", ("test2")),)
         response = await grpc_stub.List(request=request, metadata=metadata_2)
 
         self.assertEqual(len(response.results), 3)
-        self.assertEqual(response.results[0].title, "z")
+        self.assertEqual(response.results[0].title, "a")
         self.assertEqual(response.results[0].verify_custom_header, "test2")
 
-        assert False
+    async def test_when_headers_vary_but_not_specified_in_decorator_route_is_cached(
+        self,
+    ):
+        """
+        In this test we verify that by setting different value on the custom_header metadata the cache is not used
+        This is done by the vary_on_metadata decorator used in the service
+        """
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        metadata_1 = (("metdata_not_specified", ("test1")),)
+        response = await grpc_stub.List(request=request, metadata=metadata_1)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        await UnitTestModel.objects.filter(title="z").aupdate(title="a")
+
+        metadata_2 = (("metdata_not_specified", ("test2")),)
+        response = await grpc_stub.List(request=request, metadata=metadata_2)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
 
     @mock.patch(
         "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"

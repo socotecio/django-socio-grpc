@@ -167,7 +167,7 @@ def vary_on_metadata(*metadata_keys):
     A view decorator that adds the specified metdatas to the Vary metadata of the
     response. Usage:
 
-       @vary_on_headers('Cookie', 'Accept-language')
+       @vary_on_metadata('Cookie', 'Accept-language')
        def index(request):
            ...
 
@@ -186,12 +186,6 @@ def vary_on_metadata(*metadata_keys):
                 endpoint_result = await func(service_instance, request, context)
                 response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
                 patch_vary_headers(response_proxy, metadata_keys)
-                # context.set_trailing_metadata(
-                #     (
-                #         ("aaaaa", "I agree"),
-                #         ("retry", "false"),
-                #     )
-                # )
                 return endpoint_result
 
         else:

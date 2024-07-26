@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, List, Optional, Type
 
 from grpc.aio._typing import RequestType, ResponseType
 
+from django.utils.cache import patch_vary_headers
 from django_socio_grpc.cache import get_response_from_cache, put_response_in_cache
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
@@ -15,7 +16,6 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
-from django.utils.cache import patch_vary_headers
 
 from .grpc_actions.actions import GRPCAction
 

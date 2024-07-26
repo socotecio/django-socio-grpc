@@ -4,7 +4,10 @@ from typing import TYPE_CHECKING
 
 from google.protobuf.message import Message
 
-from django.http.request import HttpRequest
+from django.http.request import HttpHeaders, HttpRequest
+from django.utils.datastructures import (
+    CaseInsensitiveMapping,
+)
 from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
 
@@ -21,13 +24,13 @@ class InternalHttpRequest(HttpRequest):
     """
 
     HEADERS_KEY = "HEADERS"
-    MAP_HEADERS = {
-        "AUTHORIZATION": "HTTP_AUTHORIZATION",
-        "ACCEPT-LANGUAGE": "HTTP_ACCEPT_LANGUAGE",
-        "X-FORWARDED-HOST": "HTTP_X_FORWARDED_HOST",
-        "HOST": "HTTP_HOST",
-        "X-FORWARDED-PORT": "HTTP_X_FORWARDED_PORT",
-    }
+    # MAP_HEADERS = {
+    #     "AUTHORIZATION": "HTTP_AUTHORIZATION",
+    #     "ACCEPT-LANGUAGE": "HTTP_ACCEPT_LANGUAGE",
+    #     "X-FORWARDED-HOST": "HTTP_X_FORWARDED_HOST",
+    #     "HOST": "HTTP_HOST",
+    #     "X-FORWARDED-PORT": "HTTP_X_FORWARDED_PORT",
+    # }
     FILTERS_KEY = "FILTERS"
     PAGINATION_KEY = "PAGINATION"
     FILTERS_KEY_IN_REQUEST = "_filters"
@@ -64,11 +67,8 @@ class InternalHttpRequest(HttpRequest):
         self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
         )
-        self.headers_from_metadata = self.get_from_metadata(self.HEADERS_KEY)
-        self.META = {
-            self.MAP_HEADERS.get(key.upper(), key.upper()): value
-            for key, value in self.headers_from_metadata.items()
-        }
+        self.meta_from_metadata = self.get_from_metadata(self.HEADERS_KEY)
+        self.META = RequestMeta(self.meta_from_metadata.items())
 
         # INFO - A.D.B - 04/01/2021 - Not implemented for now
         self.POST = {}
@@ -103,6 +103,10 @@ class InternalHttpRequest(HttpRequest):
 
         self.path = f"{self.service_class_name}/{grpc_action}"
         self.path_info = grpc_action
+
+        self.resolver_match = None
+        self.content_type = None
+        self.content_params = None
 
     def get_from_metadata(self, metadata_key):
         """
@@ -181,3 +185,20 @@ class InternalHttpRequest(HttpRequest):
 
     def grpc_action_to_http_method_name(self, grpc_action):
         return self.METHOD_MAP.get(grpc_action, "POST")
+
+
+class RequestMeta(CaseInsensitiveMapping):
+    HTTP_PREFIX = HttpHeaders.HTTP_PREFIX  # = HTTP_
+
+    def __getitem__(self, key):
+        """
+        As HTTP headers are prefixed by HTTP_ by proxy server or CGI, Django store and retrieve headers with HTTP_ prefix
+        As there is no same rule/restriction in gRPC, we need to check if the key is in the dict without HTTP_ prefix if not existing with
+        """
+        if key.lower() not in self._store and key.startswith(self.HTTP_PREFIX):
+            key = key[len(self.HTTP_PREFIX) :]
+        return super().__getitem__(key=key)
+
+    def __setitem__(self, key, value):
+        """See: https://github.com/django/django/blob/main/django/utils/datastructures.py#L305"""
+        self._store[key.lower()] = (key, value)

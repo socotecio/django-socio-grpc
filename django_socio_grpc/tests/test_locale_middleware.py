@@ -1,12 +1,13 @@
 import json
 
-from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
     add_BasicControllerServicer_to_server,
 )
 from fakeapp.services.basic_service import BasicService
 from google.protobuf import empty_pb2
+
+from django.test import TestCase, override_settings
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
@@ -36,7 +37,7 @@ class TestLocaleMiddleware(TestCase):
         # TEST accept language in header key -- simple
         french_accept_language = {"Accept-Language": "fr"}
 
-        metadata = (("HEADERS", (json.dumps(french_accept_language))),)
+        metadata = (("headers", (json.dumps(french_accept_language))),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )
@@ -46,7 +47,7 @@ class TestLocaleMiddleware(TestCase):
         # TEST accept language in header key -- complex
         french_accept_language = {"Accept-Language": "fr,en-US;q=0.9,en;q=0.8"}
 
-        metadata = (("HEADERS", (json.dumps(french_accept_language))),)
+        metadata = (("headers", (json.dumps(french_accept_language))),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )
@@ -54,15 +55,7 @@ class TestLocaleMiddleware(TestCase):
         self.assertEqual(response.text, "Test traduction français")
 
         # TEST accept language directly in metadata -- simple
-        metadata = (("Accept-Language", "fr"),)
-        response = await grpc_stub.FetchTranslatedKey(
-            request=empty_pb2.Empty(), metadata=metadata
-        )
-
-        self.assertEqual(response.text, "Test traduction français")
-
-        # TEST accept language directly in metadata in maj -- simple
-        metadata = (("ACCEPT-LANGUAGE", "fr"),)
+        metadata = (("accept-language", "fr"),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )

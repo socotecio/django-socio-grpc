@@ -5,6 +5,10 @@ from google.protobuf.message import Message
 from grpc.aio import ServicerContext
 from grpc.aio._typing import ResponseType
 
+from django.utils.datastructures import (
+    CaseInsensitiveMapping,
+)
+
 from .socio_internal_request import InternalHttpRequest
 from .socio_internal_response import InternalHttpResponse
 
@@ -47,32 +51,43 @@ class GRPCInternalProxyResponse:
     grpc_context: ServicerContext
     http_response: Optional[InternalHttpResponse] = None
     _cached_metadata: Optional[list] = None
+    headers: Optional["ResponseHeadersProxy"] = None
 
     def __post_init__(self):
-        self.http_response = InternalHttpResponse(self.grpc_context)
-        self.__contains__ = self.http_response.has_header
+        self.http_response = InternalHttpResponse()
+        self.headers = ResponseHeadersProxy(self.grpc_context, self.http_response)
 
     def __getattr__(self, attr):
         if attr == "headers":
-            return self
+            return super().__getattribute__(attr)
         if hasattr(self.grpc_response, attr):
             return getattr(self.grpc_response, attr)
         return getattr(self.http_response, attr)
 
-    def __setitem__(self, header, value):
-        trailing_metadata = self.grpc_context.trailing_metadata()
-        self.grpc_context.set_trailing_metadata(trailing_metadata + ((header, value),))
-        self.http_response[header] = value
-
     def __delitem__(self, header):
-        new_metadata = [
-            (k, v) for k, v in self.grpc_context.trailing_metadata() if k != header
-        ]
-        self.grpc_context.set_trailing_metadata(new_metadata)
-        del self.http_response[header]
+        return self.headers.__delitem__(header)
+
+    def __setitem__(self, key, value):
+        return self.headers.__setitem__(key, value)
 
     def __getitem__(self, header):
-        return self.http_response[header]
+        return self.headers.__getitem__(header)
+
+    def has_header(self, header):
+        """Case-insensitive check for a header."""
+        return header in self.headers
+
+    __contains__ = has_header
+
+    def get(self, key, default=None):
+        return self.headers.get(key, default)
+
+    def items(self):
+        return self.headers.items()
+
+    def setdefault(self, key, value):
+        """Set a header unless it has already been set."""
+        self.headers.setdefault(key, value)
 
     def __getstate__(self):
         return {
@@ -98,9 +113,7 @@ class GRPCInternalProxyResponse:
         """
         self.grpc_context = grpc_context
         self.grpc_context.set_trailing_metadata(self._cached_metadata)
-        # METADATA_KEY_TO_GET = ["cache-control", "expires"]
-        # for header, value in self._cached_metadata:
-        #     self[header] = value
+        self.headers = ResponseHeadersProxy(self.grpc_context, self.http_response)
 
     def __aiter__(self):
         return self
@@ -121,3 +134,42 @@ class GRPCInternalProxyResponse:
         """
         next_item = self.grpc_response.__next__()
         return GRPCInternalProxyResponse(next_item, self.grpc_context)
+
+
+@dataclass
+class ResponseHeadersProxy(CaseInsensitiveMapping):
+    """
+    Class that allow us to write headers both in grpc metadata and http response to keep compatibility with django system
+    """
+
+    grpc_context: ServicerContext
+    http_response: InternalHttpResponse
+
+    def __post_init__(self):
+        # INFO - AM - 27/07/2024 - Start with empty headers when creation a response
+        metadata_as_dict = dict(self.grpc_context.trailing_metadata())
+        self.http_response.headers = metadata_as_dict
+        super().__init__(data=metadata_as_dict)
+
+    def setdefault(self, key, value):
+        if key not in self:
+            self[key] = value
+
+    def __setitem__(self, key, value):
+        trailing_metadata = self.grpc_context.trailing_metadata()
+        self.grpc_context.set_trailing_metadata(trailing_metadata + ((key.lower(), value),))
+        self.http_response[key] = value
+        self._store[key.lower()] = (key, value)
+
+    def __delitem__(self, header):
+        new_metadata = [
+            (k, v)
+            for k, v in self.grpc_context.trailing_metadata()
+            if k.lower() != header.lower()
+        ]
+        self.grpc_context.set_trailing_metadata(new_metadata)
+        del self.http_response[header]
+        super().__delitem__(header)
+
+    def __repr__(self):
+        return super().__repr__()

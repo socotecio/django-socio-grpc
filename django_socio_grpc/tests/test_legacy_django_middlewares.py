@@ -1,7 +1,5 @@
 import json
 
-from django.conf import settings
-from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
@@ -12,6 +10,8 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.services.basic_service import BasicService
 from google.protobuf import empty_pb2
 
+from django.conf import settings
+from django.test import TestCase, override_settings
 from django_socio_grpc.tests.fakeapp.services.stream_in_service import StreamInService
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
@@ -91,7 +91,7 @@ class TestLegacyDjangoMiddleware(TestCase):
         # TEST accept language in header key -- simple
         french_accept_language = {"Accept-Language": "fr"}
 
-        metadata = (("HEADERS", (json.dumps(french_accept_language))),)
+        metadata = (("headers", (json.dumps(french_accept_language))),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )
@@ -101,7 +101,7 @@ class TestLegacyDjangoMiddleware(TestCase):
         # TEST accept language in header key -- complex
         french_accept_language = {"Accept-Language": "fr,en-US;q=0.9,en;q=0.8"}
 
-        metadata = (("HEADERS", (json.dumps(french_accept_language))),)
+        metadata = (("headers", (json.dumps(french_accept_language))),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )
@@ -109,15 +109,7 @@ class TestLegacyDjangoMiddleware(TestCase):
         self.assertEqual(response.text, "Test traduction français")
 
         # TEST accept language directly in metadata -- simple
-        metadata = (("Accept-Language", "fr"),)
-        response = await grpc_stub.FetchTranslatedKey(
-            request=empty_pb2.Empty(), metadata=metadata
-        )
-
-        self.assertEqual(response.text, "Test traduction français")
-
-        # TEST accept language directly in metadata in maj -- simple
-        metadata = (("ACCEPT-LANGUAGE", "fr"),)
+        metadata = (("accept-language", "fr"),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )

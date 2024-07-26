@@ -120,7 +120,7 @@ def get_response_from_cache(
         key_prefix = grpc_settings.GRPC_CACHE_KEY_PREFIX
     cache = get_dsg_cache(cache_alias=cache_alias)
     cache_key = get_dsg_cache_key(request, key_prefix=key_prefix, method=method, cache=cache)
-    print("cache key to get: ", cache_key)
+
     if cache_key is None:
         return None
     response = cache.get(cache_key)
@@ -170,10 +170,8 @@ def put_response_in_cache(
         key_prefix=key_prefix,
         cache=cache,
     )
-    print("cahce key to put: ", cache_key)
 
     timeout = get_max_age(response)
-    print("timeout: ", timeout)
     # if the max_age_seconds is None, we will use the default cache_timeout
     if timeout is None:
         timeout = cache_timeout

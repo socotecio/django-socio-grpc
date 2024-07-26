@@ -61,7 +61,7 @@ class GRPCInternalProxyResponse:
 
     def __setitem__(self, header, value):
         trailing_metadata = self.grpc_context.trailing_metadata()
-        self.grpc_context.set_trailing_metadata(trailing_metadata + [(header, value)])
+        self.grpc_context.set_trailing_metadata(trailing_metadata + ((header, value),))
         self.http_response[header] = value
 
     def __delitem__(self, header):

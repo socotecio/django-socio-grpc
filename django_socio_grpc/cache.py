@@ -12,7 +12,8 @@ Also second, the basic django cache middleware are used to cache django page and
 https://docs.djangoproject.com/fr/5.0/topics/cache/
 
 Waiting for an integrated gRPC solution, we will use a custom cache system based on django cache system.
-This implementation is limited as it is not working correctly with Cache-Control header.
+This implementation may be limited. We try to integrate it as much as possible with the django cache system.
+We choose to not integrate eTag and Last-Modified as we don't have the need for now.
 Also as gRPC as no meaning to cache all it's endpoint, we decided to just implement a simple decorator and avoid a middleware that need to be transformed as decorator.
 This file implement the tools that use the cache decorator.
 

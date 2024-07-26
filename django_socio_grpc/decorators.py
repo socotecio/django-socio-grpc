@@ -102,9 +102,6 @@ def cache_endpoint(
     key_prefix: Optional[str] = None,
     cache: Optional[str] = None,
 ):
-    print("------------------------------")
-    print("cache_timeout", cache_timeout)
-
     def decorator(func):
         if asyncio.iscoroutinefunction(func):
 

@@ -1,9 +1,9 @@
 import json
 from unittest import mock
 
-from django.test import TestCase, override_settings
 from grpc._cython.cygrpc import _Metadatum
 
+from django.test import TestCase, override_settings
 from django_socio_grpc.services import Service
 from django_socio_grpc.services.servicer_proxy import get_servicer_context
 from django_socio_grpc.settings import grpc_settings
@@ -82,7 +82,7 @@ class TestAuthenticationIntegration(TestCase):
     def test_user_and_token_set(self):
         DummyService.authentication_classes = [FakeAuthentication]
         metadata = (("headers", json.dumps({"Authorization": "faketoken"})),)
-        self.fake_context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+        self.fake_context._invocation_metadata += tuple(_Metadatum(k, v) for k, v in metadata)
         self.servicer.DummyMethod(None, self.fake_context)
 
         servicer_context = get_servicer_context()

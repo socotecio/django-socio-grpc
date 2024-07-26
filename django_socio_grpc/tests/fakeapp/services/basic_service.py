@@ -1,4 +1,3 @@
-from django.utils.translation import gettext as _
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.serializers import (
     BaseProtoExampleSerializer,
@@ -7,6 +6,7 @@ from fakeapp.serializers import (
     NoMetaSerializer,
 )
 
+from django.utils.translation import gettext as _
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import cache_endpoint, grpc_action
 from django_socio_grpc.protobuf.generation_plugin import (
@@ -153,7 +153,7 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         request=[{"name": "cache_test", "type": "string"}],
         response=BasicServiceSerializer,
     )
-    @cache_endpoint
+    @cache_endpoint()
     async def TestCachedAnswer(self, request, context):
         user_data = {
             "email": context.user.email if context.user else "fake_email@email.com",

@@ -2,10 +2,12 @@ import json
 from datetime import datetime, timezone
 from unittest import mock
 
+import grpc
 from fakeapp.grpc.fakeapp_pb2 import (
     UnitTestModelWithCacheListResponse,
     UnitTestModelWithCacheListWithStructFilterRequest,
     UnitTestModelWithCacheResponse,
+    UnitTestModelWithCacheRetrieveRequest,
 )
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelWithCacheControllerStub,
@@ -24,7 +26,7 @@ from django_socio_grpc.cache import get_dsg_cache
 from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
-from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
+from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
 
 from .grpc_test_utils.fake_grpc import FakeAsyncContext, FakeFullAIOGRPC
 
@@ -70,6 +72,20 @@ class TestCacheService(TestCase):
         cache = get_dsg_cache()
         self.assertEqual(cache.get(cache_test_key).grpc_response, response)
 
+        mock_learn_cache_key.assert_called_with(
+            mock.ANY,
+            mock.ANY,
+            cache_timeout=grpc_settings.GRPC_CACHE_SECONDS,
+            key_prefix=grpc_settings.GRPC_CACHE_KEY_PREFIX,
+            cache=cache,
+        )
+        mock_get_cache_key.assert_called_with(
+            mock.ANY,
+            key_prefix=grpc_settings.GRPC_CACHE_KEY_PREFIX,
+            method="GET",
+            cache=cache,
+        )
+
     @mock.patch("django_socio_grpc.cache.get_cache_key")
     async def test_verify_that_if_response_in_cache_it_return_it(self, mock_get_cache_key):
         """
@@ -99,6 +115,30 @@ class TestCacheService(TestCase):
         self.assertEqual(len(response.results), 2)
         self.assertEqual(response.count, 2)
         self.assertEqual(response.results[0].title, "test_manual_1")
+
+    @mock.patch("django_socio_grpc.cache.get_cache_key")
+    @mock.patch("django_socio_grpc.cache.learn_cache_key")
+    async def test_cache_decorators_paremeters_correctly_working(
+        self, mock_learn_cache_key, mock_get_cache_key
+    ):
+        """
+        Verify that django get_cache_key and learn_cache_key are correctly called with the decorators parameters
+        """
+        cache_test_key = "test_cache_key"
+        mock_learn_cache_key.return_value = cache_test_key
+        mock_get_cache_key.return_value = None
+
+        second_cache = caches["second"]
+
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        first_unit_test_model = await UnitTestModel.objects.afirst()
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = UnitTestModelWithCacheRetrieveRequest(id=first_unit_test_model.id)
+        await grpc_stub.Retrieve(request=request)
+
+        mock_learn_cache_key.assert_called_with(
+            mock.ANY, mock.ANY, cache_timeout=1000, key_prefix="second", cache=second_cache
+        )
 
     @override_settings(
         GRPC_FRAMEWORK={
@@ -341,14 +381,34 @@ class TestCacheService(TestCase):
 
         self.assertEqual(mock_custom_function_not_called_when_cached.call_count, 2)
 
-    async def test_cache_not_set_when_not_successfull_request(self):
-        pass
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_not_set_when_not_successfull_request(
+        self, mock_custom_function_not_called_when_cached
+    ):
+        # INFO - AM - 26/07/2024 - This mock the server action of raising an exception
+        def raise_exception(unit_test_model_with_cache_service, *args, **kwargs):
+            raise Exception("Error")
 
-    async def test_cache_decorators_paremeters_correctly_working(self):
-        pass
+        mock_custom_function_not_called_when_cached.side_effect = raise_exception
 
-    async def test_cache_not_working_when_cache_control_metadata_to_private(self):
-        pass
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        with self.assertRaises(grpc.RpcError):
+            response = await grpc_stub.List(request=request)
+
+        mock_custom_function_not_called_when_cached.side_effect = None
+
+        await UnitTestModel.objects.filter(title="z").aupdate(title="a")
+
+        response = await grpc_stub.List(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "a")
+
+        self.assertEqual(mock_custom_function_not_called_when_cached.call_count, 2)
 
     @mock.patch(
         "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"
@@ -356,7 +416,7 @@ class TestCacheService(TestCase):
     async def test_cache_not_set_when_private_in_cache_control(
         self, mock_custom_function_not_called_when_cached
     ):
-        # INFO - AM - 26/07/2024 - This mock the server action of setting max-age=0 to the response cache control metadata
+        # INFO - AM - 26/07/2024 - This mock the server action of setting private to the response cache control metadata
         def set_cache_control_private(unit_test_model_with_cache_service, *args, **kwargs):
             metadata = (("Cache-Control", "private"),)
             unit_test_model_with_cache_service.context.set_trailing_metadata(metadata)

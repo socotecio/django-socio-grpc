@@ -43,6 +43,16 @@ def boot_django():
             "django_socio_grpc",
             "fakeapp",
         ),
+        CACHES={
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                "LOCATION": "default",
+            },
+            "second": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                "LOCATION": "second",
+            },
+        },
         TIME_ZONE="UTC",
         USE_TZ=True,
         LOCALE_PATHS=[os.path.join(FAKE_APP_DIR, "fakeapp", "locale")],

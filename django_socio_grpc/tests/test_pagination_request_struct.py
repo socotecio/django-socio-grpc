@@ -37,7 +37,7 @@ class TestPaginationRequestStruct(TestCase):
         self,
     ):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithStructFilterControllerStub)
-        pagination_as_dict = {"page_size": 6}
+        pagination_as_dict = {"page_size": "6"}
         pagination_as_struct = struct_pb2.Struct()
         pagination_as_struct.update(pagination_as_dict)
         request = UnitTestModelWithStructFilterListRequest(_pagination=pagination_as_struct)
@@ -54,7 +54,7 @@ class TestPaginationRequestStruct(TestCase):
     )
     async def test_page_number_pagination_with_struct_request_only(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithStructFilterControllerStub)
-        pagination_as_dict = {"page_size": 6}
+        pagination_as_dict = {"page_size": "6"}
         pagination_as_struct = struct_pb2.Struct()
         pagination_as_struct.update(pagination_as_dict)
         request = UnitTestModelWithStructFilterListRequest(_pagination=pagination_as_struct)
@@ -66,7 +66,7 @@ class TestPaginationRequestStruct(TestCase):
         # Testing metadata pagination not working
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithStructFilterControllerStub)
         request = UnitTestModelWithStructFilterListRequest()
-        pagination_as_dict = {"page_size": 6}
+        pagination_as_dict = {"page_size": "6"}
         metadata = (("pagination", (json.dumps(pagination_as_dict))),)
         response = await grpc_stub.List(request=request, metadata=metadata)
 
@@ -81,7 +81,7 @@ class TestPaginationRequestStruct(TestCase):
     )
     async def test_page_number_pagination_with_struct_request_and_metadata(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithStructFilterControllerStub)
-        pagination_as_dict = {"page_size": 6}
+        pagination_as_dict = {"page_size": "6"}
         pagination_as_struct = struct_pb2.Struct()
         pagination_as_struct.update(pagination_as_dict)
         request = UnitTestModelWithStructFilterListRequest(_pagination=pagination_as_struct)
@@ -93,7 +93,7 @@ class TestPaginationRequestStruct(TestCase):
         # Testing metadata pagination also working
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithStructFilterControllerStub)
         request = UnitTestModelWithStructFilterListRequest()
-        pagination_as_dict = {"page_size": 6}
+        pagination_as_dict = {"page_size": "6"}
         metadata = (("pagination", (json.dumps(pagination_as_dict))),)
         response = await grpc_stub.List(request=request, metadata=metadata)
 

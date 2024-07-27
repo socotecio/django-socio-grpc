@@ -157,7 +157,9 @@ class ResponseHeadersProxy(CaseInsensitiveMapping):
 
     def __setitem__(self, key, value):
         trailing_metadata = self.grpc_context.trailing_metadata()
-        self.grpc_context.set_trailing_metadata(trailing_metadata + ((key.lower(), value),))
+        self.grpc_context.set_trailing_metadata(
+            trailing_metadata + ((key.lower(), str(value)),)
+        )
         self.http_response[key] = value
         self._store[key.lower()] = (key, value)
 

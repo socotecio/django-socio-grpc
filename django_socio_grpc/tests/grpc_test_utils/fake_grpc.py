@@ -84,19 +84,30 @@ class _BaseFakeContext:
     def invocation_metadata(self):
         return self._invocation_metadata
 
-    def set_invocation_metadata(self, metadata):
-        for k, _ in metadata:
+    def _check_metadata(self, metadata):
+        """
+        Custom method of _BaseFakeContext to be sure tests match reality because grpc metadata should be a tuple of tuple with first element a lower case string and the second a str or bytes value type
+        """
+        for k, value in metadata:
             if not k.islower():
-                raise ValueError("Metadata keys must be lower case <invocation_metadata>")
+                raise ValueError("Metadata keys must be lower case <invocation_metadata>", k)
+            if not isinstance(value, str) and not isinstance(value, bytes):
+                raise ValueError(
+                    "Metadata values must be str or bytes <invocation_metadata>",
+                    k,
+                    value,
+                    type(value),
+                )
+
+    def set_invocation_metadata(self, metadata):
+        self._check_metadata(metadata)
         self._invocation_metadata = tuple(_Metadatum(k, v) for k, v in metadata)
 
     def trailing_metadata(self):
         return self._trailing_metadata
 
     def set_trailing_metadata(self, metadata):
-        for k, _ in metadata:
-            if not k.islower():
-                raise ValueError("Metadata keys must be lower case <trailing_metadata>")
+        self._check_metadata(metadata)
         self._trailing_metadata = tuple(_Metadatum(k, v) for k, v in metadata)
 
     def set_code(self, code):

@@ -348,7 +348,7 @@ class TestCacheService(TestCase):
 
         self.assertEqual(metadata_to_dict["expires"], "Fri, 26 Jul 2024 14:05:00 GMT")
         self.assertEqual(metadata_to_dict["cache-control"], "max-age=300")
-        self.assertEqual(metadata_to_dict["age"], 120)
+        self.assertEqual(metadata_to_dict["age"], "120")
 
     @mock.patch(
         "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"

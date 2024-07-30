@@ -20,6 +20,7 @@ services:
     volumes:
       - .:/opt/code
       - ./test_utils:/opt/code/test_utils
+      - $HOME/socotec/django/django:/opt/code/django
     # ports:
       # - "7000:80"
     networks:

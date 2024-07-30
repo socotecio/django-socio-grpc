@@ -139,6 +139,12 @@ class TestCacheService(TestCase):
         mock_learn_cache_key.assert_called_with(
             mock.ANY, mock.ANY, cache_timeout=1000, key_prefix="second", cache=second_cache
         )
+        mock_get_cache_key.assert_called_with(
+            mock.ANY,
+            key_prefix="second",
+            method="GET",
+            cache=second_cache,
+        )
 
     @override_settings(
         GRPC_FRAMEWORK={
@@ -451,5 +457,39 @@ class TestCacheService(TestCase):
 
         self.assertEqual(metadata_to_dict["vary"], "CUSTOM_HEADER")
 
-    async def test_overide_settings_are_taken_by_default(self):
-        pass
+    @override_settings(
+        GRPC_FRAMEWORK={
+            "GRPC_ASYNC": True,
+            "GRPC_CACHE_ALIAS": "second",
+            "GRPC_CACHE_KEY_PREFIX": "test",
+            "GRPC_CACHE_SECONDS": 2000,
+        }
+    )
+    @mock.patch("django_socio_grpc.cache.get_cache_key")
+    @mock.patch("django_socio_grpc.cache.learn_cache_key")
+    async def test_overide_settings_are_taken_by_default(
+        self, mock_learn_cache_key, mock_get_cache_key
+    ):
+        """
+        Verify that django get_cache_key and learn_cache_key are correctly called with the decorators parameters
+        """
+        cache_test_key = "test_cache_key"
+        mock_learn_cache_key.return_value = cache_test_key
+        mock_get_cache_key.return_value = None
+
+        second_cache = caches["second"]
+
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+
+        request = empty_pb2.Empty()
+        await grpc_stub.List(request=request)
+
+        mock_learn_cache_key.assert_called_with(
+            mock.ANY, mock.ANY, cache_timeout=2000, key_prefix="test", cache=second_cache
+        )
+        mock_get_cache_key.assert_called_with(
+            mock.ANY,
+            key_prefix="test",
+            method="GET",
+            cache=second_cache,
+        )

@@ -125,8 +125,6 @@ def cache_endpoint(
 
                 response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
 
-                print("inside", cache_timeout)
-
                 put_response_in_cache(
                     context,
                     response_proxy,

@@ -57,7 +57,7 @@ class GRPCInternalProxyResponse:
         self.headers = ResponseHeadersProxy(self.grpc_context, self.http_response)
 
     def __getattr__(self, attr):
-        if attr == "headers":
+        if attr in ["headers", "grpc_response", "http_response", "grpc_context"]:
             return super().__getattribute__(attr)
         if hasattr(self.grpc_response, attr):
             return getattr(self.grpc_response, attr)
@@ -104,6 +104,7 @@ class GRPCInternalProxyResponse:
         self.headers = ResponseHeadersProxy(
             None, self.http_response, metadata=state["response_metadata"]
         )
+        self.grpc_context = None
 
     def set_current_context(self, grpc_context):
         """
@@ -160,7 +161,10 @@ class ResponseHeadersProxy(CaseInsensitiveMapping):
         existing_metadata = dict(grpc_context.trailing_metadata())
 
         trailing_metadata_dict = {**existing_metadata, **self.http_response.headers}
-        trailing_metadata = [(key, value) for key, value in trailing_metadata_dict.items()]
+        trailing_metadata = [
+            (key.lower(), str(value) if not isinstance(value, bytes) else value)
+            for key, value in trailing_metadata_dict.items()
+        ]
         self.grpc_context.set_trailing_metadata(trailing_metadata)
 
     def setdefault(self, key, value):

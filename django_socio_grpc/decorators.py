@@ -1,16 +1,17 @@
 import asyncio
-from collections.abc import Iterable
 import functools
 import logging
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, List, Type
 
 from asgiref.sync import async_to_sync, sync_to_async
 from grpc.aio._typing import RequestType
 
+import django
+from django.core.cache import cache as default_cache
+from django.core.cache import caches
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-
-import django
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
@@ -23,8 +24,6 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
-from django.core.cache import cache as default_cache
-
 
 from .grpc_actions.actions import GRPCAction
 
@@ -200,20 +199,34 @@ def cache_endpoint(*args, **kwargs):
 
 
 def cache_endpoint_with_cache_deleter(
-    timeout, key_prefix, cache=None, senders=None, invalidator_signals=None
+    timeout, key_prefix, senders, cache=None, invalidator_signals=None
 ):
+    """
+    This decorator allow to cache the endpoint with a cache deleter.
+    The cache deleter will delete the cache when a signal is triggered.
+    This is useful when you want to delete the cache when a model is updated or deleted.
+    :param timeout: The timeout of the cache
+    :param key_prefix: The key prefix of the cache
+    :param cache: The cache alias to use. If None, it will use the default cache. It is named cache and not cache_alias to keep compatibility with Django cache_page decorator
+    :param senders: The senders to listen to the signal
+    :param invalidator_signals: The signals to listen to delete the cache
+    """
     if not key_prefix:
         logger.warning(
             "You are using cache_endpoint_with_cache_deleter without key_prefix. It's highly recommended to use it named as your service to avoid deleting all the cache without prefix when data is updated in back."
         )
-    if cache is None and not hasattr(default_cache, "delete_pattern"):
+    if (
+        cache is None
+        and not hasattr(default_cache, "delete_pattern")
+        and not grpc_settings.ENABLE_CACHE_WARNING_ON_DELETER
+    ):
         logger.warning(
             "You are using cache_endpoint_with_cache_deleter with the default cache engine that is not a redis cache engine."
             "Only Redis cache engine support cache pattern deletion."
             "You still continue to use it but it will delete all the endpoint cache when signal will trigger."
             "Please use a specific cache config per service or use redis cache engine to avoid this behavior."
+            "If this is the expected behavior, you can disable this warning by setting ENABLE_CACHE_WARNING_ON_DELETER to False in your grpc settings."
         )
-    cache = cache or default_cache
     if invalidator_signals is None:
         invalidator_signals = (post_save, post_delete)
     if senders is not None:
@@ -223,11 +236,20 @@ def cache_endpoint_with_cache_deleter(
         @receiver(invalidator_signals, weak=False)
         def invalidate_cache(*args, **kwargs):
             if kwargs.get("sender") in senders:
+                cache_instance = caches[cache] if cache else default_cache
                 if hasattr(cache, "delete_pattern"):
-                    cache.delete_pattern("views.decorators.cache.cache_header.*")
-                    cache.delete_pattern(f"views.decorators.cache.cache_page.{key_prefix}.*")
+                    cache_instance.delete_pattern(
+                        f"views.decorators.cache.cache_header.{key_prefix}.*"
+                    )
+                    cache_instance.delete_pattern(
+                        f"views.decorators.cache.cache_page.{key_prefix}.*"
+                    )
                 else:
-                    cache.clear()
+                    cache_instance.clear()
+    else:
+        logger.warning(
+            "You are using cache_endpoint_with_cache_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
+        )
 
     return http_to_grpc(
         method_decorator(cache_page(timeout, key_prefix=key_prefix, cache=cache), name="List"),

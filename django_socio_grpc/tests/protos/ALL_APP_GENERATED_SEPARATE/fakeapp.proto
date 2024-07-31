@@ -114,6 +114,7 @@ service UnitTestModelWithCacheController {
     rpc Create(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
     rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDelete(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
     rpc ListWithPossibilityMaxAge(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
     rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilterRequest) returns (UnitTestModelWithCacheListResponse) {}
     rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCacheResponse) {}

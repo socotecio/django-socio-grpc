@@ -20,14 +20,12 @@ from fakeapp.services.unit_test_model_with_cache_service import (
 from freezegun import freeze_time
 from google.protobuf import empty_pb2, struct_pb2
 
-from django.conf import settings
-from django.core.cache import caches
+from django.core.cache import DEFAULT_CACHE_ALIAS, caches
 from django.test import TestCase, override_settings
 from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
-from django.core.cache import DEFAULT_CACHE_ALIAS
 
 from .grpc_test_utils.fake_grpc import FakeAsyncContext, FakeFullAIOGRPC
 
@@ -457,3 +455,31 @@ class TestCacheService(TestCase):
         metadata_to_dict = dict(call.trailing_metadata())
 
         self.assertEqual(metadata_to_dict["vary"], "CUSTOM_HEADER")
+
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_deleted_when_updating_value_with_cache_deletor(
+        self, mock_custom_function_not_called_when_cached
+    ):
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDelete(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+        # TODO doc warning about auto deleter not working on bulk_update
+        # await UnitTestModel.objects.filter(title="z").aupdate(title="a")
+        test = await UnitTestModel.objects.filter(title="z").afirst()
+        test.title = "a"
+        await test.asave()
+
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDelete(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "a")
+
+        self.assertEqual(mock_custom_function_not_called_when_cached.call_count, 2)

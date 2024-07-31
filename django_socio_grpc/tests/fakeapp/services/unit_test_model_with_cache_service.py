@@ -6,8 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 from django.core.cache import caches
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import (
-    cache_endpoint_with_cache_deleter,
     cache_endpoint,
+    cache_endpoint_with_cache_deleter,
     grpc_action,
     vary_on_metadata,
 )
@@ -105,7 +105,12 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
             ListGenerationPlugin(response=True),
         ],
     )
-    @cache_endpoint_with_cache_deleter(300, key_prefix="UnitTestModelWithCacheService")
+    @cache_endpoint_with_cache_deleter(
+        300,
+        key_prefix="UnitTestModelWithCacheServiceWithCacheDeleter",
+        cache="second",
+        senders=(UnitTestModel,),
+    )
     async def ListWithAutoCacheCleanOnSaveAndDelete(self, request, context):
         """
         Test the cache_endpoint_with_cache_deleter work well

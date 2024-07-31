@@ -17,7 +17,6 @@ service BasicController {
     rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerList) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleList) {}
-    rpc TestCachedAnswer(BasicTestCachedAnswer) returns (BasicService) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc TestNoMetaSerializer(NoMeta) returns (BasicTestNoMetaSerializer) {}
 }
@@ -99,8 +98,8 @@ service UnitTestModelWithCacheController {
     rpc Create(UnitTestModelWithCache) returns (UnitTestModelWithCache) {}
     rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
+    rpc ListWithPossibilityMaxAge(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
     rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilter) returns (UnitTestModelWithCacheList) {}
-    rpc ListWithTransformedDecorator(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
     rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCache) {}
     rpc Retrieve(UnitTestModelWithCacheRetrieveRequest) returns (UnitTestModelWithCache) {}
     rpc Stream(UnitTestModelWithCacheStreamRequest) returns (stream UnitTestModelWithCache) {}
@@ -200,10 +199,6 @@ message BasicService {
 message BasicServiceList {
     repeated BasicService results = 1;
     int32 count = 2;
-}
-
-message BasicTestCachedAnswer {
-    string cache_test = 1;
 }
 
 message BasicTestNoMetaSerializer {

@@ -1,16 +1,19 @@
 import asyncio
+from collections.abc import Iterable
 import functools
 import logging
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING, List, Type
 
 from asgiref.sync import async_to_sync, sync_to_async
-from grpc.aio._typing import RequestType, ResponseType
+from grpc.aio._typing import RequestType
+
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 
 import django
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
-from django_socio_grpc.cache import get_response_from_cache, put_response_in_cache
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
     ListGenerationPlugin,
@@ -20,6 +23,8 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
+from django.core.cache import cache as default_cache
+
 
 from .grpc_actions.actions import GRPCAction
 
@@ -101,81 +106,6 @@ def grpc_action(
     return wrapper
 
 
-def cache_endpoint(
-    cache_timeout: Optional[int] = None,
-    key_prefix: Optional[str] = None,
-    cache: Optional[str] = None,
-):
-    def decorator(func):
-        if asyncio.iscoroutinefunction(func):
-
-            @functools.wraps(func)
-            async def async_wrapper(
-                service_instance: "Service",
-                request: RequestType,
-                context: "GRPCInternalProxyContext",
-            ) -> ResponseType:
-                response_cached = get_response_from_cache(
-                    request=context,
-                    key_prefix=key_prefix,
-                    method=context.method,
-                    cache_alias=cache,
-                )
-                if response_cached:
-                    return response_cached.grpc_response
-
-                # func(service_instance, request, context)
-                endpoint_result = await func(service_instance, request, context)
-
-                response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
-
-                put_response_in_cache(
-                    context,
-                    response_proxy,
-                    cache_timeout=cache_timeout,
-                    key_prefix=key_prefix,
-                    cache_alias=cache,
-                )
-
-                return endpoint_result
-
-            return async_wrapper
-        else:
-
-            @functools.wraps(func)
-            def wrapper(
-                service_instance: "Service",
-                request: RequestType,
-                context: "GRPCInternalProxyContext",
-            ) -> ResponseType:
-                response_cached = get_response_from_cache(
-                    request=context,
-                    key_prefix=key_prefix,
-                    method=context.method,
-                    cache_alias=cache,
-                )
-                if response_cached:
-                    return response_cached.grpc_response
-
-                endpoint_result = func(service_instance, request, context)
-
-                response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
-
-                put_response_in_cache(
-                    context,
-                    response_proxy,
-                    cache_timeout=cache_timeout,
-                    key_prefix=key_prefix,
-                    cache_alias=cache,
-                )
-
-                return endpoint_result
-
-            return wrapper
-
-    return decorator
-
-
 def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
     """
     Allow to use Django decorator on grpc endpoint.
@@ -188,11 +118,9 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
         if asyncio.iscoroutinefunction(func):
 
             async def _simulate_function(service_instance, context):
-                print("in _simulate_function")
                 request = context.grpc_request
                 endpoint_result = await func(service_instance, request, context)
                 response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
-                response_proxy.set_current_context(context.grpc_context)
                 if response_setter:
                     for key, value in response_setter.items():
                         setattr(response_proxy, key, value)
@@ -207,7 +135,7 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
                 if request_setter:
                     for key, value in request_setter.items():
                         setattr(context, key, value)
-                # INFO - AM - 03/12/2024 - Before django 5, django decorator didn't support async function. We need to wrap it in a sync function.
+                # INFO - AM - 30/07/2024 - Before django 5, django decorator didn't support async function. We need to wrap it in a sync function.
                 if int(django.__version__[0]) < 5:
                     response_proxy = await sync_to_async(
                         decorator_to_wrap(async_to_sync(_simulate_function))
@@ -216,6 +144,9 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
                     response_proxy = await decorator_to_wrap(_simulate_function)(
                         service_instance, context
                     )
+                # INFO - AM - 30/07/2024 - Remember to put the grpc context in case the response come from cache
+                if not response_proxy.grpc_context:
+                    response_proxy.set_current_context(context.grpc_context)
                 return response_proxy.grpc_response
 
         else:
@@ -223,6 +154,9 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
             def _simulate_function(service_instance, request, context):
                 endpoint_result = func(service_instance, request, context)
                 response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+                if response_setter:
+                    for key, value in response_setter.items():
+                        setattr(response_proxy, key, value)
                 return response_proxy
 
             @functools.wraps(func)
@@ -257,8 +191,45 @@ def vary_on_metadata(*headers):
     return http_to_grpc(vary_on_headers(*headers))
 
 
-def cache_dsg_page(*args, **kwargs):
+@functools.wraps(cache_page)
+def cache_endpoint(*args, **kwargs):
     return http_to_grpc(
         method_decorator(cache_page(*args, **kwargs), name="List"),
+        request_setter={"method": "GET"},
+    )
+
+
+def cache_endpoint_with_cache_deleter(
+    timeout, key_prefix, cache=None, senders=None, invalidator_signals=None
+):
+    if not key_prefix:
+        logger.warning(
+            "You are using cache_endpoint_with_cache_deleter without key_prefix. It's highly recommended to use it named as your service to avoid deleting all the cache without prefix when data is updated in back."
+        )
+    if cache is None and not hasattr(default_cache, "delete_pattern"):
+        logger.warning(
+            "You are using cache_endpoint_with_cache_deleter with the default cache engine that is not a redis cache engine."
+            "Only Redis cache engine support cache pattern deletion."
+            "You still continue to use it but it will delete all the endpoint cache when signal will trigger."
+            "Please use a specific cache config per service or use redis cache engine to avoid this behavior."
+        )
+    cache = cache or default_cache
+    if invalidator_signals is None:
+        invalidator_signals = (post_save, post_delete)
+    if senders is not None:
+        if not isinstance(senders, Iterable):
+            senders = [senders]
+
+        @receiver(invalidator_signals, weak=False)
+        def invalidate_cache(*args, **kwargs):
+            if kwargs.get("sender") in senders:
+                if hasattr(cache, "delete_pattern"):
+                    cache.delete_pattern("views.decorators.cache.cache_header.*")
+                    cache.delete_pattern(f"views.decorators.cache.cache_page.{key_prefix}.*")
+                else:
+                    cache.clear()
+
+    return http_to_grpc(
+        method_decorator(cache_page(timeout, key_prefix=key_prefix, cache=cache), name="List"),
         request_setter={"method": "GET"},
     )

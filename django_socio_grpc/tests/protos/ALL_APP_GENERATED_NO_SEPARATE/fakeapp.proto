@@ -100,6 +100,7 @@ service UnitTestModelWithCacheController {
     rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
     rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilter) returns (UnitTestModelWithCacheList) {}
+    rpc ListWithTransformedDecorator(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
     rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCache) {}
     rpc Retrieve(UnitTestModelWithCacheRetrieveRequest) returns (UnitTestModelWithCache) {}
     rpc Stream(UnitTestModelWithCacheStreamRequest) returns (stream UnitTestModelWithCache) {}

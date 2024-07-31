@@ -2,7 +2,6 @@ import asyncio
 import functools
 import logging
 from typing import TYPE_CHECKING, List, Optional, Type
-from django.views.decorators.vary import vary_on_headers
 
 from asgiref.sync import async_to_sync, sync_to_async
 from grpc.aio._typing import RequestType, ResponseType
@@ -10,6 +9,7 @@ from grpc.aio._typing import RequestType, ResponseType
 import django
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_headers
 from django_socio_grpc.cache import get_response_from_cache, put_response_in_cache
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
@@ -176,7 +176,7 @@ def cache_endpoint(
     return decorator
 
 
-def http_to_grpc(decorator_to_wrap):
+def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
     """
     Allow to use Django decorator on grpc endpoint.
     As the working behavior will depend on the grpc support and/or DSG support of the feature it may not work as expected.
@@ -188,10 +188,14 @@ def http_to_grpc(decorator_to_wrap):
         if asyncio.iscoroutinefunction(func):
 
             async def _simulate_function(service_instance, context):
-                print("icicicicic ", context)
+                print("in _simulate_function")
                 request = context.grpc_request
                 endpoint_result = await func(service_instance, request, context)
                 response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+                response_proxy.set_current_context(context.grpc_context)
+                if response_setter:
+                    for key, value in response_setter.items():
+                        setattr(response_proxy, key, value)
                 return response_proxy
 
             @functools.wraps(func)
@@ -200,6 +204,9 @@ def http_to_grpc(decorator_to_wrap):
                 request: RequestType,
                 context: "GRPCInternalProxyContext",
             ):
+                if request_setter:
+                    for key, value in request_setter.items():
+                        setattr(context, key, value)
                 # INFO - AM - 03/12/2024 - Before django 5, django decorator didn't support async function. We need to wrap it in a sync function.
                 if int(django.__version__[0]) < 5:
                     response_proxy = await sync_to_async(
@@ -234,19 +241,24 @@ def http_to_grpc(decorator_to_wrap):
     return decorator
 
 
-vary_on_metadata = http_to_grpc(vary_on_headers)
-vary_on_metadata.__doc__ = """Same as https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/views/decorators/vary.py#L8
-but need to wrap the response in a GRPCInternalProxyResponse.
-A view decorator that adds the specified metadatas to the Vary metadata of the
-response. Usage:
+def vary_on_metadata(*headers):
+    """
+    Same as https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/views/decorators/vary.py#L8
+    but need to wrap the response in a GRPCInternalProxyResponse.
+    A view decorator that adds the specified metadatas to the Vary metadata of the
+    response. Usage:
 
-    @vary_on_metadata('Cookie', 'Accept-language')
-    def index(request):
-        ...
+        @vary_on_metadata('Cookie', 'Accept-language')
+        def index(request):
+            ...
 
-Note that the metadata names are not case-sensitive.
-"""
+    Note that the metadata names are not case-sensitive.
+    """
+    return http_to_grpc(vary_on_headers(*headers))
 
 
 def cache_dsg_page(*args, **kwargs):
-    return http_to_grpc(method_decorator(cache_page(*args, **kwargs), name="List"))
+    return http_to_grpc(
+        method_decorator(cache_page(*args, **kwargs), name="List"),
+        request_setter={"method": "GET"},
+    )

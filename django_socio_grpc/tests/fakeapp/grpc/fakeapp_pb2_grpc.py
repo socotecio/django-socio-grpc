@@ -3418,6 +3418,11 @@ class UnitTestModelWithCacheControllerStub(object):
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListWithStructFilterRequest.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
                 _registered_method=True)
+        self.ListWithTransformedDecorator = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithCacheController/ListWithTransformedDecorator',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
+                _registered_method=True)
         self.PartialUpdate = channel.unary_unary(
                 '/myproject.fakeapp.UnitTestModelWithCacheController/PartialUpdate',
                 request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCachePartialUpdateRequest.SerializeToString,
@@ -3462,6 +3467,12 @@ class UnitTestModelWithCacheControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def ListWithStructFilter(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListWithTransformedDecorator(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -3512,6 +3523,11 @@ def add_UnitTestModelWithCacheControllerServicer_to_server(servicer, server):
             'ListWithStructFilter': grpc.unary_unary_rpc_method_handler(
                     servicer.ListWithStructFilter,
                     request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListWithStructFilterRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.SerializeToString,
+            ),
+            'ListWithTransformedDecorator': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListWithTransformedDecorator,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.SerializeToString,
             ),
             'PartialUpdate': grpc.unary_unary_rpc_method_handler(
@@ -3642,6 +3658,33 @@ class UnitTestModelWithCacheController(object):
             target,
             '/myproject.fakeapp.UnitTestModelWithCacheController/ListWithStructFilter',
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListWithStructFilterRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListWithTransformedDecorator(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myproject.fakeapp.UnitTestModelWithCacheController/ListWithTransformedDecorator',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
             options,
             channel_credentials,

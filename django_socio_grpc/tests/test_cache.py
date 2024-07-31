@@ -20,6 +20,7 @@ from fakeapp.services.unit_test_model_with_cache_service import (
 from freezegun import freeze_time
 from google.protobuf import empty_pb2, struct_pb2
 
+from django.conf import settings
 from django.core.cache import caches
 from django.test import TestCase, override_settings
 from django_socio_grpc.cache import get_dsg_cache
@@ -493,3 +494,89 @@ class TestCacheService(TestCase):
             method="GET",
             cache=second_cache,
         )
+
+
+@override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
+class TestDjangoDecoratorWrapped(TestCase):
+    def setUp(self):
+        for idx in range(10):
+            title = "z" * (idx + 1)
+            text = chr(idx + ord("a")) + chr(idx + ord("b")) + chr(idx + ord("c"))
+            UnitTestModel(title=title, text=text).save()
+
+        self.fake_grpc = FakeFullAIOGRPC(
+            add_UnitTestModelWithCacheControllerServicer_to_server,
+            UnitTestModelWithCacheService.as_servicer(),
+        )
+
+    def tearDown(self):
+        self.fake_grpc.close()
+        # INFO - AM - 26/07/2024 - Clear all cache after each test to be sure none conflict
+        for cache in caches.all():
+            cache.clear()
+
+    @mock.patch("django.middleware.cache.get_cache_key")
+    @mock.patch("django.middleware.cache.learn_cache_key")
+    async def test_verify_that_response_in_cache(
+        self, mock_learn_cache_key, mock_get_cache_key
+    ):
+        """
+        Just verify that the response is in cache with the key returned by learn_cache_key using the django cache_page decorator wrapped to work in grpc
+        """
+        cache_test_key = "test_cache_key"
+        mock_learn_cache_key.return_value = cache_test_key
+        mock_get_cache_key.return_value = None
+
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+        response = await grpc_stub.ListWithTransformedDecorator(request=request)
+
+        self.assertEqual(len(response.results), 3)
+
+        cache = caches[settings.CACHE_MIDDLEWARE_ALIAS]
+        self.assertEqual(cache.get(cache_test_key).grpc_response, response)
+
+        mock_learn_cache_key.assert_called_with(
+            mock.ANY,
+            mock.ANY,
+            1000,
+            "",
+            cache=cache,
+        )
+        mock_get_cache_key.assert_called_with(
+            mock.ANY,
+            "",
+            "GET",
+            cache=cache,
+        )
+
+    @mock.patch("django.middleware.cache.get_cache_key")
+    async def test_verify_that_if_response_in_cache_it_return_it(self, mock_get_cache_key):
+        """
+        Just verify that is a repsonse already exist in cache with the key returned by get_cache_key it return it
+        """
+        cache_test_key = "test_cache_key"
+        mock_get_cache_key.return_value = cache_test_key
+
+        results = [
+            UnitTestModelWithCacheResponse(title="test_manual_1", text="test_manual_1"),
+            UnitTestModelWithCacheResponse(title="test_manual_2", text="test_manual_2"),
+        ]
+        grpc_response = UnitTestModelWithCacheListResponse(results=results, count=2)
+
+        fake_socio_response = GRPCInternalProxyResponse(grpc_response, FakeAsyncContext())
+
+        cache = get_dsg_cache()
+        cache.set(
+            cache_test_key,
+            fake_socio_response,
+        )
+
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+        response = await grpc_stub.ListWithTransformedDecorator(request=request)
+
+        self.assertEqual(len(response.results), 2)
+        self.assertEqual(response.count, 2)
+        self.assertEqual(response.results[0].title, "test_manual_1")

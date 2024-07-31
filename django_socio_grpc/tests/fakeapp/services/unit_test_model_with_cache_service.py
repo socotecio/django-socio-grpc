@@ -4,20 +4,20 @@ from fakeapp.serializers import UnitTestModelWithCacheSerializer
 from rest_framework.pagination import PageNumberPagination
 
 from django.core.cache import caches
+from django.views.decorators.vary import vary_on_headers
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import (
+    cache_dsg_page,
     cache_endpoint,
     grpc_action,
-    vary_on_metadata,
     http_to_grpc,
-    cache_dsg_page,
+    vary_on_metadata,
 )
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
     ListGenerationPlugin,
     PaginationGenerationPlugin,
 )
-from django.views.decorators.vary import vary_on_headers
 
 second_cache = caches["second"]
 
@@ -57,9 +57,8 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
             ListGenerationPlugin(response=True),
         ],
     )
-    @cache_dsg_page(1000)
-    # @vary_on_metadata("CUSTOM_HEADER")
-    @http_to_grpc(vary_on_headers("CUSTOM_HEADER"))
+    @cache_endpoint()
+    @vary_on_metadata("CUSTOM_HEADER")
     async def List(self, request, context):
         self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)
@@ -84,4 +83,20 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
     )
     @cache_endpoint()
     async def ListWithStructFilter(self, request, context):
+        return await super().List(request, context)
+
+    @grpc_action(
+        request=[],
+        response=UnitTestModelWithCacheSerializer,
+        use_generation_plugins=[
+            ListGenerationPlugin(response=True),
+        ],
+    )
+    @cache_dsg_page(1000)
+    @http_to_grpc(vary_on_headers("CUSTOM_HEADER"))
+    async def ListWithTransformedDecorator(self, request, context):
+        """
+        Test the django decorator auto transformed without code
+        """
+        self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)

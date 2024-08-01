@@ -1,9 +1,9 @@
+from django.core.cache import caches
 from django_filters.rest_framework import DjangoFilterBackend
 from fakeapp.models import UnitTestModel
 from fakeapp.serializers import UnitTestModelWithCacheSerializer
 from rest_framework.pagination import PageNumberPagination
 
-from django.core.cache import caches
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import (
     cache_endpoint,

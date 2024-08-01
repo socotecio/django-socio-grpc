@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from unittest import mock
 
 import grpc
+from django.core.cache import DEFAULT_CACHE_ALIAS, caches
+from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2 import (
     UnitTestModelWithCacheListResponse,
     UnitTestModelWithCacheListWithStructFilterRequest,
@@ -20,8 +22,6 @@ from fakeapp.services.unit_test_model_with_cache_service import (
 from freezegun import freeze_time
 from google.protobuf import empty_pb2, struct_pb2
 
-from django.core.cache import DEFAULT_CACHE_ALIAS, caches
-from django.test import TestCase, override_settings
 from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )

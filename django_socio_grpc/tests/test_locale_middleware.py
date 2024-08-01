@@ -1,13 +1,12 @@
 import json
 
+from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
     add_BasicControllerServicer_to_server,
 )
 from fakeapp.services.basic_service import BasicService
 from google.protobuf import empty_pb2
-
-from django.test import TestCase, override_settings
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 

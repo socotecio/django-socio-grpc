@@ -1,5 +1,7 @@
 import json
 
+from django.conf import settings
+from django.test import TestCase, override_settings
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
@@ -10,8 +12,6 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.services.basic_service import BasicService
 from google.protobuf import empty_pb2
 
-from django.conf import settings
-from django.test import TestCase, override_settings
 from django_socio_grpc.tests.fakeapp.services.stream_in_service import StreamInService
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC

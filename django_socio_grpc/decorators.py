@@ -4,10 +4,8 @@ import logging
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Callable, List, Type
 
-from asgiref.sync import async_to_sync, sync_to_async
-from grpc.aio._typing import RequestType, ResponseType
-
 import django
+from asgiref.sync import async_to_sync, sync_to_async
 from django.core.cache import cache as default_cache
 from django.core.cache import caches
 from django.db.models import Model
@@ -16,6 +14,8 @@ from django.dispatch import receiver
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
+from grpc.aio._typing import RequestType, ResponseType
+
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
     ListGenerationPlugin,

@@ -1,5 +1,6 @@
 import json
 
+from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2 import UnitTestModelWithStructFilterListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelWithStructFilterControllerStub,
@@ -11,7 +12,6 @@ from fakeapp.services.unit_test_model_with_struct_filter_service import (
 )
 from google.protobuf import struct_pb2
 
-from django.test import TestCase, override_settings
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC

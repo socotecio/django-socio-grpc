@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timezone
 from unittest import mock
 
+import django
 import grpc
 from django.core.cache import DEFAULT_CACHE_ALIAS, caches
 from django.test import TestCase, override_settings
@@ -334,6 +335,9 @@ class TestCacheService(TestCase):
         """
         If a response is returned from cache there is an "age" metadata set explaining how old is the cached response
         """
+        # INFO - AM - 01/08/2024 - The Age response header is not supported before Django 5.0
+        if int(django.__version__[0]) < 5:
+            return True
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()
 

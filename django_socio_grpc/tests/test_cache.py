@@ -336,7 +336,7 @@ class TestCacheService(TestCase):
         If a response is returned from cache there is an "age" metadata set explaining how old is the cached response
         """
         # INFO - AM - 01/08/2024 - The Age response header is not supported before Django 5.0
-        if int(django.__version__[0]) < 5:
+        if django.__version__ < (5, 1, 0):
             return True
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()

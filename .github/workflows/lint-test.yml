@@ -24,6 +24,11 @@ jobs:
         include:
           - db: postgres
             db_port: 5432
+        exclude:
+        - python-version: "3.8"
+          django-version: "5.0"
+        - python-version: "3.9"
+          django-version: "5.0"
 
     services:
       postgres:
@@ -60,11 +65,11 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: |
           poetry install
-          poetry install django==${{ matrix.django-version }}
 
       - name: Run pre-commit hooks
         run: |
           poetry run pre-commit run --all-files --show-diff-on-failure
       - name: Run tests
         run: |
+          poetry add django==${{ matrix.django-version }}
           poetry run tests

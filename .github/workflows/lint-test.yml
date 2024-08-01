@@ -19,16 +19,11 @@ jobs:
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        django-version: ["3.2", "4.2", "5.0"]
+        python-version: ["3.10", "3.11", "3.12"]
+        django-version: ["4.2", "5.0"]
         include:
           - db: postgres
             db_port: 5432
-        exclude:
-        - python-version: "3.8"
-          django-version: "5.0"
-        - python-version: "3.9"
-          django-version: "5.0"
 
     services:
       postgres:
@@ -71,5 +66,5 @@ jobs:
           poetry run pre-commit run --all-files --show-diff-on-failure
       - name: Run tests
         run: |
-          poetry add django==${{ matrix.django-version }}
+          poetry add django@^${{ matrix.django-version }}
           poetry run tests

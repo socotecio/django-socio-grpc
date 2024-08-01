@@ -1,6 +1,5 @@
 import json
 
-from django.test import TestCase, override_settings
 from fakeapp.grpc.fakeapp_pb2 import UnitTestModelListRequest
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
@@ -8,6 +7,8 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 )
 from fakeapp.models import UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
+
+from django.test import TestCase, override_settings
 
 from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
 
@@ -44,6 +45,31 @@ class TestFilteringMetadata(TestCase):
         request = UnitTestModelListRequest()
         filter_as_dict = {"title": "zzzz"}
         metadata = (("filters", (json.dumps(filter_as_dict))),)
+        response = await grpc_stub.List(request=request, metadata=metadata)
+
+        self.assertEqual(len(response.results), 2)
+        # responses_as_list[0] is type of django_socio_grpc.tests.grpc_test_utils.unittest_pb2.Test
+        self.assertEqual(response.results[0].title, "zzzz")
+
+    @override_settings(
+        GRPC_FRAMEWORK={"GRPC_ASYNC": True, "MAP_METADATA_KEYS": {"filters": "custom"}}
+    )
+    async def test_django_filter_with_metadata_customizing_the_filters_key(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+        request = UnitTestModelListRequest()
+        filter_as_dict = {"title": "zzzzzzz"}
+        metadata = (("custom", (json.dumps(filter_as_dict))),)
+        response = await grpc_stub.List(request=request, metadata=metadata)
+
+        self.assertEqual(len(response.results), 1)
+        # responses_as_list[0] is type of django_socio_grpc.tests.grpc_test_utils.unittest_pb2.Test
+        self.assertEqual(response.results[0].title, "zzzzzzz")
+
+        # INFO - AM - 05/02/2023 - This test verify that metadata are well overiden in unit test
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+        request = UnitTestModelListRequest()
+        filter_as_dict = {"title": "zzzz"}
+        metadata = (("custom", (json.dumps(filter_as_dict))),)
         response = await grpc_stub.List(request=request, metadata=metadata)
 
         self.assertEqual(len(response.results), 2)

@@ -30,16 +30,21 @@ See the documentation on django settings if your not familiar with it: `Django s
     ],
     "ROOT_GRPC_FOLDER": "grpc_folder",
     "MAP_METADATA_KEYS": {
-      "HEADERS": "HEADERS",
-      "PAGINATION": "PAGINATION",
-      "FILTERS": "FILTERS",
+      "headers": "headers",
+      "pagination": "pagination",
+      "filters": "filters",
     },
     "LOG_OK_RESPONSE": False,
     "IGNORE_LOG_FOR_ACTION": [],
+    "ROOT_CERTIFICATES_PATH": None,
+    "PRIVATE_KEY_CERTIFICATE_CHAIN_PAIRS_PATH": [],
+    "REQUIRE_CLIENT_AUTH": False,
     "FILTER_BEHAVIOR": "METADATA_STRICT",
     "PAGINATION_BEHAVIOR": "METADATA_STRICT",
     "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
+    "DEFAULT_GENERATION_PLUGINS": [],
     "ENABLE_HEALTH_CHECK": False,
+    "ENABLE_CACHE_WARNING_ON_DELETER": True,
   }
 
 .. _root-handler-hook-setting:
@@ -257,27 +262,29 @@ This setting defines where the framework should look within the metadata for
 specific pieces of information like headers, pagination data, and filters.
 Essentially, it provides mapping keys that indicate where to extract certain types of metadata.
 
+This setting can be partially overriden. If some keys are not provided the default ones are used
+
 For a standard configuration, you might have:
 
 .. code-block:: python
 
   "MAP_METADATA_KEYS": {
-      "HEADERS": "HEADERS",
-      "PAGINATION": "PAGINATION",
-      "FILTERS": "FILTERS",
+      "headers": "headers",
+      "pagination": "pagination",
+      "filters": "filters",
   }
 
-This means that when the framework encounters metadata, it knows to look for a ``HEADERS``
-key to retrieve headers, a ``PAGINATION`` key to fetch pagination data, and a ``FILTERS`` key
+This means that when the framework encounters metadata, it knows to look for a ``headers``
+key to retrieve headers, a ``pagination`` key to fetch pagination data, and a ``filters`` key
 for filtering details.
 
 .. note::
 
   See specific documentation for each:
 
-  - HEADERS : :ref:`Authentication<authentication-permissions>`
-  - FILTERS: :ref:`Filters<filters>`
-  - PAGINATION: Coming soon
+  - headers : :ref:`Authentication<authentication-permissions>`
+  - filters: :ref:`Filters<filters>`
+  - pagination: :ref:`Pagination<pagination>`
 
 .. _settings-log-ok-response:
 
@@ -420,3 +427,14 @@ For more informations see :ref:`the documentation <health_check>`
 .. code-block:: python
 
   "ENABLE_HEALTH_CHECK": False
+
+.. _settings-cache-warning-on-deleter:
+
+ENABLE_CACHE_WARNING_ON_DELETER
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A boolean indicating wether or not a warning is raised when a deleter is used with the default cache or with Redis cache but without prefix. Default is True.
+
+.. code-block:: python
+
+  "ENABLE_CACHE_WARNING_ON_DELETER": True

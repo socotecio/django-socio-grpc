@@ -49,7 +49,7 @@ class GRPCInternalProxyResponse:
     # INFO - AM - 25/07/2024 - grpc context is used to pass response header to client
     grpc_context: ServicerContext
     # INFO - AM - 01/08/2024 - http_response is created in post_init signals. Don't need to pass it in the constructor if defautl behavior wanted.
-    http_response: Optional[InternalHttpResponse] = None
+    http_response: InternalHttpResponse | None = None
     # INFO - AM - 01/08/2024 - headers is created in post_init signals. Don't need to pass it in the constructor if defautl behavior wanted.
     headers: Optional["ResponseHeadersProxy"] = None
 
@@ -171,10 +171,10 @@ class ResponseHeadersProxy(CaseInsensitiveMapping):
     See https://github.com/django/django/blob/main/django/http/response.py#L32 for inspiration
     """
 
-    grpc_context: Optional[ServicerContext]
+    grpc_context: ServicerContext | None
     http_response: InternalHttpResponse
     # INFO - AM - 31/07/2024 - Only used when restoring form cache. Do not use it directly.
-    metadata: Optional[dict] = None
+    metadata: dict | None = None
 
     def __post_init__(self):
         if self.grpc_context is None and self.metadata is None:

@@ -1,8 +1,8 @@
 import asyncio
 import functools
 import logging
-import sys
-from typing import TYPE_CHECKING, List, Type
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING
 
 import django
 from asgiref.sync import async_to_sync, sync_to_async
@@ -27,11 +27,6 @@ from django_socio_grpc.request_transformer import (
 from django_socio_grpc.settings import grpc_settings
 
 from .grpc_actions.actions import GRPCAction
-
-if sys.version_info >= (3, 9):
-    from collections.abc import Callable, Iterable
-else:
-    from typing import Callable, Iterable
 
 if TYPE_CHECKING:
     from django_socio_grpc.request_transformer.grpc_internal_proxy import (

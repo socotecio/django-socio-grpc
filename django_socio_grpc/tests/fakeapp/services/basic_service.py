@@ -1,3 +1,4 @@
+from django.utils.translation import gettext as _
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.serializers import (
     BaseProtoExampleSerializer,
@@ -6,7 +7,6 @@ from fakeapp.serializers import (
     NoMetaSerializer,
 )
 
-from django.utils.translation import gettext as _
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.protobuf.generation_plugin import (

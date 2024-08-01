@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from google.protobuf.message import Message
-from grpc.aio import ServicerContext
-from grpc.aio._typing import ResponseType
-
 from django.utils.datastructures import (
     CaseInsensitiveMapping,
 )
+from google.protobuf.message import Message
+from grpc.aio import ServicerContext
+from grpc.aio._typing import ResponseType
 
 from .socio_internal_request import InternalHttpRequest
 from .socio_internal_response import InternalHttpResponse

@@ -1,9 +1,9 @@
 import json
 from unittest import mock
 
+from django.test import TestCase, override_settings
 from grpc._cython.cygrpc import _Metadatum
 
-from django.test import TestCase, override_settings
 from django_socio_grpc.services import Service
 from django_socio_grpc.services.servicer_proxy import get_servicer_context
 from django_socio_grpc.settings import grpc_settings

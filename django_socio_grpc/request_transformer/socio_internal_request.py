@@ -3,13 +3,13 @@ import logging
 import urllib.parse
 from typing import TYPE_CHECKING
 
-from google.protobuf.message import Message
-
 from django.http.request import HttpHeaders, HttpRequest
 from django.utils.datastructures import (
     CaseInsensitiveMapping,
 )
 from django.utils.functional import cached_property
+from google.protobuf.message import Message
+
 from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
 

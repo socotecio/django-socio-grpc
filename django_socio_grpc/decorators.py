@@ -150,7 +150,7 @@ def http_to_grpc(
                     for key, value in request_setter.items():
                         setattr(context, key, value)
                 # INFO - AM - 30/07/2024 - Before django 5, django decorator didn't support async function. We need to wrap it in a sync function.
-                if int(django.__version__[0]) < 5:
+                if django.VERSION < (5, 0, 0):
                     response_proxy = await sync_to_async(
                         decorator_to_wrap(async_to_sync(_simulate_function))
                     )(service_instance, context)

@@ -127,7 +127,7 @@ def http_to_grpc(
                 take an object that can proxy a django.http.request as param
                 and return an object that can proxy a django.http.response.
                 """
-                # INFO - AM - 01/08/2024 - As a django decorator take only one request argument and grpc one 2 we are passing an instance of GRPCInternalProxyContext so we can get the context back from the request and make the actual call
+                # INFO - AM - 01/08/2024 - As a django decorator take only one request argument and grpc 2 we are passing an instance of GRPCInternalProxyContext so we can get the context back from the request and make the actual call
                 request = context.grpc_request
                 # INFO - AM - 01/08/2024 - Call the actual grpc endpoint
                 endpoint_result = await func(service_instance, request, context)
@@ -174,7 +174,7 @@ def http_to_grpc(
                 take an object that can proxy a django.http.request as param
                 and return an object that can proxy a django.http.response.
                 """
-                # INFO - AM - 01/08/2024 - As a django decorator take only one request argument and grpc one 2 we are passing an instance of GRPCInternalProxyContext so we can get the context back from the request and make the actual call
+                # INFO - AM - 01/08/2024 - As a django decorator take only one request argument and grpc 2 we are passing an instance of GRPCInternalProxyContext so we can get the context back from the request and make the actual call
                 request = context.grpc_request
                 # INFO - AM - 01/08/2024 - Call the actual grpc endpoint
                 endpoint_result = func(service_instance, request, context)
@@ -240,7 +240,7 @@ def cache_endpoint(*args, **kwargs):
     )
 
 
-def cache_endpoint_with_cache_deleter(
+def cache_endpoint_with_deleter(
     timeout: int,
     key_prefix: str,
     senders: Iterable[Model],
@@ -251,6 +251,7 @@ def cache_endpoint_with_cache_deleter(
     This decorator do all the same as cache_endpoint but with the addition of a cache deleter.
     The cache deleter will delete the cache when a signal is triggered.
     This is useful when you want to delete the cache when a model is updated or deleted.
+
     :param timeout: The timeout of the cache
     :param key_prefix: The key prefix of the cache
     :param cache: The cache alias to use. If None, it will use the default cache. It is named cache and not cache_alias to keep compatibility with Django cache_page decorator
@@ -259,7 +260,7 @@ def cache_endpoint_with_cache_deleter(
     """
     if not key_prefix:
         logger.warning(
-            "You are using cache_endpoint_with_cache_deleter without key_prefix. It's highly recommended to use it named as your service to avoid deleting all the cache without prefix when data is updated in back."
+            "You are using cache_endpoint_with_deleter without key_prefix. It's highly recommended to use it named as your service to avoid deleting all the cache without prefix when data is updated in back."
         )
     if (
         cache is None
@@ -267,7 +268,7 @@ def cache_endpoint_with_cache_deleter(
         and not grpc_settings.ENABLE_CACHE_WARNING_ON_DELETER
     ):
         logger.warning(
-            "You are using cache_endpoint_with_cache_deleter with the default cache engine that is not a redis cache engine."
+            "You are using cache_endpoint_with_deleter with the default cache engine that is not a redis cache engine."
             "Only Redis cache engine support cache pattern deletion."
             "You still continue to use it but it will delete all the endpoint cache when signal will trigger."
             "Please use a specific cache config per service or use redis cache engine to avoid this behavior."
@@ -296,7 +297,7 @@ def cache_endpoint_with_cache_deleter(
                     cache_instance.clear()
     else:
         logger.warning(
-            "You are using cache_endpoint_with_cache_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
+            "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
         )
 
     return http_to_grpc(

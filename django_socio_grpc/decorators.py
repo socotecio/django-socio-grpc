@@ -2,14 +2,15 @@ import asyncio
 import functools
 import logging
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, List, Type
+from typing import TYPE_CHECKING, Callable, List, Type
 
 from asgiref.sync import async_to_sync, sync_to_async
-from grpc.aio._typing import RequestType
+from grpc.aio._typing import RequestType, ResponseType
 
 import django
 from django.core.cache import cache as default_cache
 from django.core.cache import caches
+from django.db.models import Model
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils.decorators import method_decorator
@@ -105,7 +106,9 @@ def grpc_action(
     return wrapper
 
 
-def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
+def http_to_grpc(
+    decorator_to_wrap: Callable, request_setter: dict = None, response_setter: dict = None
+) -> Callable:
     """
     Allow to use Django decorator on grpc endpoint.
     As the working behavior will depend on the grpc support and/or DSG support of the feature it may not work as expected.
@@ -113,13 +116,24 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
     If not, please open an issue and we will look if possible to support it.
     """
 
-    def decorator(func, *args, **kwargs):
+    def decorator(func: Callable, *args, **kwargs) -> Callable:
         if asyncio.iscoroutinefunction(func):
 
-            async def _simulate_function(service_instance, context):
+            async def _simulate_function(
+                service_instance: "Service", context: "GRPCInternalProxyContext"
+            ) -> "GRPCInternalProxyResponse":
+                """
+                This async method is a wrapper to pass to the Django/HTTP1 decorator a method that only
+                take an object that can proxy a django.http.request as param
+                and return an object that can proxy a django.http.response.
+                """
+                # INFO - AM - 01/08/2024 - As a django decorator take only one request argument and grpc one 2 we are passing an instance of GRPCInternalProxyContext so we can get the context back from the request and make the actual call
                 request = context.grpc_request
+                # INFO - AM - 01/08/2024 - Call the actual grpc endpoint
                 endpoint_result = await func(service_instance, request, context)
+                # INFO - AM - 01/08/2024 - Transform the grpc Response to a proxyfied one to let the http decorator work
                 response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+                # INFO - AM - 01/08/2024 - This allow developer to customize some response behavior
                 if response_setter:
                     for key, value in response_setter.items():
                         setattr(response_proxy, key, value)
@@ -130,7 +144,8 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
                 service_instance: "Service",
                 request: RequestType,
                 context: "GRPCInternalProxyContext",
-            ):
+            ) -> ResponseType:
+                # INFO - AM - 01/08/2024 - This allow developer to customize some request behavior. For exemple all grpc request are POST but the cache behavior need GET request so we transform that here.
                 if request_setter:
                     for key, value in request_setter.items():
                         setattr(context, key, value)
@@ -140,6 +155,7 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
                         decorator_to_wrap(async_to_sync(_simulate_function))
                     )(service_instance, context)
                 else:
+                    # INFO - AM - 01/08/2024 - Give the HTTP decorator a wrapper around the endpoint that match what a django endpoint should expect as param and return type
                     response_proxy = await decorator_to_wrap(_simulate_function)(
                         service_instance, context
                     )
@@ -150,9 +166,21 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
 
         else:
 
-            def _simulate_function(service_instance, request, context):
+            def _simulate_function(
+                service_instance: "Service", context: "GRPCInternalProxyContext"
+            ) -> "GRPCInternalProxyResponse":
+                """
+                This sync method is a wrapper to pass to the Django/HTTP1 decorator a method that only
+                take an object that can proxy a django.http.request as param
+                and return an object that can proxy a django.http.response.
+                """
+                # INFO - AM - 01/08/2024 - As a django decorator take only one request argument and grpc one 2 we are passing an instance of GRPCInternalProxyContext so we can get the context back from the request and make the actual call
+                request = context.grpc_request
+                # INFO - AM - 01/08/2024 - Call the actual grpc endpoint
                 endpoint_result = func(service_instance, request, context)
+                # INFO - AM - 01/08/2024 - Transform the grpc Response to a proxyfied one to let the http decorator work
                 response_proxy = GRPCInternalProxyResponse(endpoint_result, context)
+                # INFO - AM - 01/08/2024 - This allow developer to customize some response behavior
                 if response_setter:
                     for key, value in response_setter.items():
                         setattr(response_proxy, key, value)
@@ -163,7 +191,12 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
                 service_instance: "Service",
                 request: RequestType,
                 context: "GRPCInternalProxyContext",
-            ):
+            ) -> ResponseType:
+                # INFO - AM - 01/08/2024 - This allow developer to customize some request behavior. For exemple all grpc request are POST but the cache behavior need GET request so we transform that here.
+                if request_setter:
+                    for key, value in request_setter.items():
+                        setattr(context, key, value)
+                # INFO - AM - 01/08/2024 - Give the HTTP decorator a wrapper around the endpoint that match what a django endpoint should expect as param and return type
                 response_proxy = decorator_to_wrap(_simulate_function)(
                     service_instance, request, context
                 )
@@ -174,7 +207,7 @@ def http_to_grpc(decorator_to_wrap, request_setter=None, response_setter=None):
     return decorator
 
 
-def vary_on_metadata(*headers):
+def vary_on_metadata(*headers) -> Callable:
     """
     Same as https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/views/decorators/vary.py#L8
     but need to wrap the response in a GRPCInternalProxyResponse.
@@ -192,24 +225,37 @@ def vary_on_metadata(*headers):
 
 @functools.wraps(cache_page)
 def cache_endpoint(*args, **kwargs):
+    """
+    This decorator is an helper to used the cache_page decorator from django on a grpc endpoint.
+    Please to not use on Create, Update or Delete endpoint as it will cache the response and return the same response to all the user.
+
+    It's step are:
+    - Transform cache_page to a method decorator see https://docs.djangoproject.com/en/5.0/topics/class-based-views/intro/#decorating-the-class
+    - Transform the cache_page method decorator to a grpc compatible decorator
+    - Specify that we need to force the request to be a GET request
+    """
     return http_to_grpc(
-        method_decorator(cache_page(*args, **kwargs), name="List"),
+        method_decorator(cache_page(*args, **kwargs)),
         request_setter={"method": "GET"},
     )
 
 
 def cache_endpoint_with_cache_deleter(
-    timeout, key_prefix, senders, cache=None, invalidator_signals=None
+    timeout: int,
+    key_prefix: str,
+    senders: Iterable[Model],
+    cache: str = None,
+    invalidator_signals: Iterable[Callable] = None,
 ):
     """
-    This decorator allow to cache the endpoint with a cache deleter.
+    This decorator do all the same as cache_endpoint but with the addition of a cache deleter.
     The cache deleter will delete the cache when a signal is triggered.
     This is useful when you want to delete the cache when a model is updated or deleted.
     :param timeout: The timeout of the cache
     :param key_prefix: The key prefix of the cache
     :param cache: The cache alias to use. If None, it will use the default cache. It is named cache and not cache_alias to keep compatibility with Django cache_page decorator
     :param senders: The senders to listen to the signal
-    :param invalidator_signals: The signals to listen to delete the cache
+    :param invalidator_signals: The django signals to listen to delete the cache
     """
     if not key_prefix:
         logger.warning(
@@ -236,7 +282,9 @@ def cache_endpoint_with_cache_deleter(
         @receiver(invalidator_signals, weak=False)
         def invalidate_cache(*args, **kwargs):
             if kwargs.get("sender") in senders:
+                # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
                 cache_instance = caches[cache] if cache else default_cache
+                # INFO - AM - 01/08/2024 - For now this is only for Redis cache but this is important to support as it simplify the cache architecture to create if used
                 if hasattr(cache, "delete_pattern"):
                     cache_instance.delete_pattern(
                         f"views.decorators.cache.cache_header.{key_prefix}.*"
@@ -252,6 +300,6 @@ def cache_endpoint_with_cache_deleter(
         )
 
     return http_to_grpc(
-        method_decorator(cache_page(timeout, key_prefix=key_prefix, cache=cache), name="List"),
+        method_decorator(cache_page(timeout, key_prefix=key_prefix, cache=cache)),
         request_setter={"method": "GET"},
     )

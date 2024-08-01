@@ -1,4 +1,5 @@
 import json
+import logging
 import urllib.parse
 from typing import TYPE_CHECKING
 
@@ -18,22 +19,17 @@ if TYPE_CHECKING:
     )
 
 
+logger = logging.getLogger(__name__)
+
+
 class InternalHttpRequest(HttpRequest):
     """
     Class mocking django.http.HttpRequest to make some django behavior like middleware, filtering, authentication, ... still work.
-    TODO - AM - Inherit this directly from django.http.HttpRequest ?
     """
 
-    HEADERS_KEY = "HEADERS"
-    # MAP_HEADERS = {
-    #     "AUTHORIZATION": "HTTP_AUTHORIZATION",
-    #     "ACCEPT-LANGUAGE": "HTTP_ACCEPT_LANGUAGE",
-    #     "X-FORWARDED-HOST": "HTTP_X_FORWARDED_HOST",
-    #     "HOST": "HTTP_HOST",
-    #     "X-FORWARDED-PORT": "HTTP_X_FORWARDED_PORT",
-    # }
-    FILTERS_KEY = "FILTERS"
-    PAGINATION_KEY = "PAGINATION"
+    HEADERS_KEY = "headers"
+    FILTERS_KEY = "filters"
+    PAGINATION_KEY = "pagination"
     FILTERS_KEY_IN_REQUEST = "_filters"
     PAGINATION_KEY_IN_REQUEST = "_pagination"
 
@@ -116,23 +112,29 @@ class InternalHttpRequest(HttpRequest):
         add_http_to_metadata = {f"HTTP_{key}": value for key, value in self.META.items()}
         return HttpHeaders(add_http_to_metadata)
 
-    def get_from_metadata(self, metadata_key):
+    def get_from_metadata(self, metadata_key: str) -> dict:
         """
-        Allow to override defautl metadata with qome passed in HEADERS metadata key to have custom advanced behavior
+        Allow to:
+        - Customise the metadata key used for pagination, filter and headers
+        - override default metadata with some passed in HEADERS metadata key to have custom advanced behavior
         """
-        metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key, None)
+        metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key.lower(), None)
         if not metadata_key:
             return self.grpc_request_metadata
-        user_custom_headers = self.grpc_request_metadata.pop(metadata_key, "{}")
+        user_custom_headers = self.grpc_request_metadata.pop(metadata_key.lower(), "{}")
         return {
             **self.grpc_request_metadata,
             **json.loads(user_custom_headers),
         }
 
-    def parse_specific_key_from_metadata(self, metadata_key):
-        return json.loads(self.grpc_request_metadata.get(metadata_key, "{}"))
+    def parse_specific_key_from_metadata(self, metadata_key: str) -> dict:
+        """
+        Allow to Customise the metadata key used for pagination, filter and headers
+        """
+        metadata_key = grpc_settings.MAP_METADATA_KEYS.get(metadata_key.lower(), None)
+        return json.loads(self.grpc_request_metadata.get(metadata_key.lower(), "{}"))
 
-    def get_from_request_struct(self, grpc_request, struct_field_name):
+    def get_from_request_struct(self, grpc_request: Message, struct_field_name: str) -> dict:
         # INFO - AM - 14/02/2024 - Need to check both if the request have a _filters key and if this optional _filters is filled
         if hasattr(grpc_request, struct_field_name) and grpc_request.HasField(
             struct_field_name
@@ -141,13 +143,13 @@ class InternalHttpRequest(HttpRequest):
 
         return {}
 
-    def convert_metadata_to_dict(self, invocation_metadata):
+    def convert_metadata_to_dict(self, invocation_metadata: tuple) -> dict:
         grpc_request_metadata = {}
         for key, value in dict(invocation_metadata).items():
-            grpc_request_metadata[key.upper()] = value
+            grpc_request_metadata[key.lower()] = value
         return grpc_request_metadata
 
-    def get_query_params(self, grpc_request: Message):
+    def get_query_params(self, grpc_request: Message) -> dict:
         """
         Method that transform specific metadata and/or request fields (depending on FILTER_BEHAVIOR and PAGINATION_BEHAVIOR settings)
         into a dict as if it was some query params passed in simple HTTP/1 calls
@@ -191,11 +193,22 @@ class InternalHttpRequest(HttpRequest):
 
         return query_params
 
-    def grpc_action_to_http_method_name(self, grpc_action):
+    def grpc_action_to_http_method_name(self, grpc_action: str) -> str:
+        """
+        Allow to match known grpc action to method type. In the futur we may need/want to use a specific decorator that inject the correct mapping into the grpc context and parse it
+
+        Example:
+        - List -> GET
+        - Update -> PUT
+        """
         return self.METHOD_MAP.get(grpc_action, "POST")
 
 
 class RequestMeta(CaseInsensitiveMapping):
+    """
+    Class allowing specific automatic transformation/matching behavior between HTTP headers format expected by django and gRPC metadata format
+    """
+
     HTTP_PREFIX = HttpHeaders.HTTP_PREFIX  # = HTTP_
 
     def __getitem__(self, key):

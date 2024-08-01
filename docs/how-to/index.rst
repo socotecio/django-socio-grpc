@@ -12,3 +12,4 @@ Here is a collection of how-to guides for common tasks.
    make-a-custom-retrieve
    upload-file
    work-with-secure-port
+   use-django-decorators-in-dsg

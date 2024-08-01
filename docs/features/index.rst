@@ -18,4 +18,5 @@ Features
    logging
    streaming
    commands
+   cache
    health-check

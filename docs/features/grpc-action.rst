@@ -135,7 +135,7 @@ For more information, please read :ref:`the specified documentation <proto-gener
 Defaulting to the :ref:`DEFAULT_MESSAGE_NAME_CONSTRUCTOR setting <settings-default-message-name-constructor>`
 
 
-.. _grpc-action-request-response:
+.. _grpc-action-use-generation-plugins:
 
 ==========================
 ``use_generation_plugins``

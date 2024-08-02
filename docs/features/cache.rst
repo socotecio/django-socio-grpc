@@ -69,6 +69,10 @@ As DSG is an API framework it's logic to add utils to invalidate cache if data i
     The cache will not be deleted if using bulk operations. This also integrate the usage of filter(...).update() method.
     See `caveats of each meathod you wish to use to be sure of the behavior <https://docs.djangoproject.com/en/5.0/ref/models/querysets/#bulk-create>`_
 
+    The cache will also not be deleted if modifying date in an other process that is not gRPC (Django commands, admin, shell, ...).
+    You can make your own decorator to handle this case if needed by registering decorator parameter in a global context and then listen to all django event to see if one matching.
+    We decide to not integrate it because listening all django events and making check on signals and senders may add an unwanted request overhead.
+
 There is also caveats to understand when usings cache-endpoint-with-deleter. As only Redis cache allow a pattern like deleter, if not using redis cache each specified signals on the specified models of the deleter will delete the entire cache.
 
 To address this issue, you can:

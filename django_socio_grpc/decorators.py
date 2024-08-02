@@ -107,13 +107,21 @@ def grpc_action(
 
 
 def http_to_grpc(
-    decorator_to_wrap: Callable, request_setter: dict = None, response_setter: dict = None
+    decorator_to_wrap: Callable,
+    request_setter: dict = None,
+    response_setter: dict = None,
+    support_async: bool = False,
 ) -> Callable:
     """
     Allow to use Django decorator on grpc endpoint.
     As the working behavior will depend on the grpc support and/or DSG support of the feature it may not work as expected.
     If it's not working as expected, first look at the documentation if the decorators is not listed as one of the unsupported decorator.
     If not, please open an issue and we will look if possible to support it.
+
+    :param decorator_to_wrap: The decorator to wrap. It can be a method or a function decorator.
+    :param request_setter: A dict of attribute to set on the request object before calling the HTTP decorator.
+    :param response_setter: A dict of attribute to set on the response object before returning it to the HTTP decorator.
+    :param support_async: If the decorator to wrap is async or not. If not, it will be wrapped in a sync function. Refer to https://docs.djangoproject.com/en/5.0/topics/async/#decorators
     """
 
     def decorator(func: Callable, *args, **kwargs) -> Callable:
@@ -149,8 +157,10 @@ def http_to_grpc(
                 if request_setter:
                     for key, value in request_setter.items():
                         setattr(context, key, value)
-                # INFO - AM - 30/07/2024 - Before django 5, django decorator didn't support async function. We need to wrap it in a sync function.
-                if django.VERSION < (5, 0, 0):
+                # INFO - AM - 30/07/2024 - Before django 5, all django decorator didn't support async function.
+                # Since django 5 some decorator accept it but not all.
+                # We need to wrap them in a sync function.
+                if django.VERSION < (5, 0, 0) or not support_async:
                     response_proxy = await sync_to_async(
                         decorator_to_wrap(async_to_sync(_simulate_function))
                     )(service_instance, context)
@@ -220,7 +230,7 @@ def vary_on_metadata(*headers) -> Callable:
 
     Note that the metadata names are not case-sensitive.
     """
-    return http_to_grpc(vary_on_headers(*headers))
+    return http_to_grpc(vary_on_headers(*headers), support_async=True)
 
 
 @functools.wraps(cache_page)
@@ -237,6 +247,7 @@ def cache_endpoint(*args, **kwargs):
     return http_to_grpc(
         method_decorator(cache_page(*args, **kwargs)),
         request_setter={"method": "GET"},
+        support_async=False,
     )
 
 
@@ -301,6 +312,9 @@ def cache_endpoint_with_deleter(
         )
 
     return http_to_grpc(
-        method_decorator(cache_page(timeout, key_prefix=key_prefix, cache=cache)),
+        method_decorator(
+            cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
+        ),
         request_setter={"method": "GET"},
+        support_async=False,
     )

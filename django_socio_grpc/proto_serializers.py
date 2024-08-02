@@ -1,4 +1,4 @@
-from typing import Dict, MutableSequence
+from collections.abc import MutableSequence
 
 from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
@@ -50,7 +50,7 @@ def get_default_value(field_default):
 
 
 class BaseProtoSerializer(BaseSerializer):
-    fields: Dict[str, Field]
+    fields: dict[str, Field]
 
     def __init__(self, *args, **kwargs):
         if "message" in kwargs and "data" in kwargs:

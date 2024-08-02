@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import TYPE_CHECKING
 
 from asgiref.sync import sync_to_async
 from django.db.models.query import QuerySet
@@ -24,13 +24,13 @@ class Service(GRPCActionMixin):
     authentication_classes = grpc_settings.DEFAULT_AUTHENTICATION_CLASSES
     permission_classes = grpc_settings.DEFAULT_PERMISSION_CLASSES
 
-    action: Optional[str] = None
-    request: Optional[Message] = None
-    context: Optional[GRPCInternalProxyContext] = None
+    action: str | None = None
+    request: Message | None = None
+    context: GRPCInternalProxyContext | None = None
 
     _app_handler: "AppHandlerRegistry" = None
 
-    _servicer_proxy: Type[ServicerProxy] = ServicerProxy
+    _servicer_proxy: type[ServicerProxy] = ServicerProxy
 
     _is_auth_performed: bool = False
 
@@ -105,7 +105,7 @@ class Service(GRPCActionMixin):
             if not permission.has_object_permission(self.context, self, obj):
                 raise PermissionDenied(detail=getattr(permission, "message", None))
 
-    def get_permissions(self) -> List[BasePermission]:
+    def get_permissions(self) -> list[BasePermission]:
         return [permission() for permission in self.permission_classes]
 
     def _before_action(self):

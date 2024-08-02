@@ -1,5 +1,4 @@
-import sys
-from typing import List, Optional
+from typing import Optional
 from unittest import mock
 
 import pytest
@@ -96,64 +95,33 @@ class MyOtherSerializer(proto_serializers.ProtoSerializer):
     name = serializers.CharField()
 
 
-if sys.version_info >= (3, 10):
+class MySerializer(proto_serializers.ProtoSerializer):
+    user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
+    title = serializers.CharField()
+    optional_field = serializers.CharField(allow_null=True)
+    default_char = serializers.CharField(default="value")
+    list_field = serializers.ListField(child=serializers.CharField())
+    list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
 
-    class MySerializer(proto_serializers.ProtoSerializer):
-        user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
-        title = serializers.CharField()
-        optional_field = serializers.CharField(allow_null=True)
-        default_char = serializers.CharField(default="value")
-        list_field = serializers.ListField(child=serializers.CharField())
-        list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
+    smf = serializers.SerializerMethodField()
+    smf_only_list = serializers.SerializerMethodField()
+    smf_with_serializer = serializers.SerializerMethodField()
+    smf_with_serializer_pipe = serializers.SerializerMethodField()
+    smf_with_list_serializer = serializers.SerializerMethodField()
 
-        smf = serializers.SerializerMethodField()
-        smf_only_list = serializers.SerializerMethodField()
-        smf_with_serializer = serializers.SerializerMethodField()
-        smf_with_serializer_pipe = serializers.SerializerMethodField()
-        smf_with_list_serializer = serializers.SerializerMethodField()
+    read_only_field0 = serializers.CharField(read_only=True)
+    read_only_field1 = serializers.CharField(read_only=True)
+    write_only_field = serializers.CharField(write_only=True)
 
-        read_only_field0 = serializers.CharField(read_only=True)
-        read_only_field1 = serializers.CharField(read_only=True)
-        write_only_field = serializers.CharField(write_only=True)
+    def get_smf(self, obj) -> list[int]: ...
 
-        def get_smf(self, obj) -> list[int]: ...
+    def get_smf_only_list(self, obj) -> list: ...
 
-        def get_smf_only_list(self, obj) -> list: ...
+    def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]: ...  # noqa: UP007
 
-        def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]: ...  # noqa: UP007
+    def get_smf_with_serializer_pipe(self, obj) -> BasicServiceSerializer | None: ...
 
-        def get_smf_with_serializer_pipe(self, obj) -> BasicServiceSerializer | None: ...
-
-        def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]: ...  # noqa: UP006
-else:
-
-    class MySerializer(proto_serializers.ProtoSerializer):
-        user_name = MyIntField(help_text=ProtoComment(["@test=comment1", "@test2=comment2"]))
-        title = serializers.CharField()
-        optional_field = serializers.CharField(allow_null=True)
-        default_char = serializers.CharField(default="value")
-        list_field = serializers.ListField(child=serializers.CharField())
-        list_field_with_serializer = serializers.ListField(child=MyOtherSerializer())
-
-        smf = serializers.SerializerMethodField()
-        smf_only_list = serializers.SerializerMethodField()
-        smf_with_serializer = serializers.SerializerMethodField()
-        smf_with_serializer_pipe = serializers.SerializerMethodField()
-        smf_with_list_serializer = serializers.SerializerMethodField()
-
-        read_only_field0 = serializers.CharField(read_only=True)
-        read_only_field1 = serializers.CharField(read_only=True)
-        write_only_field = serializers.CharField(write_only=True)
-
-        def get_smf(self, obj) -> List[int]: ...  # noqa: UP006
-
-        def get_smf_only_list(self, obj) -> List: ...  # noqa: UP006
-
-        def get_smf_with_serializer(self, obj) -> Optional[BasicServiceSerializer]: ...  # noqa: UP007
-
-        def get_smf_with_serializer_pipe(self, obj) -> Optional[BasicServiceSerializer]: ...  # noqa: UP007
-
-        def get_smf_with_list_serializer(self, obj) -> List[BasicServiceSerializer]: ...  # noqa: UP006
+    def get_smf_with_list_serializer(self, obj) -> list[BasicServiceSerializer]: ...  # noqa: UP006
 
 
 class MyOtherSerializer(proto_serializers.ModelProtoSerializer):

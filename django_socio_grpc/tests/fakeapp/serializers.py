@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from rest_framework import serializers
 
@@ -130,7 +128,7 @@ class CustomRetrieveResponseSpecialFieldsModelSerializer(
     def get_default_method_field(self, obj) -> int:
         return 3
 
-    def custom_method(self, obj) -> List[Dict]:
+    def custom_method(self, obj) -> list[dict]:
         return [{"test": "test"}]
 
     class Meta:

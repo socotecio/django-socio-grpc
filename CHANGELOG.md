@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.23.0
+
+- Dropping not working support for Django < 4
+- Dropping support for python < 3.10
+- Add Django version into the CI to assure that supporting version still works
+
 ## 0.22.9
 
 - Security dependencies update

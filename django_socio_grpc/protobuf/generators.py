@@ -4,7 +4,6 @@ from collections import OrderedDict
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.proto_classes import ProtoMessage, ProtoService
@@ -22,7 +21,7 @@ class RegistryToProtoGenerator:
     registry_instance: RegistrySingleton
     project_name: str
     verbose: int = 0
-    only_messages: List[str] = dataclass_field(default_factory=list)
+    only_messages: list[str] = dataclass_field(default_factory=list)
     override_fields_number: bool = False
 
     def print(self, message, verbose_level=0):
@@ -32,7 +31,7 @@ class RegistryToProtoGenerator:
         if verbose_level <= self.verbose:
             logger.log(verbose_level, message)
 
-    def get_protos_by_app(self, directory: Optional[Path] = None):
+    def get_protos_by_app(self, directory: Path | None = None):
         proto_by_app = {}
         for app_name, registry in self.registry_instance.registered_apps.items():
             proto_path = registry.get_proto_path()
@@ -53,11 +52,11 @@ class RegistryToProtoGenerator:
     def get_proto(
         self,
         registry: AppHandlerRegistry,
-        previous_messages: Dict[str, protoparser.Message],
+        previous_messages: dict[str, protoparser.Message],
     ):
         self._writer = _CodeWriter()
 
-        messages: List[ProtoMessage] = []
+        messages: list[ProtoMessage] = []
         imports = set()
 
         # INFO - AM - 14/04/2023 - split all the messages in the registry in two categories. Ones is the messages imported from an other proto file and Seconds are the one to write in the current proto file we are going to generate
@@ -145,7 +144,7 @@ class RegistryToProtoGenerator:
         self._writer.write_line("}")
         self._writer.write_line("")
 
-    def write_comments(self, comments: Optional[List[str]]):
+    def write_comments(self, comments: list[str] | None):
         if not comments:
             return
         for comment in comments:

@@ -1,5 +1,4 @@
 import logging
-from typing import List, Type
 
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
@@ -41,8 +40,8 @@ def grpc_action(
     response_stream=False,
     use_request_list=False,
     use_response_list=False,
-    message_name_constructor_class: Type[MessageNameConstructor] = None,
-    use_generation_plugins: List["BaseGenerationPlugin"] = None,
+    message_name_constructor_class: type[MessageNameConstructor] = None,
+    use_generation_plugins: list["BaseGenerationPlugin"] = None,
 ):
     """
     Easily register a grpc action into the registry to generate it into the proto file.

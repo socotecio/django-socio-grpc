@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Type, Union
+from typing import TYPE_CHECKING
 
 from rest_framework.serializers import BaseSerializer
 
@@ -16,17 +16,17 @@ if TYPE_CHECKING:
 @dataclass
 class MessageNameConstructor(ABC):
     action_name: str
-    service: Type["Service"]
-    action_request: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]]
-    request_name: Optional[str]
-    action_response: Optional[Union[str, Type[BaseSerializer], List["FieldDict"]]]
-    response_name: Optional[str]
+    service: type["Service"]
+    action_request: str | type[BaseSerializer] | list["FieldDict"] | None
+    request_name: str | None
+    action_response: str | type[BaseSerializer] | list["FieldDict"] | None
+    response_name: str | None
 
     def __post_init__(self):
         self.service_name = self.service.get_service_name()
 
     @classmethod
-    def get_base_name_from_serializer(cls, serializer: Type[BaseSerializer]) -> str:
+    def get_base_name_from_serializer(cls, serializer: type[BaseSerializer]) -> str:
         """
         Get the name that will be displayed for the message in a .proto file for a specific Serializer.
         It is the name of the serializer class without "ProtoSerializer" or "Serializer" at the end if any.
@@ -41,7 +41,7 @@ class MessageNameConstructor(ABC):
 
     @classmethod
     def get_base_name_from_serializer_with_suffix(
-        cls, serializer: Type[BaseSerializer], suffix: str = ""
+        cls, serializer: type[BaseSerializer], suffix: str = ""
     ) -> str:
         """
         Add the correct suffix ("REQUEST", "RESPONSE", "") to the name from the serializer (see get_base_name_from_serializer)

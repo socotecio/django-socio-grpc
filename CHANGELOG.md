@@ -5,6 +5,11 @@
 - Dropping not working support for Django < 4
 - Dropping support for python < 3.10
 - Add Django version into the CI to assure that supporting version still works
+- Made Internal Proxy Request/Response inherit from django Request/Response
+- Create Request Meta and Response Headers interceptor/proxy to be able to get/set correctly headers for both request and response
+- Create the http_to_grpc decorator to provide a way to use django decorator in DSG
+- Add cache_enpoint, cache_endpoint_with_deleter, vary_on_metadata decorator
+- Stop allowing metadata that doesn't have lower case key and metadata values that are not str or bytes in FakeGrpc testing tool
 
 ## 0.22.9
 

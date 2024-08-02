@@ -1,4 +1,3 @@
-import contextlib
 import io
 import json
 import os
@@ -48,19 +47,9 @@ class ModelProtoGeneratorOldWay:
         models.BinaryField.__name__: "bytes",
         # Default
         models.Field.__name__: "string",
+        models.JSONField.__name__: "google.protobuf.Struct",
+        models.PositiveBigIntegerField.__name__: "int64",
     }
-
-    # JSONField and PositiveBigIntegerField not available on Django 2.2
-    try:
-        # Special
-        type_mapping[models.JSONField.__name__] = "google.protobuf.Struct"
-    except AttributeError:
-        from django.contrib.postgres.fields import JSONField
-
-        type_mapping[JSONField.__name__] = "google.protobuf.Struct"
-
-    with contextlib.suppress(AttributeError):
-        type_mapping[models.PositiveBigIntegerField.__name__] = "int64"
 
     def __init__(self, project_name, app_name, model_name=None, existing_proto_path=None):
         self.model_name = model_name

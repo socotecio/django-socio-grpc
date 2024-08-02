@@ -1,5 +1,4 @@
 import logging
-from typing import List, Type
 
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,

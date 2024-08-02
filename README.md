@@ -16,8 +16,8 @@ The documentation can be found [here](https://django-socio-grpc.readthedocs.io/e
 
 ## Requirements
 
-- Python (>= 3.8)
-- Django (2.2, >=3.0), Django REST Framework (>=3.10)
+- Python (>= 3.10)
+- Django (>=4.2), Django REST Framework (>=3.10)
 - grpcio-tools (>=1.50.0)
 
 

@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import Dict
 
 
 @dataclass
@@ -10,7 +9,7 @@ class InternalHttpResponse:
     """
 
     # INFO - AM - 26/04/2023 - This is used by session middleware
-    headers: Dict[str, str] = field(default_factory=dict)
+    headers: dict[str, str] = field(default_factory=dict)
 
     # INFO - AM - 26/04/2023 - This is used by local middleware
     # TODO - AM - 26/04/2023 - Adapt this code from the grpc_response abort details ? Not needed for now.

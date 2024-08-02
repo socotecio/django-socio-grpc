@@ -41,8 +41,9 @@ import asyncio
 import functools
 import logging
 from asyncio.coroutines import _is_coroutine
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any
 
 from asgiref.sync import SyncToAsync
 from rest_framework.serializers import BaseSerializer
@@ -72,26 +73,26 @@ if TYPE_CHECKING:
     from django_socio_grpc.services import Service
 
 
-RequestResponseType = Union[str, Type[BaseSerializer], Placeholder, List[FieldDict]]
+RequestResponseType = str | type[BaseSerializer] | Placeholder | list[FieldDict]
 
 
 @dataclass
 class GRPCAction:
     function: Callable[["Service", Any, GRPCInternalProxyContext], Any]
-    request: Optional[RequestResponseType] = None
-    response: Optional[RequestResponseType] = None
-    request_name: Optional[str] = None
-    response_name: Optional[str] = None
+    request: RequestResponseType | None = None
+    response: RequestResponseType | None = None
+    request_name: str | None = None
+    response_name: str | None = None
     request_stream: bool = False
     response_stream: bool = False
-    message_name_constructor_class: Type[MessageNameConstructor] = (
+    message_name_constructor_class: type[MessageNameConstructor] = (
         grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR
     )
-    use_generation_plugins: List[BaseGenerationPlugin] = field(
+    use_generation_plugins: list[BaseGenerationPlugin] = field(
         default_factory=grpc_settings.DEFAULT_GENERATION_PLUGINS.copy
     )
 
-    proto_rpc: Optional[ProtoRpc] = field(init=False, default=None)
+    proto_rpc: ProtoRpc | None = field(init=False, default=None)
 
     def __post_init__(self):
         assert issubclass(
@@ -142,20 +143,20 @@ class GRPCAction:
         }
 
     @property
-    def request_message_name(self) -> Optional[str]:
+    def request_message_name(self) -> str | None:
         try:
             return self.proto_rpc.request_name
         except AttributeError:
             return None
 
     @property
-    def response_message_name(self) -> Optional[str]:
+    def response_message_name(self) -> str | None:
         try:
             return self.proto_rpc.response_name
         except AttributeError:
             return None
 
-    def make_proto_rpc(self, action_name: str, service: Type["Service"]) -> ProtoRpc:
+    def make_proto_rpc(self, action_name: str, service: type["Service"]) -> ProtoRpc:
         assert not isinstance(self.request, Placeholder)
         assert not isinstance(self.response, Placeholder)
 
@@ -176,12 +177,10 @@ class GRPCAction:
 
         # INFO - AM - 22/02/2024 - Get the actual request name
         request_name: str = message_name_constructor.construct_request_name()
-        request: Union[ProtoMessage, str] = req_class.create(
-            value=self.request, name=request_name
-        )
+        request: ProtoMessage | str = req_class.create(value=self.request, name=request_name)
 
         response_name: str = message_name_constructor.construct_response_name()
-        response: Union[ProtoMessage, str] = res_class.create(
+        response: ProtoMessage | str = res_class.create(
             value=self.response, name=response_name
         )
 
@@ -219,7 +218,7 @@ class GRPCAction:
             response_stream=self.response_stream,
         )
 
-    def register(self, owner: Type["Service"], action_name: str):
+    def register(self, owner: type["Service"], action_name: str):
         # INFO - AM - 29/12/2023 - (PROTO_DEBUG, step: 10, method: register) allow to print the service and action being registered before displaying the proto
         ProtoGeneratorPrintHelper.reset()
         ProtoGeneratorPrintHelper.set_service_and_action(
@@ -243,7 +242,7 @@ class GRPCAction:
 
         setattr(owner, action_name, self)
 
-    def resolve_placeholders(self, service_class: Type["Service"], action: str):
+    def resolve_placeholders(self, service_class: type["Service"], action: str):
         """
         Iterate over the `GRPCAction` attributes and resolve all the placeholder instances
 
@@ -273,7 +272,7 @@ class GRPCAction:
         return new_cls
 
 
-def register_action(cls, action_name: str, name: Optional[str] = None, **kwargs):
+def register_action(cls, action_name: str, name: str | None = None, **kwargs):
     """
     Register action function_name of mixin and register them if they are decorated (so already a GRPCAction)
     or transform them into a GRPCAction before registering them
@@ -290,7 +289,7 @@ def register_action(cls, action_name: str, name: Optional[str] = None, **kwargs)
 
 
 class GRPCActionMixin(abc.ABC):
-    _decorated_grpc_action_registry: Dict[str, Dict[str, Any]]
+    _decorated_grpc_action_registry: dict[str, dict[str, Any]]
     """Registry of grpc actions declared in the class"""
 
     proto_service: ProtoService
@@ -361,6 +360,6 @@ class GRPCActionMixin(abc.ABC):
         """
         return None
 
-    def _dynamic_grpc_action_registry(service) -> Dict[str, Dict[str, Any]]:
+    def _dynamic_grpc_action_registry(service) -> dict[str, dict[str, Any]]:
         """Dynamic gRPC action registry"""
         return {}

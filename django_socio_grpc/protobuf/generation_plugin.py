@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Tuple, Type, Union
+from typing import TYPE_CHECKING
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField, ProtoMessage
@@ -19,9 +19,9 @@ class BaseGenerationPlugin:
 
     def check_condition(
         self,
-        service: Type["Service"],
-        request_message: Union[ProtoMessage, str],
-        response_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        request_message: ProtoMessage | str,
+        response_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         """
@@ -31,8 +31,8 @@ class BaseGenerationPlugin:
 
     def transform_request_message(
         self,
-        service: Type["Service"],
-        proto_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         """
@@ -42,8 +42,8 @@ class BaseGenerationPlugin:
 
     def transform_response_message(
         self,
-        service: Type["Service"],
-        proto_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         """
@@ -53,11 +53,11 @@ class BaseGenerationPlugin:
 
     def run_validation_and_transform(
         self,
-        service: Type["Service"],
-        request_message: Union[ProtoMessage, str],
-        response_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        request_message: ProtoMessage | str,
+        response_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
-    ) -> Tuple[ProtoMessage, ProtoMessage]:
+    ) -> tuple[ProtoMessage, ProtoMessage]:
         """
         The main orchestrator method of the plugin. This is the first entrypoint.
         It check the confition setted by check_condition method and then call transform_request_message and transform_response_message
@@ -79,7 +79,7 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
     """
 
     field_name: str
-    field_type: Union[str, ProtoMessage]
+    field_type: str | ProtoMessage
     field_cardinality: FieldCardinality
 
     def __init__(self, *args, **kwargs):
@@ -91,8 +91,8 @@ class BaseAddFieldRequestGenerationPlugin(BaseGenerationPlugin):
 
     def transform_request_message(
         self,
-        service: Type["Service"],
-        proto_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ):
         if isinstance(proto_message, str):
@@ -117,7 +117,7 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     """
 
     field_name: str = "_filters"
-    field_type: Union[str, ProtoMessage] = "google.protobuf.Struct"
+    field_type: str | ProtoMessage = "google.protobuf.Struct"
     field_cardinality: FieldCardinality = FieldCardinality.OPTIONAL
 
     def __init__(self, display_warning_message=True):
@@ -126,9 +126,9 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
 
     def check_condition(
         self,
-        service: Type["Service"],
-        request_message: Union[ProtoMessage, str],
-        response_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        request_message: ProtoMessage | str,
+        response_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
@@ -159,7 +159,7 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
     """
 
     field_name: str = "_pagination"
-    field_type: Union[str, ProtoMessage] = "google.protobuf.Struct"
+    field_type: str | ProtoMessage = "google.protobuf.Struct"
     field_cardinality: FieldCardinality = FieldCardinality.OPTIONAL
 
     def __init__(self, display_warning_message=True):
@@ -168,9 +168,9 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
 
     def check_condition(
         self,
-        service: Type["Service"],
-        request_message: Union[ProtoMessage, str],
-        response_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        request_message: ProtoMessage | str,
+        response_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
@@ -208,7 +208,7 @@ class AsListGenerationPlugin(BaseGenerationPlugin):
     list_field_name: str = "results"
 
     def transform_message_to_list(
-        self, service: Type["Service"], proto_message: Union[ProtoMessage, str], list_name: str
+        self, service: type["Service"], proto_message: ProtoMessage | str, list_name: str
     ) -> ProtoMessage:
         try:
             list_field_name = proto_message.serializer.Meta.message_list_attr
@@ -251,8 +251,8 @@ class RequestAsListGenerationPlugin(AsListGenerationPlugin):
 
     def transform_request_message(
         self,
-        service: Type["Service"],
-        proto_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_request_list_name()
@@ -266,8 +266,8 @@ class ResponseAsListGenerationPlugin(AsListGenerationPlugin):
 
     def transform_response_message(
         self,
-        service: Type["Service"],
-        proto_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         list_name = message_name_constructor.construct_response_list_name()
@@ -295,8 +295,8 @@ class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerati
 
     def transform_response_message(
         self,
-        service: Type["Service"],
-        proto_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         if self.response:
@@ -307,8 +307,8 @@ class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerati
 
     def transform_request_message(
         self,
-        service: Type["Service"],
-        proto_message: Union[ProtoMessage, str],
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> ProtoMessage:
         if self.request:

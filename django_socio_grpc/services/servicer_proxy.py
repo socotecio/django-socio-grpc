@@ -1,7 +1,8 @@
 import abc
 import asyncio
 import logging
-from typing import TYPE_CHECKING, AsyncIterable, Awaitable, Callable, Optional, Type
+from collections.abc import AsyncIterable, Awaitable, Callable
+from typing import TYPE_CHECKING
 
 import grpc
 from asgiref.local import Local
@@ -137,7 +138,7 @@ class ServicerProxy(MiddlewareCapable):
 
     """
 
-    def __init__(self, service_class: Type["Service"], **initkwargs):
+    def __init__(self, service_class: type["Service"], **initkwargs):
         self.service_class = service_class
         self.initkwargs = initkwargs
 
@@ -317,7 +318,7 @@ class ServicerProxy(MiddlewareCapable):
         log_level(message, exc_info=exception, extra=extra)
 
     def log_response(
-        self, exception: Optional[Exception], request_container: GRPCRequestContainer
+        self, exception: Exception | None, request_container: GRPCRequestContainer
     ):
         extra = {
             "request": request_container,

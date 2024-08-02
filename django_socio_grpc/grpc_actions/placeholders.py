@@ -1,5 +1,6 @@
 import abc
-from typing import TYPE_CHECKING, Callable, TypeVar, Union
+from collections.abc import Callable
+from typing import TYPE_CHECKING, TypeVar
 
 from django_socio_grpc.grpc_actions.utils import (
     get_lookup_field_from_serializer,
@@ -57,7 +58,7 @@ class FnPlaceholder(Placeholder):
 
 
 class StrTemplatePlaceholder(Placeholder):
-    def __init__(self, string: str, *params: Union[str, ServiceCallable[str]]) -> None:
+    def __init__(self, string: str, *params: str | ServiceCallable[str]) -> None:
         """String template with either service attributes names or functions as parameter
 
         :param string: Template string to format
@@ -69,7 +70,7 @@ class StrTemplatePlaceholder(Placeholder):
         self.string = string
         self.params = params
 
-    def get_param_value(self, service, param: Union[str, ServiceCallable[str]]):
+    def get_param_value(self, service, param: str | ServiceCallable[str]):
         if isinstance(param, str):
             return getattr(service, param)
         elif callable(param):

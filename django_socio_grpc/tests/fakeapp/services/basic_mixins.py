@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 from asgiref.sync import sync_to_async
 
 from django_socio_grpc.decorators import grpc_action
@@ -17,7 +15,7 @@ class ListIdsMixin(GRPCActionMixin):
 
 
 class ListNameMixin(GRPCActionMixin):
-    _list_name_response: List[Dict[str, str]]
+    _list_name_response: list[dict[str, str]]
 
     @grpc_action(request=[], response=AttrPlaceholder("_list_name_response"))
     async def ListName(self, request, context):

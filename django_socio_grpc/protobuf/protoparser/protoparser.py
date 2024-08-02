@@ -121,7 +121,7 @@ COMMENTS: COMMENT ( COMMENT )*
 
 class Comment(typing.NamedTuple):
     content: str
-    tags: typing.Dict[str, typing.Any]
+    tags: dict[str, typing.Any]
 
 
 class Field(typing.NamedTuple):
@@ -136,20 +136,20 @@ class Field(typing.NamedTuple):
 class Enum(typing.NamedTuple):
     comment: "Comment"
     name: str
-    fields: typing.Dict[str, "Field"]
+    fields: dict[str, "Field"]
 
 
 class Message(typing.NamedTuple):
     comment: "Comment"
     name: str
-    fields: typing.List["Field"]
-    messages: typing.Dict[str, "Message"]
-    enums: typing.Dict[str, "Enum"]
+    fields: list["Field"]
+    messages: dict[str, "Message"]
+    enums: dict[str, "Enum"]
 
 
 class Service(typing.NamedTuple):
     name: str
-    functions: typing.Dict[str, "RpcFunc"]
+    functions: dict[str, "RpcFunc"]
 
 
 class RpcFunc(typing.NamedTuple):
@@ -160,11 +160,11 @@ class RpcFunc(typing.NamedTuple):
 
 
 class ProtoFile(typing.NamedTuple):
-    messages: typing.Dict[str, "Message"]
-    enums: typing.Dict[str, "Enum"]
-    services: typing.Dict[str, "Service"]
-    imports: typing.List[str]
-    options: typing.Dict[str, str]
+    messages: dict[str, "Message"]
+    enums: dict[str, "Enum"]
+    services: dict[str, "Service"]
+    imports: list[str]
+    options: dict[str, str]
     package: str
 
 

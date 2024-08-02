@@ -143,7 +143,7 @@ def perform_import(val, setting_name):
         return None
     elif isinstance(val, str):
         return import_from_string(val, setting_name)
-    elif isinstance(val, (list, tuple)):
+    elif isinstance(val, list | tuple):
         return [import_from_string(item, setting_name) for item in val]
     return val
 

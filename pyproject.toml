@@ -56,7 +56,6 @@ exclude = [
   "*_pb2.py",
 ]
 line-length = 95
-target-version = "py38"
 
 [tool.ruff.lint]
 ignore = ["E501"]

@@ -6,7 +6,7 @@ https://www.django-rest-framework.org/api-guide/exceptions/#apiexception
 """
 
 import json
-from typing import Literal, Tuple
+from typing import Literal
 
 import grpc
 from django.conf import settings
@@ -107,7 +107,7 @@ class Unimplemented(GRPCException):
     default_code = "unimplemented"
 
 
-def get_exception_status_code_and_details(exc: Exception) -> Tuple[grpc.StatusCode, str]:
+def get_exception_status_code_and_details(exc: Exception) -> tuple[grpc.StatusCode, str]:
     """
     Get the gRPC status code and details from the exception.
     `rest_framework.exceptions.APIException` HTTP status codes are mapped to gRPC status codes.

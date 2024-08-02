@@ -1,18 +1,12 @@
 import abc
 import logging
-import sys
 import traceback
 from collections import OrderedDict
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from typing import (
-    Callable,
     ClassVar,
-    Dict,
-    List,
-    Optional,
-    Type,
     Union,
     get_args,
     get_origin,
@@ -85,7 +79,7 @@ class ProtoField:
     name: str
     field_type: Union[str, "ProtoMessage"]
     cardinality: FieldCardinality = FieldCardinality.NONE
-    comments: Optional[List[str]] = None
+    comments: list[str] | None = None
     index: int = 0
 
     @property
@@ -269,7 +263,7 @@ class ProtoField:
 
     @classmethod
     def _from_related_field(
-        cls, field: serializers.RelatedField, source_attrs: Optional[List[str]] = None
+        cls, field: serializers.RelatedField, source_attrs: list[str] | None = None
     ) -> "ProtoField":
         serializer: serializers.Serializer = field.root
 
@@ -322,12 +316,8 @@ class ProtoField:
     @classmethod
     def _extract_method_info(cls, method):
         cardinality = FieldCardinality.NONE
-        try:
-            return_type = get_type_hints(method).get("return")
-        except TypeError as e:
-            if sys.version_info < (3, 10):
-                raise FutureAnnotationError from e
-            raise
+
+        return_type = get_type_hints(method).get("return")
 
         if not return_type:
             raise NoReturnTypeError
@@ -428,12 +418,12 @@ class ProtoMessage:
     """
 
     name: str
-    fields: List["ProtoField"] = dataclass_field(default_factory=list)
-    comments: Optional[List[str]] = None
-    serializer: Optional[serializers.BaseSerializer] = None
-    imported_from: Optional[str] = None
+    fields: list["ProtoField"] = dataclass_field(default_factory=list)
+    comments: list[str] | None = None
+    serializer: serializers.BaseSerializer | None = None
+    imported_from: str | None = None
 
-    def get_all_messages(self) -> Dict[str, "ProtoMessage"]:
+    def get_all_messages(self) -> dict[str, "ProtoMessage"]:
         messages = {self.name: self}
         for field in self.fields:
             # Retrieve all messages from nested messages
@@ -441,7 +431,7 @@ class ProtoMessage:
                 messages.update(field.field_type.get_all_messages())
         return messages
 
-    def set_indices(self, indices: Dict[int, str]) -> None:
+    def set_indices(self, indices: dict[int, str]) -> None:
         """
         Set the field index that is writed in the proto file while trying to keep the same order that the one passed in the incides parameter
         :param indices: dictionnary mapping the field number with the field name that we want to keep order too. Usually it come from the lecture of the previous proto file before it is generated again
@@ -466,7 +456,7 @@ class ProtoMessage:
     @classmethod
     def create(
         cls,
-        value: Optional[Union[Type[serializers.BaseSerializer], List[FieldDict], str]],
+        value: type[serializers.BaseSerializer] | list[FieldDict] | str | None,
         name: str,
     ) -> Union["ProtoMessage", str]:
         if isinstance(value, type) and issubclass(value, serializers.BaseSerializer):
@@ -487,7 +477,7 @@ class ProtoMessage:
     @classmethod
     def from_field_dicts(
         cls,
-        fields: List[FieldDict],
+        fields: list[FieldDict],
         name: str,
     ) -> "ProtoMessage":
         if fields is None:
@@ -500,8 +490,8 @@ class ProtoMessage:
     @classmethod
     def from_serializer(
         cls,
-        serializer: Type[serializers.BaseSerializer],
-        name: Optional[str] = None,
+        serializer: type[serializers.BaseSerializer],
+        name: str | None = None,
     ) -> "ProtoMessage":
         meta = getattr(serializer, "Meta", None)
         pk_name = None
@@ -519,7 +509,7 @@ class ProtoMessage:
         # fields or to_proto_message
         if hasattr(serializer, "fields"):
             for field in serializer().fields.values():
-                field: Union[serializers.Field, serializers.BaseSerializer]
+                field: serializers.Field | serializers.BaseSerializer
 
                 ProtoGeneratorPrintHelper.set_field_name(field.field_name)
 
@@ -581,7 +571,7 @@ class ProtoMessage:
 
     @classmethod
     def skip_field(
-        cls, field: Union[serializers.Field, serializers.BaseSerializer], pk_name: str
+        cls, field: serializers.Field | serializers.BaseSerializer, pk_name: str
     ) -> bool:
         # INFO - AM - 21/01/2022 - HiddenField are not used in api so not showed in protobuf file
         return isinstance(field, HiddenField)
@@ -605,7 +595,7 @@ class RequestProtoMessage(ProtoMessage):
 
     @classmethod
     def skip_field(
-        cls, field: Union[serializers.Field, serializers.BaseSerializer], pk_name: str
+        cls, field: serializers.Field | serializers.BaseSerializer, pk_name: str
     ) -> bool:
         """
         Skip fields that are read_only on Request
@@ -622,7 +612,7 @@ class ResponseProtoMessage(ProtoMessage):
 
     @classmethod
     def skip_field(
-        cls, field: Union[serializers.Field, serializers.BaseSerializer], pk_name: str
+        cls, field: serializers.Field | serializers.BaseSerializer, pk_name: str
     ) -> bool:
         """
         Skip fields that are write_only on Response
@@ -658,8 +648,8 @@ class ProtoRpc:
     """
 
     name: str
-    request: Union[ProtoMessage, str]
-    response: Union[ProtoMessage, str]
+    request: ProtoMessage | str
+    response: ProtoMessage | str
     request_stream: bool = False
     response_stream: bool = False
 
@@ -671,7 +661,7 @@ class ProtoRpc:
     def response_name(self) -> str:
         return self.response.name if isinstance(self.response, ProtoMessage) else self.response
 
-    def get_all_messages(self) -> Dict[str, ProtoMessage]:
+    def get_all_messages(self) -> dict[str, ProtoMessage]:
         messages = {}
         if isinstance(self.request, ProtoMessage):
             messages.update(self.request.get_all_messages())
@@ -693,7 +683,7 @@ class ProtoService:
     """
 
     name: str
-    rpcs: List[ProtoRpc] = dataclass_field(default_factory=list)
+    rpcs: list[ProtoRpc] = dataclass_field(default_factory=list)
 
     def add_rpc(self, rpc: ProtoRpc):
         for existing_rpc in self.rpcs:
@@ -703,7 +693,7 @@ class ProtoService:
                 )
         self.rpcs.append(rpc)
 
-    def get_all_messages(self) -> Dict[str, ProtoMessage]:
+    def get_all_messages(self) -> dict[str, ProtoMessage]:
         messages = {}
         for rpc in self.rpcs:
             messages.update(rpc.get_all_messages())
@@ -711,7 +701,7 @@ class ProtoService:
 
 
 def get_proto_type(
-    field: Union[models.Field, serializers.Field],
+    field: models.Field | serializers.Field,
     default="string",
 ) -> str:
     """
@@ -794,7 +784,6 @@ TYPING_TO_PROTO_TYPES = {
     float: "float",
     dict: StructMessage,
     bytes: "bytes",
-    Dict: StructMessage,
 }
 
 
@@ -806,7 +795,7 @@ class ProtoFieldConvertible(abc.ABC):
     @abc.abstractmethod
     def to_proto_field(
         self,
-        proto_field_cls: Type[ProtoField],
+        proto_field_cls: type[ProtoField],
         **kwargs,
     ) -> ProtoField:
         raise NotImplementedError

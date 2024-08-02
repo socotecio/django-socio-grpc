@@ -3,7 +3,7 @@ import sys
 from dataclasses import dataclass, field
 from importlib import import_module, reload
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Type, Union
+from typing import TYPE_CHECKING, Any
 
 from django.apps.registry import apps
 from django.conf import settings
@@ -29,7 +29,7 @@ class AppHandlerRegistry:
     disable_proto_generation: bool = False
     override_pb2_grpc_file_path: str = None
     to_root_grpc: bool = False
-    proto_services: List[ProtoService] = field(default_factory=list, init=False)
+    proto_services: list[ProtoService] = field(default_factory=list, init=False)
 
     def __post_init__(self):
         if self.reload_services:
@@ -55,7 +55,7 @@ class AppHandlerRegistry:
 
     def get_service_class_from_service_name(
         self, service_name, service_file_path=None
-    ) -> Type["Service"]:
+    ) -> type["Service"]:
         logger.warning(
             "Using the service name to import the service is deprecated."
             "Please import your service manually and pass the class instead of the name"
@@ -91,14 +91,14 @@ class AppHandlerRegistry:
 
         return service_class
 
-    def get_all_messages(self) -> Dict[str, ProtoMessage]:
+    def get_all_messages(self) -> dict[str, ProtoMessage]:
         messages = {}
         for proto_service in self.proto_services:
             messages.update(proto_service.get_all_messages())
 
         return messages
 
-    def register(self, service_class: Union[str, Type["Service"]], service_file_path=None):
+    def register(self, service_class: str | type["Service"], service_file_path=None):
         """
         Register a service to the grpc server
 

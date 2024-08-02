@@ -1,3 +1,6 @@
+[project]
+requires-python = ">=3.10"
+
 [tool.poetry]
 name = "django-socio-grpc"
 version = "0.1.1"
@@ -9,8 +12,8 @@ license = "Apache-2.0"
 tests = "test_utils.load_tests:launch"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
-django = ">=2.2"
+python = ">=3.10,<4.0"
+django = ">=4.2"
 djangorestframework = "*"
 grpcio-tools = "^1.50.0"
 lark-parser = "^0.12.0"
@@ -42,6 +45,9 @@ sphinx-autodoc2 = "^0.5"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff.lint.isort]
+known-third-party = ["django"]
 
 [tool.ruff]
 exclude = [

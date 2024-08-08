@@ -84,9 +84,9 @@ DEFAULTS = {
     "ROOT_GRPC_FOLDER": "grpc_folder",
     # Default places where to search headers, pagination and filter data
     "MAP_METADATA_KEYS": {
-        "HEADERS": "HEADERS",
-        "PAGINATION": "PAGINATION",
-        "FILTERS": "FILTERS",
+        "headers": "headers",
+        "pagination": "pagination",
+        "filters": "filters",
     },
     # [DEPRECATED]. See https://django-socio-grpc.readthedocs.io/en/latest/how-to/add-extra-context-to-logging.html. Get extra data from service when using log middleware or processing exception in django-socio-grpc
     "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.default_get_log_extra_context",
@@ -113,6 +113,7 @@ DEFAULTS = {
     "DEFAULT_GENERATION_PLUGINS": [],
     # Enable the healthcheck service
     "ENABLE_HEALTH_CHECK": False,
+    "ENABLE_CACHE_WARNING_ON_DELETER": True,
 }
 
 
@@ -126,6 +127,8 @@ IMPORT_STRINGS = [
     "LOG_EXTRA_CONTEXT_FUNCTION",
     "DEFAULT_MESSAGE_NAME_CONSTRUCTOR",
 ]
+
+MERGE_DEFAULTS = ["MAP_METADATA_KEYS"]
 
 
 def perform_import(val, setting_name):
@@ -198,6 +201,10 @@ class GRPCSettings:
         # Coerce import strings into classes
         if attr in self.import_strings:
             val = perform_import(val, attr)
+
+        # Merge default values for some settings
+        if attr in MERGE_DEFAULTS:
+            val = {**self.defaults[attr], **val}
 
         # Cache the result
         self._cached_attrs.add(attr)

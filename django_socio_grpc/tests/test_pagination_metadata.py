@@ -52,8 +52,8 @@ class TestPaginationMetadata(TestCase):
     async def test_another_page_number_pagination(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = UnitTestModelListRequest()
-        pagination_as_dict = {"page_size": 6}
-        metadata = (("PAGINATION", (json.dumps(pagination_as_dict))),)
+        pagination_as_dict = {"page_size": "6"}
+        metadata = (("pagination", (json.dumps(pagination_as_dict))),)
         response = await grpc_stub.List(request=request, metadata=metadata)
 
         self.assertEqual(response.count, 10)

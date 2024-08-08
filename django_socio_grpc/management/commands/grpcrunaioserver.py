@@ -55,6 +55,8 @@ class Command(BaseCommand):
 
         # set GRPC_ASYNC to "true" in order to start server asynchronously
         grpc_settings.GRPC_ASYNC = True
+        # INFO - AM - 25/07/2025 - Make sure that the port in the settings is the correct one
+        grpc_settings.GRPC_CHANNEL_PORT = self.address.split(":")[-1]
 
         asyncio.run(self.run(**options))
 

@@ -91,7 +91,7 @@ class TestLegacyDjangoMiddleware(TestCase):
         # TEST accept language in header key -- simple
         french_accept_language = {"Accept-Language": "fr"}
 
-        metadata = (("HEADERS", (json.dumps(french_accept_language))),)
+        metadata = (("headers", (json.dumps(french_accept_language))),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )
@@ -101,7 +101,7 @@ class TestLegacyDjangoMiddleware(TestCase):
         # TEST accept language in header key -- complex
         french_accept_language = {"Accept-Language": "fr,en-US;q=0.9,en;q=0.8"}
 
-        metadata = (("HEADERS", (json.dumps(french_accept_language))),)
+        metadata = (("headers", (json.dumps(french_accept_language))),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )
@@ -109,15 +109,7 @@ class TestLegacyDjangoMiddleware(TestCase):
         self.assertEqual(response.text, "Test traduction français")
 
         # TEST accept language directly in metadata -- simple
-        metadata = (("Accept-Language", "fr"),)
-        response = await grpc_stub.FetchTranslatedKey(
-            request=empty_pb2.Empty(), metadata=metadata
-        )
-
-        self.assertEqual(response.text, "Test traduction français")
-
-        # TEST accept language directly in metadata in maj -- simple
-        metadata = (("ACCEPT-LANGUAGE", "fr"),)
+        metadata = (("accept-language", "fr"),)
         response = await grpc_stub.FetchTranslatedKey(
             request=empty_pb2.Empty(), metadata=metadata
         )

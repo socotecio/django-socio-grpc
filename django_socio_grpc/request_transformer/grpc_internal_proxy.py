@@ -173,7 +173,7 @@ class ResponseHeadersProxy(CaseInsensitiveMapping):
 
     grpc_context: ServicerContext | None
     http_response: InternalHttpResponse
-    # INFO - AM - 31/07/2024 - Only used when restoring form cache. Do not use it directly.
+    # INFO - AM - 31/07/2024 - Only used when restoring from cache. Do not use it directly.
     metadata: dict | None = None
 
     def __post_init__(self):

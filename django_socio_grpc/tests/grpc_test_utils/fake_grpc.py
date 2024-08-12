@@ -405,10 +405,6 @@ class FakeFullAioCall(FakeBaseCall):
         )
         return self
 
-    async def with_call(self, request=None, metadata=None):
-        response = await self.__call__(request, metadata)
-        return response, self
-
 
 class UnaryResponseMixin:
     def __await__(self):

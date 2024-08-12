@@ -323,10 +323,11 @@ class TestCacheService(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()
 
+        list_call = grpc_stub.List
         with freeze_time(datetime(2024, 7, 26, 14, 0, 0, tzinfo=timezone.utc)):
-            _, call = await grpc_stub.List.with_call(request=request)
+            await list_call(request=request)
 
-        metadata_to_dict = dict(call.trailing_metadata())
+        metadata_to_dict = dict(list_call.trailing_metadata())
 
         self.assertEqual(metadata_to_dict["expires"], "Fri, 26 Jul 2024 14:05:00 GMT")
         self.assertEqual(metadata_to_dict["cache-control"], "max-age=300")
@@ -341,19 +342,21 @@ class TestCacheService(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()
 
+        list_call = grpc_stub.List
         with freeze_time(datetime(2024, 7, 26, 14, 0, 0, tzinfo=timezone.utc)):
-            _, call = await grpc_stub.List.with_call(request=request)
+            await list_call(request=request)
 
-        metadata_before_cache = dict(call.trailing_metadata())
+        metadata_before_cache = dict(list_call.trailing_metadata())
 
         self.assertEqual(metadata_before_cache["expires"], "Fri, 26 Jul 2024 14:05:00 GMT")
         self.assertEqual(metadata_before_cache["cache-control"], "max-age=300")
         self.assertNotIn("age", metadata_before_cache)
 
+        list_call = grpc_stub.List
         with freeze_time(datetime(2024, 7, 26, 14, 2, 0, tzinfo=timezone.utc)):
-            _, call_with_age = await grpc_stub.List.with_call(request=request)
+            await list_call(request=request)
 
-        metadata_to_dict = dict(call_with_age.trailing_metadata())
+        metadata_to_dict = dict(list_call.trailing_metadata())
 
         self.assertEqual(metadata_to_dict["expires"], "Fri, 26 Jul 2024 14:05:00 GMT")
         self.assertEqual(metadata_to_dict["cache-control"], "max-age=300")
@@ -454,9 +457,10 @@ class TestCacheService(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()
 
-        response, call = await grpc_stub.List.with_call(request=request)
+        list_call = grpc_stub.List
+        await list_call(request=request)
 
-        metadata_to_dict = dict(call.trailing_metadata())
+        metadata_to_dict = dict(list_call.trailing_metadata())
 
         self.assertEqual(metadata_to_dict["vary"], "CUSTOM_HEADER")
 

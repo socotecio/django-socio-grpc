@@ -25,6 +25,7 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.utils.utils import isgeneratorfunction
 
 from .grpc_actions.actions import GRPCAction
 
@@ -113,7 +114,7 @@ def http_to_grpc(
     support_async: bool = False,
 ) -> Callable:
     """
-    Allow to use Django decorator on grpc endpoint.
+    Allow to use Django decorators on grpc endpoint.
     As the working behavior will depend on the grpc support and/or DSG support of the feature it may not work as expected.
     If it's not working as expected, first look at the documentation if the decorators is not listed as one of the unsupported decorator.
     If not, please open an issue and we will look if possible to support it.
@@ -125,6 +126,12 @@ def http_to_grpc(
     """
 
     def decorator(func: Callable, *args, **kwargs) -> Callable:
+        if isgeneratorfunction(func):
+            logger.warning(
+                "You are using http_to_grpc decorator or an other decorator that use http_to_grpc on a gRPC stream endpoint. This is not supported and will not work as expected. If you meet a specific use case that you think is still relevant on a stream endpoint, please open an issue."
+            )
+            return func
+
         if asyncio.iscoroutinefunction(func):
 
             async def _simulate_function(
@@ -210,6 +217,9 @@ def http_to_grpc(
                 response_proxy = decorator_to_wrap(_simulate_function)(
                     service_instance, request, context
                 )
+                # INFO - AM - 30/07/2024 - Remember to put the grpc context in case the response come from cache
+                if not response_proxy.grpc_context:
+                    response_proxy.set_current_context(context.grpc_context)
                 return response_proxy.grpc_response
 
         return _view_wrapper
@@ -219,7 +229,7 @@ def http_to_grpc(
 
 def vary_on_metadata(*headers) -> Callable:
     """
-    Same as https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/views/decorators/vary.py#L8
+    Same as https://docs.djangoproject.com/fr/5.0/topics/http/decorators/#django.views.decorators.vary.vary_on_headers
     but need to wrap the response in a GRPCInternalProxyResponse.
     A view decorator that adds the specified metadatas to the Vary metadata of the
     response. Usage:

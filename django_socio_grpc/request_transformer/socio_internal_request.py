@@ -64,8 +64,8 @@ class InternalHttpRequest(HttpRequest):
         self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
         )
-        self.meta_from_metadata = self.get_from_metadata(self.HEADERS_KEY)
-        self.META = RequestMeta(self.meta_from_metadata.items())
+        meta_from_metadata = self.get_from_metadata(self.HEADERS_KEY)
+        self.META = RequestMeta(meta_from_metadata.items())
 
         # INFO - A.D.B - 04/01/2021 - Not implemented for now
         self.POST = {}
@@ -89,7 +89,7 @@ class InternalHttpRequest(HttpRequest):
         # See https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/http/request.py#L113
         # And https://github.com/django/django/blob/0e94f292cda632153f2b3d9a9037eb0141ae9c2e/django/core/handlers/asgi.py#L80
         if "SERVER_NAME" not in self.META:
-            self.META["SERVER_NAME"] = "unkown"
+            self.META["SERVER_NAME"] = "unknown"
         if "SERVER_PORT" not in self.META:
             self.META["SERVER_PORT"] = grpc_settings.GRPC_CHANNEL_PORT
 
@@ -112,7 +112,7 @@ class InternalHttpRequest(HttpRequest):
         add_http_to_metadata = {f"HTTP_{key}": value for key, value in self.META.items()}
         return HttpHeaders(add_http_to_metadata)
 
-    def get_from_metadata(self, metadata_key: str) -> dict:
+    def get_from_metadata(self, metadata_key: str) -> dict[str, str | bytes]:
         """
         Allow to:
         - Customise the metadata key used for pagination, filter and headers
@@ -127,7 +127,7 @@ class InternalHttpRequest(HttpRequest):
             **json.loads(user_custom_headers),
         }
 
-    def parse_specific_key_from_metadata(self, metadata_key: str) -> dict:
+    def parse_specific_key_from_metadata(self, metadata_key: str) -> dict[str, str | bytes]:
         """
         Allow to Customise the metadata key used for pagination, filter and headers
         """
@@ -143,13 +143,13 @@ class InternalHttpRequest(HttpRequest):
 
         return {}
 
-    def convert_metadata_to_dict(self, invocation_metadata: tuple) -> dict:
+    def convert_metadata_to_dict(self, invocation_metadata: tuple) -> dict[str, str | bytes]:
         grpc_request_metadata = {}
         for key, value in dict(invocation_metadata).items():
             grpc_request_metadata[key.lower()] = value
         return grpc_request_metadata
 
-    def get_query_params(self, grpc_request: Message) -> dict:
+    def get_query_params(self, grpc_request: Message) -> dict[str, str]:
         """
         Method that transform specific metadata and/or request fields (depending on FILTER_BEHAVIOR and PAGINATION_BEHAVIOR settings)
         into a dict as if it was some query params passed in simple HTTP/1 calls

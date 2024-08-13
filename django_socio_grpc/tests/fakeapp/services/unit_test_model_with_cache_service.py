@@ -107,9 +107,7 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
     )
     @cache_endpoint_with_deleter(
         300,
-        key_prefix="UnitTestModelWithCacheServiceWithCacheDeleter",
         cache="second",
-        senders=(UnitTestModel,),
     )
     async def ListWithAutoCacheCleanOnSaveAndDelete(self, request, context):
         """

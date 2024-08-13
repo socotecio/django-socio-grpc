@@ -25,6 +25,7 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.signals import grpc_action_set
 from django_socio_grpc.utils.utils import isgeneratorfunction
 
 from .grpc_actions.actions import GRPCAction
@@ -125,7 +126,7 @@ def http_to_grpc(
     :param support_async: If the decorator to wrap is async or not. If not, it will be wrapped in a sync function. Refer to https://docs.djangoproject.com/en/5.0/topics/async/#decorators
     """
 
-    def decorator(func: Callable, *args, **kwargs) -> Callable:
+    def decorator(func: GRPCAction, *args, **kwargs) -> Callable:
         if isgeneratorfunction(func):
             raise ValueError(
                 "You are using http_to_grpc decorator or an other decorator that use http_to_grpc on a gRPC stream endpoint. This is not supported and will not work as expected. If you meet a specific use case that you think is still relevant on a stream endpoint, please open an issue."
@@ -262,8 +263,8 @@ def cache_endpoint(*args, **kwargs):
 
 def cache_endpoint_with_deleter(
     timeout: int,
-    key_prefix: str,
-    senders: Iterable[Model],
+    key_prefix: str = "",
+    senders: Iterable[Model] | None = None,
     cache: str = None,
     invalidator_signals: Iterable[Callable] = None,
 ):
@@ -271,6 +272,7 @@ def cache_endpoint_with_deleter(
     This decorator do all the same as cache_endpoint but with the addition of a cache deleter.
     The cache deleter will delete the cache when a signal is triggered.
     This is useful when you want to delete the cache when a model is updated or deleted.
+    Be warn that this can add little overhead at server start as it will listen to signals.
 
     :param timeout: The timeout of the cache
     :param key_prefix: The key prefix of the cache
@@ -278,10 +280,6 @@ def cache_endpoint_with_deleter(
     :param senders: The senders to listen to the signal
     :param invalidator_signals: The django signals to listen to delete the cache
     """
-    if not key_prefix:
-        logger.warning(
-            "You are using cache_endpoint_with_deleter without key_prefix. It's highly recommended to use it named as your service to avoid deleting all the cache without prefix when data is updated in back."
-        )
     if (
         cache is None
         and not hasattr(default_cache, "delete_pattern")
@@ -294,36 +292,50 @@ def cache_endpoint_with_deleter(
             "Please use a specific cache config per service or use redis cache engine to avoid this behavior."
             "If this is the expected behavior, you can disable this warning by setting ENABLE_CACHE_WARNING_ON_DELETER to False in your grpc settings."
         )
-    if invalidator_signals is None:
-        invalidator_signals = (post_save, post_delete)
-    if senders is not None:
-        if not isinstance(senders, Iterable):
-            senders = [senders]
 
-        @receiver(invalidator_signals, weak=False)
-        def invalidate_cache(*args, **kwargs):
-            if kwargs.get("sender") in senders:
-                # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
-                cache_instance = caches[cache] if cache else default_cache
-                # INFO - AM - 01/08/2024 - For now this is only for Redis cache but this is important to support as it simplify the cache architecture to create if used
-                if hasattr(cache, "delete_pattern"):
-                    cache_instance.delete_pattern(
-                        f"views.decorators.cache.cache_header.{key_prefix}.*"
-                    )
-                    cache_instance.delete_pattern(
-                        f"views.decorators.cache.cache_page.{key_prefix}.*"
-                    )
-                else:
-                    cache_instance.clear()
-    else:
-        logger.warning(
-            "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
-        )
+    def decorator(func: Callable, *args, **kwargs):
+        @receiver(grpc_action_set, weak=False)
+        def register_invalidate_cache_signal(sender, owner, name, **kwargs):
+            if f"{owner.__name__}.{name}" != func.__qualname__:
+                return
+            nonlocal key_prefix, senders, invalidator_signals
+            if not key_prefix:
+                key_prefix = f"{owner.__name__}-{name}"
+            if invalidator_signals is None:
+                invalidator_signals = (post_save, post_delete)
+            if senders is None and hasattr(owner, "queryset"):
+                senders = owner.queryset.model
 
-    return http_to_grpc(
-        method_decorator(
-            cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
-        ),
-        request_setter={"method": "GET"},
-        support_async=False,
-    )
+            if senders is not None:
+                if not isinstance(senders, Iterable):
+                    senders = [senders]
+
+                @receiver(invalidator_signals, weak=False)
+                def invalidate_cache(*args, **kwargs):
+                    if kwargs.get("sender") in senders:
+                        # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
+                        cache_instance = caches[cache] if cache else default_cache
+                        # INFO - AM - 01/08/2024 - For now this is only for Redis cache but this is important to support as it simplify the cache architecture to create if used
+                        if hasattr(cache, "delete_pattern"):
+                            cache_instance.delete_pattern(
+                                f"views.decorators.cache.cache_header.{key_prefix}.*"
+                            )
+                            cache_instance.delete_pattern(
+                                f"views.decorators.cache.cache_page.{key_prefix}.*"
+                            )
+                        else:
+                            cache_instance.clear()
+            else:
+                logger.warning(
+                    "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
+                )
+
+        return http_to_grpc(
+            method_decorator(
+                cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
+            ),
+            request_setter={"method": "GET"},
+            support_async=False,
+        )(func)
+
+    return decorator

@@ -14,7 +14,7 @@ from django.dispatch import receiver
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
-from grpc.aio._typing import RequestType, ResponseType
+from google.protobuf.message import Message
 
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
@@ -127,10 +127,9 @@ def http_to_grpc(
 
     def decorator(func: Callable, *args, **kwargs) -> Callable:
         if isgeneratorfunction(func):
-            logger.warning(
+            raise ValueError(
                 "You are using http_to_grpc decorator or an other decorator that use http_to_grpc on a gRPC stream endpoint. This is not supported and will not work as expected. If you meet a specific use case that you think is still relevant on a stream endpoint, please open an issue."
             )
-            return func
 
         if asyncio.iscoroutinefunction(func):
 
@@ -157,9 +156,9 @@ def http_to_grpc(
             @functools.wraps(func)
             async def _view_wrapper(
                 service_instance: "Service",
-                request: RequestType,
+                request: Message,
                 context: "GRPCInternalProxyContext",
-            ) -> ResponseType:
+            ) -> Message:
                 # INFO - AM - 01/08/2024 - This allow developer to customize some request behavior. For exemple all grpc request are POST but the cache behavior need GET request so we transform that here.
                 if request_setter:
                     for key, value in request_setter.items():
@@ -206,9 +205,9 @@ def http_to_grpc(
             @functools.wraps(func)
             def _view_wrapper(
                 service_instance: "Service",
-                request: RequestType,
+                request: Message,
                 context: "GRPCInternalProxyContext",
-            ) -> ResponseType:
+            ) -> Message:
                 # INFO - AM - 01/08/2024 - This allow developer to customize some request behavior. For exemple all grpc request are POST but the cache behavior need GET request so we transform that here.
                 if request_setter:
                     for key, value in request_setter.items():

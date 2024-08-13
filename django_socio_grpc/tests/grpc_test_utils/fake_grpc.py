@@ -93,10 +93,8 @@ class _BaseFakeContext:
                 raise ValueError("Metadata keys must be lower case <invocation_metadata>", k)
             if not isinstance(value, str) and not isinstance(value, bytes):
                 raise ValueError(
-                    "Metadata values must be str or bytes <invocation_metadata>",
-                    k,
+                    f"Metadata values must be str or bytes <invocation_metadata>. Exception for key {k}.",
                     value,
-                    type(value),
                 )
 
     def set_invocation_metadata(self, metadata):

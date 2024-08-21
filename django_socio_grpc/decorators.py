@@ -1,6 +1,7 @@
 import asyncio
 import functools
 import logging
+import inspect
 from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING
 
@@ -126,13 +127,15 @@ def http_to_grpc(
     :param support_async: If the decorator to wrap is async or not. If not, it will be wrapped in a sync function. Refer to https://docs.djangoproject.com/en/5.0/topics/async/#decorators
     """
 
-    def decorator(func: GRPCAction, *args, **kwargs) -> Callable:
-        if isgeneratorfunction(func):
+    def decorator(func: GRPCAction | Callable, *args, **kwargs) -> Callable:
+        # INFO - AM - 21/08/2024 - Depending of the decorator order we may have a GRPCAction or a function so we need to get the actual function
+        grpc_action_method = func.function if isinstance(func, GRPCAction) else func
+        if isgeneratorfunction(grpc_action_method):
             raise ValueError(
                 "You are using http_to_grpc decorator or an other decorator that use http_to_grpc on a gRPC stream endpoint. This is not supported and will not work as expected. If you meet a specific use case that you think is still relevant on a stream endpoint, please open an issue."
             )
 
-        if asyncio.iscoroutinefunction(func):
+        if asyncio.iscoroutinefunction(grpc_action_method):
 
             async def _simulate_function(
                 service_instance: "Service", context: "GRPCInternalProxyContext"
@@ -154,7 +157,7 @@ def http_to_grpc(
                         setattr(response_proxy, key, value)
                 return response_proxy
 
-            @functools.wraps(func)
+            @functools.wraps(grpc_action_method)
             async def _view_wrapper(
                 service_instance: "Service",
                 request: Message,
@@ -203,7 +206,7 @@ def http_to_grpc(
                         setattr(response_proxy, key, value)
                 return response_proxy
 
-            @functools.wraps(func)
+            @functools.wraps(grpc_action_method)
             def _view_wrapper(
                 service_instance: "Service",
                 request: Message,
@@ -222,7 +225,12 @@ def http_to_grpc(
                     response_proxy.set_current_context(context.grpc_context)
                 return response_proxy.grpc_response
 
-        return _view_wrapper
+        # INFO - AM - 21/08/2024 - If the http_to_grpc is called on top of the grpc decorator we need to return a  copy of GRPCAction to let DSG working normally as it expect a GRPCAction
+        return (
+            func.clone(function=_view_wrapper)
+            if isinstance(func, GRPCAction)
+            else _view_wrapper
+        )
 
     return decorator
 
@@ -294,9 +302,17 @@ def cache_endpoint_with_deleter(
         )
 
     def decorator(func: Callable, *args, **kwargs):
+        # INFO - AM - 21/08/2024 - We connect to the grpc action set signal to have access to the owner of the function and the name of the function as we used a decorated with parameter we don't have access to the service class to get default senders and model to use
         @receiver(grpc_action_set, weak=False)
         def register_invalidate_cache_signal(sender, owner, name, **kwargs):
-            if f"{owner.__name__}.{name}" != func.__qualname__:
+            # INFO - AM - 21/08/2024 - The decorator can be put before or after the grpc_action decorator so we need to check if the function is a grpc action or not
+            func_qual_name = (
+                func.function.__qualname__
+                if isinstance(func, GRPCAction)
+                else func.__qualname__
+            )
+            # INFO - AM - 21/08/2024 - We use the qualname to be sure to have the right function. We could have use the sender be this would mean having the owner and the name saved in the instance of the grpc action
+            if f"{owner.__name__}.{name}" != func_qual_name:
                 return
             nonlocal key_prefix, senders, invalidator_signals
             if not key_prefix:
@@ -310,6 +326,7 @@ def cache_endpoint_with_deleter(
                 if not isinstance(senders, Iterable):
                     senders = [senders]
 
+                # INFO - AM - 21/08/2024 - Once we have all the value we need we can connect the Model signals to the cache deleter
                 @receiver(invalidator_signals, weak=False)
                 def invalidate_cache(*args, **kwargs):
                     if kwargs.get("sender") in senders:

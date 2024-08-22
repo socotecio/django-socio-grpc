@@ -1,7 +1,6 @@
 import asyncio
 import functools
 import logging
-import inspect
 from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING
 
@@ -314,6 +313,8 @@ def cache_endpoint_with_deleter(
             # INFO - AM - 21/08/2024 - We use the qualname to be sure to have the right function. We could have use the sender be this would mean having the owner and the name saved in the instance of the grpc action
             if f"{owner.__name__}.{name}" != func_qual_name:
                 return
+
+            # INFO - AM - 22/08/2024 - Set the default value for key_prefix, senders, invalidator_signals is not set
             nonlocal key_prefix, senders, invalidator_signals
             if not key_prefix:
                 key_prefix = f"{owner.__name__}-{name}"
@@ -322,6 +323,7 @@ def cache_endpoint_with_deleter(
             if senders is None and hasattr(owner, "queryset"):
                 senders = owner.queryset.model
 
+            # INFO - AM - 22/08/2024 - If no sender are specified and the service do not have a queryset we can't use the cache deleter. There is a warning displayed to the user
             if senders is not None:
                 if not isinstance(senders, Iterable):
                     senders = [senders]
@@ -347,6 +349,7 @@ def cache_endpoint_with_deleter(
                     "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
                 )
 
+        # INFO - AM - 22/08/2024 - http_to_grpc is a decorator but as it is returned from a decorator (to be able to access func) we need to call it directly to have the actual decorator
         return http_to_grpc(
             method_decorator(
                 cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"

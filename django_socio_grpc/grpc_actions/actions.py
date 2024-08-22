@@ -124,6 +124,7 @@ class GRPCAction:
             if "_decorated_grpc_action_registry" not in owner.__dict__:
                 owner._decorated_grpc_action_registry = {}
             owner._decorated_grpc_action_registry.update({name: self.get_action_params()})
+        # INFO - AM - 22/08/2024 - Send a signal to notify that a grpc action has been created. Used for now in cache deleter
         grpc_action_set.send(sender=self, owner=owner, name=name)
 
     def __hash__(self):

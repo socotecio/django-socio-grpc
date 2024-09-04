@@ -14,7 +14,7 @@ from django.dispatch import receiver
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers
-from grpc.aio._typing import RequestType, ResponseType
+from google.protobuf.message import Message
 
 from django_socio_grpc.protobuf.generation_plugin import (
     BaseGenerationPlugin,
@@ -25,6 +25,7 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.signals import grpc_action_set
 from django_socio_grpc.utils.utils import isgeneratorfunction
 
 from .grpc_actions.actions import GRPCAction
@@ -125,14 +126,15 @@ def http_to_grpc(
     :param support_async: If the decorator to wrap is async or not. If not, it will be wrapped in a sync function. Refer to https://docs.djangoproject.com/en/5.0/topics/async/#decorators
     """
 
-    def decorator(func: Callable, *args, **kwargs) -> Callable:
-        if isgeneratorfunction(func):
-            logger.warning(
+    def decorator(func: GRPCAction | Callable, *args, **kwargs) -> Callable:
+        # INFO - AM - 21/08/2024 - Depending of the decorator order we may have a GRPCAction or a function so we need to get the actual function
+        grpc_action_method = func.function if isinstance(func, GRPCAction) else func
+        if isgeneratorfunction(grpc_action_method):
+            raise ValueError(
                 "You are using http_to_grpc decorator or an other decorator that use http_to_grpc on a gRPC stream endpoint. This is not supported and will not work as expected. If you meet a specific use case that you think is still relevant on a stream endpoint, please open an issue."
             )
-            return func
 
-        if asyncio.iscoroutinefunction(func):
+        if asyncio.iscoroutinefunction(grpc_action_method):
 
             async def _simulate_function(
                 service_instance: "Service", context: "GRPCInternalProxyContext"
@@ -154,12 +156,12 @@ def http_to_grpc(
                         setattr(response_proxy, key, value)
                 return response_proxy
 
-            @functools.wraps(func)
+            @functools.wraps(grpc_action_method)
             async def _view_wrapper(
                 service_instance: "Service",
-                request: RequestType,
+                request: Message,
                 context: "GRPCInternalProxyContext",
-            ) -> ResponseType:
+            ) -> Message:
                 # INFO - AM - 01/08/2024 - This allow developer to customize some request behavior. For exemple all grpc request are POST but the cache behavior need GET request so we transform that here.
                 if request_setter:
                     for key, value in request_setter.items():
@@ -203,12 +205,12 @@ def http_to_grpc(
                         setattr(response_proxy, key, value)
                 return response_proxy
 
-            @functools.wraps(func)
+            @functools.wraps(grpc_action_method)
             def _view_wrapper(
                 service_instance: "Service",
-                request: RequestType,
+                request: Message,
                 context: "GRPCInternalProxyContext",
-            ) -> ResponseType:
+            ) -> Message:
                 # INFO - AM - 01/08/2024 - This allow developer to customize some request behavior. For exemple all grpc request are POST but the cache behavior need GET request so we transform that here.
                 if request_setter:
                     for key, value in request_setter.items():
@@ -222,7 +224,12 @@ def http_to_grpc(
                     response_proxy.set_current_context(context.grpc_context)
                 return response_proxy.grpc_response
 
-        return _view_wrapper
+        # INFO - AM - 21/08/2024 - If the http_to_grpc is called on top of the grpc decorator we need to return a  copy of GRPCAction to let DSG working normally as it expect a GRPCAction
+        return (
+            func.clone(function=_view_wrapper)
+            if isinstance(func, GRPCAction)
+            else _view_wrapper
+        )
 
     return decorator
 
@@ -263,8 +270,8 @@ def cache_endpoint(*args, **kwargs):
 
 def cache_endpoint_with_deleter(
     timeout: int,
-    key_prefix: str,
-    senders: Iterable[Model],
+    key_prefix: str = "",
+    senders: Iterable[Model] | None = None,
     cache: str = None,
     invalidator_signals: Iterable[Callable] = None,
 ):
@@ -272,6 +279,7 @@ def cache_endpoint_with_deleter(
     This decorator do all the same as cache_endpoint but with the addition of a cache deleter.
     The cache deleter will delete the cache when a signal is triggered.
     This is useful when you want to delete the cache when a model is updated or deleted.
+    Be warn that this can add little overhead at server start as it will listen to signals.
 
     :param timeout: The timeout of the cache
     :param key_prefix: The key prefix of the cache
@@ -279,10 +287,6 @@ def cache_endpoint_with_deleter(
     :param senders: The senders to listen to the signal
     :param invalidator_signals: The django signals to listen to delete the cache
     """
-    if not key_prefix:
-        logger.warning(
-            "You are using cache_endpoint_with_deleter without key_prefix. It's highly recommended to use it named as your service to avoid deleting all the cache without prefix when data is updated in back."
-        )
     if (
         cache is None
         and not hasattr(default_cache, "delete_pattern")
@@ -295,36 +299,63 @@ def cache_endpoint_with_deleter(
             "Please use a specific cache config per service or use redis cache engine to avoid this behavior."
             "If this is the expected behavior, you can disable this warning by setting ENABLE_CACHE_WARNING_ON_DELETER to False in your grpc settings."
         )
-    if invalidator_signals is None:
-        invalidator_signals = (post_save, post_delete)
-    if senders is not None:
-        if not isinstance(senders, Iterable):
-            senders = [senders]
 
-        @receiver(invalidator_signals, weak=False)
-        def invalidate_cache(*args, **kwargs):
-            if kwargs.get("sender") in senders:
-                # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
-                cache_instance = caches[cache] if cache else default_cache
-                # INFO - AM - 01/08/2024 - For now this is only for Redis cache but this is important to support as it simplify the cache architecture to create if used
-                if hasattr(cache, "delete_pattern"):
-                    cache_instance.delete_pattern(
-                        f"views.decorators.cache.cache_header.{key_prefix}.*"
-                    )
-                    cache_instance.delete_pattern(
-                        f"views.decorators.cache.cache_page.{key_prefix}.*"
-                    )
-                else:
-                    cache_instance.clear()
-    else:
-        logger.warning(
-            "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
-        )
+    def decorator(func: Callable, *args, **kwargs):
+        # INFO - AM - 21/08/2024 - We connect to the grpc action set signal to have access to the owner of the function and the name of the function as we used a decorated with parameter we don't have access to the service class to get default senders and model to use
+        @receiver(grpc_action_set, weak=False)
+        def register_invalidate_cache_signal(sender, owner, name, **kwargs):
+            # INFO - AM - 21/08/2024 - The decorator can be put before or after the grpc_action decorator so we need to check if the function is a grpc action or not
+            func_qual_name = (
+                func.function.__qualname__
+                if isinstance(func, GRPCAction)
+                else func.__qualname__
+            )
+            # INFO - AM - 21/08/2024 - We use the qualname to be sure to have the right function. We could have use the sender be this would mean having the owner and the name saved in the instance of the grpc action
+            if f"{owner.__name__}.{name}" != func_qual_name:
+                return
 
-    return http_to_grpc(
-        method_decorator(
-            cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
-        ),
-        request_setter={"method": "GET"},
-        support_async=False,
-    )
+            # INFO - AM - 22/08/2024 - Set the default value for key_prefix, senders, invalidator_signals is not set
+            nonlocal key_prefix, senders, invalidator_signals
+            if not key_prefix:
+                key_prefix = f"{owner.__name__}-{name}"
+            if invalidator_signals is None:
+                invalidator_signals = (post_save, post_delete)
+            if senders is None and hasattr(owner, "queryset"):
+                senders = owner.queryset.model
+
+            # INFO - AM - 22/08/2024 - If no sender are specified and the service do not have a queryset we can't use the cache deleter. There is a warning displayed to the user
+            if senders is not None:
+                if not isinstance(senders, Iterable):
+                    senders = [senders]
+
+                # INFO - AM - 21/08/2024 - Once we have all the value we need we can connect the Model signals to the cache deleter
+                @receiver(invalidator_signals, weak=False)
+                def invalidate_cache(*args, **kwargs):
+                    if kwargs.get("sender") in senders:
+                        # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
+                        cache_instance = caches[cache] if cache else default_cache
+                        # INFO - AM - 01/08/2024 - For now this is only for Redis cache but this is important to support as it simplify the cache architecture to create if used
+                        if hasattr(cache, "delete_pattern"):
+                            cache_instance.delete_pattern(
+                                f"views.decorators.cache.cache_header.{key_prefix}.*"
+                            )
+                            cache_instance.delete_pattern(
+                                f"views.decorators.cache.cache_page.{key_prefix}.*"
+                            )
+                        else:
+                            cache_instance.clear()
+            else:
+                logger.warning(
+                    "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
+                )
+
+        # INFO - AM - 22/08/2024 - http_to_grpc is a decorator but as it is returned from a decorator (to be able to access func) we need to call it directly to have the actual decorator
+        return http_to_grpc(
+            method_decorator(
+                cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
+            ),
+            request_setter={"method": "GET"},
+            support_async=False,
+        )(func)
+
+    return decorator

@@ -98,18 +98,16 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
         self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)
 
+    @cache_endpoint_with_deleter(
+        300,
+        cache="second",
+    )
     @grpc_action(
         request=[],
         response=UnitTestModelWithCacheSerializer,
         use_generation_plugins=[
             ListGenerationPlugin(response=True),
         ],
-    )
-    @cache_endpoint_with_deleter(
-        300,
-        key_prefix="UnitTestModelWithCacheServiceWithCacheDeleter",
-        cache="second",
-        senders=(UnitTestModel,),
     )
     async def ListWithAutoCacheCleanOnSaveAndDelete(self, request, context):
         """

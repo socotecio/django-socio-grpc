@@ -62,6 +62,7 @@ from django_socio_grpc.protobuf.proto_classes import (
 )
 from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.signals import grpc_action_set
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 from django_socio_grpc.utils.utils import _is_generator, isgeneratorfunction
 
@@ -123,6 +124,11 @@ class GRPCAction:
             if "_decorated_grpc_action_registry" not in owner.__dict__:
                 owner._decorated_grpc_action_registry = {}
             owner._decorated_grpc_action_registry.update({name: self.get_action_params()})
+        # INFO - AM - 22/08/2024 - Send a signal to notify that a grpc action has been created. Used for now in cache deleter
+        grpc_action_set.send(sender=self, owner=owner, name=name)
+
+    def __hash__(self):
+        return hash(self.function)
 
     def __get__(self, obj, type=None):
         return self.clone(function=self.function.__get__(obj, type))

@@ -60,7 +60,7 @@ Example:
 cache_endpoint_with_deleter
 ---------------------------
 
-The :func:`cache_endpoint_with_deleter <django_socio_grpc.decorators.cache_endpoint_with_deleter>` decorator work the same :ref:`cache_endpoint <cache-endpoint>` but allow to automatically delete the cache when a django signals is called from the models passed in parameters.
+The :func:`cache_endpoint_with_deleter <django_socio_grpc.decorators.cache_endpoint_with_deleter>` decorator work the same :ref:`cache_endpoint <cache-endpoint>` but allow to automatically delete the cache when a django signals is called from the models passed in parameters or the one used for the queryset if not specified.
 
 As DSG is an API framework it's logic to add utils to invalidate cache if data is created, updated or deleted.
 
@@ -115,9 +115,10 @@ Example:
         )
         @cache_endpoint_with_deleter(
             300,
-            key_prefix="UnitTestModel",
-            cache="UnitTestModelCache",
-            senders=(UnitTestModel,),
+            cache="UnitTestModelCache", # Cache is not mandatory. But it is for working as expecting is using any other cache system than redis.
+            # key_prefix="UnitTestModel-List", # You can specify a key prefix if needed. It will allow you to use a specific pattern for cache action. Default is <ServiceName>-<ActionName>
+            # senders=(UnitTestModel,), # You can specify a list of models to listen to. Default is the queryset model.
+            # signals=(signals.post_save, signals.post_delete), # You can specify a list of signals to listen to. Default is (signals.post_save, signals.post_delete)
         )
         async def List(self, request, context):
             return await super().List(request, context)

@@ -6,7 +6,6 @@ from django.utils.datastructures import (
 )
 from google.protobuf.message import Message
 from grpc.aio import ServicerContext
-from grpc.aio._typing import ResponseType
 
 from .socio_internal_request import InternalHttpRequest
 from .socio_internal_response import InternalHttpResponse
@@ -45,7 +44,7 @@ class GRPCInternalProxyResponse:
     Need to be improved if some specific behavior needed, for example injecting some data in the reponse metadata.
     """
 
-    grpc_response: ResponseType
+    grpc_response: Message
     # INFO - AM - 25/07/2024 - grpc context is used to pass response header to client
     grpc_context: ServicerContext
     # INFO - AM - 01/08/2024 - http_response is created in post_init signals. Don't need to pass it in the constructor if defautl behavior wanted.

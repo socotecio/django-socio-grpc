@@ -5,6 +5,9 @@ import sys
 
 import django
 from django.conf import settings
+from unittest import mock
+
+from django.core.cache.backends.locmem import LocMemCache
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 FAKE_APP_DIR = os.path.join(BASE_DIR, "django_socio_grpc", "tests")
@@ -13,6 +16,11 @@ sys.path.append(BASE_DIR)
 sys.path.append(FAKE_APP_DIR)
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "myproject.settings"
+
+
+class FakeRedisCache(LocMemCache):
+    set = mock.MagicMock()
+    delete_pattern = mock.MagicMock()
 
 
 def boot_django():
@@ -52,6 +60,10 @@ def boot_django():
             "second": {
                 "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
                 "LOCATION": "second",
+            },
+            "fake_redis": {
+                "BACKEND": "test_utils.boot_django.FakeRedisCache",
+                "LOCATION": "redis",
             },
         },
         TIME_ZONE="UTC",

@@ -331,18 +331,20 @@ def cache_endpoint_with_deleter(
                 # INFO - AM - 21/08/2024 - Once we have all the value we need we can connect the Model signals to the cache deleter
                 @receiver(invalidator_signals, weak=False)
                 def invalidate_cache(*args, **kwargs):
+                    print("cicicicici\n" * 10, args, kwargs)
                     if kwargs.get("sender") in senders:
                         # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
                         cache_instance = caches[cache] if cache else default_cache
                         # INFO - AM - 01/08/2024 - For now this is only for Redis cache but this is important to support as it simplify the cache architecture to create if used
-                        if hasattr(cache, "delete_pattern"):
+                        # Has cache_instance is a django.utils.connection.ConnectionProxy, hasattr will not work so we need to use try except
+                        try:
                             cache_instance.delete_pattern(
                                 f"views.decorators.cache.cache_header.{key_prefix}.*"
                             )
                             cache_instance.delete_pattern(
                                 f"views.decorators.cache.cache_page.{key_prefix}.*"
                             )
-                        else:
+                        except AttributeError:
                             cache_instance.clear()
             else:
                 logger.warning(

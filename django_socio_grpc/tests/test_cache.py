@@ -491,3 +491,57 @@ class TestCacheService(TestCase):
         self.assertEqual(response.results[0].title, "a")
 
         self.assertEqual(mock_custom_function_not_called_when_cached.call_count, 2)
+
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_deleted_whith_delete_pattern_compatible_cache(
+        self, mock_custom_function_not_called_when_cached
+    ):
+        fake_redis_cache = caches["fake_redis"]
+        fake_redis_cache.delete_pattern.reset_mock()
+        fake_redis_cache.set.reset_mock()
+
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDelete(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        calls_set = [
+            mock.call(
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.GET.51b68386a22462b6208cc3a782cba24c.d41d8cd98f00b204e9800998ecf8427e.en-us.UTC",
+                [],
+                300,
+            ),
+            mock.call(
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.GET.51b68386a22462b6208cc3a782cba24c.d41d8cd98f00b204e9800998ecf8427e.en-us.UTC",
+                mock.ANY,
+                300,
+            ),
+        ]
+        fake_redis_cache.set.assert_calls()
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+        fake_redis_cache.delete_pattern.reset_mock()
+        fake_redis_cache.set.reset_mock()
+
+        # TODO doc warning about auto deleter not working on bulk_update
+        # await UnitTestModel.objects.filter(title="z").aupdate(title="a")
+        test = await UnitTestModel.objects.filter(title="z").afirst()
+        test.title = "a"
+        await test.asave()
+
+        calls = [
+            mock.call(
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.*"
+            ),
+            mock.call(
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.*"
+            ),
+        ]
+
+        fake_redis_cache.delete_pattern.assert_has_calls(calls)

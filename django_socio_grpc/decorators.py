@@ -25,7 +25,7 @@ from django_socio_grpc.request_transformer import (
     GRPCInternalProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
-from django_socio_grpc.signals import grpc_action_set
+from django_socio_grpc.signals import grpc_action_register
 from django_socio_grpc.utils.utils import isgeneratorfunction
 
 from .grpc_actions.actions import GRPCAction
@@ -300,9 +300,12 @@ def cache_endpoint_with_deleter(
             "If this is the expected behavior, you can disable this warning by setting ENABLE_CACHE_WARNING_ON_DELETER to False in your grpc settings."
         )
 
+    if invalidator_signals is None:
+        invalidator_signals = (post_save, post_delete)
+
     def decorator(func: Callable, *args, **kwargs):
         # INFO - AM - 21/08/2024 - We connect to the grpc action set signal to have access to the owner of the function and the name of the function as we used a decorated with parameter we don't have access to the service class to get default senders and model to use
-        @receiver(grpc_action_set, weak=False)
+        @receiver(grpc_action_register, weak=False)
         def register_invalidate_cache_signal(sender, owner, name, **kwargs):
             # INFO - AM - 21/08/2024 - The decorator can be put before or after the grpc_action decorator so we need to check if the function is a grpc action or not
             func_qual_name = (
@@ -310,52 +313,66 @@ def cache_endpoint_with_deleter(
                 if isinstance(func, GRPCAction)
                 else func.__qualname__
             )
-            # INFO - AM - 21/08/2024 - We use the qualname to be sure to have the right function. We could have use the sender be this would mean having the owner and the name saved in the instance of the grpc action
-            if f"{owner.__name__}.{name}" != func_qual_name:
+
+            # INFO - AM - 05/09/2024 - the func_qual_name is the name of the service_name.function_name of the method we decorate. But in an inheritance context the service_name is the parent name not the owner name.
+            # So to be able to known if the function currently being registered is the one that is decorated with the cache deleter we need to check if the function is in the owner mro
+            func_registered_is_func_decorated = any(
+                [f"{mro_class.__name__}.{name}" == func_qual_name for mro_class in owner.mro()]
+            )
+
+            # INFO - AM - 05/09/2024 - We verify that the function registered is the one we wen to use the cache with deleter and it's exist the owner registry.
+            if not func_registered_is_func_decorated:
                 return
 
             # INFO - AM - 22/08/2024 - Set the default value for key_prefix, senders, invalidator_signals is not set
-            nonlocal key_prefix, senders, invalidator_signals
-            if not key_prefix:
-                key_prefix = f"{owner.__name__}-{name}"
-            if invalidator_signals is None:
-                invalidator_signals = (post_save, post_delete)
-            if senders is None and hasattr(owner, "queryset"):
-                senders = owner.queryset.model
+            # INFO - AM - 05/09/2024 - We need a locale_key_prefix to avoid having only one key for all inherited model
+            locale_key_prefix = key_prefix
+            if not locale_key_prefix:
+                locale_key_prefix = f"{owner.__name__}-{name}"
+
+            # INFO - AM - 05/09/2024 - It's safe to assign directly senders to locale_senders as we assign a value only if None and None is passed by value and not reference so no risk of assigning the same senders to all inherites class
+            locale_senders = senders
+            if locale_senders is None and hasattr(owner, "queryset"):
+                locale_senders = owner.queryset.model
 
             # INFO - AM - 22/08/2024 - If no sender are specified and the service do not have a queryset we can't use the cache deleter. There is a warning displayed to the user
-            if senders is not None:
-                if not isinstance(senders, Iterable):
-                    senders = [senders]
+            if locale_senders is not None:
+                if not isinstance(locale_senders, Iterable):
+                    locale_senders = [locale_senders]
 
                 # INFO - AM - 21/08/2024 - Once we have all the value we need we can connect the Model signals to the cache deleter
                 @receiver(invalidator_signals, weak=False)
                 def invalidate_cache(*args, **kwargs):
-                    if kwargs.get("sender") in senders:
+                    if kwargs.get("sender") in locale_senders:
                         # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
                         cache_instance = caches[cache] if cache else default_cache
                         # INFO - AM - 01/08/2024 - For now this is only for Redis cache but this is important to support as it simplify the cache architecture to create if used
-                        if hasattr(cache, "delete_pattern"):
+                        # Has cache_instance is a django.utils.connection.ConnectionProxy, hasattr will not work so we need to use try except
+                        try:
                             cache_instance.delete_pattern(
-                                f"views.decorators.cache.cache_header.{key_prefix}.*"
+                                f"views.decorators.cache.cache_header.{locale_key_prefix}.*"
                             )
                             cache_instance.delete_pattern(
-                                f"views.decorators.cache.cache_page.{key_prefix}.*"
+                                f"views.decorators.cache.cache_page.{locale_key_prefix}.*"
                             )
-                        else:
+                        except AttributeError:
                             cache_instance.clear()
             else:
                 logger.warning(
                     "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
                 )
 
-        # INFO - AM - 22/08/2024 - http_to_grpc is a decorator but as it is returned from a decorator (to be able to access func) we need to call it directly to have the actual decorator
-        return http_to_grpc(
-            method_decorator(
-                cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
-            ),
-            request_setter={"method": "GET"},
-            support_async=False,
-        )(func)
+            # INFO - AM - 22/08/2024 - http_to_grpc is a decorator so we pass the function to wrap in argument of it's return value
+            sender.function = http_to_grpc(
+                method_decorator(
+                    cache_page(timeout, key_prefix=locale_key_prefix, cache=cache),
+                    name="cache_page",
+                ),
+                request_setter={"method": "GET"},
+                support_async=False,
+            )(sender.function)
+
+        # INFO - AM - 05/09/2024 - We return the function directly because the patching of the function is done in the signal receiver
+        return func
 
     return decorator

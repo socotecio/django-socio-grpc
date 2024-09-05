@@ -14,10 +14,13 @@ from fakeapp.grpc.fakeapp_pb2 import (
 )
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelWithCacheControllerStub,
+    UnitTestModelWithCacheInheritControllerStub,
     add_UnitTestModelWithCacheControllerServicer_to_server,
+    add_UnitTestModelWithCacheInheritControllerServicer_to_server,
 )
 from fakeapp.models import UnitTestModel
 from fakeapp.services.unit_test_model_with_cache_service import (
+    UnitTestModelWithCacheInheritService,
     UnitTestModelWithCacheService,
 )
 from freezegun import freeze_time
@@ -43,6 +46,13 @@ class TestCacheService(TestCase):
             add_UnitTestModelWithCacheControllerServicer_to_server,
             UnitTestModelWithCacheService.as_servicer(),
         )
+        UnitTestModelWithCacheService.register_actions()
+
+        self.fake_grpc_inherit = FakeFullAIOGRPC(
+            add_UnitTestModelWithCacheInheritControllerServicer_to_server,
+            UnitTestModelWithCacheInheritService.as_servicer(),
+        )
+        UnitTestModelWithCacheInheritService.register_actions()
 
     def tearDown(self):
         self.fake_grpc.close()
@@ -315,7 +325,32 @@ class TestCacheService(TestCase):
 
         self.assertEqual(len(response.results), 3)
         self.assertEqual(response.results[0].title, "z")
-        # self.assertEqual(response.results[0].verify_custom_header, "test2")
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheInheritService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_working_really_in_inheritance(
+        self, mock_custom_function_not_called_when_cached
+    ):
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc_inherit.get_fake_stub(
+            UnitTestModelWithCacheInheritControllerStub
+        )
+        request = empty_pb2.Empty()
+
+        response = await grpc_stub.List(request=request)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+        response = await grpc_stub.List(request=request)
+
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
 
         mock_custom_function_not_called_when_cached.assert_called_once()
 
@@ -480,8 +515,6 @@ class TestCacheService(TestCase):
 
         mock_custom_function_not_called_when_cached.assert_called_once()
 
-        # TODO doc warning about auto deleter not working on bulk_update
-        # await UnitTestModel.objects.filter(title="z").aupdate(title="a")
         test = await UnitTestModel.objects.filter(title="z").afirst()
         test.title = "a"
         await test.asave()
@@ -491,3 +524,137 @@ class TestCacheService(TestCase):
         self.assertEqual(response.results[0].title, "a")
 
         self.assertEqual(mock_custom_function_not_called_when_cached.call_count, 2)
+
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_deleted_whith_delete_pattern_compatible_cache(
+        self, mock_custom_function_not_called_when_cached
+    ):
+        fake_redis_cache = caches["fake_redis"]
+        fake_redis_cache.delete_pattern.reset_mock()
+        fake_redis_cache.set.reset_mock()
+
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
+        request = empty_pb2.Empty()
+
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDeleteRedis(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        calls_set = [
+            mock.call(
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.0a70f42054a5c115b2334096f6f22ed1.en-us.UTC",
+                [],
+                300,
+            ),
+            mock.call(
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.GET.0a70f42054a5c115b2334096f6f22ed1.d41d8cd98f00b204e9800998ecf8427e.en-us.UTC",
+                mock.ANY,
+                300,
+            ),
+        ]
+        fake_redis_cache.set.assert_has_calls(calls_set)
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+        fake_redis_cache.delete_pattern.reset_mock()
+        fake_redis_cache.set.reset_mock()
+
+        test = await UnitTestModel.objects.filter(title="z").afirst()
+        test.title = "a"
+        await test.asave()
+
+        calls = [
+            mock.call(
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.*"
+            ),
+            mock.call(
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.*"
+            ),
+        ]
+
+        fake_redis_cache.delete_pattern.assert_has_calls(calls)
+
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheInheritService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_deleted_when_updating_value_with_cache_deletor_inherit(
+        self, mock_custom_function_not_called_when_cached
+    ):
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc_inherit.get_fake_stub(
+            UnitTestModelWithCacheInheritControllerStub
+        )
+        request = empty_pb2.Empty()
+
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDelete(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+        test = await UnitTestModel.objects.filter(title="z").afirst()
+        test.title = "a"
+        await test.asave()
+
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDelete(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "a")
+
+        self.assertEqual(mock_custom_function_not_called_when_cached.call_count, 2)
+
+    @mock.patch(
+        "fakeapp.services.unit_test_model_with_cache_service.UnitTestModelWithCacheInheritService.custom_function_not_called_when_cached"
+    )
+    async def test_cache_deleted_whith_delete_pattern_compatible_cache_inherit(
+        self, mock_custom_function_not_called_when_cached
+    ):
+        fake_redis_cache = caches["fake_redis"]
+        fake_redis_cache.delete_pattern.reset_mock()
+        fake_redis_cache.set.reset_mock()
+
+        self.assertEqual(await UnitTestModel.objects.acount(), 10)
+        grpc_stub = self.fake_grpc_inherit.get_fake_stub(
+            UnitTestModelWithCacheInheritControllerStub
+        )
+        request = empty_pb2.Empty()
+
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDeleteRedis(request=request)
+        self.assertEqual(len(response.results), 3)
+        self.assertEqual(response.results[0].title, "z")
+
+        calls_set = [
+            mock.call(
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheInheritService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.27a2694843c346088c5e956eb29c375d.en-us.UTC",
+                [],
+                300,
+            ),
+            mock.call(
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheInheritService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.GET.27a2694843c346088c5e956eb29c375d.d41d8cd98f00b204e9800998ecf8427e.en-us.UTC",
+                mock.ANY,
+                300,
+            ),
+        ]
+        fake_redis_cache.set.assert_has_calls(calls_set)
+
+        mock_custom_function_not_called_when_cached.assert_called_once()
+
+        fake_redis_cache.delete_pattern.reset_mock()
+        fake_redis_cache.set.reset_mock()
+
+        test = await UnitTestModel.objects.filter(title="z").afirst()
+        test.title = "a"
+        await test.asave()
+
+        calls = [
+            mock.call(
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheInheritService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.*"
+            ),
+            mock.call(
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheInheritService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.*"
+            ),
+        ]
+
+        fake_redis_cache.delete_pattern.assert_has_calls(calls)

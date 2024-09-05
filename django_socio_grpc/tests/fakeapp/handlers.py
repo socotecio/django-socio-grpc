@@ -15,6 +15,7 @@ from fakeapp.services.stream_in_service import StreamInService
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 from fakeapp.services.unit_test_model_with_cache_service import (
+    UnitTestModelWithCacheInheritService,
     UnitTestModelWithCacheService,
 )
 
@@ -43,6 +44,7 @@ def grpc_handlers(server):
     app_registry.register(UnitTestModelWithStructFilterService)
     app_registry.register(DefaultValueService)
     app_registry.register(UnitTestModelWithCacheService)
+    app_registry.register(UnitTestModelWithCacheInheritService)
 
 
 services = (

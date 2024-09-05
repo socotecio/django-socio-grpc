@@ -127,3 +127,7 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
         """
         self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)
+
+
+class UnitTestModelWithCacheInheritService(UnitTestModelWithCacheService):
+    pass

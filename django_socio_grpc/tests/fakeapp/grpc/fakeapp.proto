@@ -124,6 +124,20 @@ service UnitTestModelWithCacheController {
     rpc Update(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
 }
 
+service UnitTestModelWithCacheInheritController {
+    rpc Create(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDelete(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDeleteRedis(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithPossibilityMaxAge(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithStructFilter(UnitTestModelWithCacheInheritListWithStructFilterRequest) returns (UnitTestModelWithCacheListResponse) {}
+    rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Retrieve(UnitTestModelWithCacheRetrieveRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Stream(UnitTestModelWithCacheStreamRequest) returns (stream UnitTestModelWithCacheResponse) {}
+    rpc Update(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
+}
+
 service UnitTestModelWithStructFilterController {
     rpc Create(UnitTestModelWithStructFilterRequest) returns (UnitTestModelWithStructFilterResponse) {}
     rpc Destroy(UnitTestModelWithStructFilterDestroyRequest) returns (google.protobuf.Empty) {}
@@ -649,6 +663,11 @@ message UnitTestModelStreamRequest {
 
 message UnitTestModelWithCacheDestroyRequest {
     int32 id = 1;
+}
+
+message UnitTestModelWithCacheInheritListWithStructFilterRequest {
+    optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
 }
 
 message UnitTestModelWithCacheListResponse {

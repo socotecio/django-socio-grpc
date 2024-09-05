@@ -98,7 +98,7 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
         self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)
 
-    @cache_endpoint_with_deleter(300, cache="fake_redis")
+    @cache_endpoint_with_deleter(300, cache="second")
     @grpc_action(
         request=[],
         response=UnitTestModelWithCacheSerializer,
@@ -113,17 +113,17 @@ class UnitTestModelWithCacheService(generics.AsyncModelService, mixins.AsyncStre
         self.custom_function_not_called_when_cached(self)
         return await super().List(request, context)
 
-    # @cache_endpoint_with_deleter(300)
-    # @grpc_action(
-    #     request=[],
-    #     response=UnitTestModelWithCacheSerializer,
-    #     use_generation_plugins=[
-    #         ListGenerationPlugin(response=True),
-    #     ],
-    # )
-    # async def ListWithAutoCacheCleanOnSaveAndDelete(self, request, context):
-    #     """
-    #     Test the cache_endpoint_with_deleter work well
-    #     """
-    #     self.custom_function_not_called_when_cached(self)
-    #     return await super().List(request, context)
+    @cache_endpoint_with_deleter(300, cache="fake_redis")
+    @grpc_action(
+        request=[],
+        response=UnitTestModelWithCacheSerializer,
+        use_generation_plugins=[
+            ListGenerationPlugin(response=True),
+        ],
+    )
+    async def ListWithAutoCacheCleanOnSaveAndDeleteRedis(self, request, context):
+        """
+        Test the cache_endpoint_with_deleter work well
+        """
+        self.custom_function_not_called_when_cached(self)
+        return await super().List(request, context)

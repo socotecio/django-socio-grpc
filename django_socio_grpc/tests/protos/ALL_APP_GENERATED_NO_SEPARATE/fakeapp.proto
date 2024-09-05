@@ -99,6 +99,7 @@ service UnitTestModelWithCacheController {
     rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
     rpc ListWithAutoCacheCleanOnSaveAndDelete(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDeleteRedis(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
     rpc ListWithPossibilityMaxAge(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
     rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilter) returns (UnitTestModelWithCacheList) {}
     rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCache) {}

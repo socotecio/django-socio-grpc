@@ -331,7 +331,6 @@ def cache_endpoint_with_deleter(
                 # INFO - AM - 21/08/2024 - Once we have all the value we need we can connect the Model signals to the cache deleter
                 @receiver(invalidator_signals, weak=False)
                 def invalidate_cache(*args, **kwargs):
-                    print("cicicicici\n" * 10, args, kwargs)
                     if kwargs.get("sender") in senders:
                         # INFO - AM - 01/08/2024 - To follow django cache_page signature cache is a string and not a cache instance. In this behavior we need the cache instance so we get it
                         cache_instance = caches[cache] if cache else default_cache
@@ -351,13 +350,15 @@ def cache_endpoint_with_deleter(
                     "You are using cache_endpoint_with_deleter without senders. If you don't need the auto deleter just use cache_endpoint decorator."
                 )
 
+            sender.function = http_to_grpc(
+                method_decorator(
+                    cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
+                ),
+                request_setter={"method": "GET"},
+                support_async=False,
+            )(sender.function)
+
         # INFO - AM - 22/08/2024 - http_to_grpc is a decorator but as it is returned from a decorator (to be able to access func) we need to call it directly to have the actual decorator
-        return http_to_grpc(
-            method_decorator(
-                cache_page(timeout, key_prefix=key_prefix, cache=cache), name="cache_page"
-            ),
-            request_setter={"method": "GET"},
-            support_async=False,
-        )(func)
+        return func
 
     return decorator

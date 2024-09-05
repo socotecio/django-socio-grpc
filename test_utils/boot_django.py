@@ -2,11 +2,10 @@
 # execute in django land
 import os
 import sys
+from unittest import mock
 
 import django
 from django.conf import settings
-from unittest import mock
-
 from django.core.cache.backends.locmem import LocMemCache
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

@@ -506,23 +506,23 @@ class TestCacheService(TestCase):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelWithCacheControllerStub)
         request = empty_pb2.Empty()
 
-        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDelete(request=request)
+        response = await grpc_stub.ListWithAutoCacheCleanOnSaveAndDeleteRedis(request=request)
         self.assertEqual(len(response.results), 3)
         self.assertEqual(response.results[0].title, "z")
 
         calls_set = [
             mock.call(
-                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.GET.51b68386a22462b6208cc3a782cba24c.d41d8cd98f00b204e9800998ecf8427e.en-us.UTC",
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.0a70f42054a5c115b2334096f6f22ed1.en-us.UTC",
                 [],
                 300,
             ),
             mock.call(
-                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.GET.51b68386a22462b6208cc3a782cba24c.d41d8cd98f00b204e9800998ecf8427e.en-us.UTC",
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.GET.0a70f42054a5c115b2334096f6f22ed1.d41d8cd98f00b204e9800998ecf8427e.en-us.UTC",
                 mock.ANY,
                 300,
             ),
         ]
-        fake_redis_cache.set.assert_calls()
+        fake_redis_cache.set.assert_has_calls(calls_set)
 
         mock_custom_function_not_called_when_cached.assert_called_once()
 
@@ -537,10 +537,10 @@ class TestCacheService(TestCase):
 
         calls = [
             mock.call(
-                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.*"
+                "views.decorators.cache.cache_header.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.*"
             ),
             mock.call(
-                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDelete.*"
+                "views.decorators.cache.cache_page.UnitTestModelWithCacheService-ListWithAutoCacheCleanOnSaveAndDeleteRedis.*"
             ),
         ]
 

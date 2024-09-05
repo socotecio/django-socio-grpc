@@ -6,7 +6,7 @@ import warnings
 from django_socio_grpc.tests.fakeapp.grpc import fakeapp_pb2 as django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
-GRPC_GENERATED_VERSION = '1.65.1'
+GRPC_GENERATED_VERSION = '1.65.2'
 GRPC_VERSION = grpc.__version__
 EXPECTED_ERROR_RELEASE = '1.66.0'
 SCHEDULED_RELEASE_DATE = 'August 6, 2024'
@@ -3375,6 +3375,11 @@ class UnitTestModelWithCacheControllerStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
                 _registered_method=True)
+        self.ListWithAutoCacheCleanOnSaveAndDeleteRedis = channel.unary_unary(
+                '/myproject.fakeapp.UnitTestModelWithCacheController/ListWithAutoCacheCleanOnSaveAndDeleteRedis',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
+                _registered_method=True)
         self.ListWithPossibilityMaxAge = channel.unary_unary(
                 '/myproject.fakeapp.UnitTestModelWithCacheController/ListWithPossibilityMaxAge',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -3429,6 +3434,12 @@ class UnitTestModelWithCacheControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def ListWithAutoCacheCleanOnSaveAndDelete(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListWithAutoCacheCleanOnSaveAndDeleteRedis(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -3490,6 +3501,11 @@ def add_UnitTestModelWithCacheControllerServicer_to_server(servicer, server):
             ),
             'ListWithAutoCacheCleanOnSaveAndDelete': grpc.unary_unary_rpc_method_handler(
                     servicer.ListWithAutoCacheCleanOnSaveAndDelete,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.SerializeToString,
+            ),
+            'ListWithAutoCacheCleanOnSaveAndDeleteRedis': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListWithAutoCacheCleanOnSaveAndDeleteRedis,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.SerializeToString,
             ),
@@ -3630,6 +3646,33 @@ class UnitTestModelWithCacheController(object):
             request,
             target,
             '/myproject.fakeapp.UnitTestModelWithCacheController/ListWithAutoCacheCleanOnSaveAndDelete',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListWithAutoCacheCleanOnSaveAndDeleteRedis(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myproject.fakeapp.UnitTestModelWithCacheController/ListWithAutoCacheCleanOnSaveAndDeleteRedis',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.UnitTestModelWithCacheListResponse.FromString,
             options,

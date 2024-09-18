@@ -44,7 +44,6 @@ See the documentation on django settings if your not familiar with it: `Django s
     "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
     "DEFAULT_GENERATION_PLUGINS": [],
     "ENABLE_HEALTH_CHECK": False,
-    "ENABLE_CACHE_WARNING_ON_DELETER": True,
   }
 
 .. _root-handler-hook-setting:
@@ -427,14 +426,3 @@ For more informations see :ref:`the documentation <health_check>`
 .. code-block:: python
 
   "ENABLE_HEALTH_CHECK": False
-
-.. _settings-cache-warning-on-deleter:
-
-ENABLE_CACHE_WARNING_ON_DELETER
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-A boolean indicating wether or not a warning is raised when a deleter is used with the default cache or with Redis cache but without prefix. Default is True.
-
-.. code-block:: python
-
-  "ENABLE_CACHE_WARNING_ON_DELETER": True

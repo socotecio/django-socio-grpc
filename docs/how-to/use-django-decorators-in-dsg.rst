@@ -32,7 +32,7 @@ Simple example
 Example with method decorator and data variance
 ------------------------------------------------
 
-In the following example we are transforming a fucntion decorator into a method decorator.
+In the following example we are transforming a function decorator into a method decorator.
 Then we are transforming it to a grpc decorator.
 In the same time we specify that for each simulate Django request we want to set the ``method`` attribute to the value ``GET`` (this is because grpc only use POST request and Django only cache GET request)
 Also cache_page is not fully supporting async for now if you are using DB cache backend so we disable async support. Feel free to set it to True in you own decorator if using an async compatible cache backend.

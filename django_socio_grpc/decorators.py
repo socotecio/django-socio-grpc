@@ -253,13 +253,14 @@ def vary_on_metadata(*headers) -> Callable:
 @functools.wraps(cache_page)
 def cache_endpoint(*args, **kwargs):
     """
-    This decorator is an helper to used the cache_page decorator from django on a grpc endpoint.
-    Please to not use on Create, Update or Delete endpoint as it will cache the response and return the same response to all the user.
+    A decorator for caching gRPC endpoints using Django's cache_page functionality.
+    This decorator adapts Django's cache_page for use with gRPC endpoints. It performs the following steps:
+    1. Converts cache_page to a method decorator, see:
+        https://docs.djangoproject.com/en/5.0/topics/class-based-views/intro/#decorating-the-class
+    2. Transforms the method decorator to be gRPC-compatible.
+    3. Forces the request method to be GET.
 
-    It's step are:
-    - Transform cache_page to a method decorator see https://docs.djangoproject.com/en/5.0/topics/class-based-views/intro/#decorating-the-class
-    - Transform the cache_page method decorator to a grpc compatible decorator
-    - Specify that we need to force the request to be a GET request
+    Do not use this decorator on Create, Update, or Delete endpoints, as it will cache the response and return the same result to all users, potentially leading to data inconsistencies.
     """
     return http_to_grpc(
         method_decorator(cache_page(*args, **kwargs)),
@@ -276,10 +277,10 @@ def cache_endpoint_with_deleter(
     invalidator_signals: Iterable[Callable] = None,
 ):
     """
-    This decorator do all the same as cache_endpoint but with the addition of a cache deleter.
+    This decorator does all the same as cache_endpoint but with the addition of a cache deleter.
     The cache deleter will delete the cache when a signal is triggered.
     This is useful when you want to delete the cache when a model is updated or deleted.
-    Be warn that this can add little overhead at server start as it will listen to signals.
+    Be warned that this can add little overhead at server start as it will listen to signals.
 
     :param timeout: The timeout of the cache
     :param key_prefix: The key prefix of the cache
@@ -287,17 +288,14 @@ def cache_endpoint_with_deleter(
     :param senders: The senders to listen to the signal
     :param invalidator_signals: The django signals to listen to delete the cache
     """
-    if (
-        cache is None
-        and not hasattr(default_cache, "delete_pattern")
-        and not grpc_settings.ENABLE_CACHE_WARNING_ON_DELETER
-    ):
-        logger.warning(
+    if cache is None and not hasattr(default_cache, "delete_pattern"):
+        cache_deleter_logger = logging.getLogger(__name__)
+        cache_deleter_logger.warning(
             "You are using cache_endpoint_with_deleter with the default cache engine that is not a redis cache engine."
             "Only Redis cache engine support cache pattern deletion."
             "You still continue to use it but it will delete all the endpoint cache when signal will trigger."
             "Please use a specific cache config per service or use redis cache engine to avoid this behavior."
-            "If this is the expected behavior, you can disable this warning by setting ENABLE_CACHE_WARNING_ON_DELETER to False in your grpc settings."
+            "If this is the expected behavior, you can disable this warning by muting django_socio_grpc.cache_deleter logger in your logging settings."
         )
 
     if invalidator_signals is None:
@@ -325,10 +323,10 @@ def cache_endpoint_with_deleter(
                 return
 
             # INFO - AM - 22/08/2024 - Set the default value for key_prefix, senders, invalidator_signals is not set
-            # INFO - AM - 05/09/2024 - We need a locale_key_prefix to avoid having only one key for all inherited model
-            locale_key_prefix = key_prefix
-            if not locale_key_prefix:
-                locale_key_prefix = f"{owner.__name__}-{name}"
+            # INFO - AM - 05/09/2024 - We need a _key_prefix to avoid having only one key for all inherited model
+            _key_prefix = key_prefix
+            if not _key_prefix:
+                _key_prefix = f"{owner.__name__}-{name}"
 
             # INFO - AM - 05/09/2024 - It's safe to assign directly senders to locale_senders as we assign a value only if None and None is passed by value and not reference so no risk of assigning the same senders to all inherites class
             locale_senders = senders
@@ -350,10 +348,10 @@ def cache_endpoint_with_deleter(
                         # Has cache_instance is a django.utils.connection.ConnectionProxy, hasattr will not work so we need to use try except
                         try:
                             cache_instance.delete_pattern(
-                                f"views.decorators.cache.cache_header.{locale_key_prefix}.*"
+                                f"views.decorators.cache.cache_header.{_key_prefix}.*"
                             )
                             cache_instance.delete_pattern(
-                                f"views.decorators.cache.cache_page.{locale_key_prefix}.*"
+                                f"views.decorators.cache.cache_page.{_key_prefix}.*"
                             )
                         except AttributeError:
                             cache_instance.clear()
@@ -365,7 +363,7 @@ def cache_endpoint_with_deleter(
             # INFO - AM - 22/08/2024 - http_to_grpc is a decorator so we pass the function to wrap in argument of it's return value
             sender.function = http_to_grpc(
                 method_decorator(
-                    cache_page(timeout, key_prefix=locale_key_prefix, cache=cache),
+                    cache_page(timeout, key_prefix=_key_prefix, cache=cache),
                     name="cache_page",
                 ),
                 request_setter={"method": "GET"},

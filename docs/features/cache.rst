@@ -82,7 +82,7 @@ To address this issue, you can:
 
 .. note::
 
-    If you do not follow above advice a warning will show up everytimes you start the server. To disable it use the :ref:`ENABLE_CACHE_WARNING_ON_DELETER <settings-cache-warning-on-deleter>` setting.
+    If you do not follow above advice a warning will show up everytimes you start the server. You can mute the logger by muting the django_socio_grpc.cache_deleter logger in your logging settings.
 
 
 Example:

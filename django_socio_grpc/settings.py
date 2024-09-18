@@ -113,7 +113,6 @@ DEFAULTS = {
     "DEFAULT_GENERATION_PLUGINS": [],
     # Enable the healthcheck service
     "ENABLE_HEALTH_CHECK": False,
-    "ENABLE_CACHE_WARNING_ON_DELETER": True,
 }
 
 

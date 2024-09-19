@@ -468,12 +468,12 @@ For web usage of the client see :ref:`How to web: Using JS client<using_js_clien
 
     // filters only the user with id 1
     const filtersStruct = Struct.fromJson({user: 1});
-    const res = await postClient.list({ _filters: filtersStruct });
+    const res = await postClient.list({ Filters: filtersStruct }); // _filters is transformed to Filters in buf build used by connect
     console.log(res)
 
     // filters only the users with username containing "test-user"
     const filtersStruct = Struct.fromJson({search: "test-user"});
-    const res = await postClient.list({ _filters: filtersStruct });
+    const res = await postClient.list({ Filters: filtersStruct }); // _filters is transformed to Filters in buf build used by connect
     console.log(res)
 
 

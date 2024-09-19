@@ -199,7 +199,7 @@ For web usage of the client see :ref:`How to web: Using JS client<using_js_clien
     const postClient = createPromiseClient(PostController, transport);
 
     const paginationStruct = Struct.fromJson({page: 2});
-    const res = await postClient.list({ _pagination: paginationStruct });
+    const res = await postClient.list({ Pagination: paginationStruct }); // _pagination is transformed to Pagination in buf build used by connect
     console.log(res)
 
 

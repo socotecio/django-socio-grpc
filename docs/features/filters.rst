@@ -452,3 +452,46 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
 
     if __name__ == "__main__":
         asyncio.run(main())
+
+.. _filters-web-usage:
+
+Web Example
+-----------
+
+For web usage of the client see :ref:`How to web: Using JS client<using_js_client>`
+
+
+.. code-block:: javascript
+    import { Struct } from "@bufbuild/protobuf";
+    // See web usage to understand how to use the client.
+    const postClient = createPromiseClient(PostController, transport);
+
+    // filters only the user with id 1
+    const filtersStruct = Struct.fromJson({user: 1});
+    const res = await postClient.list({ Filters: filtersStruct }); // _filters is transformed to Filters in buf build used by connect
+    console.log(res)
+
+    // filters only the users with username containing "test-user"
+    const filtersStruct = Struct.fromJson({search: "test-user"});
+    const res = await postClient.list({ Filters: filtersStruct }); // _filters is transformed to Filters in buf build used by connect
+    console.log(res)
+
+
+.. warning::
+    The following example is the deprecated way of using filters. Please use the example above.
+    Note that the example works depending on the `metadata` :ref:`FILTER_BEHAVIOR setting<settings-filter-behavior>` settings.
+
+
+.. code-block:: javascript
+    // See web usage to understand how to use the client.
+    const postClient = createPromiseClient(PostController, transport);
+
+    // filters only the user with id 1
+    headers = {filters: JSON.stringify({user: 1})}
+    const res = await postClient.list({}, {headers})
+    console.log(res)
+
+    // filters only the users with username containing "test-user"
+    headers = {filters: JSON.stringify({search: "test-user"})}
+    const res = await postClient.list({}, {headers})
+    console.log(res)

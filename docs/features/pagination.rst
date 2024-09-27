@@ -132,6 +132,7 @@ For more example you can see the `client in DSG example repo <https://github.com
 
             # Getting the 11 to 20 elements following backend ordering
             pagination_as_dict = {"page": 2, "page_size": 10}
+
             metadata = (("pagination", (json.dumps(pagination_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
@@ -156,5 +157,63 @@ For more example you can see the `client in DSG example repo <https://github.com
     if __name__ == "__main__":
         asyncio.run(main())
 
+.. _pagination-with-page-size:
 
-For web usage see :ref:`How to web: Using js client<using_js_client>`
+Using page size
+---------------
+
+As specified in the `DRF Pagination <https://www.django-rest-framework.org/api-guide/pagination/#pagination>`_ documentation, you need to override the ``PageNumberPagination`` class to use page size.
+
+.. code-block:: python
+
+    # server
+    # quickstart/pagination.py
+    from rest_framework.pagination import PageNumberPagination
+
+    class CustomPageNumberPagination(PageNumberPagination):
+        page_size = 10
+        page_size_query_param = 'page_size'
+        max_page_size = 1000
+
+    # quickstart/services.py
+    ...
+    from quickstart.pagination import CustomPageNumberPagination
+    ...
+
+    class PostService(generics.GenericService):
+        ...
+        pagination_class = CustomPageNumberPagination
+        ...
+
+
+.. _pagination-web-usage:
+
+Web Example
+-----------
+
+For web usage of the client see :ref:`How to web: Using JS client<using_js_client>`
+
+
+.. code-block:: javascript
+    import { Struct } from "@bufbuild/protobuf";
+    // See web usage to understand how to use the client.
+    const postClient = createPromiseClient(PostController, transport);
+
+    const paginationStruct = Struct.fromJson({page: 2});
+    const res = await postClient.list({ Pagination: paginationStruct }); // _pagination is transformed to Pagination in buf build used by connect
+    console.log(res)
+
+
+.. warning::
+    The following example is the deprecated way of using pagination. Please use the example above.
+    Note that the examples work depending on the :ref:`PAGINATION_BEHAVIOR setting<settings-pagination-behavior>` settings.
+
+
+.. code-block:: javascript
+    // See web usage to understand how to use the client.
+    const postClient = createPromiseClient(PostController, transport);
+
+    headers = {pagination: JSON.stringify({page: 2})}
+
+    const res = await postClient.list({}, {headers})
+    console.log(res)

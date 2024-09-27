@@ -94,6 +94,20 @@ service UnitTestModelController {
     rpc Update(UnitTestModel) returns (UnitTestModel) {}
 }
 
+service UnitTestModelWithCacheController {
+    rpc Create(UnitTestModelWithCache) returns (UnitTestModelWithCache) {}
+    rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDelete(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDeleteRedis(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
+    rpc ListWithPossibilityMaxAge(google.protobuf.Empty) returns (UnitTestModelWithCacheList) {}
+    rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilter) returns (UnitTestModelWithCacheList) {}
+    rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCache) {}
+    rpc Retrieve(UnitTestModelWithCacheRetrieveRequest) returns (UnitTestModelWithCache) {}
+    rpc Stream(UnitTestModelWithCacheStreamRequest) returns (stream UnitTestModelWithCache) {}
+    rpc Update(UnitTestModelWithCache) returns (UnitTestModelWithCache) {}
+}
+
 service UnitTestModelWithStructFilterController {
     rpc Create(UnitTestModelWithStructFilter) returns (UnitTestModelWithStructFilter) {}
     rpc Destroy(UnitTestModelWithStructFilterDestroyRequest) returns (google.protobuf.Empty) {}
@@ -454,6 +468,44 @@ message UnitTestModelRetrieveRequest {
 }
 
 message UnitTestModelStreamRequest {
+}
+
+message UnitTestModelWithCache {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    int32 model_property = 4;
+    string verify_custom_header = 5;
+}
+
+message UnitTestModelWithCacheDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelWithCacheList {
+    repeated UnitTestModelWithCache results = 1;
+    int32 count = 2;
+}
+
+message UnitTestModelWithCacheListWithStructFilter {
+    optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
+}
+
+message UnitTestModelWithCachePartialUpdateRequest {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    int32 model_property = 4;
+    string verify_custom_header = 5;
+    repeated string _partial_update_fields = 6;
+}
+
+message UnitTestModelWithCacheRetrieveRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelWithCacheStreamRequest {
 }
 
 message UnitTestModelWithStructFilter {

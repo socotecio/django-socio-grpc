@@ -131,7 +131,8 @@ For more example you can see the `client in DSG example repo <https://github.com
             request = quickstart_pb2.PostListRequest()
 
             # Getting the 11 to 20 elements following backend ordering
-            pagination_as_dict = {"page": 2}
+            pagination_as_dict = {"page": 2, "page_size": 10}
+
             metadata = (("pagination", (json.dumps(pagination_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)

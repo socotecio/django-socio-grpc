@@ -82,13 +82,13 @@ class TestAuthenticationIntegration(TestCase):
     def test_user_and_token_set(self):
         DummyService.authentication_classes = [FakeAuthentication]
         metadata = (("headers", json.dumps({"Authorization": "faketoken"})),)
-        self.fake_context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+        self.fake_context._invocation_metadata += tuple(_Metadatum(k, v) for k, v in metadata)
         self.servicer.DummyMethod(None, self.fake_context)
 
         servicer_context = get_servicer_context()
 
         self.assertEqual(
-            servicer_context.service.context.META, {"HTTP_AUTHORIZATION": "faketoken"}
+            servicer_context.service.context.META["HTTP_AUTHORIZATION"], "faketoken"
         )
         self.assertEqual(
             servicer_context.service.context.user, {"email": "john.doe@johndoe.com"}

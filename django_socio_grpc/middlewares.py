@@ -99,7 +99,7 @@ def locale_middleware(get_response: Callable):
     """
     Middleware to activate i18n language in django.
     It will look for an Accept-Language formated metadata in the headers key.
-    metadata = ('headers', ('Accept-Language', 'fr-CH, fr;q=0.9, en;q=0.8, de;'))
+    metadata = ('headers', ('accept-language', 'fr-CH, fr;q=0.9, en;q=0.8, de;'))
     """
     if asyncio.iscoroutinefunction(get_response):
 

@@ -14,6 +14,10 @@ from fakeapp.services.special_fields_model_service import SpecialFieldsModelServ
 from fakeapp.services.stream_in_service import StreamInService
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from fakeapp.services.unit_test_model_service import UnitTestModelService
+from fakeapp.services.unit_test_model_with_cache_service import (
+    UnitTestModelWithCacheInheritService,
+    UnitTestModelWithCacheService,
+)
 
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 from django_socio_grpc.tests.fakeapp.services.unit_test_model_with_struct_filter_service import (
@@ -39,6 +43,8 @@ def grpc_handlers(server):
     app_registry.register(RecursiveTestModelService)
     app_registry.register(UnitTestModelWithStructFilterService)
     app_registry.register(DefaultValueService)
+    app_registry.register(UnitTestModelWithCacheService)
+    app_registry.register(UnitTestModelWithCacheInheritService)
 
 
 services = (
@@ -53,4 +59,5 @@ services = (
     StreamInService,
     RecursiveTestModelService,
     UnitTestModelWithStructFilterService,
+    UnitTestModelWithCacheService,
 )

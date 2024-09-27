@@ -115,7 +115,7 @@ The main inconveniences are:
             This view should return a list of all the posts
             for the currently authenticated user.
             """
-            user = self.context.grpc_request_metadata["FILTERS"]["user"]
+            user = self.context.grpc_request_metadata["filters"]["user"]
             # Next line also working to make REST library working
             # user = self.context.query_params["user"]
             return Post.objects.filter(user=user)

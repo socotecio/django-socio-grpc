@@ -66,7 +66,8 @@ class _BaseFakeContext:
         # The stream_pipe_server, in which server writes responses and reads by the client
         self.stream_pipe_server = queue.Queue()
 
-        self._invocation_metadata = []
+        self._invocation_metadata = ()
+        self._trailing_metadata = ()
         self._code = grpc.StatusCode.OK
         self._details = None
 
@@ -80,6 +81,33 @@ class _BaseFakeContext:
         else:
             return response
 
+    def invocation_metadata(self):
+        return self._invocation_metadata
+
+    def _check_metadata(self, metadata):
+        """
+        Custom method of _BaseFakeContext to be sure tests match reality because grpc metadata should be a tuple of tuple with first element a lower case string and the second a str or bytes value type
+        """
+        for k, value in metadata:
+            if not k.islower():
+                raise ValueError("Metadata keys must be lower case <invocation_metadata>", k)
+            if not isinstance(value, str) and not isinstance(value, bytes):
+                raise ValueError(
+                    f"Metadata values must be str or bytes <invocation_metadata>. Exception for key {k}.",
+                    value,
+                )
+
+    def set_invocation_metadata(self, metadata):
+        self._check_metadata(metadata)
+        self._invocation_metadata = tuple(_Metadatum(k, v) for k, v in metadata)
+
+    def trailing_metadata(self):
+        return self._trailing_metadata
+
+    def set_trailing_metadata(self, metadata):
+        self._check_metadata(metadata)
+        self._trailing_metadata = tuple(_Metadatum(k, v) for k, v in metadata)
+
     def set_code(self, code):
         self._code = code
 
@@ -90,9 +118,6 @@ class _BaseFakeContext:
         self.set_code(code)
         self.set_details(details)
         raise _InactiveRpcError(code=code, details=details)
-
-    def invocation_metadata(self):
-        return self._invocation_metadata
 
     def write(self, data):
         self._write_server(data)
@@ -195,9 +220,10 @@ class FakeChannel:
                 self.context = FakeAsyncContext()
 
             if metadata:
-                self.context._invocation_metadata.extend(
-                    (_Metadatum(k, v) for k, v in metadata)
+                metadata = self.context.invocation_metadata() + tuple(
+                    _Metadatum(k, v) for k, v in metadata
                 )
+                self.context.set_invocation_metadata(metadata)
 
             return real_method(request, self.context)
 
@@ -249,34 +275,34 @@ class FakeGRPC:
 
 
 class FakeBaseCall(grpc.aio.Call):
-    def add_done_callback(*args, **kwargs):
+    def add_done_callback(self, *args, **kwargs):
         pass
 
-    def cancel(*args, **kwargs):
+    def cancel(self, *args, **kwargs):
         pass
 
-    def cancelled(*args, **kwargs):
+    def cancelled(self, *args, **kwargs):
         pass
 
-    def code(*args, **kwargs):
+    def code(self, *args, **kwargs):
         pass
 
-    def details(*args, **kwargs):
+    def details(self, *args, **kwargs):
         pass
 
-    def done(*args, **kwargs):
+    def done(self, *args, **kwargs):
         pass
 
-    def initial_metadata(*args, **kwargs):
+    def initial_metadata(self, *args, **kwargs):
+        return self._context._invocation_metadata
+
+    def time_remaining(self, *args, **kwargs):
         pass
 
-    def time_remaining(*args, **kwargs):
-        pass
+    def trailing_metadata(self, *args, **kwargs):
+        return self._context._trailing_metadata
 
-    def trailing_metadata(*args, **kwargs):
-        pass
-
-    def wait_for_connection(*args, **kwargs):
+    def wait_for_connection(self, *args, **kwargs):
         pass
 
 
@@ -293,7 +319,10 @@ class FakeAioCall(FakeBaseCall):
 
         if metadata:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            metadata = self._context.invocation_metadata() + tuple(
+                _Metadatum(k, v) for k, v in metadata
+            )
+            self._context.set_invocation_metadata(metadata)
 
     def __call__(self, request=None, metadata=None):
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
@@ -301,7 +330,10 @@ class FakeAioCall(FakeBaseCall):
             self._request = request
         if metadata is not None:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            metadata = self._context.invocation_metadata() + tuple(
+                _Metadatum(k, v) for k, v in metadata
+            )
+            self._context.set_invocation_metadata(metadata)
         # INFO - AM - 18/02/2022 - Use FakeFullAioCall for stream testing
         self.method_awaitable = self._real_method(request=self._request, context=self._context)
         return self
@@ -316,6 +348,9 @@ class FakeAioCall(FakeBaseCall):
     def read(self):
         return async_to_sync(self._context.read)()
 
+    def with_call(self, request=None, metadata=None):
+        return self.__call__(request, metadata), self
+
 
 # INFO - AM - 10/08/2022 - FakeFullAioCall use async function where FakeFullAioCall use async_to_sync
 class FakeFullAioCall(FakeBaseCall):
@@ -329,7 +364,10 @@ class FakeFullAioCall(FakeBaseCall):
 
         if metadata:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            metadata = self._context.invocation_metadata() + tuple(
+                _Metadatum(k, v) for k, v in metadata
+            )
+            self._context.set_invocation_metadata(metadata)
 
     def __call__(self, request=None, metadata=None):
         # INFO - AM - 28/07/2022 - request is not None at first call but then at each read is transformed to None. So we only assign it if not None
@@ -337,7 +375,10 @@ class FakeFullAioCall(FakeBaseCall):
             self._request = request
         if metadata is not None:
             self._metadata = metadata
-            self._context._invocation_metadata.extend((_Metadatum(k, v) for k, v in metadata))
+            metadata = self._context.invocation_metadata() + tuple(
+                _Metadatum(k, v) for k, v in metadata
+            )
+            self._context.set_invocation_metadata(metadata)
 
         async def wrapped(*args, **kwargs):
             method = self._real_method(request=self._request, context=self._context)

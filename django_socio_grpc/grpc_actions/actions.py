@@ -62,6 +62,7 @@ from django_socio_grpc.protobuf.proto_classes import (
 )
 from django_socio_grpc.request_transformer.grpc_internal_proxy import GRPCInternalProxyContext
 from django_socio_grpc.settings import grpc_settings
+from django_socio_grpc.signals import grpc_action_register
 from django_socio_grpc.utils.debug import ProtoGeneratorPrintHelper
 from django_socio_grpc.utils.utils import _is_generator, isgeneratorfunction
 
@@ -123,6 +124,9 @@ class GRPCAction:
             if "_decorated_grpc_action_registry" not in owner.__dict__:
                 owner._decorated_grpc_action_registry = {}
             owner._decorated_grpc_action_registry.update({name: self.get_action_params()})
+
+    def __hash__(self):
+        return hash(self.function)
 
     def __get__(self, obj, type=None):
         return self.clone(function=self.function.__get__(obj, type))
@@ -224,7 +228,6 @@ class GRPCAction:
         ProtoGeneratorPrintHelper.set_service_and_action(
             service_name=owner.__name__, action_name=action_name
         )
-        ProtoGeneratorPrintHelper.print("register ", owner.__name__, action_name)
         try:
             self.resolve_placeholders(owner, action_name)
 
@@ -241,6 +244,9 @@ class GRPCAction:
         owner.proto_service.add_rpc(self.proto_rpc)
 
         setattr(owner, action_name, self)
+
+        # INFO - AM - 22/08/2024 - Send a signal to notify that a grpc action has been created. Used for now in cache deleter
+        grpc_action_register.send(sender=self, owner=owner, name=action_name)
 
     def resolve_placeholders(self, service_class: type["Service"], action: str):
         """

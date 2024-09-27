@@ -110,6 +110,34 @@ service UnitTestModelController {
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
 }
 
+service UnitTestModelWithCacheController {
+    rpc Create(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDelete(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDeleteRedis(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithPossibilityMaxAge(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithStructFilter(UnitTestModelWithCacheListWithStructFilterRequest) returns (UnitTestModelWithCacheListResponse) {}
+    rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Retrieve(UnitTestModelWithCacheRetrieveRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Stream(UnitTestModelWithCacheStreamRequest) returns (stream UnitTestModelWithCacheResponse) {}
+    rpc Update(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
+}
+
+service UnitTestModelWithCacheInheritController {
+    rpc Create(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Destroy(UnitTestModelWithCacheDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDelete(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithAutoCacheCleanOnSaveAndDeleteRedis(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithPossibilityMaxAge(google.protobuf.Empty) returns (UnitTestModelWithCacheListResponse) {}
+    rpc ListWithStructFilter(UnitTestModelWithCacheInheritListWithStructFilterRequest) returns (UnitTestModelWithCacheListResponse) {}
+    rpc PartialUpdate(UnitTestModelWithCachePartialUpdateRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Retrieve(UnitTestModelWithCacheRetrieveRequest) returns (UnitTestModelWithCacheResponse) {}
+    rpc Stream(UnitTestModelWithCacheStreamRequest) returns (stream UnitTestModelWithCacheResponse) {}
+    rpc Update(UnitTestModelWithCacheRequest) returns (UnitTestModelWithCacheResponse) {}
+}
+
 service UnitTestModelWithStructFilterController {
     rpc Create(UnitTestModelWithStructFilterRequest) returns (UnitTestModelWithStructFilterResponse) {}
     rpc Destroy(UnitTestModelWithStructFilterDestroyRequest) returns (google.protobuf.Empty) {}
@@ -631,6 +659,53 @@ message UnitTestModelRetrieveRequest {
 }
 
 message UnitTestModelStreamRequest {
+}
+
+message UnitTestModelWithCacheDestroyRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelWithCacheInheritListWithStructFilterRequest {
+    optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
+}
+
+message UnitTestModelWithCacheListResponse {
+    repeated UnitTestModelWithCacheResponse results = 1;
+    int32 count = 2;
+}
+
+message UnitTestModelWithCacheListWithStructFilterRequest {
+    optional google.protobuf.Struct _filters = 1;
+    optional google.protobuf.Struct _pagination = 2;
+}
+
+message UnitTestModelWithCachePartialUpdateRequest {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    repeated string _partial_update_fields = 4;
+}
+
+message UnitTestModelWithCacheRequest {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+}
+
+message UnitTestModelWithCacheResponse {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    int32 model_property = 4;
+    string verify_custom_header = 5;
+}
+
+message UnitTestModelWithCacheRetrieveRequest {
+    int32 id = 1;
+}
+
+message UnitTestModelWithCacheStreamRequest {
 }
 
 message UnitTestModelWithStructFilterDestroyRequest {

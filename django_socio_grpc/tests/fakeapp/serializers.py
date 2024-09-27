@@ -49,6 +49,20 @@ class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
 class UnitTestModelWithStructFilterSerializer(UnitTestModelSerializer): ...
 
 
+# INFO - AM - 14/02/2024 - This serializer exist just to be sure we do not override UnitTestModelSerializer in the proto
+class UnitTestModelWithCacheSerializer(UnitTestModelSerializer):
+    verify_custom_header = serializers.SerializerMethodField()
+
+    def get_verify_custom_header(self, _) -> str:
+        return self.context["grpc_context"].META.get("CUSTOM_HEADER", "")
+
+    class Meta:
+        model = UnitTestModel
+        proto_class = fakeapp_pb2.UnitTestModelWithCacheResponse
+        proto_class_list = fakeapp_pb2.UnitTestModelWithCacheListResponse
+        fields = UnitTestModelSerializer.Meta.fields + ["verify_custom_header"]
+
+
 class UnitTestModelListExtraArgsSerializer(proto_serializers.ProtoSerializer):
     count = serializers.IntegerField()
     query_fetched_datetime = serializers.DateTimeField()

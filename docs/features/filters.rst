@@ -462,6 +462,7 @@ For web usage of the client see :ref:`How to web: Using JS client<using_js_clien
 
 
 .. code-block:: javascript
+
     import { Struct } from "@bufbuild/protobuf";
     // See web usage to understand how to use the client.
     const postClient = createPromiseClient(PostController, transport);
@@ -483,6 +484,7 @@ For web usage of the client see :ref:`How to web: Using JS client<using_js_clien
 
 
 .. code-block:: javascript
+
     // See web usage to understand how to use the client.
     const postClient = createPromiseClient(PostController, transport);
 

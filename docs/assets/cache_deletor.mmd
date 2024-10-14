@@ -1,0 +1,24 @@
+graph TD
+    A[Start] --> B{Cache Config Check}
+    B -->|Cache default and Not Redis| C[Log Warning: All deletion warning]
+    B -->|Cache is not default or support delete_pattern| D{Invalidator Signals}
+    D -->|Not Provided| E[Set Default Signals post_save, post_delete]
+    D -->|Provided| F[Use Provided Signals]
+    E --> G[Connect Invalidate Cache Signal]
+    F --> G[Connect Invalidate Cache Signal]
+    G --> H{Wait for grpc action to be registered}
+    H -->|Not Registered| I[Skip Cache Deletion]
+    H -->|Registered| J[Check Senders]
+    H -->|Registered| T[Decorate grpc function with cache func]
+    J -->|Senders Not Provided| K[Check Owner Queryset]
+    K -->|No Queryset| L[Log Warning: No Senders]
+    K -->|Queryset Exists| M[Use Owner's Model as Sender]
+    J -->|Senders Provided| N[Use Provided Senders]
+    M --> O[Connect Model Signals to Cache Deleter]
+    N --> O[Connect Model Signals to Cache Deleter]
+    O --> P{Cache Deletion Supported?}
+    P -->|Yes| Q[Delete Cache Pattern for Views]
+    P -->|No| R[Clear Cache]
+    T --> S[End]
+    Q --> S[End]
+    R --> S[End]

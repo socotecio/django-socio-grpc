@@ -395,16 +395,17 @@ OrderingFilter
 
 OrderingFilters are used to control the ordering of the results.
 
-DSG also support the `DRF OrderingFilter <https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter>`_
+DSG also support the `DRF OrderingFilter <https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter>`_.
 
 Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter>`_ for implementation details and specific lookup.
+
+But as the DRF ordering only accept string for ordering (looking like: "ordering=-filed1,field2") and gRPC can directly send array in message we provide our own :func:`OrderingFilter<django_socio_grpc.filters.OrderingFilter>` that support it.
 
 .. code-block:: python
 
     # server
     # quickstart/services.py
-    from django_socio_grpc import generics
-    from rest_framework import filters
+    from django_socio_grpc import generics, filters
     from quickstart.models import Post
     from quickstart.serializer import PostProtoSerializer
 
@@ -429,7 +430,7 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
 
             request = quickstart_pb2.PostListRequest()
             # order by descending pub_date
-            filter_as_dict = {"ordering": "-pub_date"}
+            filter_as_dict = {"ordering": "-pub_date"} # or {"ordering": ["-pub_date"]} if multiple ordering and using DSG OrderingFilter
             metadata = (("filters", (json.dumps(filter_as_dict))),)
 
             response = await quickstart_client.List(request, metadata=metadata)
@@ -441,7 +442,7 @@ Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering
             quickstart_client = quickstart_pb2_grpc.PostControllerStub(channel)
 
             # filters only the user with id "be76adbb-73c3-4d65-b823-66b3276df38b"
-            filter_as_dict = {"ordering": "-pub_date"}
+            filter_as_dict = {"ordering": "-pub_date"} # or {"ordering": ["-pub_date"]} if multiple ordering and using DSG OrderingFilter
             filter_as_struct = struct_pb2.Struct()
             filter_as_struct.update(filter_as_dict)
 

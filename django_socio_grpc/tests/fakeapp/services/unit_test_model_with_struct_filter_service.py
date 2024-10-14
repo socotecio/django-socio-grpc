@@ -6,6 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.filters import OrderingFilter
 from django_socio_grpc.protobuf.generation_plugin import (
     FilterGenerationPlugin,
     ListGenerationPlugin,
@@ -37,8 +38,13 @@ class UnitTestModelWithStructFilterService(
     queryset = UnitTestModel.objects.all().order_by("id")
     serializer_class = UnitTestModelWithStructFilterSerializer
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["title", "text"]
+    ordering_fields = [
+        "title",
+        "id",
+    ]
+    ordering = ["-id"]
 
     @grpc_action(
         request=[],

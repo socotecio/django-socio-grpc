@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Optional
 from unittest import mock
 
@@ -108,6 +109,7 @@ class MySerializer(proto_serializers.ProtoSerializer):
     smf_with_serializer = serializers.SerializerMethodField()
     smf_with_serializer_pipe = serializers.SerializerMethodField()
     smf_with_list_serializer = serializers.SerializerMethodField()
+    smf_with_decimal = serializers.SerializerMethodField()
 
     read_only_field0 = serializers.CharField(read_only=True)
     read_only_field1 = serializers.CharField(read_only=True)
@@ -122,6 +124,8 @@ class MySerializer(proto_serializers.ProtoSerializer):
     def get_smf_with_serializer_pipe(self, obj) -> BasicServiceSerializer | None: ...
 
     def get_smf_with_list_serializer(self, obj) -> list[BasicServiceSerializer]: ...  # noqa: UP006
+
+    def get_smf_with_decimal(self, obj) -> Decimal: ...
 
 
 class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
@@ -293,6 +297,15 @@ class TestFields:
         assert proto_field.name == "list_field_with_serializer"
         assert proto_field.field_type.name == "MyOther"
         assert proto_field.cardinality == FieldCardinality.REPEATED
+
+    def test_from_field_serializer_method_field_with_decimal(self):
+        ser = MySerializer()
+        field = ser.fields["smf_with_decimal"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "smf_with_decimal"
+        assert proto_field.field_type == "double"
 
     def test_from_field_serializer_choice_field(self):
         ser = MyIntSerializer()
@@ -467,7 +480,7 @@ class TestProtoMessage:
         proto_message = ProtoMessage.from_serializer(MySerializer, name="My")
 
         assert proto_message.name == "My"
-        assert len(proto_message.fields) == 14
+        assert len(proto_message.fields) == 15
 
     def test_from_serializer_request(self):
         proto_message = RequestProtoMessage.from_serializer(MySerializer, name="MyRequest")
@@ -486,7 +499,7 @@ class TestProtoMessage:
         proto_message = ResponseProtoMessage.from_serializer(MySerializer, name="MyResponse")
 
         assert proto_message.name == "MyResponse"
-        assert len(proto_message.fields) == 13
+        assert len(proto_message.fields) == 14
 
     def test_from_serializer_nested(self):
         proto_message = ResponseProtoMessage.from_serializer(
@@ -498,7 +511,7 @@ class TestProtoMessage:
         assert proto_message.comments == ["serializer comment"]
 
         assert proto_message.fields[0].name == "serializer"
-        assert len(proto_message.fields[0].field_type.fields) == 13
+        assert len(proto_message.fields[0].field_type.fields) == 14
 
 
 class TestGrpcActionProto(TestCase):

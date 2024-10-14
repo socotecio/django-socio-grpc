@@ -42,6 +42,7 @@ class UnitTestModelWithStructFilterService(
     filterset_fields = ["title", "text"]
     ordering_fields = [
         "title",
+        "id",
     ]
     ordering = ["-id"]
 

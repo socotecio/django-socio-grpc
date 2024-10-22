@@ -9,6 +9,7 @@ from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.proto_classes import ProtoMessage, ProtoService
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
+from .proto_classes import ProtoEnum
 from .protoparser import protoparser
 
 MAX_SORT_NUMBER = 9999
@@ -87,8 +88,17 @@ class RegistryToProtoGenerator:
         for service in sorted(registry.proto_services, key=lambda x: x.name):
             self._generate_service(service)
 
+        proto_enums = []
+
         for message in sorted(messages, key=lambda x: x.name):
             self._generate_message(message)
+            # Add the proto_enums founds in fields in the proto_enum variable
+            proto_enums += [
+                f.field_type for f in message.fields if isinstance(f.field_type, ProtoEnum)
+            ]
+
+        for enum in list(dict.fromkeys(proto_enums)):
+            self._generate_enum(enum)
 
         return self._writer.get_code()
 
@@ -141,6 +151,31 @@ class RegistryToProtoGenerator:
                 self.write_comments(field.comments)
 
                 self._writer.write_line(field.field_line)
+        self._writer.write_line("}")
+        self._writer.write_line("")
+
+    def _generate_enum(self, enum: ProtoEnum):
+        self.write_comments(enum.comments)
+        self._writer.write_line(f"message {enum.name} {{")
+        with self._writer.indent():
+            self._writer.write_line("enum Enum {")
+            with self._writer.indent():
+                self._writer.write_line("ENUM_UNSPECIFIED = 0;")
+                for el in enum.values:
+                    if isinstance(el.value, tuple):
+                        comments = el.value[1]
+                        value = el.value[0]
+                    else:
+                        comments = None
+                        value = el.value
+
+                    assert comments is None or isinstance(
+                        comments, list
+                    ), f"Comments should be a list or not specified ({enum.name}.{el.name})"
+
+                    self.write_comments(comments)
+                    self._writer.write_line(f"{el.name} = {value};")
+            self._writer.write_line("}")
         self._writer.write_line("}")
         self._writer.write_line("")
 

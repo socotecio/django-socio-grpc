@@ -445,12 +445,15 @@ class TestFields:
         assert isinstance(proto_field.field_type, ProtoEnum)
         assert proto_field.field_type.name == "TestEnum"
         assert proto_field.field_type.comments == ["Test enum comment"]
-        
+
         field_dict = {
             "name": "my_enum",
             "type": ProtoEnum(
                 name="NewName",
-                enum=Enum(value="TestEnum", names=[("VALUE_1", (1, "Comment 1")), ("VALUE_2", (2, "Comment 2"))]),
+                enum=Enum(
+                    value="TestEnum",
+                    names=[("VALUE_1", (1, "Comment 1")), ("VALUE_2", (2, "Comment 2"))],
+                ),
                 comments=["Test", "enum comment"],
             ),
             "comment": ["Test", "proto enum comment"],
@@ -462,13 +465,13 @@ class TestFields:
         assert proto_field.name == "my_enum"
         assert proto_field.cardinality == FieldCardinality.REPEATED
         assert proto_field.comments == ["Test", "proto enum comment"]
-        
+
         assert isinstance(proto_field.field_type, ProtoEnum)
         assert proto_field.field_type.name == "NewName"
-        
+
         assert proto_field.field_type.values.VALUE_1.name == "VALUE_1"
         assert proto_field.field_type.values.VALUE_1.value == (1, "Comment 1")
-        
+
         assert proto_field.field_type.comments == ["Test", "enum comment"]
 
 

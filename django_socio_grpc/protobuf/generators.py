@@ -169,6 +169,7 @@ class RegistryToProtoGenerator:
                         comments = None
                         value = el.value
 
+                    assert value != 0, f"Enum value 0 is reserved ({enum.name}.{el.name})"
                     assert comments is None or isinstance(
                         comments, list
                     ), f"Comments should be a list or not specified ({enum.name}.{el.name})"

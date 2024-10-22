@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 from unittest import mock
 
@@ -25,6 +26,7 @@ from django_socio_grpc.protobuf.message_name_constructor import (
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
     FieldCardinality,
+    ProtoEnum,
     ProtoField,
     ProtoMessage,
     RequestProtoMessage,
@@ -423,6 +425,25 @@ class TestFields:
             }
 
             ProtoField.from_field_dict(field_dict)
+
+    def test_from_field_dict_enum(self):
+        field_dict = {
+            "name": "my_enum",
+            "type": ProtoEnum(
+                Enum(value="TestEnum", names=[("VALUE_1", 1), ("VALUE_2", 2)]),
+                comments=["Test enum comment"],
+            ),
+            "comment": ["Test enum comment"],
+        }
+
+        proto_field = ProtoField.from_field_dict(field_dict)
+
+        assert proto_field.name == "my_enum"
+        assert proto_field.cardinality == FieldCardinality.NONE
+        assert proto_field.comments == ["Test enum comment"]
+
+        assert isinstance(proto_field.field_type, ProtoEnum)
+        assert proto_field.field_type.name == "TestEnum"
 
 
 class TestProtoMessage:

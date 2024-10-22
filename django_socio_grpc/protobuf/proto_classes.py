@@ -5,6 +5,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
+from enum import Enum
 from typing import (
     ClassVar,
     Union,
@@ -65,6 +66,24 @@ class ProtoComment:
         return len(self.comments) != 0
 
 
+class ProtoEnum:
+    def __init__(self, enum: Enum, name="", comments=None):
+        if name == "":
+            name = enum.__name__
+        if comments is None:
+            comments = []
+
+        self.name = name
+        self.comments = comments
+        self.values = enum
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+
 @dataclass
 class ProtoField:
     """
@@ -77,7 +96,7 @@ class ProtoField:
     """
 
     name: str
-    field_type: Union[str, "ProtoMessage"]
+    field_type: Union[str, "ProtoMessage", ProtoEnum]
     cardinality: FieldCardinality = FieldCardinality.NONE
     comments: list[str] | None = None
     index: int = 0
@@ -86,6 +105,8 @@ class ProtoField:
     def field_type_str(self) -> str:
         if isinstance(self.field_type, str):
             return self.field_type
+        if isinstance(self.field_type, ProtoEnum):
+            return f"{self.field_type.name}.Enum"
         return self.field_type.name
 
     @property
@@ -115,30 +136,33 @@ class ProtoField:
         cardinality = field_dict.get("cardinality", FieldCardinality.NONE)
         name = field_dict["name"]
         field_type = field_dict["type"]
-        type_parts = field_type.split(" ")
-        if len(type_parts) == 2:
-            if cardinality:
-                raise ProtoRegistrationError(
-                    f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({name})"
-                )
-            cardinality, field_type = type_parts
 
-            stack = traceback.StackSummary.extract(
-                traceback.walk_stack(None), capture_locals=True
-            )
-            for frame in stack:
-                if frame.name == "make_proto_rpc":
-                    logger.warning(
-                        f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({name})"
-                        " Please set it in the `cardinality` key instead.\n"
-                        f"`{frame.locals['self']}`"
+        if isinstance(field_type, str):
+            type_parts = field_type.split(" ")
+            if len(type_parts) == 2:
+                if cardinality:
+                    raise ProtoRegistrationError(
+                        f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({name})"
                     )
-                    break
+                cardinality, field_type = type_parts
 
-        elif len(type_parts) > 2:
-            raise ProtoRegistrationError(
-                f"Unknown field type `{field_type}` for field `{name}`"
-            )
+                stack = traceback.StackSummary.extract(
+                    traceback.walk_stack(None), capture_locals=True
+                )
+                for frame in stack:
+                    if frame.name == "make_proto_rpc":
+                        logger.warning(
+                            f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({name})"
+                            " Please set it in the `cardinality` key instead.\n"
+                            f"`{frame.locals['self']}`"
+                        )
+                        break
+
+            elif len(type_parts) > 2:
+                raise ProtoRegistrationError(
+                    f"Unknown field type `{field_type}` for field `{name}`"
+                )
+
         if cardinality not in FieldCardinality.__members__.values():
             raise ProtoRegistrationError(
                 f"Unknown cardinality `{cardinality}` for field `{name}`"

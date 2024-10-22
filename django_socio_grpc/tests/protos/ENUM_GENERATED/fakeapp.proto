@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package myproject.fakeapp;
+
+service EnumController {
+    rpc Create(EnumServiceRequest) returns (EnumServiceResponse) {}
+    rpc TestEnum(EnumTestEnumRequest) returns (EnumTestEnumResponse) {}
+}
+
+message EnumServiceRequest {
+}
+
+message EnumServiceResponse {
+}
+
+message EnumTestEnumRequest {
+    TestEnum.Enum enum_example = 1;
+}
+
+message EnumTestEnumResponse {
+    string value = 1;
+}
+
+// Test enum comment
+message TestEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // This is
+        // my first value
+        VALUE_1 = 1;
+        VALUE_2 = 2;
+    }
+}
+

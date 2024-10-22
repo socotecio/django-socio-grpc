@@ -239,3 +239,7 @@ class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
 
 class NoMetaSerializer(proto_serializers.ProtoSerializer):
     my_field = serializers.CharField()
+
+
+class EnumServiceSerializer(proto_serializers.ProtoSerializer):
+    pass

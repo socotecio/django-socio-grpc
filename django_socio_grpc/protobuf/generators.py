@@ -3,13 +3,13 @@ import logging
 from collections import OrderedDict
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
+from enum import Enum
 from pathlib import Path
 
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.proto_classes import ProtoMessage, ProtoService
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
-from .proto_classes import ProtoEnum
 from .protoparser import protoparser
 
 MAX_SORT_NUMBER = 9999
@@ -88,19 +88,47 @@ class RegistryToProtoGenerator:
         for service in sorted(registry.proto_services, key=lambda x: x.name):
             self._generate_service(service)
 
-        proto_enums = []
+        enums = []
 
         for message in sorted(messages, key=lambda x: x.name):
             self._generate_message(message)
-            # Add the proto_enums founds in fields in the proto_enum variable
-            proto_enums += [
-                f.field_type for f in message.fields if isinstance(f.field_type, ProtoEnum)
+
+            # Gather all enums to generate them at the end
+            enums += [
+                f.field_type
+                for f in message.fields
+                if isinstance(f.field_type, type) and issubclass(f.field_type, Enum)
             ]
 
-        for enum in list(dict.fromkeys(proto_enums)):
-            self._generate_enum(enum)
+        # self._set_enums_indexes(enums, previous_messages)
+        prev_indices = {}
+        for enum in list(dict.fromkeys(enums)):
+            if previous_messages and (
+                ex_enum := previous_messages.get(enum.__name__).enums["Enum"]
+            ):
+                prev_indices = {f.name: int(f.number) for f in ex_enum.fields}
+            indices = self._get_enum_indices(enum, prev_indices)
+            self._generate_enum(enum, indices)
 
         return self._writer.get_code()
+
+    def _get_enum_indices(self, enum: Enum, prev_indices: dict[str, int]) -> dict[str, int]:
+        curr_idx = 0
+        indices = {}
+        enum_members_name = [el.name for el in enum]
+        if prev_indices:
+            indices = {
+                field: idx for field, idx in prev_indices.items() if field in enum_members_name
+            }
+            if indices.keys():
+                curr_idx = max(prev_indices.values())
+
+        for field in enum_members_name:
+            if field not in indices:
+                curr_idx += 1
+                indices[field] = curr_idx
+
+        return indices
 
     def _generate_service(self, service: ProtoService):
         self._writer.write_line(f"service {service.name} {{")
@@ -154,28 +182,27 @@ class RegistryToProtoGenerator:
         self._writer.write_line("}")
         self._writer.write_line("")
 
-    def _generate_enum(self, enum: ProtoEnum):
-        self.write_comments(enum.comments)
-        self._writer.write_line(f"message {enum.name} {{")
+    def _generate_enum(self, enum: Enum, indices: dict[str, int]):
+        if enum.__doc__:
+            self.write_comments(enum.__doc__.strip().splitlines())
+
+        self._writer.write_line(f"message {enum.__name__} {{")
         with self._writer.indent():
             self._writer.write_line("enum Enum {")
             with self._writer.indent():
                 self._writer.write_line("ENUM_UNSPECIFIED = 0;")
-                for el in enum.values:
-                    if isinstance(el.value, tuple):
-                        comments = el.value[1]
-                        value = el.value[0]
+                for el in sorted(indices, key=indices.get):
+                    el = enum[el]
+
+                    if el.name in enum.__annotations__:
+                        comments = enum.__annotations__[el.name].__metadata__[0]
+                        if isinstance(comments, str):
+                            comments = [comments]
                     else:
                         comments = None
-                        value = el.value
-
-                    assert value != 0, f"Enum value 0 is reserved ({enum.name}.{el.name})"
-                    assert comments is None or isinstance(
-                        comments, list
-                    ), f"Comments should be a list or not specified ({enum.name}.{el.name})"
 
                     self.write_comments(comments)
-                    self._writer.write_line(f"{el.name} = {value};")
+                    self._writer.write_line(f"{el.name} = {indices[el.name]};")
             self._writer.write_line("}")
         self._writer.write_line("}")
         self._writer.write_line("")

@@ -1,29 +1,27 @@
 from enum import Enum
+from typing import Annotated
 
 from fakeapp.grpc import fakeapp_pb2
 
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
-from django_socio_grpc.protobuf.proto_classes import ProtoEnum
 from django_socio_grpc.tests.fakeapp.serializers import EnumServiceSerializer
+
+
+class MyEnum(Enum):
+    """
+    This is my test Enum
+    """
+
+    VALUE_1: Annotated[int, ["This is my first value"]] = 1
+    VALUE_2 = 2
 
 
 class EnumService(generics.AsyncCreateService):
     serializer_class = EnumServiceSerializer
 
     @grpc_action(
-        request=[
-            {
-                "name": "enum_example",
-                "type": ProtoEnum(
-                    Enum(
-                        "TestEnum",
-                        [("VALUE_1", (1, ["This is", "my first value"])), ("VALUE_2", 2)],
-                    ),
-                    comments=["Test enum comment"],
-                ),
-            }
-        ],
+        request=[{"name": "enum_example", "type": MyEnum}],
         response=[{"name": "value", "type": "string"}],
     )
     async def TestEnum(self, request, context):

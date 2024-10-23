@@ -66,24 +66,6 @@ class ProtoComment:
         return len(self.comments) != 0
 
 
-class ProtoEnum:
-    def __init__(self, enum: Enum, name="", comments=None):
-        if name == "":
-            name = enum.__name__
-        if comments is None:
-            comments = []
-
-        self.name = name
-        self.comments = comments
-        self.values = enum
-
-    def __eq__(self, other):
-        return self.name == other.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-
 @dataclass
 class ProtoField:
     """
@@ -96,7 +78,7 @@ class ProtoField:
     """
 
     name: str
-    field_type: Union[str, "ProtoMessage", ProtoEnum]
+    field_type: Union[str, "ProtoMessage", Enum]
     cardinality: FieldCardinality = FieldCardinality.NONE
     comments: list[str] | None = None
     index: int = 0
@@ -105,8 +87,8 @@ class ProtoField:
     def field_type_str(self) -> str:
         if isinstance(self.field_type, str):
             return self.field_type
-        if isinstance(self.field_type, ProtoEnum):
-            return f"{self.field_type.name}.Enum"
+        if isinstance(self.field_type, type) and issubclass(self.field_type, Enum):
+            return f"{self.field_type.__name__}.Enum"
         return self.field_type.name
 
     @property

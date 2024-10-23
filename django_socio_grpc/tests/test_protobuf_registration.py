@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Annotated, Optional
 from unittest import mock
 
 import pytest
@@ -26,7 +26,6 @@ from django_socio_grpc.protobuf.message_name_constructor import (
 from django_socio_grpc.protobuf.proto_classes import (
     EmptyMessage,
     FieldCardinality,
-    ProtoEnum,
     ProtoField,
     ProtoMessage,
     RequestProtoMessage,
@@ -41,6 +40,16 @@ from django_socio_grpc.tests.fakeapp.serializers import (
     BasicServiceSerializer,
     RelatedFieldModelSerializer,
 )
+
+
+class MyEnum(Enum):
+    """
+    This is a test enum
+    """
+
+    VALUE_1: Annotated[int, ["My comment", "on two lines"]] = 1
+    VALUE_2: Annotated[int, "My comment"] = 2
+    VALUE_3 = 3
 
 
 class CustomMessageNameConstructor(DefaultMessageNameConstructor):
@@ -429,50 +438,25 @@ class TestFields:
     def test_from_field_dict_enum(self):
         field_dict = {
             "name": "my_enum",
-            "type": ProtoEnum(
-                Enum(value="TestEnum", names=[("VALUE_1", 1), ("VALUE_2", 2)]),
-                comments=["Test enum comment"],
-            ),
-            "comment": ["Test proto enum comment"],
+            "type": MyEnum,
+            "comment": ["my_enum comment"],
         }
 
         proto_field = ProtoField.from_field_dict(field_dict)
 
         assert proto_field.name == "my_enum"
         assert proto_field.cardinality == FieldCardinality.NONE
-        assert proto_field.comments == ["Test proto enum comment"]
+        assert proto_field.comments == ["my_enum comment"]
 
-        assert isinstance(proto_field.field_type, ProtoEnum)
-        assert proto_field.field_type.name == "TestEnum"
-        assert proto_field.field_type.comments == ["Test enum comment"]
-
-        field_dict = {
-            "name": "my_enum",
-            "type": ProtoEnum(
-                name="NewName",
-                enum=Enum(
-                    value="TestEnum",
-                    names=[("VALUE_1", (1, "Comment 1")), ("VALUE_2", (2, "Comment 2"))],
-                ),
-                comments=["Test", "enum comment"],
-            ),
-            "comment": ["Test", "proto enum comment"],
-            "cardinality": FieldCardinality.REPEATED,
-        }
-
-        proto_field = ProtoField.from_field_dict(field_dict)
-
-        assert proto_field.name == "my_enum"
-        assert proto_field.cardinality == FieldCardinality.REPEATED
-        assert proto_field.comments == ["Test", "proto enum comment"]
-
-        assert isinstance(proto_field.field_type, ProtoEnum)
-        assert proto_field.field_type.name == "NewName"
-
-        assert proto_field.field_type.values.VALUE_1.name == "VALUE_1"
-        assert proto_field.field_type.values.VALUE_1.value == (1, "Comment 1")
-
-        assert proto_field.field_type.comments == ["Test", "enum comment"]
+        assert issubclass(proto_field.field_type, Enum)
+        assert proto_field.field_type.__annotations__[MyEnum.VALUE_1.name].__metadata__[0] == [
+            "My comment",
+            "on two lines",
+        ]
+        assert (
+            proto_field.field_type.__annotations__[MyEnum.VALUE_2.name].__metadata__[0]
+            == "My comment"
+        )
 
 
 class TestProtoMessage:

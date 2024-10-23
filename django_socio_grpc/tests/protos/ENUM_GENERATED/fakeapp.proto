@@ -14,19 +14,18 @@ message EnumServiceResponse {
 }
 
 message EnumTestEnumRequest {
-    TestEnum.Enum enum_example = 1;
+    MyEnum.Enum enum_example = 1;
 }
 
 message EnumTestEnumResponse {
     string value = 1;
 }
 
-// Test enum comment
-message TestEnum {
+// This is my test Enum
+message MyEnum {
     enum Enum {
         ENUM_UNSPECIFIED = 0;
-        // This is
-        // my first value
+        // This is my first value
         VALUE_1 = 1;
         VALUE_2 = 2;
     }

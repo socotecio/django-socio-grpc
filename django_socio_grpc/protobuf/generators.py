@@ -103,9 +103,8 @@ class RegistryToProtoGenerator:
         # self._set_enums_indexes(enums, previous_messages)
         prev_indices = {}
         for enum in list(dict.fromkeys(enums)):
-            if previous_messages and (
-                ex_enum := previous_messages.get(enum.__name__).enums["Enum"]
-            ):
+            if previous_messages and previous_messages.get(enum.__name__):
+                ex_enum = previous_messages.get(enum.__name__).enums["Enum"]
                 prev_indices = {f.name: int(f.number) for f in ex_enum.fields}
             indices = self._get_enum_indices(enum, prev_indices)
             self._generate_enum(enum, indices)

@@ -399,7 +399,7 @@ DSG also support the `DRF OrderingFilter <https://www.django-rest-framework.org/
 
 Refer to the `DRF doc <https://www.django-rest-framework.org/api-guide/filtering/#orderingfilter>`_ for implementation details and specific lookup.
 
-But as the DRF ordering only accept string for ordering (looking like: "ordering=-filed1,field2") and gRPC can directly send array in message we provide our own :func:`OrderingFilter<django_socio_grpc.filters.OrderingFilter>` that support it.
+But as the DRF OrderingFilter only accepts string for ordering (`ordering=-field1,field2`) while gRPC is able to use arrays we provide our own :func:`OrderingFilter<django_socio_grpc.filters.OrderingFilter>` that supports it.
 
 .. code-block:: python
 

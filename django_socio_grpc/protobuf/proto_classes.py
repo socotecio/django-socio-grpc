@@ -206,8 +206,8 @@ class ProtoField:
 
             # Django only store the mapping of the enum members to their values, not the enum itself
             first_type = type(list(field.choices.keys())[0])
-        
-            if isinstance(first_type, type) and issubclass(first_type,Enum):                
+
+            if isinstance(first_type, type) and issubclass(first_type, Enum):
                 return cls(
                     name=field.field_name,
                     field_type=first_type,
@@ -738,7 +738,7 @@ def get_proto_type(
 
         if all(isinstance(choice, first_type) for choice in field.choices):
             return TYPING_TO_PROTO_TYPES.get(first_type, "string")
-        
+
     proto_type = None
     field_mro = field.__class__.mro()
     while proto_type is None:

@@ -77,6 +77,7 @@ class MyIntModel(models.Model):
         default=Choices.ONE,
     )
 
+
 class MyIntSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = MyIntModel
@@ -94,31 +95,38 @@ class MyStrModel(models.Model):
         choices=Choices,
         default=Choices.VALUE_1,
     )
+
+
 class MyStrSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = MyStrModel
         fields = "__all__"
+
 
 class MyOldIntModel(models.Model):
     choice_field = models.IntegerField(
         choices=[(1, "One"), (2, "Two"), (3, "Three")],
         default=1,
     )
+
+
 class MyOldIntSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = MyOldIntModel
         fields = "__all__"
-        
+
+
 class MyOldStrModel(models.Model):
     choice_field = models.CharField(
         choices=[("Car", "Voiture"), ("Door", "Porte"), ("Little chair", "Petite chaise")],
         default=1,
     )
+
+
 class MyOldStrSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = MyOldStrModel
         fields = "__all__"
-
 
 
 class MyPropertyModel(models.Model):

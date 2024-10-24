@@ -149,6 +149,14 @@ service DefaultValueModelController {
     rpc Destroy(DefaultValueModelDestroyRequest) returns (google.protobuf.Empty) {}
 }
 
+service EnumModelController {
+    rpc List(EnumModelListRequest) returns (EnumModelListResponse) {}
+    rpc Create(EnumModel) returns (EnumModel) {}
+    rpc Retrieve(EnumModelRetrieveRequest) returns (EnumModel) {}
+    rpc Update(EnumModel) returns (EnumModel) {}
+    rpc Destroy(EnumModelDestroyRequest) returns (google.protobuf.Empty) {}
+}
+
 message UnitTestModel {
     int32 id = 1;
     string title = 2;
@@ -321,6 +329,28 @@ message DefaultValueModelRetrieveRequest {
 }
 
 message DefaultValueModelDestroyRequest {
+    string id = 1;
+}
+
+message EnumModel {
+    string id = 1;
+    string char_choices = 2;
+    int32 int_choices = 3;
+}
+
+message EnumModelListRequest {
+}
+
+message EnumModelListResponse {
+    repeated EnumModel results = 1;
+    int32 count = 2;
+}
+
+message EnumModelRetrieveRequest {
+    string id = 1;
+}
+
+message EnumModelDestroyRequest {
     string id = 1;
 }
 

@@ -205,13 +205,14 @@ class ProtoField:
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ChoiceField")
 
             # Django only store the mapping of the enum members to their values, not the enum itself
-            enum_class = type(list(field.choices.keys())[0])
-
-            return cls(
-                name=field.field_name,
-                field_type=enum_class,
-                cardinality=cls._get_cardinality(field),
-            )
+            first_type = type(list(field.choices.keys())[0])
+        
+            if isinstance(first_type, type) and issubclass(first_type,Enum):                
+                return cls(
+                    name=field.field_name,
+                    field_type=first_type,
+                    cardinality=cls._get_cardinality(field),
+                )
 
         cardinality = cls._get_cardinality(field)
         if isinstance(field, serializers.ListField):
@@ -733,8 +734,11 @@ def get_proto_type(
         return get_proto_type(field.model_field)
 
     if isinstance(field, serializers.ChoiceField):
-        return "enum"
+        first_type = type(list(field.choices.keys())[0])
 
+        if all(isinstance(choice, first_type) for choice in field.choices):
+            return TYPING_TO_PROTO_TYPES.get(first_type, "string")
+        
     proto_type = None
     field_mro = field.__class__.mro()
     while proto_type is None:

@@ -77,7 +77,6 @@ class MyIntModel(models.Model):
         default=Choices.ONE,
     )
 
-
 class MyIntSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = MyIntModel
@@ -95,12 +94,31 @@ class MyStrModel(models.Model):
         choices=Choices,
         default=Choices.VALUE_1,
     )
-
-
 class MyStrSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = MyStrModel
         fields = "__all__"
+
+class MyOldIntModel(models.Model):
+    choice_field = models.IntegerField(
+        choices=[(1, "One"), (2, "Two"), (3, "Three")],
+        default=1,
+    )
+class MyOldIntSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyOldIntModel
+        fields = "__all__"
+        
+class MyOldStrModel(models.Model):
+    choice_field = models.CharField(
+        choices=[("Car", "Voiture"), ("Door", "Porte"), ("Little chair", "Petite chaise")],
+        default=1,
+    )
+class MyOldStrSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyOldStrModel
+        fields = "__all__"
+
 
 
 class MyPropertyModel(models.Model):
@@ -326,7 +344,7 @@ class TestFields:
         assert proto_field.field_type.name == "MyOther"
         assert proto_field.cardinality == FieldCardinality.REPEATED
 
-    def test_from_field_serializer_choice_field(self):
+    def test_from_field_serializer_int_choices(self):
         ser = MyIntSerializer()
         field = ser.fields["choice_field"]
 
@@ -337,7 +355,7 @@ class TestFields:
         # INFO - AM - 04/01/2024 - OPTIONAL because a default is specified in the model
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
-    def test_from_field_serializer_choice_field_str(self):
+    def test_from_field_serializer_str_choices(self):
         ser = MyStrSerializer()
         field = ser.fields["choice_field"]
 
@@ -375,6 +393,26 @@ class TestFields:
         assert proto_field_char.name == "default_char"
         assert proto_field_char.field_type == "string"
         assert proto_field_char.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_int_choices_old_way(self):
+        ser = MyOldIntSerializer()
+        field = ser.fields["choice_field"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "choice_field"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_str_choices_old_way(self):
+        ser = MyOldStrSerializer()
+        field = ser.fields["choice_field"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "choice_field"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
     # FROM_SERIALIZER
 

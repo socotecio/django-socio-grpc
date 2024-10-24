@@ -245,4 +245,4 @@ class NoMetaSerializer(proto_serializers.ProtoSerializer):
 class EnumServiceSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = EnumModel
-        fields = '__all__'
+        fields = "__all__"

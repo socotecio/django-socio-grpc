@@ -67,9 +67,10 @@ class WrongMessageNameConstructor(MessageNameConstructor):
 class MyIntModel(models.Model):
     class Choices(Enum):
         """My int choices"""
+
         ONE = 1
         TWO = 2
-        THREE : Annotated[int, "My comment"] = 3
+        THREE: Annotated[int, "My comment"] = 3
 
     choice_field = models.IntegerField(
         choices=Choices,
@@ -82,10 +83,12 @@ class MyIntSerializer(proto_serializers.ModelProtoSerializer):
         model = MyIntModel
         fields = "__all__"
 
+
 class MyStrModel(models.Model):
     class Choices(Enum):
         """My Choices"""
-        VALUE_1 : Annotated[str, "My comment"] = "value1"
+
+        VALUE_1: Annotated[str, "My comment"] = "value1"
         VALUE_2 = "value2"
 
     choice_field = models.CharField(

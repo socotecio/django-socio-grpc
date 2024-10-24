@@ -202,11 +202,11 @@ class ProtoField:
             )
 
         elif isinstance(field, serializers.ChoiceField):
-            ProtoGeneratorPrintHelper.print(f"{field.field_name} is ChoiceField")            
+            ProtoGeneratorPrintHelper.print(f"{field.field_name} is ChoiceField")
 
             # Django only store the mapping of the enum members to their values, not the enum itself
             enum_class = type(list(field.choices.keys())[0])
-            
+
             return cls(
                 name=field.field_name,
                 field_type=enum_class,

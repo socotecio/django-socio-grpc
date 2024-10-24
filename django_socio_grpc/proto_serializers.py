@@ -1,11 +1,12 @@
 from collections.abc import MutableSequence
+from enum import Enum
 
 from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
 from django.db.models.fields import NOT_PROVIDED
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import empty
+from rest_framework.fields import ChoiceField, empty
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (
     LIST_SERIALIZER_KWARGS,
@@ -211,7 +212,18 @@ class BaseProtoSerializer(BaseSerializer):
                 raise _NoDictData
 
             if field.field_name in self.base_data:
-                return self.base_data[field.field_name]
+                field_value = self.base_data[field.field_name]
+
+                # Check if the field is a ChoiceField with an Enum as the choice type
+                if (
+                    isinstance(field, ChoiceField)
+                    and (choice_field_type := type(list(field.choices)[0]))
+                    and isinstance(choice_field_type, type)
+                    and issubclass(choice_field_type, Enum)
+                ):
+                    return choice_field_type[field_value]
+
+                return field_value
 
             try:
                 return self.get_partial_field_value(field)

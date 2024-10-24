@@ -7,13 +7,18 @@ from fakeapp.serializers import UnitTestModelListExtraArgsSerializer, UnitTestMo
 
 from django_socio_grpc import generics, mixins
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.filters import OrderingFilter
 
 
 class UnitTestModelService(generics.AsyncModelService, mixins.AsyncStreamModelMixin):
     queryset = UnitTestModel.objects.all().order_by("id")
     serializer_class = UnitTestModelSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ["title", "text"]
+    ordering_fields = [
+        "title",
+    ]
+    ordering = ["-id"]
 
     @sync_to_async
     def _make(self, queryset, count):

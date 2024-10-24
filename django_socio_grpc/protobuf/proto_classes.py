@@ -201,6 +201,18 @@ class ProtoField:
                 name_if_recursive=name_if_recursive,
             )
 
+        elif isinstance(field, serializers.ChoiceField):
+            ProtoGeneratorPrintHelper.print(f"{field.field_name} is ChoiceField")            
+
+            # Django only store the mapping of the enum members to their values, not the enum itself
+            enum_class = type(list(field.choices.keys())[0])
+            
+            return cls(
+                name=field.field_name,
+                field_type=enum_class,
+                cardinality=cls._get_cardinality(field),
+            )
+
         cardinality = cls._get_cardinality(field)
         if isinstance(field, serializers.ListField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ListField")
@@ -720,12 +732,8 @@ def get_proto_type(
     if isinstance(field, serializers.ModelField):
         return get_proto_type(field.model_field)
 
-    # ChoiceFields need to look into the choices to determine the type
     if isinstance(field, serializers.ChoiceField):
-        choices = field.choices
-        first_type = type(list(choices.keys())[0])
-        if all(isinstance(choice, first_type) for choice in choices):
-            return TYPING_TO_PROTO_TYPES.get(first_type, "string")
+        return "enum"
 
     proto_type = None
     field_mro = field.__class__.mro()

@@ -6,6 +6,7 @@ from django_socio_grpc.protobuf import ProtoComment
 
 from .models import (
     DefaultValueModel,
+    EnumModel,
     ForeignModel,
     ImportStructEvenInArrayModel,
     ManyManyModel,
@@ -241,5 +242,7 @@ class NoMetaSerializer(proto_serializers.ProtoSerializer):
     my_field = serializers.CharField()
 
 
-class EnumServiceSerializer(proto_serializers.ProtoSerializer):
-    pass
+class EnumServiceSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = EnumModel
+        fields = '__all__'

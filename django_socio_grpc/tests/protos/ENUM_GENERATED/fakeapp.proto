@@ -8,24 +8,50 @@ service EnumController {
 }
 
 message EnumServiceRequest {
+    optional int32 id = 1;
+    MyTestStrEnum.Enum char_choices = 2;
+    MyTestIntEnum.Enum int_choices = 3;
 }
 
 message EnumServiceResponse {
+    optional int32 id = 1;
+    MyTestStrEnum.Enum char_choices = 2;
+    MyTestIntEnum.Enum int_choices = 3;
 }
 
 message EnumTestEnumRequest {
-    MyEnum.Enum enum_example = 1;
+    MyGRPCActionEnum.Enum enum_example = 1;
 }
 
 message EnumTestEnumResponse {
     string value = 1;
 }
 
-// This is my test Enum
-message MyEnum {
+// My Test str Enum
+message MyTestStrEnum {
     enum Enum {
         ENUM_UNSPECIFIED = 0;
-        // This is my first value
+        VALUE_1 = 1;
+        // This is value 2
+        VALUE_2 = 2;
+    }
+}
+
+// My Test int Enum
+message MyTestIntEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        ONE = 1;
+        // Number '2'
+        TWO = 2;
+    }
+}
+
+// This is my GRPC Action Enum
+message MyGRPCActionEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // This is value 1
         VALUE_1 = 1;
         VALUE_2 = 2;
     }

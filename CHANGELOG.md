@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.23.1
+
+- Adding a new filters.OrderingFilter for allowing array orderingwith grpc struct
+- Changing lark-parser dependency to lark
+- Support for Decimal type in type hints for proto generation
+
 ## 0.23.0
 
 - Dropping not working support for Django < 4

@@ -79,6 +79,12 @@ class BaseProtoSerializer(BaseSerializer):
         assert hasattr(
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
+
+        # Convert enums members to their values
+        for k, v in data.items():
+            if issubclass(type(v), Enum):
+                data[k] = v.name
+
         return parse_dict(data, self.Meta.proto_class())
 
     @property

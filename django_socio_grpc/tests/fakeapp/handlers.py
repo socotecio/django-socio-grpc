@@ -1,5 +1,6 @@
 from fakeapp.services.basic_service import BasicService
 from fakeapp.services.default_value_service import DefaultValueService
+from fakeapp.services.enum_service import EnumService
 from fakeapp.services.exception_service import ExceptionService
 from fakeapp.services.foreign_model_service import ForeignModelService
 from fakeapp.services.import_struct_even_in_array_model_service import (
@@ -45,6 +46,7 @@ def grpc_handlers(server):
     app_registry.register(DefaultValueService)
     app_registry.register(UnitTestModelWithCacheService)
     app_registry.register(UnitTestModelWithCacheInheritService)
+    app_registry.register(EnumService)
 
 
 services = (
@@ -60,4 +62,5 @@ services = (
     RecursiveTestModelService,
     UnitTestModelWithStructFilterService,
     UnitTestModelWithCacheService,
+    EnumService,
 )

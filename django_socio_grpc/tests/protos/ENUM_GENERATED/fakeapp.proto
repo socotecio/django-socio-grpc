@@ -3,8 +3,16 @@ syntax = "proto3";
 package myproject.fakeapp;
 
 service EnumController {
-    rpc Create(EnumServiceRequest) returns (EnumServiceResponse) {}
-    rpc TestEnum(EnumTestEnumRequest) returns (EnumTestEnumResponse) {}
+    rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequestResponse) {}
+    rpc BasicEnumRequestWithSerializer(EnumServiceRequest) returns (EnumServiceResponse) {}
+}
+
+message EnumBasicEnumRequest {
+    MyGRPCActionEnum.Enum enum_example = 1;
+}
+
+message EnumBasicEnumRequestResponse {
+    string value = 1;
 }
 
 message EnumServiceRequest {
@@ -19,12 +27,14 @@ message EnumServiceResponse {
     MyTestIntEnum.Enum int_choices = 3;
 }
 
-message EnumTestEnumRequest {
-    MyGRPCActionEnum.Enum enum_example = 1;
-}
-
-message EnumTestEnumResponse {
-    string value = 1;
+// This is my GRPC Action Enum
+message MyGRPCActionEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // This is value 1
+        VALUE_1 = 1;
+        VALUE_2 = 2;
+    }
 }
 
 // My Test str Enum
@@ -44,16 +54,6 @@ message MyTestIntEnum {
         ONE = 1;
         // Number '2'
         TWO = 2;
-    }
-}
-
-// This is my GRPC Action Enum
-message MyGRPCActionEnum {
-    enum Enum {
-        ENUM_UNSPECIFIED = 0;
-        // This is value 1
-        VALUE_1 = 1;
-        VALUE_2 = 2;
     }
 }
 

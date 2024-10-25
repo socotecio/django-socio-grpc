@@ -21,6 +21,11 @@ service BasicController {
     rpc TestNoMetaSerializer(NoMeta) returns (BasicTestNoMetaSerializer) {}
 }
 
+service EnumController {
+    rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequest) {}
+    rpc BasicEnumRequestWithSerializer(EnumService) returns (EnumService) {}
+}
+
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelList) {}
     rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustom) {}
@@ -230,6 +235,16 @@ message CustomRetrieveResponseSpecialFieldsModel {
     optional string uuid = 1;
     int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message EnumBasicEnumRequest {
+    string value = 1;
+}
+
+message EnumService {
+    optional int32 id = 1;
+    MyTestStrEnum.Enum char_choices = 2;
+    MyTestIntEnum.Enum int_choices = 3;
 }
 
 message ForeignModel {
@@ -542,5 +557,25 @@ message UnitTestModelWithStructFilterRetrieveRequest {
 }
 
 message UnitTestModelWithStructFilterStreamRequest {
+}
+
+// My Test str Enum
+message MyTestStrEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        VALUE_1 = 1;
+        // This is value 2
+        VALUE_2 = 2;
+    }
+}
+
+// My Test int Enum
+message MyTestIntEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        ONE = 1;
+        // Number '2'
+        TWO = 2;
+    }
 }
 

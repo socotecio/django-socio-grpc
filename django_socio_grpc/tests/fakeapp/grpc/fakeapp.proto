@@ -30,6 +30,11 @@ service DefaultValueController {
     rpc Update(DefaultValueRequest) returns (DefaultValueResponse) {}
 }
 
+service EnumController {
+    rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequestResponse) {}
+    rpc BasicEnumRequestWithSerializer(EnumServiceRequest) returns (EnumServiceResponse) {}
+}
+
 service ExceptionController {
     rpc APIException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GRPCException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -370,6 +375,26 @@ message DefaultValueResponse {
 
 message DefaultValueRetrieveRequest {
     int32 id = 1;
+}
+
+message EnumBasicEnumRequest {
+    MyGRPCActionEnum.Enum enum_example = 1;
+}
+
+message EnumBasicEnumRequestResponse {
+    string value = 1;
+}
+
+message EnumServiceRequest {
+    optional int32 id = 1;
+    MyTestStrEnum.Enum char_choices = 2;
+    MyTestIntEnum.Enum int_choices = 3;
+}
+
+message EnumServiceResponse {
+    optional int32 id = 1;
+    MyTestStrEnum.Enum char_choices = 2;
+    MyTestIntEnum.Enum int_choices = 3;
 }
 
 message ExceptionStreamRaiseExceptionResponse {
@@ -752,5 +777,35 @@ message UnitTestModelWithStructFilterRetrieveRequest {
 }
 
 message UnitTestModelWithStructFilterStreamRequest {
+}
+
+// This is my GRPC Action Enum
+message MyGRPCActionEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // This is value 1
+        VALUE_1 = 1;
+        VALUE_2 = 2;
+    }
+}
+
+// My Test str Enum
+message MyTestStrEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        VALUE_1 = 1;
+        // This is value 2
+        VALUE_2 = 2;
+    }
+}
+
+// My Test int Enum
+message MyTestIntEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        ONE = 1;
+        // Number '2'
+        TWO = 2;
+    }
 }
 

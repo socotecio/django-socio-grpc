@@ -18,7 +18,7 @@ class MyGRPCActionEnum(Enum):
     VALUE_2 = 2
 
 
-class EnumService(generics.AsyncCreateService):
+class EnumService(generics.GenericService):
     serializer_class = EnumServiceSerializer
     queryset = EnumModel.objects.all()
 
@@ -26,5 +26,14 @@ class EnumService(generics.AsyncCreateService):
         request=[{"name": "enum_example", "type": MyGRPCActionEnum}],
         response=[{"name": "value", "type": "string"}],
     )
-    async def TestEnum(self, request, context):
-        return fakeapp_pb2.BasicTestEnumResponse(value="test")
+    async def BasicEnumRequest(self, request, context):
+        return fakeapp_pb2.BasicEnumRequestResponse(value="test")
+
+    @grpc_action(
+        request=EnumServiceSerializer,
+        response=EnumServiceSerializer,
+    )
+    async def BasicEnumRequestWithSerializer(self, request, context):
+        serializer = EnumServiceSerializer(message=request)
+        serializer.is_valid(raise_exception=True)
+        return serializer.message

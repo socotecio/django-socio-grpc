@@ -245,4 +245,5 @@ class NoMetaSerializer(proto_serializers.ProtoSerializer):
 class EnumServiceSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = EnumModel
+        proto_class = fakeapp_pb2.EnumServiceResponse
         fields = "__all__"

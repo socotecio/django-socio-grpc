@@ -1,5 +1,4 @@
 import uuid
-from enum import Enum
 from typing import Annotated
 
 from django.contrib.postgres.fields import ArrayField
@@ -225,13 +224,13 @@ class DefaultValueModel(models.Model):
 
 
 class EnumModel(models.Model):
-    class MyTestStrEnum(Enum):
+    class MyTestStrEnum(models.TextChoices):
         """My Test str Enum"""
 
         VALUE_1 = "Value 1"
         VALUE_2: Annotated[str, "This is value 2"] = "Value 2"
 
-    class MyTestIntEnum(Enum):
+    class MyTestIntEnum(models.IntegerChoices):
         """My Test int Enum"""
 
         ONE = 1

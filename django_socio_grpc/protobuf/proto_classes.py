@@ -5,6 +5,7 @@ from collections import OrderedDict
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
+from decimal import Decimal
 from enum import Enum
 from typing import (
     ClassVar,
@@ -802,6 +803,7 @@ TYPING_TO_PROTO_TYPES = {
     float: "float",
     dict: StructMessage,
     bytes: "bytes",
+    Decimal: "double",
 }
 
 

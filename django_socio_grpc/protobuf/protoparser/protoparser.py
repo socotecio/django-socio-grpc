@@ -382,7 +382,7 @@ def parse_from_file(file: str):
 
 
 def parse(data: str):
-    parser = Lark(BNF, start="proto", parser="lalr")
+    parser = Lark(BNF, start="proto", parser="lalr", maybe_placeholders=False)
     tree = parser.parse(data)
     trans_tree = ProtoTransformer().transform(tree)
     enums = {}

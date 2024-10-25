@@ -2,7 +2,7 @@
 
 ## 0.23.1
 
-- Adding a new filters.OrderingFilter for allowing array orderingwith grpc struct
+- Adding a new filters.OrderingFilter to allow array ordering using list directly as supported by gRPC
 - Changing lark-parser dependency to lark
 - Support for Decimal type in type hints for proto generation
 

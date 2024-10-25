@@ -208,7 +208,7 @@ class ProtoField:
             # Django only store the mapping of the enum members to their values, not the enum itself
             first_type = type(list(field.choices.keys())[0])
 
-            if isinstance(first_type, type) and issubclass(first_type, Enum):
+            if issubclass(first_type, Enum):
                 return cls(
                     name=field.field_name,
                     field_type=first_type,

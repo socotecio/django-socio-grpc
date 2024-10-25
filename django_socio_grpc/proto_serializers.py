@@ -224,7 +224,6 @@ class BaseProtoSerializer(BaseSerializer):
                 if (
                     isinstance(field, ChoiceField)
                     and (choice_field_type := type(list(field.choices)[0]))
-                    and isinstance(choice_field_type, type)
                     and issubclass(choice_field_type, Enum)
                 ):
                     return choice_field_type[field_value]

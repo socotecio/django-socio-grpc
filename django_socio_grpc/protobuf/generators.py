@@ -100,7 +100,6 @@ class RegistryToProtoGenerator:
                 if isinstance(f.field_type, type) and issubclass(f.field_type, Enum)
             ]
 
-        # self._set_enums_indexes(enums, previous_messages)
         prev_indices = {}
         for enum in list(dict.fromkeys(enums)):
             if previous_messages and previous_messages.get(enum.__name__):

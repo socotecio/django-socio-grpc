@@ -1,13 +1,13 @@
-from enum import Enum
 from typing import Annotated
 
+from django.db import models
 from fakeapp.grpc import fakeapp_pb2
 
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.tests.fakeapp.models import EnumModel
 from django_socio_grpc.tests.fakeapp.serializers import EnumServiceSerializer
-from django.db import models
+
 
 class MyGRPCActionEnum(models.IntegerChoices):
     """

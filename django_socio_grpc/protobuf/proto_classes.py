@@ -14,6 +14,7 @@ from typing import (
     get_origin,
     get_type_hints,
 )
+import re
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -205,15 +206,14 @@ class ProtoField:
         elif isinstance(field, serializers.ChoiceField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ChoiceField")
 
-            # Django only store the mapping of the enum members to their values, not the enum itself
-            first_type = type(list(field.choices.keys())[0])
-
-            if issubclass(first_type, Enum):
-                return cls(
-                    name=field.field_name,
-                    field_type=first_type,
-                    cardinality=cls._get_cardinality(field),
-                )
+            is_enum = True
+            for k in field.choices:
+                if not re.fullmatch(r"[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*", k):
+                    is_enum = False
+                    break
+            
+            if is_enum:
+                return cls._build_enum_from_field(field)
 
         cardinality = cls._get_cardinality(field)
         if isinstance(field, serializers.ListField):
@@ -245,6 +245,24 @@ class ProtoField:
             field_type=field_type,
             cardinality=cardinality,
             comments=comments,
+        )
+
+    @classmethod
+    def _build_enum_from_field(cls, field: serializers.ChoiceField):                
+        choices = field.choices
+        
+        serializer_name = field.parent.__class__.__name__
+        if serializer_name.endswith("Serializer"):
+            serializer_name = serializer_name[:-10]
+        field_name_pascal_case = field.field_name.replace("_", " ").title().replace(" ", "")        
+        enum_name = f"{serializer_name}{field_name_pascal_case}Enum"
+        
+        enum = models.TextChoices(enum_name, choices)
+        
+        return cls(
+            name=field.field_name,
+            field_type=enum,
+            cardinality=cls._get_cardinality(field),
         )
 
     @classmethod

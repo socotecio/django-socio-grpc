@@ -17,14 +17,12 @@ message EnumBasicEnumRequestResponse {
 
 message EnumServiceRequest {
     optional int32 id = 1;
-    MyTestStrEnum.Enum char_choices = 2;
-    MyTestIntEnum.Enum int_choices = 3;
+    EnumServiceCharChoicesEnum.Enum char_choices = 2;
 }
 
 message EnumServiceResponse {
     optional int32 id = 1;
-    MyTestStrEnum.Enum char_choices = 2;
-    MyTestIntEnum.Enum int_choices = 3;
+    EnumServiceCharChoicesEnum.Enum char_choices = 2;
 }
 
 // This is my GRPC Action Enum
@@ -37,23 +35,11 @@ message MyGRPCActionEnum {
     }
 }
 
-// My Test str Enum
-message MyTestStrEnum {
+message EnumServiceCharChoicesEnum {
     enum Enum {
         ENUM_UNSPECIFIED = 0;
         VALUE_1 = 1;
-        // This is value 2
         VALUE_2 = 2;
-    }
-}
-
-// My Test int Enum
-message MyTestIntEnum {
-    enum Enum {
-        ENUM_UNSPECIFIED = 0;
-        ONE = 1;
-        // Number '2'
-        TWO = 2;
     }
 }
 

@@ -80,11 +80,6 @@ class BaseProtoSerializer(BaseSerializer):
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
 
-        # Convert enums members to their values
-        for k, v in data.items():
-            if issubclass(type(v), Enum):
-                data[k] = v.name
-
         return parse_dict(data, self.Meta.proto_class())
 
     @property
@@ -218,18 +213,8 @@ class BaseProtoSerializer(BaseSerializer):
                 raise _NoDictData
 
             if field.field_name in self.base_data:
-                field_value = self.base_data[field.field_name]
-
-                # Check if the field is a ChoiceField with an Enum as the choice type
-                if (
-                    isinstance(field, ChoiceField)
-                    and (choice_field_type := type(list(field.choices)[0]))
-                    and issubclass(choice_field_type, Enum)
-                ):
-                    return choice_field_type[field_value]
-
-                return field_value
-
+                return self.base_data[field.field_name]
+                
             try:
                 return self.get_partial_field_value(field)
             except _NoDictData:

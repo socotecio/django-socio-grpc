@@ -221,20 +221,13 @@ class DefaultValueModel(models.Model):
     boolean_default_false = models.BooleanField(default=False)
     boolean_default_true = models.BooleanField(default=True)
     boolean_required_but_serializer_default = models.BooleanField()
-
+from enum import Enum
 
 class EnumModel(models.Model):
     class MyTestStrEnum(models.TextChoices):
         """My Test str Enum"""
 
-        VALUE_1 = "Value 1"
-        VALUE_2: Annotated[str, "This is value 2"] = "Value 2"
-
-    class MyTestIntEnum(models.IntegerChoices):
-        """My Test int Enum"""
-
-        ONE = 1
-        TWO: Annotated[int, "Number '2'"] = 2
-
-    char_choices = models.CharField(choices=MyTestStrEnum)
-    int_choices = models.IntegerField(choices=MyTestIntEnum)
+        VALUE_1 = ("VALUE_1", "Human readable value 1")
+        VALUE_2 = ("VALUE_2", "Human readable value 2")
+        
+    char_choices : Annotated[models.CharField, MyTestStrEnum] = models.CharField(choices=MyTestStrEnum.choices)

@@ -204,28 +204,7 @@ class ProtoField:
 
         elif isinstance(field, serializers.ChoiceField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ChoiceField")
-
-            if enum := cls.get_enum_from_annotation(field):
-                # Check if the annotated enum is a subclass of models.IntegerChoices or models.TextChoices
-                if not issubclass(enum, models.IntegerChoices) and not issubclass(
-                    enum, models.TextChoices
-                ):
-                    raise ProtoRegistrationError(
-                        f"Choice ({field.field_name}) field should be annotated with a class that is a subclass of models.IntegerChoices or models.TextChoices."
-                    )
-
-                # Check for coherence between the choices and the annotated enum
-                if set(field.choices) != set(enum.values):
-                    raise ProtoRegistrationError(
-                        f"Choice ({field.field_name}) field should be annotated with the same class as the choices, either on the serializer or the model.\n"
-                        "Exemple : [my_field : Annotated[models.CharField, MyEnum] = models.CharField(choices=MyEnum.choices)]"
-                    )
-
-                return cls(
-                    name=field.field_name,
-                    field_type=enum,
-                    cardinality=cls._get_cardinality(field),
-                )
+            return cls._from_choice_field(field)
 
         cardinality = cls._get_cardinality(field)
         if isinstance(field, serializers.ListField):
@@ -248,15 +227,48 @@ class ProtoField:
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is simple type")
             field_type = get_proto_type(field)
 
-        comments = None
-        if isinstance(help_text := getattr(field, "help_text", None), ProtoComment):
-            comments = help_text.comments
+        comments = cls.get_field_comments(field)
 
         return cls(
             name=field.field_name,
             field_type=field_type,
             cardinality=cardinality,
             comments=comments,
+        )
+
+    @classmethod
+    def get_field_comments(cls, field: serializers.Field):
+        if isinstance(help_text := getattr(field, "help_text", None), ProtoComment):
+            return help_text.comments
+        return None
+
+    @classmethod
+    def _from_choice_field(cls, field: serializers.ChoiceField):
+        if enum := cls.get_enum_from_annotation(field):
+            # Check if the annotated enum is a subclass of models.IntegerChoices or models.TextChoices
+            if not issubclass(enum, models.IntegerChoices) and not issubclass(
+                enum, models.TextChoices
+            ):
+                raise ProtoRegistrationError(
+                    f"Choice ({field.field_name}) field should be annotated with a class that is a subclass of models.IntegerChoices or models.TextChoices."
+                )
+
+            # Check for coherence between the choices and the annotated enum
+            if set(field.choices) != set(enum.values):
+                raise ProtoRegistrationError(
+                    f"Choice ({field.field_name}) field should be annotated with the same class as the choices, either on the serializer or the model.\n"
+                    "Exemple : [my_field : Annotated[models.CharField, MyEnum] = models.CharField(choices=MyEnum.choices)]"
+                )
+
+            field_type = enum
+        else:
+            field_type = get_proto_type(field)
+
+        return cls(
+            name=field.field_name,
+            field_type=field_type,
+            cardinality=cls._get_cardinality(field),
+            comments=cls.get_field_comments(field),
         )
 
     @classmethod
@@ -274,24 +286,6 @@ class ProtoField:
             return None
 
         return annotation.__metadata__[0]
-
-    @classmethod
-    def _build_enum_from_field(cls, field: serializers.ChoiceField):
-        choices = field.choices
-
-        serializer_name = field.parent.__class__.__name__
-        if serializer_name.endswith("Serializer"):
-            serializer_name = serializer_name[:-10]
-        field_name_pascal_case = field.field_name.replace("_", " ").title().replace(" ", "")
-        enum_name = f"{serializer_name}{field_name_pascal_case}Enum"
-
-        enum = models.TextChoices(enum_name, choices)
-
-        return cls(
-            name=field.field_name,
-            field_type=enum,
-            cardinality=cls._get_cardinality(field),
-        )
 
     @classmethod
     def from_serializer(

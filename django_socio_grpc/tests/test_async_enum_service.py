@@ -21,11 +21,7 @@ class TestAsyncEnumService(TestCase):
 
     async def test_async_enum_service_with_serializer(self):
         grpc_stub = self.fake_grpc.get_fake_stub(EnumControllerStub)
-        request = fakeapp_pb2.EnumServiceRequest(char_choices=1)
+        request = fakeapp_pb2.EnumServiceRequest(char_choices=1, int_choices=2)
         response = await grpc_stub.BasicEnumRequestWithSerializer(request=request)
         self.assertEqual(response.char_choices, 1)
-
-    async def test_async_enum_service(self):
-        grpc_stub = self.fake_grpc.get_fake_stub(EnumControllerStub)
-        request = fakeapp_pb2.EnumBasicEnumRequest(enum_example=1)
-        response = await grpc_stub.BasicEnumRequest(request=request)
+        self.assertEqual(response.int_choices, 2)

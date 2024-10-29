@@ -1,5 +1,4 @@
 from collections.abc import MutableSequence
-from enum import Enum
 
 from asgiref.sync import sync_to_async
 from django.core.validators import MaxLengthValidator
@@ -79,6 +78,13 @@ class BaseProtoSerializer(BaseSerializer):
         assert hasattr(
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
+
+        # Choice value -> Enum key
+        for field_name, field in self.fields.items():
+            if isinstance(field, ChoiceField) and (
+                enum := ProtoField.get_enum_from_annotation(field)
+            ):
+                data[field_name] = enum(data[field_name]).name
 
         return parse_dict(data, self.Meta.proto_class())
 
@@ -213,8 +219,15 @@ class BaseProtoSerializer(BaseSerializer):
                 raise _NoDictData
 
             if field.field_name in self.base_data:
-                return self.base_data[field.field_name]
+                field_value = self.base_data[field.field_name]
                 
+                # Enum key -> Choice value
+                if isinstance(field, ChoiceField) and (
+                    enum := ProtoField.get_enum_from_annotation(field)
+                ):
+                    return enum[field_value].value
+
+                return field_value
             try:
                 return self.get_partial_field_value(field)
             except _NoDictData:

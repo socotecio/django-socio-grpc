@@ -101,13 +101,13 @@ class RegistryToProtoGenerator:
             ]
 
         prev_indices = {}
-        
+
         generated_enums = []
         for enum in enums:
             if enum.__name__ in generated_enums:
                 continue
             generated_enums.append(enum.__name__)
-            
+
             if previous_messages and previous_messages.get(enum.__name__):
                 ex_enum = previous_messages.get(enum.__name__).enums["Enum"]
                 prev_indices = {f.name: int(f.number) for f in ex_enum.fields}

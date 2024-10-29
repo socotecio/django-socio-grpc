@@ -43,14 +43,14 @@ from django_socio_grpc.tests.fakeapp.serializers import (
 )
 
 
-class MyEnum(models.TextChoices):
+class MyIntegerChoices(models.IntegerChoices):
     """
     This is a test enum
     """
 
-    VALUE_1: Annotated[tuple, ["My comment", "on two lines"]] = "VALUE_1", "Human readable value 1"
-    VALUE_2: Annotated[str, "My comment"] = "VALUE_2"
-    VALUE_3 = "VALUE_3"
+    VALUE_1: Annotated[int, ["My comment", "on two lines"]] = 1
+    VALUE_2: Annotated[int, "My comment"] = 2
+    VALUE_3 = 3
 
 
 class CustomMessageNameConstructor(DefaultMessageNameConstructor):
@@ -64,21 +64,56 @@ class CustomMessageNameConstructor(DefaultMessageNameConstructor):
 class WrongMessageNameConstructor(MessageNameConstructor):
     pass
 
+
+class MyIntModel(models.Model):
+    class Choices(models.IntegerChoices):
+        """My int choices"""
+
+        ONE = 1
+        TWO = 2
+        THREE: Annotated[int, "My comment"] = 3
+
+    choice_field: Annotated[models.IntegerField, Choices] = models.IntegerField(
+        choices=Choices,
+        default=Choices.ONE,
+    )
+
+
+class MyIntSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyIntModel
+        fields = "__all__"
+
+
 class MyStrModel(models.Model):
     class Choices(models.TextChoices):
         """My Choices"""
 
-        VALUE_1: Annotated[tuple, "My comment"] = "VALUE_1", "Human readable value 1"
+        VALUE_1: Annotated[str, "My comment"] = "VALUE_1"
         VALUE_2 = "VALUE_2"
 
-    choice_field = models.CharField(
+    choice_field: Annotated[models.CharField, Choices] = models.CharField(
         choices=Choices,
         default=Choices.VALUE_1,
     )
 
+
 class MyStrSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = MyStrModel
+        fields = "__all__"
+
+
+class MyOldIntModel(models.Model):
+    choice_field = models.IntegerField(
+        choices=[(1, "One"), (2, "Two"), (3, "Three")],
+        default=1,
+    )
+
+
+class MyOldIntSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyOldIntModel
         fields = "__all__"
 
 
@@ -330,6 +365,16 @@ class TestFields:
         assert proto_field.name == "smf_with_decimal"
         assert proto_field.field_type == "double"
 
+    def test_from_field_serializer_int_choices(self):
+        ser = MyIntSerializer()
+        field = ser.fields["choice_field"]
+
+        proto_field = ProtoField.from_field(field, parent_serializer=MyIntSerializer)
+
+        assert proto_field.name == "choice_field"
+        assert issubclass(proto_field.field_type, models.IntegerChoices)
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
     def test_from_field_serializer_str_choices(self):
         ser = MyStrSerializer()
         field = ser.fields["choice_field"]
@@ -337,7 +382,7 @@ class TestFields:
         proto_field = ProtoField.from_field(field, parent_serializer=MyStrSerializer)
 
         assert proto_field.name == "choice_field"
-        assert issubclass(proto_field.field_type, Enum)
+        assert issubclass(proto_field.field_type, models.TextChoices)
         # INFO - AM - 04/01/2024 - OPTIONAL because a default is specified in the model
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
@@ -368,6 +413,16 @@ class TestFields:
         assert proto_field_char.name == "default_char"
         assert proto_field_char.field_type == "string"
         assert proto_field_char.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_int_choices_old_way(self):
+        ser = MyOldIntSerializer()
+        field = ser.fields["choice_field"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "choice_field"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
     def test_from_field_serializer_str_choices_old_way(self):
         ser = MyOldStrSerializer()
@@ -473,7 +528,7 @@ class TestFields:
     def test_from_field_dict_enum(self):
         field_dict = {
             "name": "my_enum",
-            "type": MyEnum,
+            "type": MyIntegerChoices,
             "comment": ["my_enum comment"],
         }
 
@@ -484,12 +539,12 @@ class TestFields:
         assert proto_field.comments == ["my_enum comment"]
 
         assert issubclass(proto_field.field_type, Enum)
-        assert proto_field.field_type.__annotations__[MyEnum.VALUE_1.name].__metadata__[0] == [
+        assert proto_field.field_type.__annotations__[MyIntegerChoices.VALUE_1.name].__metadata__[0] == [
             "My comment",
             "on two lines",
         ]
         assert (
-            proto_field.field_type.__annotations__[MyEnum.VALUE_2.name].__metadata__[0]
+            proto_field.field_type.__annotations__[MyIntegerChoices.VALUE_2.name].__metadata__[0]
             == "My comment"
         )
 

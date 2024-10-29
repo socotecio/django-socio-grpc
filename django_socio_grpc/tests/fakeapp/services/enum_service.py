@@ -18,7 +18,6 @@ class MyGRPCActionEnum(models.TextChoices):
     VALUE_2 = "VALUE_2", "readable 2"
 
 
-from rest_framework import serializers
 class EnumService(generics.GenericService):
     serializer_class = EnumServiceSerializer
     queryset = EnumModel.objects.all()

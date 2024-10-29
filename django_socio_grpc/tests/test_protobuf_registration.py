@@ -627,6 +627,16 @@ class TestProtoMessage:
 
         assert proto_message.fields[0].name == "serializer"
         assert len(proto_message.fields[0].field_type.fields) == 14
+        
+    def test_from_serializer_with_enum(self):
+        proto_message = RequestProtoMessage.from_serializer(MyStrSerializer, name="MyStrRequest")
+        
+        assert proto_message.name == "MyStrRequest"
+        assert len(proto_message.fields) == 2
+        
+        assert proto_message.fields[1].name == "choice_field"
+        assert issubclass(proto_message.fields[1].field_type, models.TextChoices)
+        
 
 
 class TestGrpcActionProto(TestCase):

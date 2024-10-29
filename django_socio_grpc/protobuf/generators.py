@@ -6,8 +6,6 @@ from dataclasses import field as dataclass_field
 from enum import Enum
 from pathlib import Path
 
-from django.db.models import Choices
-
 from django_socio_grpc.protobuf import RegistrySingleton
 from django_socio_grpc.protobuf.proto_classes import ProtoMessage, ProtoService
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
@@ -99,7 +97,7 @@ class RegistryToProtoGenerator:
             enums += [
                 f.field_type
                 for f in message.fields
-                if isinstance(f.field_type, type) and issubclass(f.field_type, Choices)
+                if isinstance(f.field_type, type) and issubclass(f.field_type, Enum)
             ]
 
         prev_indices = {}
@@ -183,7 +181,7 @@ class RegistryToProtoGenerator:
         self._writer.write_line("}")
         self._writer.write_line("")
 
-    def _generate_enum(self, enum: Choices, indices: dict[str, int]):
+    def _generate_enum(self, enum: Enum, indices: dict[str, int]):
         if enum.__doc__:
             self.write_comments(enum.__doc__.strip().splitlines())
 

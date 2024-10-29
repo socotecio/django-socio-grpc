@@ -1,10 +1,10 @@
 from decimal import Decimal
+from enum import Enum
 from typing import Annotated, Optional
 from unittest import mock
 
 import pytest
 from django.db import models
-from django.db.models import Choices
 from django.test import TestCase, override_settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import serializers
@@ -538,7 +538,7 @@ class TestFields:
         assert proto_field.cardinality == FieldCardinality.NONE
         assert proto_field.comments == ["my_enum comment"]
 
-        assert issubclass(proto_field.field_type, Choices)
+        assert issubclass(proto_field.field_type, Enum)
         assert proto_field.field_type.__annotations__[
             MyIntegerChoices.VALUE_1.name
         ].__metadata__[0] == [

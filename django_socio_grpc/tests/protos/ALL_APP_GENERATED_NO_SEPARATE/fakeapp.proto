@@ -23,7 +23,8 @@ service BasicController {
 
 service EnumController {
     rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequest) {}
-    rpc BasicEnumRequestWithSerializer(EnumService) returns (EnumService) {}
+    rpc BasicEnumRequestWithAnnotatedModel(EnumService) returns (EnumService) {}
+    rpc BasicEnumRequestWithAnnotatedSerializer(EnumServiceAnnotatedSerializer) returns (EnumServiceAnnotatedSerializer) {}
 }
 
 service ForeignModelController {
@@ -245,6 +246,10 @@ message EnumService {
     optional int32 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
     optional MyTestIntEnum.Enum int_choices = 3;
+}
+
+message EnumServiceAnnotatedSerializer {
+    MyTestStrEnum.Enum char_choices = 1;
 }
 
 message ForeignModel {

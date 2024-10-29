@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from rest_framework import serializers
 
@@ -246,4 +248,14 @@ class EnumServiceSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = EnumModel
         proto_class = fakeapp_pb2.EnumServiceResponse
+        fields = "__all__"
+
+
+class EnumServiceAnnotatedSerializerSerializer(proto_serializers.ProtoSerializer):
+    char_choices: Annotated[serializers.ChoiceField, EnumModel.MyTestStrEnum] = (
+        serializers.ChoiceField(choices=EnumModel.MyTestStrEnum.choices)
+    )
+
+    class Meta:
+        proto_class = fakeapp_pb2.EnumServiceAnnotatedSerializerResponse
         fields = "__all__"

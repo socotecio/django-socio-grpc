@@ -6,7 +6,10 @@ from fakeapp.grpc import fakeapp_pb2
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.tests.fakeapp.models import EnumModel
-from django_socio_grpc.tests.fakeapp.serializers import EnumServiceSerializer
+from django_socio_grpc.tests.fakeapp.serializers import (
+    EnumServiceAnnotatedSerializerSerializer,
+    EnumServiceSerializer,
+)
 
 
 class MyGRPCActionEnum(models.TextChoices):
@@ -33,7 +36,16 @@ class EnumService(generics.GenericService):
         request=EnumServiceSerializer,
         response=EnumServiceSerializer,
     )
-    async def BasicEnumRequestWithSerializer(self, request, context):
+    async def BasicEnumRequestWithAnnotatedModel(self, request, context):
         serializer = EnumServiceSerializer(message=request)
+        serializer.is_valid(raise_exception=True)
+        return serializer.message
+
+    @grpc_action(
+        request=EnumServiceAnnotatedSerializerSerializer,
+        response=EnumServiceAnnotatedSerializerSerializer,
+    )
+    async def BasicEnumRequestWithAnnotatedSerializer(self, request, context):
+        serializer = EnumServiceAnnotatedSerializerSerializer(message=request)
         serializer.is_valid(raise_exception=True)
         return serializer.message

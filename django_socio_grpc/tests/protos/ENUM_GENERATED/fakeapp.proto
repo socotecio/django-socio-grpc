@@ -4,7 +4,8 @@ package myproject.fakeapp;
 
 service EnumController {
     rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequestResponse) {}
-    rpc BasicEnumRequestWithSerializer(EnumServiceRequest) returns (EnumServiceResponse) {}
+    rpc BasicEnumRequestWithAnnotatedModel(EnumServiceRequest) returns (EnumServiceResponse) {}
+    rpc BasicEnumRequestWithAnnotatedSerializer(EnumServiceAnnotatedSerializerRequest) returns (EnumServiceAnnotatedSerializerResponse) {}
 }
 
 message EnumBasicEnumRequest {
@@ -13,6 +14,14 @@ message EnumBasicEnumRequest {
 
 message EnumBasicEnumRequestResponse {
     string value = 1;
+}
+
+message EnumServiceAnnotatedSerializerRequest {
+    MyTestStrEnum.Enum char_choices = 1;
+}
+
+message EnumServiceAnnotatedSerializerResponse {
+    MyTestStrEnum.Enum char_choices = 1;
 }
 
 message EnumServiceRequest {

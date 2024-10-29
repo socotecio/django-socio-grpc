@@ -6,7 +6,6 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from decimal import Decimal
-from enum import Enum
 from typing import (
     ClassVar,
     Union,
@@ -79,7 +78,7 @@ class ProtoField:
     """
 
     name: str
-    field_type: Union[str, "ProtoMessage", Enum]
+    field_type: Union[str, "ProtoMessage", models.Choices]
     cardinality: FieldCardinality = FieldCardinality.NONE
     comments: list[str] | None = None
     index: int = 0
@@ -88,7 +87,7 @@ class ProtoField:
     def field_type_str(self) -> str:
         if isinstance(self.field_type, str):
             return self.field_type
-        if isinstance(self.field_type, type) and issubclass(self.field_type, Enum):
+        if isinstance(self.field_type, type) and issubclass(self.field_type, models.Choices):
             return f"{self.field_type.__name__}.Enum"
         return self.field_type.name
 
@@ -270,13 +269,10 @@ class ProtoField:
             model_annotations = field.parent.Meta.model.__annotations__
             annotation = model_annotations.get(field.field_name, None)
 
-        if annotation is None:
+        if annotation is None or len(annotation.__metadata__) == 0:
             return None
 
-        if len(annotation.__metadata__) == 0:
-            return None
-        else:
-            return annotation.__metadata__[0]
+        return annotation.__metadata__[0]
 
     @classmethod
     def _build_enum_from_field(cls, field: serializers.ChoiceField):

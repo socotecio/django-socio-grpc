@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from enum import Enum
 
+from django.db.models import Choices
+
 try:
     from typing_extensions import NotRequired, TypedDict
 except ImportError:
@@ -27,6 +29,6 @@ class FieldDict(TypedDict):
     """
 
     name: str
-    type: str | Enum
+    type: str | Choices
     cardinality: NotRequired[FieldCardinality]  # noqa: UP007
     comment: NotRequired[str | list[str]]  # noqa: UP007

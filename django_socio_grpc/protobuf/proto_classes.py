@@ -270,13 +270,10 @@ class ProtoField:
             model_annotations = field.parent.Meta.model.__annotations__
             annotation = model_annotations.get(field.field_name, None)
 
-        if annotation is None:
+        if annotation is None or len(annotation.__metadata__) == 0:
             return None
 
-        if len(annotation.__metadata__) == 0:
-            return None
-        else:
-            return annotation.__metadata__[0]
+        return annotation.__metadata__[0]
 
     @classmethod
     def _build_enum_from_field(cls, field: serializers.ChoiceField):

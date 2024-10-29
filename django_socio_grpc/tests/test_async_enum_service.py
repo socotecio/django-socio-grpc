@@ -21,13 +21,18 @@ class TestAsyncEnumService(TestCase):
 
     async def test_async_enum_service_with_annotated_model(self):
         grpc_stub = self.fake_grpc.get_fake_stub(EnumControllerStub)
-        request = fakeapp_pb2.EnumServiceRequest(char_choices=1, int_choices=2)
+        request = fakeapp_pb2.EnumServiceRequest(
+            char_choices=fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1,
+            int_choices=fakeapp_pb2.MyTestIntEnum.Enum.TWO,
+        )
         response = await grpc_stub.BasicEnumRequestWithAnnotatedModel(request=request)
-        self.assertEqual(response.char_choices, 1)
-        self.assertEqual(response.int_choices, 2)
+        self.assertEqual(response.char_choices, fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1)
+        self.assertEqual(response.int_choices, fakeapp_pb2.MyTestIntEnum.Enum.TWO)
 
     async def test_async_enum_service_with_annotated_serializer(self):
         grpc_stub = self.fake_grpc.get_fake_stub(EnumControllerStub)
-        request = fakeapp_pb2.EnumServiceAnnotatedSerializerRequest(char_choices=1)
+        request = fakeapp_pb2.EnumServiceAnnotatedSerializerRequest(
+            char_choices=fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1
+        )
         response = await grpc_stub.BasicEnumRequestWithAnnotatedSerializer(request=request)
-        self.assertEqual(response.char_choices, 1)
+        self.assertEqual(response.char_choices, fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1)

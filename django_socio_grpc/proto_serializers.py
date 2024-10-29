@@ -220,7 +220,7 @@ class BaseProtoSerializer(BaseSerializer):
 
             if field.field_name in self.base_data:
                 field_value = self.base_data[field.field_name]
-                
+
                 # Enum key -> Choice value
                 if isinstance(field, ChoiceField) and (
                     enum := ProtoField.get_enum_from_annotation(field)

@@ -74,7 +74,7 @@ class MyIntModel(models.Model):
         THREE: Annotated[int, "My comment"] = 3
 
     choice_field: Annotated[models.IntegerField, Choices] = models.IntegerField(
-        choices=Choices,
+        choices=Choices.choices,
         default=Choices.ONE,
     )
 
@@ -93,7 +93,7 @@ class MyStrModel(models.Model):
         VALUE_2 = "VALUE_2"
 
     choice_field: Annotated[models.CharField, Choices] = models.CharField(
-        choices=Choices,
+        choices=Choices.choices,
         default=Choices.VALUE_1,
     )
 
@@ -539,12 +539,16 @@ class TestFields:
         assert proto_field.comments == ["my_enum comment"]
 
         assert issubclass(proto_field.field_type, Enum)
-        assert proto_field.field_type.__annotations__[MyIntegerChoices.VALUE_1.name].__metadata__[0] == [
+        assert proto_field.field_type.__annotations__[
+            MyIntegerChoices.VALUE_1.name
+        ].__metadata__[0] == [
             "My comment",
             "on two lines",
         ]
         assert (
-            proto_field.field_type.__annotations__[MyIntegerChoices.VALUE_2.name].__metadata__[0]
+            proto_field.field_type.__annotations__[MyIntegerChoices.VALUE_2.name].__metadata__[
+                0
+            ]
             == "My comment"
         )
 

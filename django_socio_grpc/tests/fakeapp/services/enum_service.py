@@ -2,14 +2,14 @@ from typing import Annotated
 
 from django.db import models
 from fakeapp.grpc import fakeapp_pb2
-
-from django_socio_grpc import generics
-from django_socio_grpc.decorators import grpc_action
 from fakeapp.models import EnumModel
 from fakeapp.serializers import (
     EnumServiceAnnotatedSerializerSerializer,
     EnumServiceSerializer,
 )
+
+from django_socio_grpc import generics
+from django_socio_grpc.decorators import grpc_action
 
 
 class MyGRPCActionEnum(models.TextChoices):

@@ -49,6 +49,10 @@ class TestAsyncEnumService(TestCase):
         self.assertEqual(response.int_choices, fakeapp_pb2.MyTestIntEnum.Enum.ONE)
         self.assertEqual(await EnumModel.objects.acount(), 1)
 
+        instance = await EnumModel.objects.afirst()
+        self.assertEqual(instance.char_choices, "VALUE_2")
+        self.assertEqual(instance.int_choices, 1)
+
         request = fakeapp_pb2.EnumServiceRetrieveRequest(id=response.id)
         response = await grpc_stub.Retrieve(request=request)
         self.assertEqual(response.char_choices, fakeapp_pb2.MyTestStrEnum.Enum.VALUE_2)

@@ -89,6 +89,8 @@ class ProtoField:
         if isinstance(self.field_type, str):
             return self.field_type
         if isinstance(self.field_type, type) and issubclass(self.field_type, Enum):
+            # In protobuf, enunms are scoped like c++ enums, meaning that members of an enum are in fact siblings of it
+            # This means we can't have two enums in the same scope with the same members, so we encapsulate them in messages
             return f"{self.field_type.__name__}.Enum"
         return self.field_type.name
 

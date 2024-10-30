@@ -5,8 +5,8 @@ from fakeapp.grpc import fakeapp_pb2
 
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
-from django_socio_grpc.tests.fakeapp.models import EnumModel
-from django_socio_grpc.tests.fakeapp.serializers import (
+from fakeapp.models import EnumModel
+from fakeapp.serializers import (
     EnumServiceAnnotatedSerializerSerializer,
     EnumServiceSerializer,
 )
@@ -21,7 +21,7 @@ class MyGRPCActionEnum(models.TextChoices):
     VALUE_2 = "VALUE_2", "readable 2"
 
 
-class EnumService(generics.GenericService):
+class EnumService(generics.AsyncCreateService, generics.AsyncRetrieveService):
     serializer_class = EnumServiceSerializer
     queryset = EnumModel.objects.all()
 

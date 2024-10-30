@@ -34,6 +34,8 @@ service EnumController {
     rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequestResponse) {}
     rpc BasicEnumRequestWithAnnotatedModel(EnumServiceRequest) returns (EnumServiceResponse) {}
     rpc BasicEnumRequestWithAnnotatedSerializer(EnumServiceAnnotatedSerializerRequest) returns (EnumServiceAnnotatedSerializerResponse) {}
+    rpc Create(EnumServiceRequest) returns (EnumServiceResponse) {}
+    rpc Retrieve(EnumServiceRetrieveRequest) returns (EnumServiceResponse) {}
 }
 
 service ExceptionController {
@@ -404,6 +406,10 @@ message EnumServiceResponse {
     optional int32 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
     optional MyTestIntEnum.Enum int_choices = 3;
+}
+
+message EnumServiceRetrieveRequest {
+    int32 id = 1;
 }
 
 message ExceptionStreamRaiseExceptionResponse {

@@ -257,7 +257,7 @@ class ProtoField:
             if set(field.choices) != set(enum.values):
                 raise ProtoRegistrationError(
                     f"Choice ({field.field_name}) field should be annotated with the same class as the choices, either on the serializer or the model.\n"
-                    "Exemple : [my_field : Annotated[models.CharField, MyEnum] = models.CharField(choices=MyEnum.choices)]"
+                    "Example : `my_field : Annotated[models.CharField, MyTextChoices] = models.CharField(choices=MyTextChoices)`"
                 )
 
             field_type = enum

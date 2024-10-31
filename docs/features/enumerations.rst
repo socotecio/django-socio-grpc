@@ -23,6 +23,22 @@ In a FieldDict, you can specify an Enum for the type. This will generate the cor
         response=[{"name": "value", "type": "string"}],
     )
 
+Here is the generated enum in `.proto` file:
+
+.. code-block:: protobuf
+
+    message Request {
+        MyEnum.Enum enum_example = 1;
+    }
+
+    message MyEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            FIRST = 1;
+            SECOND = 2;
+        }
+    }
+
 Using an Annotated Serializer or Model field
 --------------------------------------------
 
@@ -59,6 +75,22 @@ Example in a Serializer:
             SECOND = "SECOND", "Second"
 
         my_field: Annotated[serializers.ChoiceField, MyEnum] = serializers.ChoiceField(choices=MyEnum)
+
+Here is the generated enum in `.proto` file:
+
+.. code-block:: protobuf
+
+    message MyRequest {
+        MyEnum.Enum my_field = 1;
+    }
+
+    message MyEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            FIRST = 1;
+            SECOND = 2;
+        }
+    }
 
 Note that if you use a `ModelProtoSerializer`, and your model has `Annotated` on fields containing choices, you don't have to annotate them again in the serializer.
 

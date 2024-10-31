@@ -66,7 +66,7 @@ Example in a model:
 Example in a Serializer:
 
 .. code-block:: python
-    
+
     from typing import Annotated
 
     class MySerializer(proto_serializers.ProtoSerializer):

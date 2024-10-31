@@ -38,6 +38,8 @@ Example in a model:
 
 .. code-block:: python
 
+    from typing import Annotated
+
     class MyModel(models.Model):
         class MyEnum(models.TextChoices):
             FIRST = "FIRST", "First"
@@ -48,6 +50,8 @@ Example in a model:
 Example in a Serializer:
 
 .. code-block:: python
+    
+    from typing import Annotated
 
     class MySerializer(proto_serializers.ProtoSerializer):
         class MyEnum(models.TextChoices):

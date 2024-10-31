@@ -80,7 +80,7 @@ Here is the generated enum in `.proto` file:
 
 .. code-block:: protobuf
 
-    message MyRequest {
+    message Request {
         MyEnum.Enum my_field = 1;
     }
 
@@ -93,6 +93,40 @@ Here is the generated enum in `.proto` file:
     }
 
 Note that if you use a `ModelProtoSerializer`, and your model has `Annotated` on fields containing choices, you don't have to annotate them again in the serializer.
+
+Adding Comments
+---------------
+
+You can add comments at the enumeration level by adding a Docstring to it, or at the members level by adding Annotated to them.
+
+.. code-block:: python
+
+    from typing import Annotated
+
+    class MyModel(models.Model):
+        class MyEnum(models.TextChoices):
+            """My enum comment"""
+
+            FIRST : Annotated[tuple, ["Comment", "on two lines"]] = "FIRST", "First"
+            SECOND : Annotated[tuple, "Comment on one line"] = "SECOND", "Second"
+
+        my_field: Annotated[models.CharField, MyEnum] = models.CharField(choices=MyEnum)
+
+Here is the generated enum in `.proto` file:
+
+.. code-block:: protobuf
+
+    // My enum comment
+    message MyEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // Comment
+            // on two lines
+            FIRST = 1;
+            // Comment on one line
+            SECOND = 2;
+        }
+    }
 
 Using Generated Enums
 ---------------------

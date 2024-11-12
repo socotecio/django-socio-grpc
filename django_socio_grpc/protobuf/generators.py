@@ -99,10 +99,10 @@ class RegistryToProtoGenerator:
                 for f in message.fields
                 if isinstance(f.field_type, type) and issubclass(f.field_type, Enum)
             ]
-            
+
         # Remove duplicated enums
         unique_enums = list(dict.fromkeys(enums))
-        
+
         for enum in unique_enums:
             prev_indices = {}
             if previous_messages and previous_messages.get(enum.__name__):

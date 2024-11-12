@@ -123,7 +123,9 @@ class ProtoField:
         field_type = field_dict["type"]
 
         if isinstance(field_type, str):
-            cardinality, field_type = cls.from_field_dict_handle_str_field_type(field_type, name, cardinality)
+            cardinality, field_type = cls.from_field_dict_handle_str_field_type(
+                field_type, name, cardinality
+            )
 
         if cardinality not in FieldCardinality.__members__.values():
             raise ProtoRegistrationError(
@@ -144,7 +146,9 @@ class ProtoField:
         )
 
     @classmethod
-    def from_field_dict_handle_str_field_type(cls, field_type: str, field_name: str, cardinality: FieldCardinality):
+    def from_field_dict_handle_str_field_type(
+        cls, field_type: str, field_name: str, cardinality: FieldCardinality
+    ):
         type_parts = field_type.split(" ")
         if len(type_parts) == 2:
             if cardinality:
@@ -164,15 +168,13 @@ class ProtoField:
                         f"`{frame.locals['self']}`"
                     )
                     break
-                
+
         elif len(type_parts) > 2:
             raise ProtoRegistrationError(
                 f"Unknown field type `{field_type}` for field `{field_name}`"
             )
-        
+
         return cardinality, field_type
-        
-        
 
     @classmethod
     def from_field(

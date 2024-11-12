@@ -223,7 +223,7 @@ class BaseProtoSerializer(BaseSerializer):
                 field_value = self.base_data[field.field_name]
 
                 # Choice doesn't store the Enum keys, but the Enum values
-                # We need to convert the Enum key to the Enum value before giving it to DRF 
+                # We need to convert the Enum key to the Enum value before giving it to DRF
                 if isinstance(field, ChoiceField) and (
                     enum := ProtoField.get_enum_from_annotation(field)
                 ):

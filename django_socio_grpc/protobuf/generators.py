@@ -193,7 +193,8 @@ class RegistryToProtoGenerator:
         self._writer.write_line("")
 
     def _generate_enum(self, enum: Enum, indices: dict[str, int]):
-        if enum.__doc__:
+        # We don't want to write the __doc__ if it is the default one (in python 3.10)
+        if enum.__doc__ and enum.__doc__ != 'An enumeration.':
             self.write_comments(enum.__doc__.strip().splitlines())
 
         self._writer.write_line(f"message {enum.__name__} {{")

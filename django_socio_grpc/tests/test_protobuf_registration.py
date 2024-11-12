@@ -89,6 +89,25 @@ class MyStrModel(models.Model):
     class Choices(models.TextChoices):
         """My Choices"""
 
+        VALUE_1 = "VALUE_1"
+        VALUE_2 = "VALUE_2"
+
+    choice_field = models.CharField(
+        choices=Choices.choices,
+        default=Choices.VALUE_1,
+    )
+
+
+class MyStrSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyStrModel
+        fields = "__all__"
+
+
+class MyAnnotatedStrModel(models.Model):
+    class Choices(models.TextChoices):
+        """My Choices"""
+
         VALUE_1: Annotated[str, "My comment"] = "VALUE_1"
         VALUE_2 = "VALUE_2"
 
@@ -98,9 +117,9 @@ class MyStrModel(models.Model):
     )
 
 
-class MyStrSerializer(proto_serializers.ModelProtoSerializer):
+class MyAnnotatedStrSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
-        model = MyStrModel
+        model = MyAnnotatedStrModel
         fields = "__all__"
 
 
@@ -365,21 +384,32 @@ class TestFields:
         assert proto_field.name == "smf_with_decimal"
         assert proto_field.field_type == "double"
 
-    def test_from_field_serializer_int_choices(self):
+    def test_from_field_serializer_int_choices_annotated(self):
         ser = MyIntSerializer()
         field = ser.fields["choice_field"]
 
-        proto_field = ProtoField.from_field(field, parent_serializer=MyIntSerializer)
+        proto_field = ProtoField.from_field(field)
 
         assert proto_field.name == "choice_field"
         assert issubclass(proto_field.field_type, models.IntegerChoices)
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_str_choices_annotated(self):
+        ser = MyAnnotatedStrSerializer()
+        field = ser.fields["choice_field"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "choice_field"
+        assert issubclass(proto_field.field_type, models.TextChoices)
+        # INFO - AM - 04/01/2024 - OPTIONAL because a default is specified in the model
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
     def test_from_field_serializer_str_choices(self):
         ser = MyStrSerializer()
         field = ser.fields["choice_field"]
 
-        proto_field = ProtoField.from_field(field, parent_serializer=MyStrSerializer)
+        proto_field = ProtoField.from_field(field)
 
         assert proto_field.name == "choice_field"
         assert issubclass(proto_field.field_type, models.TextChoices)
@@ -628,9 +658,9 @@ class TestProtoMessage:
         assert proto_message.fields[0].name == "serializer"
         assert len(proto_message.fields[0].field_type.fields) == 14
 
-    def test_from_serializer_with_enum(self):
+    def test_from_serializer_annotated_with_enum(self):
         proto_message = RequestProtoMessage.from_serializer(
-            MyStrSerializer, name="MyStrRequest"
+            MyAnnotatedStrSerializer, name="MyStrRequest"
         )
 
         assert proto_message.name == "MyStrRequest"

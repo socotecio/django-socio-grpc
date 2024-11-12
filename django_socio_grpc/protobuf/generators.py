@@ -100,10 +100,7 @@ class RegistryToProtoGenerator:
                 if isinstance(f.field_type, type) and issubclass(f.field_type, Enum)
             ]
 
-        # Remove duplicated enums
-        unique_enums = list(dict.fromkeys(enums))
-
-        for enum in unique_enums:
+        for enum in self._remove_duplicated_enums(enums):
             prev_indices = {}
             if previous_messages and previous_messages.get(enum.__name__):
                 ex_enum = previous_messages.get(enum.__name__).enums["Enum"]
@@ -112,6 +109,17 @@ class RegistryToProtoGenerator:
             self._generate_enum(enum, indices)
 
         return self._writer.get_code()
+
+    def _remove_duplicated_enums(self, enums):
+        unique_enums = {}
+
+        for enum_obj in enums:
+            enum_id = (enum_obj.__name__, tuple(enum_obj.__members__.items()))
+
+            if enum_id not in unique_enums:
+                unique_enums[enum_id] = enum_obj
+
+        return list(unique_enums.values())
 
     def _get_enum_indices(self, enum: Enum, prev_indices: dict[str, int]) -> dict[str, int]:
         curr_idx = 0

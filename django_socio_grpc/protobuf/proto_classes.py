@@ -1,5 +1,6 @@
 import abc
 import logging
+import re
 import traceback
 from collections import OrderedDict
 from collections.abc import Callable, Iterable
@@ -273,6 +274,8 @@ class ProtoField:
                 )
 
             field_type = enum
+        elif cls._choice_field_contain_buildable_enum(field):
+            field_type = cls._build_enum_from_choice_field(field)
         else:
             field_type = get_proto_type(field)
 
@@ -282,6 +285,32 @@ class ProtoField:
             cardinality=cls._get_cardinality(field),
             comments=cls.get_field_comments(field),
         )
+
+    @classmethod
+    def _choice_field_contain_buildable_enum(cls, field: serializers.ChoiceField) -> bool:
+        # Skip all non string choices (e.g. IntegerChoices)
+        if not isinstance(list(field.choices)[0], str):
+            return False
+
+        is_enum = True
+        for k in field.choices:
+            if not re.fullmatch(r"[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*", k):
+                is_enum = False
+                break
+        return is_enum
+
+    @classmethod
+    def _build_enum_from_choice_field(cls, field: serializers.ChoiceField):
+        choices = field.choices
+
+        # Build Enum name (SerializerName + FieldName + "Enum")
+        serializer_name = field.parent.__class__.__name__
+        if serializer_name.endswith("Serializer"):
+            serializer_name = serializer_name[:-10]
+        field_name_pascal_case = field.field_name.replace("_", " ").title().replace(" ", "")
+        enum_name = f"{serializer_name}{field_name_pascal_case}Enum"
+
+        return models.TextChoices(enum_name, choices)
 
     @classmethod
     def get_enum_from_annotation(cls, field: serializers.ChoiceField):

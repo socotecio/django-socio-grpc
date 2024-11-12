@@ -79,7 +79,8 @@ class BaseProtoSerializer(BaseSerializer):
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
 
-        # Choice value -> Enum key
+        # Choice doesn't store the Enum keys, but the Enum values
+        # We need to convert the Enum values to the Enum keys before creating the message
         for field_name, field in self.fields.items():
             if isinstance(field, ChoiceField) and (
                 enum := ProtoField.get_enum_from_annotation(field)
@@ -221,7 +222,8 @@ class BaseProtoSerializer(BaseSerializer):
             if field.field_name in self.base_data:
                 field_value = self.base_data[field.field_name]
 
-                # Enum key -> Choice value
+                # Choice doesn't store the Enum keys, but the Enum values
+                # We need to convert the Enum key to the Enum value before giving it to DRF 
                 if isinstance(field, ChoiceField) and (
                     enum := ProtoField.get_enum_from_annotation(field)
                 ):

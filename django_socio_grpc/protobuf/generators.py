@@ -99,10 +99,12 @@ class RegistryToProtoGenerator:
                 for f in message.fields
                 if isinstance(f.field_type, type) and issubclass(f.field_type, Enum)
             ]
-
-        prev_indices = {}
-
-        for enum in list(dict.fromkeys(enums)):
+            
+        # Remove duplicated enums
+        unique_enums = list(dict.fromkeys(enums))
+        
+        for enum in unique_enums:
+            prev_indices = {}
             if previous_messages and previous_messages.get(enum.__name__):
                 ex_enum = previous_messages.get(enum.__name__).enums["Enum"]
                 prev_indices = {f.name: int(f.number) for f in ex_enum.fields}
@@ -115,12 +117,13 @@ class RegistryToProtoGenerator:
         curr_idx = 0
         indices = {}
         enum_members_name = [el.name for el in enum]
+        # If there are previous indices, we want to keep the same index for the same field name
         if prev_indices:
             indices = {
                 field: idx for field, idx in prev_indices.items() if field in enum_members_name
             }
-            if indices.keys():
-                curr_idx = max(prev_indices.values())
+            # We need to start at the current maximum indice when adding new fields to avoid conflicts
+            curr_idx = max(prev_indices.values())
 
         for field in enum_members_name:
             if field not in indices:
@@ -189,6 +192,7 @@ class RegistryToProtoGenerator:
         with self._writer.indent():
             self._writer.write_line("enum Enum {")
             with self._writer.indent():
+                # The first value is used by proto3 to represent an unspecified value
                 self._writer.write_line("ENUM_UNSPECIFIED = 0;")
                 for el in sorted(indices, key=indices.get):
                     el = enum[el]

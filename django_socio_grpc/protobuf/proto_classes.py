@@ -123,30 +123,7 @@ class ProtoField:
         field_type = field_dict["type"]
 
         if isinstance(field_type, str):
-            type_parts = field_type.split(" ")
-            if len(type_parts) == 2:
-                if cardinality:
-                    raise ProtoRegistrationError(
-                        f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({name})"
-                    )
-                cardinality, field_type = type_parts
-
-                stack = traceback.StackSummary.extract(
-                    traceback.walk_stack(None), capture_locals=True
-                )
-                for frame in stack:
-                    if frame.name == "make_proto_rpc":
-                        logger.warning(
-                            f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({name})"
-                            " Please set it in the `cardinality` key instead.\n"
-                            f"`{frame.locals['self']}`"
-                        )
-                        break
-
-            elif len(type_parts) > 2:
-                raise ProtoRegistrationError(
-                    f"Unknown field type `{field_type}` for field `{name}`"
-                )
+            cardinality, field_type = cls.from_field_dict_handle_str_field_type(field_type, name, cardinality)
 
         if cardinality not in FieldCardinality.__members__.values():
             raise ProtoRegistrationError(
@@ -165,6 +142,37 @@ class ProtoField:
             cardinality=cardinality,
             comments=comments,
         )
+
+    @classmethod
+    def from_field_dict_handle_str_field_type(cls, field_type: str, field_name: str, cardinality: FieldCardinality):
+        type_parts = field_type.split(" ")
+        if len(type_parts) == 2:
+            if cardinality:
+                raise ProtoRegistrationError(
+                    f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({field_name})"
+                )
+            cardinality, field_type = type_parts
+
+            stack = traceback.StackSummary.extract(
+                traceback.walk_stack(None), capture_locals=True
+            )
+            for frame in stack:
+                if frame.name == "make_proto_rpc":
+                    logger.warning(
+                        f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({field_name})"
+                        " Please set it in the `cardinality` key instead.\n"
+                        f"`{frame.locals['self']}`"
+                    )
+                    break
+                
+        elif len(type_parts) > 2:
+            raise ProtoRegistrationError(
+                f"Unknown field type `{field_type}` for field `{field_name}`"
+            )
+        
+        return cardinality, field_type
+        
+        
 
     @classmethod
     def from_field(

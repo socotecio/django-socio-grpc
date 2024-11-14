@@ -208,10 +208,13 @@ class RegistryToProtoGenerator:
             with self._writer.indent():
                 # The first value is used by proto3 to represent an unspecified value : ENUM_NAME_UNSPECIFIED
                 # See : https://protobuf.dev/programming-guides/dos-donts/#unspecified-enum
-                screaming_case_enum_name = re.sub(
-                    r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", enum.__name__
-                ).upper()
-                self._writer.write_line(f"{screaming_case_enum_name}_UNSPECIFIED = 0;")
+                if wrap_in_message:
+                    self._writer.write_line("ENUM_UNSPECIFIED = 0;")
+                else:
+                    screaming_case_enum_name = re.sub(
+                        r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", enum.__name__
+                    ).upper()
+                    self._writer.write_line(f"{screaming_case_enum_name}_UNSPECIFIED = 0;")
 
                 for el in sorted(indices, key=indices.get):
                     el = enum[el]

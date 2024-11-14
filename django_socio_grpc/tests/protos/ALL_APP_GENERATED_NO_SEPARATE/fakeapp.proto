@@ -244,7 +244,7 @@ message EnumBasicEnumRequest {
     // This is my GRPC Action Enum
     message MyGRPCActionEnum {
         enum Enum {
-            MY_GRPC_ACTION_ENUM_UNSPECIFIED = 0;
+            ENUM_UNSPECIFIED = 0;
             // This is value 1
             VALUE_1 = 1;
             VALUE_2 = 2;
@@ -584,7 +584,7 @@ message UnitTestModelWithStructFilterStreamRequest {
 // My Test str Enum
 message MyTestStrEnum {
     enum Enum {
-        MY_TEST_STR_ENUM_UNSPECIFIED = 0;
+        ENUM_UNSPECIFIED = 0;
         // My exemple value 1
         VALUE_1 = 1;
         // My exemple value 2
@@ -596,7 +596,7 @@ message MyTestStrEnum {
 // My Test int Enum
 message MyTestIntEnum {
     enum Enum {
-        MY_TEST_INT_ENUM_UNSPECIFIED = 0;
+        ENUM_UNSPECIFIED = 0;
         // My exemple value 1
         ONE = 1;
         // My exemple value 2
@@ -607,7 +607,7 @@ message MyTestIntEnum {
 
 message EnumServiceCharChoicesNotAnnotatedEnum {
     enum Enum {
-        ENUM_SERVICE_CHAR_CHOICES_NOT_ANNOTATED_ENUM_UNSPECIFIED = 0;
+        ENUM_UNSPECIFIED = 0;
         VALUE_1 = 1;
         VALUE_2 = 2;
     }

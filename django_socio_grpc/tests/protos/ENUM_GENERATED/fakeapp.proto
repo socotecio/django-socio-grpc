@@ -11,6 +11,16 @@ service EnumController {
 }
 
 message EnumBasicEnumRequest {
+    // This is my GRPC Action Enum
+    message MyGRPCActionEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // This is value 1
+            VALUE_1 = 1;
+            VALUE_2 = 2;
+        }
+    }
+    
     MyGRPCActionEnum.Enum enum_example = 1;
 }
 
@@ -42,16 +52,6 @@ message EnumServiceResponse {
 
 message EnumServiceRetrieveRequest {
     int32 id = 1;
-}
-
-// This is my GRPC Action Enum
-message MyGRPCActionEnum {
-    enum Enum {
-        ENUM_UNSPECIFIED = 0;
-        // This is value 1
-        VALUE_1 = 1;
-        VALUE_2 = 2;
-    }
 }
 
 // My Test str Enum

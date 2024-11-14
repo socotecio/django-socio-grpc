@@ -381,6 +381,16 @@ message DefaultValueRetrieveRequest {
 }
 
 message EnumBasicEnumRequest {
+    // This is my GRPC Action Enum
+    message MyGRPCActionEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // This is value 1
+            VALUE_1 = 1;
+            VALUE_2 = 2;
+        }
+    }
+    
     MyGRPCActionEnum.Enum enum_example = 1;
 }
 
@@ -794,16 +804,6 @@ message UnitTestModelWithStructFilterRetrieveRequest {
 }
 
 message UnitTestModelWithStructFilterStreamRequest {
-}
-
-// This is my GRPC Action Enum
-message MyGRPCActionEnum {
-    enum Enum {
-        ENUM_UNSPECIFIED = 0;
-        // This is value 1
-        VALUE_1 = 1;
-        VALUE_2 = 2;
-    }
 }
 
 // My Test str Enum

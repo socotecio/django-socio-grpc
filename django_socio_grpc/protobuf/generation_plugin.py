@@ -1,10 +1,15 @@
 import logging
 from dataclasses import dataclass
+from enum import Enum
 from typing import TYPE_CHECKING
 
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
-from django_socio_grpc.protobuf.proto_classes import FieldCardinality, ProtoField, ProtoMessage
-from django_socio_grpc.settings import FilterAndPaginationBehaviorOptions, grpc_settings
+from django_socio_grpc.protobuf.proto_classes import (
+    FieldCardinality,
+    ProtoEnum,
+    ProtoField,
+    ProtoMessage,
+)
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -25,7 +30,7 @@ class BaseGenerationPlugin:
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
         """
-        Method that allow to return with modifying the proto if some conditions are not met
+        Method that allow to return without modifying the proto if some conditions are not met
         """
         return True
 
@@ -131,6 +136,11 @@ class FilterGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
         response_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
+        from django_socio_grpc.settings import (
+            FilterAndPaginationBehaviorOptions,
+            grpc_settings,
+        )
+
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
         if (
             not hasattr(service, "filter_backends")
@@ -173,6 +183,11 @@ class PaginationGenerationPlugin(BaseAddFieldRequestGenerationPlugin):
         response_message: ProtoMessage | str,
         message_name_constructor: MessageNameConstructor,
     ) -> bool:
+        from django_socio_grpc.settings import (
+            FilterAndPaginationBehaviorOptions,
+            grpc_settings,
+        )
+
         # INFO - AM - 20/02/2024 - If service don't support filtering we do not add filter field
         if (
             not hasattr(service, "pagination_class")
@@ -316,3 +331,69 @@ class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerati
                 service, proto_message, message_name_constructor
             )
         return proto_message
+
+
+@dataclass
+class BaseEnumGenerationPlugin(BaseGenerationPlugin):
+    def transform_request_message(
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
+        message_name_constructor: MessageNameConstructor,
+    ) -> ProtoMessage:
+        if isinstance(proto_message, str):
+            return proto_message
+
+        for field in proto_message.fields:
+            if isinstance(field.field_type, type) and issubclass(field.field_type, Enum):
+                self.handle_enum(service, proto_message, field)
+
+        return proto_message
+
+    def transform_response_message(
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
+        message_name_constructor: MessageNameConstructor,
+    ) -> ProtoMessage:
+        return self.transform_request_message(service, proto_message, message_name_constructor)
+
+    def handle_enum(
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+    ): ...
+
+
+@dataclass
+class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
+    def handle_enum(
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+    ):
+        proto_message.proto_extra_tools.enums.append(ProtoEnum(field.field_type, False))
+        field.field_type_str = field.field_type.__name__
+
+
+@dataclass
+class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
+    def handle_enum(
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+    ):
+        proto_message.proto_extra_tools.enums.append(ProtoEnum(field.field_type, True))
+        field.field_type_str = f"{field.field_type.__name__}.Enum"
+
+
+@dataclass
+class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
+    def handle_enum(
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+    ):
+        service._app_handler.proto_extra_tools.enums.append(ProtoEnum(field.field_type, False))
+        field.field_type_str = f"{field.field_type.__name__}"
+
+
+@dataclass
+class GlobalScopeWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
+    def handle_enum(
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+    ):
+        service._app_handler.proto_extra_tools.enums.append(ProtoEnum(field.field_type, True))
+        field.field_type_str = f"{field.field_type.__name__}.Enum"

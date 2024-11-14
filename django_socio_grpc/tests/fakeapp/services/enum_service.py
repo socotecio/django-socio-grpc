@@ -10,6 +10,7 @@ from fakeapp.serializers import (
 
 from django_socio_grpc import generics
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.protobuf.generation_plugin import InMessageWrappedEnumGenerationPlugin
 
 
 class MyGRPCActionEnum(models.TextChoices):
@@ -28,6 +29,7 @@ class EnumService(generics.AsyncCreateService, generics.AsyncRetrieveService):
     @grpc_action(
         request=[{"name": "enum_example", "type": MyGRPCActionEnum}],
         response=[{"name": "value", "type": "string"}],
+        use_generation_plugins=[InMessageWrappedEnumGenerationPlugin()],
     )
     async def BasicEnumRequest(self, request, context):
         return fakeapp_pb2.EnumBasicEnumRequestResponse(value="test")

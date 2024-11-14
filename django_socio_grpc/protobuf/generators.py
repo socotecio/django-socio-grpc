@@ -1,13 +1,14 @@
 import io
 import logging
 from collections import OrderedDict
+from contextlib import nullcontext
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from enum import Enum
 from pathlib import Path
 
 from django_socio_grpc.protobuf import RegistrySingleton
-from django_socio_grpc.protobuf.proto_classes import ProtoMessage, ProtoService
+from django_socio_grpc.protobuf.proto_classes import ProtoEnum, ProtoMessage, ProtoService
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
 from .protoparser import protoparser
@@ -88,57 +89,14 @@ class RegistryToProtoGenerator:
         for service in sorted(registry.proto_services, key=lambda x: x.name):
             self._generate_service(service)
 
-        enums = []
-
         for message in sorted(messages, key=lambda x: x.name):
-            self._generate_message(message)
+            self._generate_message(message, previous_messages)
 
-            # Gather all enums to generate them at the end
-            enums += [
-                f.field_type
-                for f in message.fields
-                if isinstance(f.field_type, type) and issubclass(f.field_type, Enum)
-            ]
-
-        for enum in self._remove_duplicated_enums(enums):
-            prev_indices = {}
-            if previous_messages and previous_messages.get(enum.__name__):
-                ex_enum = previous_messages.get(enum.__name__).enums["Enum"]
-                prev_indices = {f.name: int(f.number) for f in ex_enum.fields}
-            indices = self._get_enum_indices(enum, prev_indices)
-            self._generate_enum(enum, indices)
+        # list(dict.fromkeys()) is used to remove duplicates
+        for proto_enum in list(dict.fromkeys(registry.proto_extra_tools.enums)):
+            self._generate_enum_and_indices(proto_enum, previous_messages)
 
         return self._writer.get_code()
-
-    def _remove_duplicated_enums(self, enums):
-        unique_enums = {}
-
-        for enum_obj in enums:
-            enum_id = (enum_obj.__name__, tuple(enum_obj.__members__.items()))
-
-            if enum_id not in unique_enums:
-                unique_enums[enum_id] = enum_obj
-
-        return list(unique_enums.values())
-
-    def _get_enum_indices(self, enum: Enum, prev_indices: dict[str, int]) -> dict[str, int]:
-        curr_idx = 0
-        indices = {}
-        enum_members_name = [el.name for el in enum]
-        # If there are previous indices, we want to keep the same index for the same field name
-        if prev_indices:
-            indices = {
-                field: idx for field, idx in prev_indices.items() if field in enum_members_name
-            }
-            # We need to start at the current maximum indice when adding new fields to avoid conflicts
-            curr_idx = max(prev_indices.values())
-
-        for field in enum_members_name:
-            if field not in indices:
-                curr_idx += 1
-                indices[field] = curr_idx
-
-        return indices
 
     def _generate_service(self, service: ProtoService):
         self._writer.write_line(f"service {service.name} {{")
@@ -163,7 +121,9 @@ class RegistryToProtoGenerator:
         self._writer.write_line("}")
         self._writer.write_line("")
 
-    def _generate_message(self, message: ProtoMessage):
+    def _generate_message(
+        self, message: ProtoMessage, previous_messages: dict[str, protoparser.Message]
+    ):
         assert not message.imported_from, "Cannot generate message from imported message"
 
         # Info - AM - 14/01/2022 - This is used to simplify debugging in large project. See self.print
@@ -181,6 +141,9 @@ class RegistryToProtoGenerator:
         # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {message.name} {{")
         with self._writer.indent():
+            # list(dict.fromkeys()) is used to remove duplicates
+            for proto_enum in list(dict.fromkeys(message.proto_extra_tools.enums)):
+                self._generate_enum_and_indices(proto_enum, previous_messages)
             # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields
             for field in sorted(message.fields, key=lambda x: x.index):
                 self.print(f"GENERATE FIELD: {field.name}", 4)
@@ -192,14 +155,54 @@ class RegistryToProtoGenerator:
         self._writer.write_line("}")
         self._writer.write_line("")
 
-    def _generate_enum(self, enum: Enum, indices: dict[str, int]):
+    def _generate_enum_and_indices(
+        self, proto_enum: ProtoEnum, previous_messages: dict[str, protoparser.Message]
+    ):
+        enum = proto_enum.enum
+        prev_indices = {}
+
+        if previous_messages and previous_messages.get(enum.__name__):
+            ex_enum = previous_messages.get(enum.__name__).enums["Enum"]
+            prev_indices = {f.name: int(f.number) for f in ex_enum.fields}
+
+        indices = self._get_enum_indices(enum, prev_indices)
+        self._generate_enum(proto_enum, indices)
+
+    def _get_enum_indices(self, enum: Enum, prev_indices: dict[str, int]) -> dict[str, int]:
+        curr_idx = 0
+        indices = {}
+        enum_members_name = [el.name for el in enum]
+        # If there are previous indices, we want to keep the same index for the same field name
+        if prev_indices:
+            indices = {
+                field: idx for field, idx in prev_indices.items() if field in enum_members_name
+            }
+            # We need to start at the current maximum indice when adding new fields to avoid conflicts
+            curr_idx = max(prev_indices.values())
+
+        for field in enum_members_name:
+            if field not in indices:
+                curr_idx += 1
+                indices[field] = curr_idx
+
+        return indices
+
+    def _generate_enum(self, proto_enum: ProtoEnum, indices: dict[str, int]):
+        enum = proto_enum.enum
+        wrap_in_message = proto_enum.wrap_in_message
+
         # We don't want to write the __doc__ if it is the default one (in python 3.10)
         if enum.__doc__ and enum.__doc__ != "An enumeration.":
             self.write_comments(enum.__doc__.strip().splitlines())
 
-        self._writer.write_line(f"message {enum.__name__} {{")
-        with self._writer.indent():
-            self._writer.write_line("enum Enum {")
+        # Only indent if we are wrapping the enum in a message
+        indent_context = self._writer.indent() if wrap_in_message else nullcontext()
+
+        if wrap_in_message:
+            self._writer.write_line(f"message {enum.__name__} {{")
+
+        with indent_context:
+            self._writer.write_line(f"enum {'Enum' if wrap_in_message else enum.__name__} {{")
             with self._writer.indent():
                 # The first value is used by proto3 to represent an unspecified value
                 self._writer.write_line("ENUM_UNSPECIFIED = 0;")
@@ -216,7 +219,10 @@ class RegistryToProtoGenerator:
                     self.write_comments(comments)
                     self._writer.write_line(f"{el.name} = {indices[el.name]};")
             self._writer.write_line("}")
-        self._writer.write_line("}")
+
+        if wrap_in_message:
+            self._writer.write_line("}")
+
         self._writer.write_line("")
 
     def write_comments(self, comments: list[str] | None):

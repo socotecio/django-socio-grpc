@@ -9,6 +9,7 @@ from django.apps.registry import apps
 from django.conf import settings
 
 from django_socio_grpc.protobuf import ProtoMessage, ProtoService, RegistrySingleton
+from django_socio_grpc.protobuf.proto_classes import ProtoExtraTools
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import camel_to_snake
 
@@ -30,6 +31,7 @@ class AppHandlerRegistry:
     override_pb2_grpc_file_path: str = None
     to_root_grpc: bool = False
     proto_services: list[ProtoService] = field(default_factory=list, init=False)
+    proto_extra_tools: ProtoExtraTools = field(default_factory=ProtoExtraTools, init=False)
 
     def __post_init__(self):
         if self.reload_services:

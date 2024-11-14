@@ -65,7 +65,28 @@ class WrongMessageNameConstructor(MessageNameConstructor):
     pass
 
 
-class MyIntModel(models.Model):
+class MyWronglyAnnotatedModel(models.Model):
+    class WrongAnnotation:
+        pass
+
+    class Choices(models.IntegerChoices):
+        ONE = 1
+        TWO = 2
+        THREE = 3
+
+    choice_field: Annotated[models.IntegerField, WrongAnnotation] = models.IntegerField(
+        choices=Choices.choices,
+        default=Choices.ONE,
+    )
+
+
+class MyWronglyAnnotatedIntSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyWronglyAnnotatedModel
+        fields = "__all__"
+
+
+class MyAnnotatedIntModel(models.Model):
     class Choices(models.IntegerChoices):
         """My int choices"""
 
@@ -79,9 +100,9 @@ class MyIntModel(models.Model):
     )
 
 
-class MyIntSerializer(proto_serializers.ModelProtoSerializer):
+class MyAnnotatedIntSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
-        model = MyIntModel
+        model = MyAnnotatedIntModel
         fields = "__all__"
 
 
@@ -385,7 +406,7 @@ class TestFields:
         assert proto_field.field_type == "double"
 
     def test_from_field_serializer_int_choices_annotated(self):
-        ser = MyIntSerializer()
+        ser = MyAnnotatedIntSerializer()
         field = ser.fields["choice_field"]
 
         proto_field = ProtoField.from_field(field)
@@ -463,6 +484,13 @@ class TestFields:
         assert proto_field.name == "choice_field"
         assert proto_field.field_type == "string"
         assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_wrongly_annotated_choices(self):
+        ser = MyWronglyAnnotatedIntSerializer()
+        field = ser.fields["choice_field"]
+
+        with pytest.raises(ProtoRegistrationError):
+            ProtoField.from_field(field)
 
     # FROM_SERIALIZER
 

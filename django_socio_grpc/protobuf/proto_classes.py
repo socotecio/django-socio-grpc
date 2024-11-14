@@ -84,16 +84,19 @@ class ProtoField:
     cardinality: FieldCardinality = FieldCardinality.NONE
     comments: list[str] | None = None
     index: int = 0
+    _field_type_str: str | None = None
 
     @property
     def field_type_str(self) -> str:
+        if self._field_type_str:
+            return self._field_type_str
         if isinstance(self.field_type, str):
             return self.field_type
-        if isinstance(self.field_type, type) and issubclass(self.field_type, Enum):
-            # In protobuf, enunms are scoped like c++ enums, meaning that members of an enum are in fact siblings of it
-            # This means we can't have two enums in the same scope with the same members, so we encapsulate them in messages
-            return f"{self.field_type.__name__}.Enum"
         return self.field_type.name
+
+    @field_type_str.setter
+    def field_type_str(self, value: str):
+        self._field_type_str = value
 
     @property
     def field_line(self) -> str:
@@ -505,6 +508,31 @@ class ProtoField:
         )
 
 
+@dataclass
+class ProtoEnum:
+    enum: Enum = None
+    wrap_in_message: bool = False
+
+    def __eq__(self, other):
+        if not isinstance(other, ProtoEnum):
+            return NotImplemented
+
+        # Enums may be created on the fly and so we need to compare the enum members
+        self_enum = (self.enum.__name__, tuple(self.enum.__members__.items()))
+        other_enum = (other.enum.__name__, tuple(other.enum.__members__.items()))
+
+        return self_enum == other_enum and self.wrap_in_message == other.wrap_in_message
+
+    def __hash__(self):
+        enum_hash = hash((self.enum.__name__, tuple(self.enum.__members__.items())))
+        return hash((enum_hash, self.wrap_in_message))
+
+
+@dataclass
+class ProtoExtraTools:
+    enums: list[ProtoEnum] = dataclass_field(default_factory=list)
+
+
 # TODO Frozen
 @dataclass
 class ProtoMessage:
@@ -523,6 +551,7 @@ class ProtoMessage:
     comments: list[str] | None = None
     serializer: serializers.BaseSerializer | None = None
     imported_from: str | None = None
+    proto_extra_tools: ProtoExtraTools = dataclass_field(default_factory=ProtoExtraTools)
 
     def get_all_messages(self) -> dict[str, "ProtoMessage"]:
         messages = {self.name: self}

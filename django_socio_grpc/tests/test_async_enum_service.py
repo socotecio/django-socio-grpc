@@ -38,10 +38,20 @@ class TestAsyncEnumService(TestCase):
     async def test_async_enum_service_with_annotated_serializer(self):
         grpc_stub = self.fake_grpc.get_fake_stub(EnumControllerStub)
         request = fakeapp_pb2.EnumServiceAnnotatedSerializerRequest(
-            char_choices=fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1
+            char_choices_in_serializer=fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1
         )
         response = await grpc_stub.BasicEnumRequestWithAnnotatedSerializer(request=request)
-        self.assertEqual(response.char_choices, fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1)
+        self.assertEqual(
+            response.char_choices_in_serializer, fakeapp_pb2.MyTestStrEnum.Enum.VALUE_1
+        )
+
+    async def test_async_enum_service_field_dict_simple_enum(self):
+        grpc_stub = self.fake_grpc.get_fake_stub(EnumControllerStub)
+        request = fakeapp_pb2.EnumBasicEnumRequest(
+            enum=fakeapp_pb2.EnumBasicEnumRequest.MyGRPCActionEnum.Enum.VALUE_2
+        )
+        response = await grpc_stub.BasicEnumRequest(request=request)
+        self.assertEqual(response.enum, fakeapp_pb2.MyTestStrEnum.Enum.VALUE_2)
 
     async def test_async_enum_service_model_creation_and_fetch(self):
         grpc_stub = self.fake_grpc.get_fake_stub(EnumControllerStub)

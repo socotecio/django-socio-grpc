@@ -360,10 +360,10 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
 
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
-    ): ...
+    ):
+        raise NotImplementedError("You need to implement the handle_enum method")
 
 
-@dataclass
 class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
@@ -372,7 +372,6 @@ class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
         field.field_type_str = field.field_type.__name__
 
 
-@dataclass
 class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
@@ -381,7 +380,6 @@ class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
         field.field_type_str = f"{field.field_type.__name__}.Enum"
 
 
-@dataclass
 class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
@@ -390,7 +388,6 @@ class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
         field.field_type_str = f"{field.field_type.__name__}"
 
 
-@dataclass
 class GlobalScopeWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField

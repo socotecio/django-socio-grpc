@@ -12,34 +12,6 @@ DSG can handle the generation of enumerations in your `.proto` files in three wa
 
 Unless you are using enums in a FieldDict directly, you should be using `TextChoices` or `IntegerChoices` as defined in the Django documentation `here <https://docs.djangoproject.com/en/5.1/ref/models/fields/#enumeration-types>`_.
 
-Using a FieldDict
------------------
-
-In a FieldDict, you can specify an Enum for the type. This will generate the corresponding enum in the `.proto` file.
-
-.. code-block:: python
-
-    @grpc_action(
-        request=[{"name": "enum_example", "type": MyEnum}],
-        response=[{"name": "value", "type": "string"}],
-    )
-
-Here is the generated enum in `.proto` file:
-
-.. code-block:: protobuf
-
-    message Request {
-        MyEnum.Enum enum_example = 1;
-    }
-
-    message MyEnum {
-        enum Enum {
-            ENUM_UNSPECIFIED = 0;
-            FIRST = 1;
-            SECOND = 2;
-        }
-    }
-
 Using a Serializer or Model field with TextChoices
 --------------------------------------------------
 
@@ -53,9 +25,9 @@ This works :
 
     class MyModel(models.Model):
         class MyEnum(models.TextChoices):
-            FIRST = "FIRST", "First"
-            #        ^^^^^  This will be the first key of the enum
-            SECOND = "SECOND", "Second"
+            VALUE_1 = "VALUE_1", "Value 1"
+            #          ^^^^^^^  This will be the first key of the enum
+            VALUE_2 = "VALUE_2", "Value 2"
 
         my_field = models.CharField(choices=MyEnum.choices)
 
@@ -70,8 +42,8 @@ Here is the generated enum in .proto file:
     message MyEnum {
         enum Enum {
             ENUM_UNSPECIFIED = 0;
-            FIRST = 1;
-            SECOND = 2;
+            VALUE_1 = 1;
+            VALUE_2 = 2;
         }
     }
 
@@ -81,8 +53,8 @@ This doesn't work and will be generated as a string field:
 
     class MyModel(models.Model):
         class MyEnum(models.TextChoices):
-            FIRST = "First", "First"
-            SECOND = "SECOND VALUE", "Second"
+            VALUE_1 = "Value1", "Value 1"
+            VALUE_2 = "VALUE 2", "Value 2"
 
         my_field = models.CharField(choices=MyEnum.choices)
 
@@ -111,9 +83,9 @@ Example in a model:
 
     class MyModel(models.Model):
         class MyEnum(models.TextChoices):
-            FIRST = "FIRST", "First"
-            #^^^^  This will be the first key of the enum
-            SECOND = "SECOND", "Second"
+            VALUE_1 = "VALUE_1", "Value 1"
+            #^^^^^^  This will be the first key of the enum
+            VALUE_2 = "VALUE_2", "Value 2"
 
         my_field: Annotated[models.CharField, MyEnum] = models.CharField(choices=MyEnum)
 
@@ -125,8 +97,8 @@ Example in a Serializer:
 
     class MySerializer(proto_serializers.ProtoSerializer):
         class MyEnum(models.TextChoices):
-            FIRST = "FIRST", "First"
-            SECOND = "SECOND", "Second"
+            VALUE_1 = "VALUE_1", "Value 1"
+            VALUE_2 = "VALUE_2", "Value 2"
 
         my_field: Annotated[serializers.ChoiceField, MyEnum] = serializers.ChoiceField(choices=MyEnum)
 
@@ -141,12 +113,40 @@ Here is the generated enum in `.proto` file:
     message MyEnum {
         enum Enum {
             ENUM_UNSPECIFIED = 0;
-            FIRST = 1;
-            SECOND = 2;
+            VALUE_1 = 1;
+            VALUE_2 = 2;
         }
     }
 
 Note that if you use a `ModelProtoSerializer`, and your model has `Annotated` on fields containing choices, you don't have to annotate them again in the serializer.
+
+Using a FieldDict
+-----------------
+
+In a FieldDict, you can specify an Enum for the type. This will generate the corresponding enum in the `.proto` file.
+
+.. code-block:: python
+
+    @grpc_action(
+        request=[{"name": "enum_example", "type": MyEnum}],
+        response=[{"name": "value", "type": "string"}],
+    )
+
+Here is the generated enum in `.proto` file:
+
+.. code-block:: protobuf
+
+    message Request {
+        MyEnum.Enum enum_example = 1;
+    }
+
+    message MyEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            VALUE_1 = 1;
+            VALUE_2 = 2;
+        }
+    }
 
 Adding Comments
 ---------------
@@ -166,8 +166,8 @@ You can add comments at the enumeration level by adding a Docstring to it, or at
         class MyEnum(models.TextChoices):
             """My enum comment"""
 
-            FIRST : Annotated[tuple, ["Comment", "on two lines"]] = "FIRST", "First"
-            SECOND : Annotated[tuple, "Comment on one line"] = "SECOND", "Second"
+            VALUE_1 : Annotated[tuple, ["Comment", "on two lines"]] = "VALUE_1", "Value 1"
+            VALUE_2 : Annotated[tuple, "Comment on one line"] = "VALUE_2", "Value 2"
 
         my_field: Annotated[models.CharField, MyEnum] = models.CharField(choices=MyEnum)
 
@@ -181,24 +181,11 @@ Here is the generated enum in `.proto` file:
             ENUM_UNSPECIFIED = 0;
             // Comment
             // on two lines
-            FIRST = 1;
+            VALUE_1 = 1;
             // Comment on one line
-            SECOND = 2;
+            VALUE_2 = 2;
         }
     }
-
-Using Generated Enums
----------------------
-
-When generated, the enums are accessible from your `pb2` files.
-
-The location where they are generated is based the generation plugin you are using.
-
-.. code-block:: python
-
-    myapp_pb2.MyEnum.Enum.FIRST
-    myapp_pb2.MyEnum.Enum.SECOND
-
 
 Modify how Enums are generated using generation plugins
 -------------------------------------------------------
@@ -209,9 +196,44 @@ Modify how Enums are generated using generation plugins
 
 There are currently four ways the Enums can be written to the .proto file:
 
-- In the global scope
-- In the global scope, wrapped in a message (default)
-- In the message scope
-- In the message scope, wrapped in a message
+- GlobalScopeEnumGenerationPlugin : In the global scope
+- GlobalScopeWrappedEnumGenerationPlugin : In the global scope, wrapped in a message (default)
+- InMessageEnumGenerationPlugin : In the message scope
+- InMessageWrappedEnumGenerationPlugin : In the message scope, wrapped in a message
 
 Theses options can be set by using the appropriate generation plugin.
+
+Using Generated Enums
+---------------------
+
+When generated, the enums are accessible from your `pb2` files.
+
+The location where they are generated is based the generation plugin you are using.
+
+For exemple if you are using the GlobalScopeWrappedEnumGenerationPlugin :
+
+.. code-block:: python
+
+    myapp_pb2.MyEnum.Enum.VALUE_1
+    myapp_pb2.MyEnum.Enum.VALUE_2
+
+Using the GlobalScopeEnumGenerationPlugin :
+
+.. code-block:: python
+
+    myapp_pb2.MyEnum.VALUE_1
+    myapp_pb2.MyEnum.VALUE_2
+
+Using the InMessageEnumGenerationPlugin :
+
+.. code-block:: python
+
+    myapp_pb2.MyMessage.MyEnum.VALUE_1
+    myapp_pb2.MyMessage.MyEnum.VALUE_2
+
+Using the InMessageWrappedEnumGenerationPlugin :
+
+.. code-block:: python
+
+    myapp_pb2.MyMessage.MyEnum.Enum.VALUE_1
+    myapp_pb2.MyMessage.MyEnum.Enum.VALUE_2

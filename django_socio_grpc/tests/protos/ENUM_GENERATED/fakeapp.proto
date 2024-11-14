@@ -14,26 +14,36 @@ message EnumBasicEnumRequest {
     // This is my GRPC Action Enum
     message MyGRPCActionEnum {
         enum Enum {
-            ENUM_UNSPECIFIED = 0;
+            MY_GRPC_ACTION_ENUM_UNSPECIFIED = 0;
             // This is value 1
             VALUE_1 = 1;
             VALUE_2 = 2;
         }
     }
     
-    MyGRPCActionEnum.Enum enum_example = 1;
+    MyGRPCActionEnum.Enum enum = 1;
 }
 
 message EnumBasicEnumRequestResponse {
-    string value = 1;
+    // This is my GRPC Action Enum
+    message MyGRPCActionEnum {
+        enum Enum {
+            MY_GRPC_ACTION_ENUM_UNSPECIFIED = 0;
+            // This is value 1
+            VALUE_1 = 1;
+            VALUE_2 = 2;
+        }
+    }
+    
+    MyGRPCActionEnum.Enum enum = 1;
 }
 
 message EnumServiceAnnotatedSerializerRequest {
-    MyTestStrEnum.Enum char_choices = 1;
+    MyTestStrEnum.Enum char_choices_in_serializer = 1;
 }
 
 message EnumServiceAnnotatedSerializerResponse {
-    MyTestStrEnum.Enum char_choices = 1;
+    MyTestStrEnum.Enum char_choices_in_serializer = 1;
 }
 
 message EnumServiceRequest {
@@ -57,7 +67,7 @@ message EnumServiceRetrieveRequest {
 // My Test str Enum
 message MyTestStrEnum {
     enum Enum {
-        ENUM_UNSPECIFIED = 0;
+        MY_TEST_STR_ENUM_UNSPECIFIED = 0;
         // My exemple value 1
         VALUE_1 = 1;
         // My exemple value 2
@@ -69,7 +79,7 @@ message MyTestStrEnum {
 // My Test int Enum
 message MyTestIntEnum {
     enum Enum {
-        ENUM_UNSPECIFIED = 0;
+        MY_TEST_INT_ENUM_UNSPECIFIED = 0;
         // My exemple value 1
         ONE = 1;
         // My exemple value 2
@@ -80,7 +90,7 @@ message MyTestIntEnum {
 
 message EnumServiceCharChoicesNotAnnotatedEnum {
     enum Enum {
-        ENUM_UNSPECIFIED = 0;
+        ENUM_SERVICE_CHAR_CHOICES_NOT_ANNOTATED_ENUM_UNSPECIFIED = 0;
         VALUE_1 = 1;
         VALUE_2 = 2;
     }

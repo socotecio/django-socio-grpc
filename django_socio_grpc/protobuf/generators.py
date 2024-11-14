@@ -1,5 +1,6 @@
 import io
 import logging
+import re
 from collections import OrderedDict
 from contextlib import nullcontext
 from dataclasses import dataclass
@@ -178,7 +179,8 @@ class RegistryToProtoGenerator:
                 field: idx for field, idx in prev_indices.items() if field in enum_members_name
             }
             # We need to start at the current maximum indice when adding new fields to avoid conflicts
-            curr_idx = max(prev_indices.values())
+            if indices.keys():
+                curr_idx = max(prev_indices.values())
 
         for field in enum_members_name:
             if field not in indices:
@@ -204,8 +206,13 @@ class RegistryToProtoGenerator:
         with indent_context:
             self._writer.write_line(f"enum {'Enum' if wrap_in_message else enum.__name__} {{")
             with self._writer.indent():
-                # The first value is used by proto3 to represent an unspecified value
-                self._writer.write_line("ENUM_UNSPECIFIED = 0;")
+                # The first value is used by proto3 to represent an unspecified value : ENUM_NAME_UNSPECIFIED
+                # See : https://protobuf.dev/programming-guides/dos-donts/#unspecified-enum
+                screaming_case_enum_name = re.sub(
+                    r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", "_", enum.__name__
+                ).upper()
+                self._writer.write_line(f"{screaming_case_enum_name}_UNSPECIFIED = 0;")
+
                 for el in sorted(indices, key=indices.get):
                     el = enum[el]
 

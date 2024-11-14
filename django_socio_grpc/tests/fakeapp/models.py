@@ -233,6 +233,13 @@ class EnumModel(models.Model):
             "Human readable value 2",
         )
 
+    class MyNotAnnotatedTestStrEnum(models.TextChoices):
+        VALUE_1 = ("VALUE_1", "Human readable value 1")
+        VALUE_2 = (
+            "VALUE_2",
+            "Human readable value 2",
+        )
+
     class MyTestIntEnum(models.IntegerChoices):
         """My Test int Enum"""
 
@@ -248,5 +255,5 @@ class EnumModel(models.Model):
     )
 
     char_choices_not_annotated = models.CharField(
-        choices=MyTestStrEnum.choices, default=MyTestStrEnum.VALUE_1
+        choices=MyNotAnnotatedTestStrEnum.choices, default=MyNotAnnotatedTestStrEnum.VALUE_1
     )

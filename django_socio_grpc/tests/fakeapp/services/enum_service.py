@@ -1,6 +1,6 @@
+from enum import Enum
 from typing import Annotated
 
-from django.db import models
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.models import EnumModel
 from fakeapp.serializers import (
@@ -13,7 +13,7 @@ from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.protobuf.generation_plugin import InMessageWrappedEnumGenerationPlugin
 
 
-class MyGRPCActionEnum(models.TextChoices):
+class MyGRPCActionEnum(Enum):
     """
     This is my GRPC Action Enum
     """
@@ -27,12 +27,12 @@ class EnumService(generics.AsyncCreateService, generics.AsyncRetrieveService):
     queryset = EnumModel.objects.all()
 
     @grpc_action(
-        request=[{"name": "enum_example", "type": MyGRPCActionEnum}],
-        response=[{"name": "value", "type": "string"}],
+        request=[{"name": "enum", "type": MyGRPCActionEnum}],
+        response=[{"name": "enum", "type": MyGRPCActionEnum}],
         use_generation_plugins=[InMessageWrappedEnumGenerationPlugin()],
     )
     async def BasicEnumRequest(self, request, context):
-        return fakeapp_pb2.EnumBasicEnumRequestResponse(value="test")
+        return fakeapp_pb2.EnumBasicEnumRequestResponse(enum=request.enum)
 
     @grpc_action(
         request=EnumServiceSerializer,

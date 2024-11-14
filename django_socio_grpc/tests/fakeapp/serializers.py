@@ -252,7 +252,7 @@ class EnumServiceSerializer(proto_serializers.ModelProtoSerializer):
 
 
 class EnumServiceAnnotatedSerializerSerializer(proto_serializers.ProtoSerializer):
-    char_choices: Annotated[serializers.ChoiceField, EnumModel.MyTestStrEnum] = (
+    char_choices_in_serializer: Annotated[serializers.ChoiceField, EnumModel.MyTestStrEnum] = (
         serializers.ChoiceField(choices=EnumModel.MyTestStrEnum.choices)
     )
 

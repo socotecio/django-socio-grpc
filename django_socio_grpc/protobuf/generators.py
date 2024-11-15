@@ -93,7 +93,7 @@ class RegistryToProtoGenerator:
         for message in sorted(messages, key=lambda x: x.name):
             self._generate_message(message, previous_messages)
 
-        # list(dict.fromkeys()) is used to remove duplicates
+        # list(dict.fromkeys()) is used to remove duplicates while keeping the order
         for proto_enum in list(dict.fromkeys(registry.proto_extra_tools.enums)):
             self._generate_enum_and_indices(proto_enum, previous_messages)
 
@@ -142,7 +142,7 @@ class RegistryToProtoGenerator:
         # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {message.name} {{")
         with self._writer.indent():
-            # list(dict.fromkeys()) is used to remove duplicates
+            # list(dict.fromkeys()) is used to remove duplicates while keeping the order
             for proto_enum in list(dict.fromkeys(message.proto_extra_tools.enums)):
                 self._generate_enum_and_indices(proto_enum, previous_messages)
             # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields

@@ -333,7 +333,6 @@ class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerati
         return proto_message
 
 
-@dataclass
 class BaseEnumGenerationPlugin(BaseGenerationPlugin):
     def transform_request_message(
         self,

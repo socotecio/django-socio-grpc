@@ -402,52 +402,14 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
             if field.name not in field_name_to_type:
                 continue
 
-            field.field_type = field_name_to_type[field.name]
-            self.handle_enum(service, proto_message, field)
+            self.handle_enum(service, proto_message, field, field_name_to_type[field.name])
 
         return proto_message
 
     def handle_field_dict(self, proto_message: ProtoMessage, service: type["Service"]):
         for field in proto_message.fields:
             if isinstance(field.field_type, type) and issubclass(field.field_type, Enum):
-                self.handle_enum(service, proto_message, field)
-        return proto_message
-
-    def old_transform_request_message(
-        self,
-        service: type["Service"],
-        proto_message: ProtoMessage | str,
-        message_name_constructor: MessageNameConstructor,
-    ) -> ProtoMessage:
-        if isinstance(proto_message, str):
-            return proto_message
-
-        registry = RegistrySingleton()
-
-        # If not using a serializer, we search for Enum in the fields, then, handle them and return
-        if not proto_message.serializer or not hasattr(proto_message.serializer, "fields"):
-            for field in proto_message.fields:
-                if isinstance(field.field_type, type) and issubclass(field.field_type, Enum):
-                    self.handle_enum(service, proto_message, field)
-            return proto_message
-
-        # If using a serializer, we search for Choice fields in the serializer, from which we can infer the enum
-        field_types = {}
-        for field_name, field_instance in proto_message.serializer().fields.items():
-            if isinstance(field_instance, serializers.ChoiceField):
-                field_type = ProtoField._field_type_from_choice_field(
-                    field_instance,
-                    build_for_non_annotated=self.non_annotated_generation_in_serializer,
-                )
-                if field_type:
-                    field_types[field_name] = field_type
-
-        # Then we map them to the proto message fields, and handle them
-        for field in proto_message.fields:
-            if field.name in field_types:
-                field.field_type = field_types[field.name]
-                self.handle_enum(service, proto_message, field)
-
+                self.handle_enum(service, proto_message, field, field.field_type)
         return proto_message
 
     def transform_response_message(
@@ -459,7 +421,7 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
         return self.transform_request_message(service, proto_message, message_name_constructor)
 
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
     ):
         raise NotImplementedError("You need to implement the handle_enum method")
 
@@ -531,34 +493,34 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
 @dataclass
 class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
     ):
-        proto_message.proto_extra_tools.enums.append(ProtoEnum(field.field_type, False))
-        field.field_type_str = field.field_type.__name__
-
+        field.field_type = ProtoEnum(enum, False, enum.__name__)
+        proto_message.proto_extra_tools.enums.append(field.field_type)
 
 @dataclass
 class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
     ):
-        proto_message.proto_extra_tools.enums.append(ProtoEnum(field.field_type, True))
-        field.field_type_str = f"{field.field_type.__name__}.Enum"
+        field.field_type = ProtoEnum(enum, True, f"{enum.__name__}.Enum")
+        proto_message.proto_extra_tools.enums.append(field.field_type)
 
 
 @dataclass
 class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
     ):
-        service._app_handler.proto_extra_tools.enums.append(ProtoEnum(field.field_type, False))
+        field.field_type = ProtoEnum(enum, False, enum.__name__)
+        service._app_handler.proto_extra_tools.enums.append(field.field_type)
         field.field_type_str = f"{field.field_type.__name__}"
 
 
 @dataclass
 class GlobalScopeWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
+        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
     ):
-        service._app_handler.proto_extra_tools.enums.append(ProtoEnum(field.field_type, True))
-        field.field_type_str = f"{field.field_type.__name__}.Enum"
+        field.field_type = ProtoEnum(enum, True, f"{enum.__name__}.Enum")
+        service._app_handler.proto_extra_tools.enums.append(field.field_type)

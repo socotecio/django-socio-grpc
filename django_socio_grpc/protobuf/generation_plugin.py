@@ -1,8 +1,13 @@
 import logging
+import re
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from django.db import models
+from rest_framework import serializers
+
+from django_socio_grpc.protobuf.exceptions import ProtoRegistrationError
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
     FieldCardinality,
@@ -10,6 +15,7 @@ from django_socio_grpc.protobuf.proto_classes import (
     ProtoField,
     ProtoMessage,
 )
+from django_socio_grpc.protobuf.registry_singleton import RegistrySingleton
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -333,8 +339,81 @@ class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerati
         return proto_message
 
 
+@dataclass
 class BaseEnumGenerationPlugin(BaseGenerationPlugin):
+    only_generate_non_annotated_for_new_fields: bool = True
+
     def transform_request_message(
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage | str,
+        message_name_constructor: MessageNameConstructor,
+    ):
+        if isinstance(proto_message, str):
+            return proto_message
+
+        if proto_message.serializer is None:
+            return self.handle_field_dict(proto_message, service)
+        else:
+            return self.handle_serializer(proto_message, service)
+
+    def handle_serializer(self, proto_message: ProtoMessage, service: type["Service"]):
+        """Handle enum generation for a ProtoMessage that has a serializer.
+
+        An enum can be generated either from:
+        - An Annotated Enum (e.g. Annotated[models.CharField, MyTextChoices])
+        - A ChoiceField with string choices (e.g. ["CHOICE_1", "CHOICE_2"])
+
+        For enumerations built from choices, the setting "only_generate_non_annotated_for_new_fields"
+        will allow to skip existing fields that were not enums, and keep them as a String, to prevent breaking changes.
+        """
+
+        if app_handler := service._app_handler:
+            proto_file = app_handler.proto_file
+
+            # No proto_file or message not existing : all fields are considered new
+            if (proto_file is None) or (proto_message.name not in proto_file.messages):
+                previous_fields_names_to_field = {}
+            # Else, we get the previous message fields
+            else:
+                previous_message = proto_file.messages[proto_message.name]
+                previous_fields_names_to_field = {
+                    field.name: field for field in previous_message.fields
+                }
+
+        # Find serializer fields that contain enums
+        field_name_to_type: dict[str:Enum] = {}
+        for field_name, field_instance in proto_message.serializer().fields.items():
+            if not isinstance(field_instance, serializers.ChoiceField):
+                continue
+
+            # Try to get the previous field type in the proto file
+            previous_proto_key_type = None
+            if field_name in previous_fields_names_to_field:
+                previous_proto_key_type = previous_fields_names_to_field[field_name].key_type
+
+            if enum := self.get_enum_from_choice_field(
+                field_instance, previous_proto_key_type
+            ):
+                field_name_to_type[field_name] = enum
+
+        # Map ProtoMessage fields to serializer fields, and handle enums
+        for field in proto_message.fields:
+            if field.name not in field_name_to_type:
+                continue
+
+            field.field_type = field_name_to_type[field.name]
+            self.handle_enum(service, proto_message, field)
+
+        return proto_message
+
+    def handle_field_dict(self, proto_message: ProtoMessage, service: type["Service"]):
+        for field in proto_message.fields:
+            if isinstance(field.field_type, type) and issubclass(field.field_type, Enum):
+                self.handle_enum(service, proto_message, field)
+        return proto_message
+
+    def old_transform_request_message(
         self,
         service: type["Service"],
         proto_message: ProtoMessage | str,
@@ -343,8 +422,30 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
         if isinstance(proto_message, str):
             return proto_message
 
+        registry = RegistrySingleton()
+
+        # If not using a serializer, we search for Enum in the fields, then, handle them and return
+        if not proto_message.serializer or not hasattr(proto_message.serializer, "fields"):
+            for field in proto_message.fields:
+                if isinstance(field.field_type, type) and issubclass(field.field_type, Enum):
+                    self.handle_enum(service, proto_message, field)
+            return proto_message
+
+        # If using a serializer, we search for Choice fields in the serializer, from which we can infer the enum
+        field_types = {}
+        for field_name, field_instance in proto_message.serializer().fields.items():
+            if isinstance(field_instance, serializers.ChoiceField):
+                field_type = ProtoField._field_type_from_choice_field(
+                    field_instance,
+                    build_for_non_annotated=self.non_annotated_generation_in_serializer,
+                )
+                if field_type:
+                    field_types[field_name] = field_type
+
+        # Then we map them to the proto message fields, and handle them
         for field in proto_message.fields:
-            if isinstance(field.field_type, type) and issubclass(field.field_type, Enum):
+            if field.name in field_types:
+                field.field_type = field_types[field.name]
                 self.handle_enum(service, proto_message, field)
 
         return proto_message
@@ -362,7 +463,72 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
     ):
         raise NotImplementedError("You need to implement the handle_enum method")
 
+    def choice_field_contain_buildable_enum(self, field: serializers.ChoiceField) -> bool:
+        # Skip all non string choices (e.g. IntegerChoices)
+        if not isinstance(list(field.choices)[0], str):
+            return False
 
+        is_enum = True
+        for k in field.choices:
+            if not re.fullmatch(r"[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*", k):
+                is_enum = False
+                break
+        return is_enum
+
+    def check_annotated_enum_coherence(self, enum: Enum, field: serializers.ChoiceField):
+        # Check if the annotated enum is a subclass of models.IntegerChoices or models.TextChoices
+        if not issubclass(enum, models.IntegerChoices) and not issubclass(
+            enum, models.TextChoices
+        ):
+            raise ProtoRegistrationError(
+                f"Choice ({field.field_name}) field should be annotated with a class that is a subclass of models.IntegerChoices or models.TextChoices."
+            )
+
+        # Check for coherence between the choices and the annotated enum
+        if set(field.choices) != set(enum.values):
+            raise ProtoRegistrationError(
+                f"Choice ({field.field_name}) field should be annotated with the same class as the choices, either on the serializer or the model.\n"
+                "Example : `my_field : Annotated[models.CharField, MyTextChoices] = models.CharField(choices=MyTextChoices)`"
+            )
+
+    def build_enum_from_choice_field(self, field: serializers.ChoiceField):
+        choices = field.choices
+
+        # Build Enum name (SerializerName + FieldName + "Enum")
+        serializer_name = field.parent.__class__.__name__
+        if serializer_name.endswith("Serializer"):
+            serializer_name = serializer_name[:-10]
+        field_name_pascal_case = field.field_name.replace("_", " ").title().replace(" ", "")
+        enum_name = f"{serializer_name}{field_name_pascal_case}Enum"
+
+        return models.TextChoices(enum_name, choices)
+
+    def get_enum_from_choice_field(
+        self, field: serializers.ChoiceField, previous_proto_key_type: str | None
+    ) -> Enum | None:
+        # First we try to get the enum from the annotation
+        enum = ProtoEnum.get_enum_from_annotation(field)
+
+        # If we didn't get the enum from annotation
+        # And if we only build enums for new fields, we have to skip existing fields that are not enums
+        if (
+            enum is None
+            and self.only_generate_non_annotated_for_new_fields
+            and previous_proto_key_type == "string"
+        ):
+            return None
+
+        # handle annotated enums coherence checks
+        if enum is not None:
+            self.check_annotated_enum_coherence(enum, field)
+        # If we don't have an annotated enum, we build an enum from the choices
+        elif self.choice_field_contain_buildable_enum(field):
+            enum = self.build_enum_from_choice_field(field)
+
+        return enum
+
+
+@dataclass
 class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
@@ -371,6 +537,7 @@ class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
         field.field_type_str = field.field_type.__name__
 
 
+@dataclass
 class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
@@ -379,6 +546,7 @@ class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
         field.field_type_str = f"{field.field_type.__name__}.Enum"
 
 
+@dataclass
 class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField
@@ -387,6 +555,7 @@ class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
         field.field_type_str = f"{field.field_type.__name__}"
 
 
+@dataclass
 class GlobalScopeWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
         self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField

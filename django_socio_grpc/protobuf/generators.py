@@ -241,7 +241,8 @@ class RegistryToProtoGenerator:
         for comment in comments:
             self._writer.write_line(f"// {comment}")
 
-    def parse_proto_file(self, proto_path: Path):
+    @staticmethod
+    def parse_proto_file(proto_path: Path):
         if not proto_path.exists():
             return None
 

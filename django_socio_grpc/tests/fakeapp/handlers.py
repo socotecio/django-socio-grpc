@@ -29,8 +29,8 @@ from django_socio_grpc.tests.fakeapp.services.unit_test_model_with_struct_filter
 urlpatterns = []
 
 
-def grpc_handlers(server):
-    app_registry = AppHandlerRegistry("fakeapp", server)
+def grpc_handlers(server, directory: str = None):
+    app_registry = AppHandlerRegistry("fakeapp", server, proto_directory=directory)
     app_registry.register(BasicService)
     app_registry.register(ForeignModelService)
     app_registry.register(ImportStructEvenInArrayModelService)

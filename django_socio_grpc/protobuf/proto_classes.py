@@ -1,6 +1,5 @@
 import abc
 import logging
-import re
 import traceback
 from collections import OrderedDict
 from collections.abc import Callable, Iterable
@@ -218,10 +217,6 @@ class ProtoField:
                 name_if_recursive=name_if_recursive,
             )
 
-        elif isinstance(field, serializers.ChoiceField):
-            ProtoGeneratorPrintHelper.print(f"{field.field_name} is ChoiceField")
-            return cls._from_choice_field(field)
-
         cardinality = cls._get_cardinality(field)
         if isinstance(field, serializers.ListField):
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is ListField")
@@ -257,79 +252,6 @@ class ProtoField:
         if isinstance(help_text := getattr(field, "help_text", None), ProtoComment):
             return help_text.comments
         return None
-
-    @classmethod
-    def _from_choice_field(cls, field: serializers.ChoiceField):
-        if enum := cls.get_enum_from_annotation(field):
-            # Check if the annotated enum is a subclass of models.IntegerChoices or models.TextChoices
-            if not issubclass(enum, models.IntegerChoices) and not issubclass(
-                enum, models.TextChoices
-            ):
-                raise ProtoRegistrationError(
-                    f"Choice ({field.field_name}) field should be annotated with a class that is a subclass of models.IntegerChoices or models.TextChoices."
-                )
-
-            # Check for coherence between the choices and the annotated enum
-            if set(field.choices) != set(enum.values):
-                raise ProtoRegistrationError(
-                    f"Choice ({field.field_name}) field should be annotated with the same class as the choices, either on the serializer or the model.\n"
-                    "Example : `my_field : Annotated[models.CharField, MyTextChoices] = models.CharField(choices=MyTextChoices)`"
-                )
-
-            field_type = enum
-        elif cls._choice_field_contain_buildable_enum(field):
-            field_type = cls._build_enum_from_choice_field(field)
-        else:
-            field_type = get_proto_type(field)
-
-        return cls(
-            name=field.field_name,
-            field_type=field_type,
-            cardinality=cls._get_cardinality(field),
-            comments=cls.get_field_comments(field),
-        )
-
-    @classmethod
-    def _choice_field_contain_buildable_enum(cls, field: serializers.ChoiceField) -> bool:
-        # Skip all non string choices (e.g. IntegerChoices)
-        if not isinstance(list(field.choices)[0], str):
-            return False
-
-        is_enum = True
-        for k in field.choices:
-            if not re.fullmatch(r"[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*", k):
-                is_enum = False
-                break
-        return is_enum
-
-    @classmethod
-    def _build_enum_from_choice_field(cls, field: serializers.ChoiceField):
-        choices = field.choices
-
-        # Build Enum name (SerializerName + FieldName + "Enum")
-        serializer_name = field.parent.__class__.__name__
-        if serializer_name.endswith("Serializer"):
-            serializer_name = serializer_name[:-10]
-        field_name_pascal_case = field.field_name.replace("_", " ").title().replace(" ", "")
-        enum_name = f"{serializer_name}{field_name_pascal_case}Enum"
-
-        return models.TextChoices(enum_name, choices)
-
-    @classmethod
-    def get_enum_from_annotation(cls, field: serializers.ChoiceField):
-        # Try to get the enum from the serializer annotations
-        serializer_annotations = field.parent.__class__.__annotations__
-        annotation = serializer_annotations.get(field.field_name, None)
-
-        # Else try to get the enum from the model annotations
-        if not annotation and hasattr(field.parent.Meta, "model"):
-            model_annotations = field.parent.Meta.model.__annotations__
-            annotation = model_annotations.get(field.field_name, None)
-
-        if annotation is None or len(annotation.__metadata__) == 0:
-            return None
-
-        return annotation.__metadata__[0]
 
     @classmethod
     def from_serializer(
@@ -510,8 +432,24 @@ class ProtoField:
 
 @dataclass
 class ProtoEnum:
-    enum: Enum = None
+    enum: Enum
     wrap_in_message: bool = False
+
+    @staticmethod
+    def get_enum_from_annotation(field: serializers.ChoiceField):
+        # Try to get the enum from the serializer annotations
+        serializer_annotations = field.parent.__class__.__annotations__
+        annotation = serializer_annotations.get(field.field_name, None)
+
+        # Else try to get the enum from the model annotations
+        if not annotation and hasattr(field.parent.Meta, "model"):
+            model_annotations = field.parent.Meta.model.__annotations__
+            annotation = model_annotations.get(field.field_name, None)
+
+        if annotation is None or len(annotation.__metadata__) == 0:
+            return None
+
+        return annotation.__metadata__[0]
 
     def __eq__(self, other):
         if not isinstance(other, ProtoEnum):

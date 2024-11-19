@@ -27,7 +27,11 @@ from django_socio_grpc.protobuf.exceptions import (
     UnknownTypeError,
 )
 from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
-from django_socio_grpc.protobuf.proto_classes import ProtoField, ProtoFieldConvertible
+from django_socio_grpc.protobuf.proto_classes import (
+    ProtoEnum,
+    ProtoField,
+    ProtoFieldConvertible,
+)
 from django_socio_grpc.utils.constants import (
     DEFAULT_LIST_FIELD_NAME,
     LIST_ATTR_MESSAGE_NAME,
@@ -83,7 +87,7 @@ class BaseProtoSerializer(BaseSerializer):
         # We need to convert the Enum values to the Enum keys before creating the message
         for field_name, field in self.fields.items():
             if isinstance(field, ChoiceField) and (
-                enum := ProtoField.get_enum_from_annotation(field)
+                enum := ProtoEnum.get_enum_from_annotation(field)
             ):
                 data[field_name] = enum(data[field_name]).name
 
@@ -225,7 +229,7 @@ class BaseProtoSerializer(BaseSerializer):
                 # Choice doesn't store the Enum keys, but the Enum values
                 # We need to convert the Enum key to the Enum value before giving it to DRF
                 if isinstance(field, ChoiceField) and (
-                    enum := ProtoField.get_enum_from_annotation(field)
+                    enum := ProtoEnum.get_enum_from_annotation(field)
                 ):
                     return enum[field_value].value
 

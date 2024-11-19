@@ -15,7 +15,6 @@ from django_socio_grpc.protobuf.proto_classes import (
     ProtoField,
     ProtoMessage,
 )
-from django_socio_grpc.protobuf.registry_singleton import RegistrySingleton
 
 if TYPE_CHECKING:
     from django_socio_grpc.services import Service
@@ -421,7 +420,11 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
         return self.transform_request_message(service, proto_message, message_name_constructor)
 
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage,
+        field: ProtoField,
+        enum: Enum,
     ):
         raise NotImplementedError("You need to implement the handle_enum method")
 
@@ -493,15 +496,24 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
 @dataclass
 class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage,
+        field: ProtoField,
+        enum: Enum,
     ):
         field.field_type = ProtoEnum(enum, False, enum.__name__)
         proto_message.proto_extra_tools.enums.append(field.field_type)
 
+
 @dataclass
 class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage,
+        field: ProtoField,
+        enum: Enum,
     ):
         field.field_type = ProtoEnum(enum, True, f"{enum.__name__}.Enum")
         proto_message.proto_extra_tools.enums.append(field.field_type)
@@ -510,7 +522,11 @@ class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
 @dataclass
 class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage,
+        field: ProtoField,
+        enum: Enum,
     ):
         field.field_type = ProtoEnum(enum, False, enum.__name__)
         service._app_handler.proto_extra_tools.enums.append(field.field_type)
@@ -520,7 +536,11 @@ class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
 @dataclass
 class GlobalScopeWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
     def handle_enum(
-        self, service: type["Service"], proto_message: ProtoMessage, field: ProtoField, enum: Enum
+        self,
+        service: type["Service"],
+        proto_message: ProtoMessage,
+        field: ProtoField,
+        enum: Enum,
     ):
         field.field_type = ProtoEnum(enum, True, f"{enum.__name__}.Enum")
         service._app_handler.proto_extra_tools.enums.append(field.field_type)

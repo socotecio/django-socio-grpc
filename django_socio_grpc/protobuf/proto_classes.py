@@ -83,7 +83,7 @@ class ProtoField:
     cardinality: FieldCardinality = FieldCardinality.NONE
     comments: list[str] | None = None
     index: int = 0
-    
+
     @property
     def field_type_str(self) -> str:
         if isinstance(self.field_type, str):
@@ -431,7 +431,7 @@ class ProtoField:
 class ProtoEnum:
     enum: Enum
     wrap_in_message: bool = False
-    name : str = ""
+    name: str = ""
 
     @staticmethod
     def get_enum_from_annotation(field: serializers.ChoiceField):
@@ -457,7 +457,11 @@ class ProtoEnum:
         self_enum = (self.enum.__name__, tuple(self.enum.__members__.items()))
         other_enum = (other.enum.__name__, tuple(other.enum.__members__.items()))
 
-        return self_enum == other_enum and self.wrap_in_message == other.wrap_in_message and self.name == other.name
+        return (
+            self_enum == other_enum
+            and self.wrap_in_message == other.wrap_in_message
+            and self.name == other.name
+        )
 
     def __hash__(self):
         enum_hash = hash((self.enum.__name__, tuple(self.enum.__members__.items())))

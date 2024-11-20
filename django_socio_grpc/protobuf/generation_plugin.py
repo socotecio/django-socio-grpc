@@ -530,7 +530,6 @@ class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
     ):
         field.field_type = ProtoEnum(enum, False, enum.__name__)
         service._app_handler.proto_extra_tools.enums.append(field.field_type)
-        field.field_type_str = f"{field.field_type.__name__}"
 
 
 @dataclass

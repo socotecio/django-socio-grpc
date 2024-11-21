@@ -427,11 +427,23 @@ class ProtoField:
         )
 
 
+class ProtoEnumLocations(Enum):
+    MESSAGE = 1
+    GLOBAL = 2
+
+
 @dataclass
 class ProtoEnum:
     enum: Enum
     wrap_in_message: bool = False
-    name: str = ""
+    location: ProtoEnumLocations = ProtoEnumLocations.GLOBAL
+
+    @property
+    def name(self) -> str:
+        name = self.enum.__name__
+        if self.wrap_in_message:
+            name += ".Enum"
+        return name
 
     @staticmethod
     def get_enum_from_annotation(field: serializers.ChoiceField):
@@ -461,11 +473,12 @@ class ProtoEnum:
             self_enum == other_enum
             and self.wrap_in_message == other.wrap_in_message
             and self.name == other.name
+            and self.location == other.location
         )
 
     def __hash__(self):
         enum_hash = hash((self.enum.__name__, tuple(self.enum.__members__.items())))
-        return hash((enum_hash, self.wrap_in_message, self.name))
+        return hash((enum_hash, self.wrap_in_message, self.name, self.location))
 
 
 @dataclass

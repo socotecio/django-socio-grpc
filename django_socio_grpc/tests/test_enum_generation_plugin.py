@@ -11,7 +11,11 @@ from django_socio_grpc.protobuf.exceptions import ProtoRegistrationError
 from django_socio_grpc.protobuf.generation_plugin import (
     GlobalScopeEnumGenerationPlugin,
     GlobalScopeWrappedEnumGenerationPlugin,
+    InMessageEnumGenerationPlugin,
+    InMessageWrappedEnumGenerationPlugin,
 )
+from django_socio_grpc.protobuf.proto_classes import ProtoEnumLocations
+from django_socio_grpc.protobuf.protoparser.protoparser import parse
 from django_socio_grpc.protobuf.registry_singleton import RegistrySingleton
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
@@ -133,14 +137,14 @@ class TestEnumGenerationPlugin(TestCase):
             @grpc_action(
                 request=[{"name": "enum", "type": MyIntEnum}],
                 response=[{"name": "enum", "type": MyIntEnum}],
-                use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
+                use_generation_plugins=[InMessageEnumGenerationPlugin()],
             )
             async def MyIntAction(self, request, context): ...
 
             @grpc_action(
                 request=[{"name": "enum", "type": MyStrEnum}],
                 response=[{"name": "enum", "type": MyStrEnum}],
-                use_generation_plugins=[GlobalScopeWrappedEnumGenerationPlugin()],
+                use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
             )
             async def MyStrAction(self, request, context): ...
 
@@ -152,34 +156,38 @@ class TestEnumGenerationPlugin(TestCase):
         assert proto_rpc_int.request["enum"].field_type.name == "MyIntEnum"
         assert proto_rpc_int.request["enum"].field_type.wrap_in_message is False
         assert proto_rpc_int.request["enum"].field_type.enum == MyIntEnum
+        assert proto_rpc_int.request["enum"].field_type.location == ProtoEnumLocations.MESSAGE
 
         assert proto_rpc_int.response["enum"].field_type.name == "MyIntEnum"
         assert proto_rpc_int.response["enum"].field_type.wrap_in_message is False
         assert proto_rpc_int.response["enum"].field_type.enum == MyIntEnum
+        assert proto_rpc_int.response["enum"].field_type.location == ProtoEnumLocations.MESSAGE
 
         proto_rpc_str = fakeapp_handler_registry.proto_services[0].rpcs[1]
 
-        assert proto_rpc_str.request["enum"].field_type.name == "MyStrEnum.Enum"
-        assert proto_rpc_str.request["enum"].field_type.wrap_in_message is True
+        assert proto_rpc_str.request["enum"].field_type.name == "MyStrEnum"
+        assert proto_rpc_str.request["enum"].field_type.wrap_in_message is False
         assert proto_rpc_str.request["enum"].field_type.enum == MyStrEnum
+        assert proto_rpc_str.request["enum"].field_type.location == ProtoEnumLocations.GLOBAL
 
-        assert proto_rpc_str.response["enum"].field_type.name == "MyStrEnum.Enum"
-        assert proto_rpc_str.response["enum"].field_type.wrap_in_message is True
+        assert proto_rpc_str.response["enum"].field_type.name == "MyStrEnum"
+        assert proto_rpc_str.response["enum"].field_type.wrap_in_message is False
         assert proto_rpc_str.response["enum"].field_type.enum == MyStrEnum
+        assert proto_rpc_str.response["enum"].field_type.location == ProtoEnumLocations.GLOBAL
 
     def test_proto_enum_generation_from_annotated_model(self):
         class MyService(GenericService):
             @grpc_action(
                 request=MyAnnotatedIntModelSerializer,
                 response=MyAnnotatedIntModelSerializer,
-                use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
+                use_generation_plugins=[InMessageEnumGenerationPlugin()],
             )
             async def MyIntAction(self, request, context): ...
 
             @grpc_action(
                 request=MyAnnotatedStrModelSerializer,
                 response=MyAnnotatedStrModelSerializer,
-                use_generation_plugins=[GlobalScopeWrappedEnumGenerationPlugin()],
+                use_generation_plugins=[InMessageWrappedEnumGenerationPlugin()],
             )
             async def MyStrAction(self, request, context): ...
 
@@ -191,20 +199,36 @@ class TestEnumGenerationPlugin(TestCase):
         assert proto_rpc_int.request["choice_field"].field_type.name == "MyIntEnum"
         assert proto_rpc_int.request["choice_field"].field_type.wrap_in_message is False
         assert proto_rpc_int.request["choice_field"].field_type.enum == MyIntEnum
+        assert (
+            proto_rpc_int.request["choice_field"].field_type.location
+            == ProtoEnumLocations.MESSAGE
+        )
 
         assert proto_rpc_int.response["choice_field"].field_type.name == "MyIntEnum"
         assert proto_rpc_int.response["choice_field"].field_type.wrap_in_message is False
         assert proto_rpc_int.response["choice_field"].field_type.enum == MyIntEnum
+        assert (
+            proto_rpc_int.response["choice_field"].field_type.location
+            == ProtoEnumLocations.MESSAGE
+        )
 
         proto_rpc_str = fakeapp_handler_registry.proto_services[0].rpcs[1]
 
         assert proto_rpc_str.request["choice_field"].field_type.name == "MyStrEnum.Enum"
         assert proto_rpc_str.request["choice_field"].field_type.wrap_in_message is True
         assert proto_rpc_str.request["choice_field"].field_type.enum == MyStrEnum
+        assert (
+            proto_rpc_str.request["choice_field"].field_type.location
+            == ProtoEnumLocations.MESSAGE
+        )
 
         assert proto_rpc_str.response["choice_field"].field_type.name == "MyStrEnum.Enum"
         assert proto_rpc_str.response["choice_field"].field_type.wrap_in_message is True
         assert proto_rpc_str.response["choice_field"].field_type.enum == MyStrEnum
+        assert (
+            proto_rpc_str.response["choice_field"].field_type.location
+            == ProtoEnumLocations.MESSAGE
+        )
 
     def test_proto_enum_generation_from_annotated_serializer(self):
         class MyService(GenericService):
@@ -230,27 +254,43 @@ class TestEnumGenerationPlugin(TestCase):
         assert proto_rpc_int.request["choice_field"].field_type.name == "MyIntEnum"
         assert proto_rpc_int.request["choice_field"].field_type.wrap_in_message is False
         assert proto_rpc_int.request["choice_field"].field_type.enum == MyIntEnum
+        assert (
+            proto_rpc_int.request["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
 
         assert proto_rpc_int.response["choice_field"].field_type.name == "MyIntEnum"
         assert proto_rpc_int.response["choice_field"].field_type.wrap_in_message is False
         assert proto_rpc_int.response["choice_field"].field_type.enum == MyIntEnum
+        assert (
+            proto_rpc_int.response["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
 
         proto_rpc_str = fakeapp_handler_registry.proto_services[0].rpcs[1]
 
         assert proto_rpc_str.request["choice_field"].field_type.name == "MyStrEnum.Enum"
         assert proto_rpc_str.request["choice_field"].field_type.wrap_in_message is True
         assert proto_rpc_str.request["choice_field"].field_type.enum == MyStrEnum
+        assert (
+            proto_rpc_str.request["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
 
         assert proto_rpc_str.response["choice_field"].field_type.name == "MyStrEnum.Enum"
         assert proto_rpc_str.response["choice_field"].field_type.wrap_in_message is True
         assert proto_rpc_str.response["choice_field"].field_type.enum == MyStrEnum
+        assert (
+            proto_rpc_str.response["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
 
     def test_proto_enum_generation_from_non_annotated_model(self):
         class MyService(GenericService):
             @grpc_action(
                 request=MyStrModelSerializer,
                 response=MyStrModelSerializer,
-                use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
+                use_generation_plugins=[InMessageEnumGenerationPlugin()],
             )
             async def MyStrAction(self, request, context): ...
 
@@ -264,6 +304,10 @@ class TestEnumGenerationPlugin(TestCase):
             == "MyStrModelChoiceFieldEnum"
         )
         assert proto_rpc_str.request["choice_field"].field_type.wrap_in_message is False
+        assert (
+            proto_rpc_str.request["choice_field"].field_type.location
+            == ProtoEnumLocations.MESSAGE
+        )
         assert "VALUE_1" in proto_rpc_str.request["choice_field"].field_type.enum.__members__
 
         assert (
@@ -271,6 +315,10 @@ class TestEnumGenerationPlugin(TestCase):
             == "MyStrModelChoiceFieldEnum"
         )
         assert proto_rpc_str.response["choice_field"].field_type.wrap_in_message is False
+        assert (
+            proto_rpc_str.response["choice_field"].field_type.location
+            == ProtoEnumLocations.MESSAGE
+        )
         assert "VALUE_1" in proto_rpc_str.response["choice_field"].field_type.enum.__members__
 
     def test_proto_enum_generation_raises_error_on_wrong_annotation(self):
@@ -286,3 +334,64 @@ class TestEnumGenerationPlugin(TestCase):
 
         with self.assertRaises(ProtoRegistrationError):
             fakeapp_handler_registry.register(MyService)
+
+    def test_only_generate_non_annotated_for_new_fields_true(self):
+        PROTO_FILE = """syntax = "proto3";
+        package myproject.fakeapp;
+
+        message MyStrModelRequest {
+            string choice_field = 1;
+        }
+        """
+
+        class MyService(GenericService):
+            @grpc_action(
+                request=MyStrModelSerializer,
+                response=MyStrModelSerializer,
+                use_generation_plugins=[
+                    GlobalScopeEnumGenerationPlugin(
+                        only_generate_non_annotated_for_new_fields=True
+                    )
+                ],
+            )
+            async def MyAction(self, request, context): ...
+
+        fakeapp_handler_registry = RegistrySingleton().registered_apps["fakeapp"]
+        fakeapp_handler_registry.proto_file = parse(PROTO_FILE)
+        fakeapp_handler_registry.register(MyService)
+
+        proto_rpc = fakeapp_handler_registry.proto_services[0].rpcs[0]
+
+        # Enumeration should not be generated for existing string field in .proto
+        assert proto_rpc.request["choice_field"].field_type == "string"
+        assert "VALUE_1" in proto_rpc.response["choice_field"].field_type.enum.__members__
+
+    def test_only_generate_non_annotated_for_new_fields_false(self):
+        PROTO_FILE = """syntax = "proto3";
+        package myproject.fakeapp;
+
+        message MyStrModelRequest {
+            string choice_field = 1;
+        }
+        """
+
+        class MyService(GenericService):
+            @grpc_action(
+                request=MyStrModelSerializer,
+                response=MyStrModelSerializer,
+                use_generation_plugins=[
+                    GlobalScopeEnumGenerationPlugin(
+                        only_generate_non_annotated_for_new_fields=False
+                    )
+                ],
+            )
+            async def MyAction(self, request, context): ...
+
+        fakeapp_handler_registry = RegistrySingleton().registered_apps["fakeapp"]
+        fakeapp_handler_registry.proto_file = parse(PROTO_FILE)
+        fakeapp_handler_registry.register(MyService)
+
+        proto_rpc = fakeapp_handler_registry.proto_services[0].rpcs[0]
+
+        assert "VALUE_1" in proto_rpc.request["choice_field"].field_type.enum.__members__
+        assert "VALUE_1" in proto_rpc.response["choice_field"].field_type.enum.__members__

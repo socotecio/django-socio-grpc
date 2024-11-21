@@ -9,7 +9,12 @@ from enum import Enum
 from pathlib import Path
 
 from django_socio_grpc.protobuf import RegistrySingleton
-from django_socio_grpc.protobuf.proto_classes import ProtoEnum, ProtoMessage, ProtoService
+from django_socio_grpc.protobuf.proto_classes import (
+    ProtoEnum,
+    ProtoEnumLocations,
+    ProtoMessage,
+    ProtoService,
+)
 from django_socio_grpc.services.app_handler_registry import AppHandlerRegistry
 
 from .protoparser import protoparser
@@ -62,11 +67,21 @@ class RegistryToProtoGenerator:
         messages: list[ProtoMessage] = []
         imports = set()
 
+        global_scope_enums = []
+
         # INFO - AM - 14/04/2023 - split all the messages in the registry in two categories. Ones is the messages imported from an other proto file and Seconds are the one to write in the current proto file we are going to generate
         for mess in registry.get_all_messages().values():
             if mess.imported_from:
                 imports.add(mess.imported_from)
             else:
+                # Get enums in Global scope
+                for field in mess.fields:
+                    if (
+                        isinstance(field.field_type, ProtoEnum)
+                        and field.field_type.location == ProtoEnumLocations.GLOBAL
+                    ):
+                        global_scope_enums.append(field.field_type)
+
                 messages.append(mess)
                 # INFO - AM - 14/04/2023 - indices is used to keep the same field number between two proto generation to avoid breaking changes
                 indices = {}
@@ -94,7 +109,7 @@ class RegistryToProtoGenerator:
             self._generate_message(message, previous_messages)
 
         # list(dict.fromkeys()) is used to remove duplicates while keeping the order
-        for proto_enum in list(dict.fromkeys(registry.proto_extra_tools.enums)):
+        for proto_enum in list(dict.fromkeys(global_scope_enums)):
             self._generate_enum_and_indices(proto_enum, previous_messages)
 
         return self._writer.get_code()
@@ -142,8 +157,16 @@ class RegistryToProtoGenerator:
         # Info - AM - 30/04/2021 - Write the name of the message
         self._writer.write_line(f"message {message.name} {{")
         with self._writer.indent():
+            # Get enums to print
+            message_enums = []
+            for field in message.fields:
+                if (
+                    isinstance(field.field_type, ProtoEnum)
+                    and field.field_type.location == ProtoEnumLocations.MESSAGE
+                ):
+                    message_enums.append(field.field_type)
             # list(dict.fromkeys()) is used to remove duplicates while keeping the order
-            for proto_enum in list(dict.fromkeys(message.proto_extra_tools.enums)):
+            for proto_enum in list(dict.fromkeys(message_enums)):
                 self._generate_enum_and_indices(proto_enum, previous_messages)
             # Info - AM - 30/04/2021 - Write all fields as defined in the serializer. Field_name is the name of the field ans field_type the instance of the drf field: https://www.django-rest-framework.org/api-guide/fields
             for field in sorted(message.fields, key=lambda x: x.index):

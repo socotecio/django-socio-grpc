@@ -12,6 +12,7 @@ from django_socio_grpc.protobuf.message_name_constructor import MessageNameConst
 from django_socio_grpc.protobuf.proto_classes import (
     FieldCardinality,
     ProtoEnum,
+    ProtoEnumLocations,
     ProtoField,
     ProtoMessage,
 )
@@ -352,7 +353,7 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
             return proto_message
 
         if proto_message.serializer is None:
-            return self.handle_field_dict(proto_message, service)
+            return self.handle_field_dict(proto_message)
         else:
             return self.handle_serializer(proto_message, service)
 
@@ -396,19 +397,19 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
             ):
                 field_name_to_type[field_name] = enum
 
-        # Map ProtoMessage fields to serializer fields, and handle enums
+        # Map ProtoMessage fields to serializer fields, and set fields type
         for field in proto_message.fields:
             if field.name not in field_name_to_type:
                 continue
 
-            self.handle_enum(service, proto_message, field, field_name_to_type[field.name])
+            self.set_field_type(field, field_name_to_type[field.name])
 
         return proto_message
 
-    def handle_field_dict(self, proto_message: ProtoMessage, service: type["Service"]):
+    def handle_field_dict(self, proto_message: ProtoMessage):
         for field in proto_message.fields:
             if isinstance(field.field_type, type) and issubclass(field.field_type, Enum):
-                self.handle_enum(service, proto_message, field, field.field_type)
+                self.set_field_type(field, field.field_type)
         return proto_message
 
     def transform_response_message(
@@ -419,14 +420,12 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
     ) -> ProtoMessage:
         return self.transform_request_message(service, proto_message, message_name_constructor)
 
-    def handle_enum(
+    def set_field_type(
         self,
-        service: type["Service"],
-        proto_message: ProtoMessage,
         field: ProtoField,
         enum: Enum,
     ):
-        raise NotImplementedError("You need to implement the handle_enum method")
+        raise NotImplementedError("You need to implement the set_field_type method")
 
     def choice_field_contain_buildable_enum(self, field: serializers.ChoiceField) -> bool:
         # Skip all non string choices (e.g. IntegerChoices)
@@ -495,51 +494,39 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
 
 @dataclass
 class InMessageEnumGenerationPlugin(BaseEnumGenerationPlugin):
-    def handle_enum(
+    def set_field_type(
         self,
-        service: type["Service"],
-        proto_message: ProtoMessage,
         field: ProtoField,
         enum: Enum,
     ):
-        field.field_type = ProtoEnum(enum, False, enum.__name__)
-        proto_message.proto_extra_tools.enums.append(field.field_type)
+        field.field_type = ProtoEnum(enum, False, ProtoEnumLocations.MESSAGE)
 
 
 @dataclass
 class InMessageWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
-    def handle_enum(
+    def set_field_type(
         self,
-        service: type["Service"],
-        proto_message: ProtoMessage,
         field: ProtoField,
         enum: Enum,
     ):
-        field.field_type = ProtoEnum(enum, True, f"{enum.__name__}.Enum")
-        proto_message.proto_extra_tools.enums.append(field.field_type)
+        field.field_type = ProtoEnum(enum, True, ProtoEnumLocations.MESSAGE)
 
 
 @dataclass
 class GlobalScopeEnumGenerationPlugin(BaseEnumGenerationPlugin):
-    def handle_enum(
+    def set_field_type(
         self,
-        service: type["Service"],
-        proto_message: ProtoMessage,
         field: ProtoField,
         enum: Enum,
     ):
-        field.field_type = ProtoEnum(enum, False, enum.__name__)
-        service._app_handler.proto_extra_tools.enums.append(field.field_type)
+        field.field_type = ProtoEnum(enum, False, ProtoEnumLocations.GLOBAL)
 
 
 @dataclass
 class GlobalScopeWrappedEnumGenerationPlugin(BaseEnumGenerationPlugin):
-    def handle_enum(
+    def set_field_type(
         self,
-        service: type["Service"],
-        proto_message: ProtoMessage,
         field: ProtoField,
         enum: Enum,
     ):
-        field.field_type = ProtoEnum(enum, True, f"{enum.__name__}.Enum")
-        service._app_handler.proto_extra_tools.enums.append(field.field_type)
+        field.field_type = ProtoEnum(enum, True, ProtoEnumLocations.GLOBAL)

@@ -75,15 +75,10 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.directory = options["directory"]
-        if self.directory:
-            self.directory = Path(self.directory)
-            self.directory.mkdir(parents=True, exist_ok=True)
-
         if asyncio.iscoroutinefunction(grpc_settings.ROOT_HANDLERS_HOOK):
-            async_to_sync(grpc_settings.ROOT_HANDLERS_HOOK)(None, self.directory)
+            async_to_sync(grpc_settings.ROOT_HANDLERS_HOOK)(None)
         else:
-            grpc_settings.ROOT_HANDLERS_HOOK(None, self.directory)
+            grpc_settings.ROOT_HANDLERS_HOOK(None)
         self.project_name = options["project"]
         if not self.project_name:
             if not os.environ.get("DJANGO_SETTINGS_MODULE"):
@@ -95,6 +90,10 @@ class Command(BaseCommand):
         self.dry_run = options["dry_run"]
         self.generate_pb2 = not options["no_generate_pb2"]
         self.check = options["check"]
+        self.directory = options["directory"]
+        if self.directory:
+            self.directory = Path(self.directory)
+            self.directory.mkdir(parents=True, exist_ok=True)
 
         registry_instance = RegistrySingleton()
 

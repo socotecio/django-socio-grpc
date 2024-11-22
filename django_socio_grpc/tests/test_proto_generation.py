@@ -17,95 +17,81 @@ from django_socio_grpc.tests.fakeapp.utils import make_reloaded_grpc_handler
 from django_socio_grpc.tests.utils import patch_open
 
 
-def relatedfieldmodel_handler_hook(server, directory: str = None):
+def relatedfieldmodel_handler_hook(server):
     from fakeapp.services.related_field_model_service import RelatedFieldModelService
 
-    return make_reloaded_grpc_handler("fakeapp", RelatedFieldModelService)(
-        server, directory=directory
-    )
+    return make_reloaded_grpc_handler("fakeapp", RelatedFieldModelService)(server)
 
 
-def unittestmodel_handler_hook(server, directory: str = None):
+def unittestmodel_handler_hook(server):
     from fakeapp.services.unit_test_model_service import UnitTestModelService
 
-    return make_reloaded_grpc_handler("fakeapp", UnitTestModelService)(
-        server, directory=directory
-    )
+    return make_reloaded_grpc_handler("fakeapp", UnitTestModelService)(server)
 
 
-def specialfieldmodel_handler_hook(server, directory: str = None):
+def specialfieldmodel_handler_hook(server):
     from fakeapp.services.special_fields_model_service import SpecialFieldsModelService
 
-    return make_reloaded_grpc_handler("fakeapp", SpecialFieldsModelService)(
-        server, directory=directory
-    )
+    return make_reloaded_grpc_handler("fakeapp", SpecialFieldsModelService)(server)
 
 
-def foreignmodel_handler_hook(server, directory: str = None):
+def foreignmodel_handler_hook(server):
     from fakeapp.services.foreign_model_service import ForeignModelService
 
-    return make_reloaded_grpc_handler("fakeapp", ForeignModelService)(
-        server, directory=directory
-    )
+    return make_reloaded_grpc_handler("fakeapp", ForeignModelService)(server)
 
 
-def importstructeveninarraymodel_handler_hook(server, directory: str = None):
+def importstructeveninarraymodel_handler_hook(server):
     from fakeapp.services.import_struct_even_in_array_model_service import (
         ImportStructEvenInArrayModelService,
     )
 
-    return make_reloaded_grpc_handler("fakeapp", ImportStructEvenInArrayModelService)(
-        server, directory=directory
-    )
+    return make_reloaded_grpc_handler("fakeapp", ImportStructEvenInArrayModelService)(server)
 
 
-def basicservice_handler_hook(server, directory: str = None):
+def basicservice_handler_hook(server):
     from fakeapp.services.basic_service import BasicService
 
-    return make_reloaded_grpc_handler("fakeapp", BasicService)(server, directory=directory)
+    return make_reloaded_grpc_handler("fakeapp", BasicService)(server)
 
 
-def reloaded_grpc_handler_hook(server, directory: str = None):
+def reloaded_grpc_handler_hook(server):
     from fakeapp.handlers import services
 
-    return make_reloaded_grpc_handler("fakeapp", *services)(server, directory=directory)
+    return make_reloaded_grpc_handler("fakeapp", *services)(server)
 
 
-def recursive_handler_hook(server, directory: str = None):
+def recursive_handler_hook(server):
     from fakeapp.services.recursive_test_model_service import RecursiveTestModelService
 
-    return make_reloaded_grpc_handler("fakeapp", RecursiveTestModelService)(
-        server, directory=directory
-    )
+    return make_reloaded_grpc_handler("fakeapp", RecursiveTestModelService)(server)
 
 
-def service_in_root_grpc_handler_hook(server, directory: str = None):
+def service_in_root_grpc_handler_hook(server):
     from fakeapp.services.basic_service import BasicService
 
-    app_registry = AppHandlerRegistry(
-        "myapp", server, reload_services=True, to_root_grpc=True, proto_directory=directory
-    )
+    app_registry = AppHandlerRegistry("myapp", server, reload_services=True, to_root_grpc=True)
     app_registry.register(BasicService)
 
 
-def empty_handler_hook(server, directory: str = None):
+def empty_handler_hook(server):
     RegistrySingleton.clean_all()
 
 
-def error_app_unkown_handler_hook(server, directory: str = None):
-    app_registry = AppHandlerRegistry("notexisting", server, proto_directory=directory)
+def error_app_unkown_handler_hook(server):
+    app_registry = AppHandlerRegistry("notexisting", server)
     app_registry.register("UnknowService")
 
 
-def error_service_unkown_handler_hook(server, directory: str = None):
-    app_registry = AppHandlerRegistry("fakeapp", server, proto_directory=directory)
+def error_service_unkown_handler_hook(server):
+    app_registry = AppHandlerRegistry("fakeapp", server)
     app_registry.register("UnknowService")
 
 
-def enum_service_handler_hook(server, directory: str = None):
+def enum_service_handler_hook(server):
     from fakeapp.services.enum_service import EnumService
 
-    return make_reloaded_grpc_handler("fakeapp", EnumService)(server, directory=directory)
+    return make_reloaded_grpc_handler("fakeapp", EnumService)(server)
 
 
 def overide_grpc_framework(name_of_function):
@@ -208,12 +194,12 @@ class TestProtoGeneration(TestCase):
     def test_raise_when_app_not_exising(self):
         args = []
         opts = {"no_generate_pb2": True}
-        with self.assertRaises(LookupError) as fake_generation_error:
+        with self.assertRaises(ModuleNotFoundError) as fake_generation_error:
             call_command("generateproto", *args, **opts)
 
         self.assertEqual(
             str(fake_generation_error.exception),
-            "No installed app with label 'notexisting'.",
+            "No module named 'notexisting'",
         )
 
     @mock.patch(

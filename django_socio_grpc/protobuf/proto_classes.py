@@ -504,7 +504,6 @@ class ProtoMessage:
     comments: list[str] | None = None
     serializer: serializers.BaseSerializer | None = None
     imported_from: str | None = None
-    proto_extra_tools: ProtoExtraTools = dataclass_field(default_factory=ProtoExtraTools)
 
     def get_all_messages(self) -> dict[str, "ProtoMessage"]:
         messages = {self.name: self}

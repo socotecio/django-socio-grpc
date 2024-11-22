@@ -89,7 +89,12 @@ class BaseProtoSerializer(BaseSerializer):
             if isinstance(field, ChoiceField) and (
                 enum := ProtoEnum.get_enum_from_annotation(field)
             ):
-                data[field_name] = enum(data[field_name]).name
+                try:
+                    data[field_name] = enum(data[field_name]).name
+                except Exception as e:
+                    raise type(e)(
+                        "Enum value not found, did you forget to generate your protos ?"
+                    ) from e
 
         return parse_dict(data, self.Meta.proto_class())
 
@@ -231,8 +236,12 @@ class BaseProtoSerializer(BaseSerializer):
                 if isinstance(field, ChoiceField) and (
                     enum := ProtoEnum.get_enum_from_annotation(field)
                 ):
-                    return enum[field_value].value
-
+                    try:
+                        return enum[field_value].value
+                    except Exception as e:
+                        raise type(e)(
+                            "Enum key not found, did you forget to generate your protos ?"
+                        ) from e
                 return field_value
             try:
                 return self.get_partial_field_value(field)

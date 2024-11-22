@@ -9,8 +9,6 @@ from django.apps.registry import apps
 from django.conf import settings
 
 from django_socio_grpc.protobuf import ProtoMessage, ProtoService, RegistrySingleton
-from django_socio_grpc.protobuf.proto_classes import ProtoExtraTools
-from django_socio_grpc.protobuf.protoparser.protoparser import ProtoFile
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import camel_to_snake
 
@@ -32,13 +30,8 @@ class AppHandlerRegistry:
     override_pb2_grpc_file_path: str = None
     to_root_grpc: bool = False
     proto_services: list[ProtoService] = field(default_factory=list, init=False)
-    proto_extra_tools: ProtoExtraTools = field(default_factory=ProtoExtraTools, init=False)
-    proto_directory: str | None = None
-    proto_file: ProtoFile | None = None
 
     def __post_init__(self):
-        from django_socio_grpc.protobuf.generators import RegistryToProtoGenerator
-
         if self.reload_services:
             RegistrySingleton.clean_all()
 
@@ -49,10 +42,6 @@ class AppHandlerRegistry:
             raise AppHandlerRegistryError(
                 f"{self.app_name} is already registered by another AppHandlerRegistry"
             )
-
-        # Store the proto_file so it's accessible in generation plugins
-        proto_path = self.get_proto_path()
-        self.proto_file = RegistryToProtoGenerator.parse_proto_file(proto_path)
 
     def get_service_file_path(self, service_name):
         service_file_path = ""
@@ -154,9 +143,6 @@ class AppHandlerRegistry:
             )
 
     def get_grpc_folder(self):
-        if self.proto_directory is not None:
-            return self.proto_directory
-
         base_dir = Path(settings.BASE_DIR)
 
         if self.to_root_grpc:

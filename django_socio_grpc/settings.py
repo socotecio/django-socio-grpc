@@ -112,9 +112,7 @@ DEFAULTS = {
     # Variable that indicate the class used to generate the name of the proto messages
     "DEFAULT_MESSAGE_NAME_CONSTRUCTOR": "django_socio_grpc.protobuf.message_name_constructor.DefaultMessageNameConstructor",
     # Variable that indicate the plugins used in proto generation by default
-    "DEFAULT_GENERATION_PLUGINS": [
-        GlobalScopeWrappedEnumGenerationPlugin(only_generate_non_annotated_for_new_fields=True)
-    ],
+    "DEFAULT_GENERATION_PLUGINS": [GlobalScopeWrappedEnumGenerationPlugin()],
     # Enable the healthcheck service
     "ENABLE_HEALTH_CHECK": False,
 }

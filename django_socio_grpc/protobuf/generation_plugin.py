@@ -341,7 +341,7 @@ class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerati
 
 @dataclass
 class BaseEnumGenerationPlugin(BaseGenerationPlugin):
-    only_generate_non_annotated_for_new_fields: bool = True
+    non_annotated_generation: bool = True
 
     def transform_request_message(
         self,
@@ -355,31 +355,15 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
         if proto_message.serializer is None:
             return self.handle_field_dict(proto_message)
         else:
-            return self.handle_serializer(proto_message, service)
+            return self.handle_serializer(proto_message)
 
-    def handle_serializer(self, proto_message: ProtoMessage, service: type["Service"]):
+    def handle_serializer(self, proto_message: ProtoMessage):
         """Handle enum generation for a ProtoMessage that has a serializer.
 
         An enum can be generated either from:
         - An Annotated Enum (e.g. Annotated[models.CharField, MyTextChoices])
-        - A ChoiceField with string choices (e.g. ["CHOICE_1", "CHOICE_2"])
-
-        For enumerations built from choices, the setting "only_generate_non_annotated_for_new_fields"
-        will allow to skip existing fields that were not enums, and keep them as a String, to prevent breaking changes.
+        - A ChoiceField with string choices (e.g. ["CHOICE_1", "CHOICE_2"]) if non_annotated_generation is True
         """
-
-        if app_handler := service._app_handler:
-            proto_file = app_handler.proto_file
-
-            # No proto_file or message not existing : all fields are considered new
-            if (proto_file is None) or (proto_message.name not in proto_file.messages):
-                previous_fields_names_to_field = {}
-            # Else, we get the previous message fields
-            else:
-                previous_message = proto_file.messages[proto_message.name]
-                previous_fields_names_to_field = {
-                    field.name: field for field in previous_message.fields
-                }
 
         # Find serializer fields that contain enums
         field_name_to_type: dict[str:Enum] = {}
@@ -387,14 +371,7 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
             if not isinstance(field_instance, serializers.ChoiceField):
                 continue
 
-            # Try to get the previous field type in the proto file
-            previous_proto_key_type = None
-            if field_name in previous_fields_names_to_field:
-                previous_proto_key_type = previous_fields_names_to_field[field_name].key_type
-
-            if enum := self.get_enum_from_choice_field(
-                field_instance, previous_proto_key_type
-            ):
+            if enum := self.get_enum_from_choice_field(field_instance):
                 field_name_to_type[field_name] = enum
 
         # Map ProtoMessage fields to serializer fields, and set fields type
@@ -467,29 +444,14 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
 
         return models.TextChoices(enum_name, choices)
 
-    def get_enum_from_choice_field(
-        self, field: serializers.ChoiceField, previous_proto_key_type: str | None
-    ) -> Enum | None:
-        # First we try to get the enum from the annotation
-        enum = ProtoEnum.get_enum_from_annotation(field)
-
-        # If we didn't get the enum from annotation
-        # And if we only build enums for new fields, we have to skip existing fields that are not enums
-        if (
-            enum is None
-            and self.only_generate_non_annotated_for_new_fields
-            and previous_proto_key_type == "string"
-        ):
-            return None
-
-        # handle annotated enums coherence checks
-        if enum is not None:
+    def get_enum_from_choice_field(self, field: serializers.ChoiceField) -> Enum | None:
+        if enum := ProtoEnum.get_enum_from_annotation(field):
             self.check_annotated_enum_coherence(enum, field)
-        # If we don't have an annotated enum, we build an enum from the choices
-        elif self.choice_field_contain_buildable_enum(field):
-            enum = self.build_enum_from_choice_field(field)
+            return enum
+        elif self.non_annotated_generation and self.choice_field_contain_buildable_enum(field):
+            return self.build_enum_from_choice_field(field)
 
-        return enum
+        return None
 
 
 @dataclass

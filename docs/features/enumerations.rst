@@ -18,6 +18,7 @@ Using a Serializer or Model field with TextChoices
 This method is limited to the use of `TextChoices` in Django models or serializers and only include a subset of the features, but it is the simplest way to generate an enum.
 
 For this to work your TextChoices need to be defined with key-like members in the first value of the tuple (letters all in uppercase, numbers allowed after the first letter, and underscore character).
+That is because Django normalize the TextChoices by getting the choices attribute, which does not include the keys.
 
 This works :
 
@@ -202,6 +203,8 @@ There are currently four ways the Enums can be written to the .proto file:
 - InMessageWrappedEnumGenerationPlugin : In the message scope, wrapped in a message
 
 Theses options can be set by using the appropriate generation plugin.
+
+You can also disable automatic generation for non-annotated enums by setting `non_annotated_generation` to `False` in the plugin constructor.
 
 Using Generated Enums
 ---------------------

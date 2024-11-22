@@ -481,11 +481,6 @@ class ProtoEnum:
         return hash((enum_hash, self.wrap_in_message, self.name, self.location))
 
 
-@dataclass
-class ProtoExtraTools:
-    enums: list[ProtoEnum] = dataclass_field(default_factory=list)
-
-
 # TODO Frozen
 @dataclass
 class ProtoMessage:

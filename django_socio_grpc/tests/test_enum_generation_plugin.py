@@ -131,6 +131,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=[{"name": "enum", "type": MyIntEnum}],
                 response=[{"name": "enum", "type": MyIntEnum}],
                 use_generation_plugins=[InMessageEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyIntAction(self, request, context): ...
 
@@ -138,6 +139,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=[{"name": "enum", "type": MyStrEnum}],
                 response=[{"name": "enum", "type": MyStrEnum}],
                 use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyStrAction(self, request, context): ...
 
@@ -171,6 +173,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=MyAnnotatedIntModelSerializer,
                 response=MyAnnotatedIntModelSerializer,
                 use_generation_plugins=[InMessageEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyIntAction(self, request, context): ...
 
@@ -178,6 +181,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=MyAnnotatedStrModelSerializer,
                 response=MyAnnotatedStrModelSerializer,
                 use_generation_plugins=[InMessageWrappedEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyStrAction(self, request, context): ...
 
@@ -223,6 +227,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=MyAnnotatedIntSerializer,
                 response=MyAnnotatedIntSerializer,
                 use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyIntAction(self, request, context): ...
 
@@ -230,6 +235,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=MyAnnotatedStrSerializer,
                 response=MyAnnotatedStrSerializer,
                 use_generation_plugins=[GlobalScopeWrappedEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyStrAction(self, request, context): ...
 
@@ -275,6 +281,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=MyStrModelSerializer,
                 response=MyStrModelSerializer,
                 use_generation_plugins=[InMessageEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyStrAction(self, request, context): ...
 
@@ -310,6 +317,7 @@ class TestEnumGenerationPlugin(TestCase):
                 use_generation_plugins=[
                     InMessageEnumGenerationPlugin(non_annotated_generation=False)
                 ],
+                override_default_generation_plugins=True,
             )
             async def MyStrAction(self, request, context): ...
 
@@ -324,6 +332,7 @@ class TestEnumGenerationPlugin(TestCase):
                 request=MyWronglyAnnotatedIntModelSerializer,
                 response=MyWronglyAnnotatedIntModelSerializer,
                 use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
             )
             async def MyIntAction(self, request, context): ...
 

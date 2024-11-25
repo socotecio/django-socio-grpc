@@ -352,7 +352,7 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
         if isinstance(proto_message, str):
             return proto_message
 
-        if proto_message.serializer is None:
+        if proto_message.serializer is None or not hasattr(proto_message.serializer, "fields"):
             return self.handle_field_dict(proto_message)
         else:
             return self.handle_serializer(proto_message)

@@ -30,6 +30,7 @@ class EnumService(generics.AsyncCreateService, generics.AsyncRetrieveService):
         request=[{"name": "enum", "type": MyGRPCActionEnum}],
         response=[{"name": "enum", "type": MyGRPCActionEnum}],
         use_generation_plugins=[InMessageWrappedEnumGenerationPlugin()],
+        override_default_generation_plugins=True,
     )
     async def BasicEnumRequest(self, request, context):
         return fakeapp_pb2.EnumBasicEnumRequestResponse(enum=request.enum)

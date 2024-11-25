@@ -90,10 +90,6 @@ class ProtoField:
             return self.field_type
         return self.field_type.name
 
-    @field_type_str.setter
-    def field_type_str(self, value: str):
-        self._field_type_str = value
-
     @property
     def field_line(self) -> str:
         values = [self.field_type_str, self.name, f"= {self.index};"]

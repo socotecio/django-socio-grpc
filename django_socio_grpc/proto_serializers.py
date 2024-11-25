@@ -20,6 +20,7 @@ from rest_framework.settings import api_settings
 from rest_framework.utils.formatting import lazy_format
 
 from django_socio_grpc.protobuf.exceptions import (
+    EnumProtoMismatchError,
     FutureAnnotationError,
     ListWithMultipleArgsError,
     NoReturnTypeError,
@@ -92,7 +93,7 @@ class BaseProtoSerializer(BaseSerializer):
                 try:
                     data[field_name] = enum(data[field_name]).name
                 except Exception as e:
-                    raise type(e)(
+                    raise EnumProtoMismatchError(
                         "Enum value not found, did you forget to generate your protos ?"
                     ) from e
 
@@ -239,7 +240,7 @@ class BaseProtoSerializer(BaseSerializer):
                     try:
                         return enum[field_value].value
                     except Exception as e:
-                        raise type(e)(
+                        raise EnumProtoMismatchError(
                             "Enum key not found, did you forget to generate your protos ?"
                         ) from e
                 return field_value

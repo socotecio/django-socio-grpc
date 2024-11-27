@@ -15,6 +15,10 @@ Unless you are using enums in a FieldDict directly, you should be using `TextCho
 Using a Serializer or Model field with TextChoices
 --------------------------------------------------
 
+.. warning::
+
+    For this method to work you need `non_annotated_generation` to be activated in the plugin, see: `Modify how Enums are generated using generation plugins`_.
+
 This method is limited to the use of `TextChoices` in Django models or serializers and only include a subset of the features, but it is the simplest way to generate an enum.
 
 For this to work your TextChoices need to be defined with key-like members in the first value of the tuple (letters all in uppercase, numbers allowed after the first letter, and underscore character).
@@ -204,7 +208,8 @@ There are currently four ways the Enums can be written to the .proto file:
 
 Theses options can be set by using the appropriate generation plugin.
 
-You can also disable automatic generation for non-annotated enums by setting `non_annotated_generation` to `False` in the plugin constructor.
+You can also enable automatic generation for non-annotated enums by setting `non_annotated_generation` in the plugin constructor.
+This setting default will be changed from False to True in 1.0.0.
 
 Using Generated Enums
 ---------------------

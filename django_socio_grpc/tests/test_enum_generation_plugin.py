@@ -280,7 +280,9 @@ class TestEnumGenerationPlugin(TestCase):
             @grpc_action(
                 request=MyStrModelSerializer,
                 response=MyStrModelSerializer,
-                use_generation_plugins=[InMessageEnumGenerationPlugin()],
+                use_generation_plugins=[
+                    InMessageEnumGenerationPlugin(non_annotated_generation=True)
+                ],
                 override_default_generation_plugins=True,
             )
             async def MyStrAction(self, request, context): ...
@@ -314,9 +316,7 @@ class TestEnumGenerationPlugin(TestCase):
             @grpc_action(
                 request=MyStrModelSerializer,
                 response=MyStrModelSerializer,
-                use_generation_plugins=[
-                    InMessageEnumGenerationPlugin(non_annotated_generation=False)
-                ],
+                use_generation_plugins=[InMessageEnumGenerationPlugin()],
                 override_default_generation_plugins=True,
             )
             async def MyStrAction(self, request, context): ...

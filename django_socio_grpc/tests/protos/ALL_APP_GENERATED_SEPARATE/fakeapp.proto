@@ -420,14 +420,14 @@ message EnumServiceRequest {
     optional int32 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
     optional MyTestIntEnum.Enum int_choices = 3;
-    optional EnumServiceCharChoicesNotAnnotatedEnum.Enum char_choices_not_annotated = 4;
+    optional string char_choices_not_annotated = 4;
 }
 
 message EnumServiceResponse {
     optional int32 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
     optional MyTestIntEnum.Enum int_choices = 3;
-    optional EnumServiceCharChoicesNotAnnotatedEnum.Enum char_choices_not_annotated = 4;
+    optional string char_choices_not_annotated = 4;
 }
 
 message EnumServiceRetrieveRequest {
@@ -837,14 +837,6 @@ message MyTestIntEnum {
         // My exemple value 2
         // on two lines
         TWO = 2;
-    }
-}
-
-message EnumServiceCharChoicesNotAnnotatedEnum {
-    enum Enum {
-        ENUM_UNSPECIFIED = 0;
-        VALUE_1 = 1;
-        VALUE_2 = 2;
     }
 }
 

@@ -341,7 +341,7 @@ class ListGenerationPlugin(RequestAsListGenerationPlugin, ResponseAsListGenerati
 
 @dataclass
 class BaseEnumGenerationPlugin(BaseGenerationPlugin):
-    non_annotated_generation: bool = True
+    non_annotated_generation: bool = False
 
     def transform_request_message(
         self,

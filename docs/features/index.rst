@@ -20,3 +20,4 @@ Features
    commands
    cache
    health-check
+   enumerations

@@ -30,3 +30,7 @@ class UnknownTypeError(FromReturnTypeGenerationError):
     def __init__(self, *args: object, return_type) -> None:
         self.return_type = return_type
         super().__init__(*args)
+
+
+class EnumProtoMismatchError(Exception):
+    pass

@@ -30,6 +30,14 @@ service DefaultValueController {
     rpc Update(DefaultValueRequest) returns (DefaultValueResponse) {}
 }
 
+service EnumController {
+    rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequestResponse) {}
+    rpc BasicEnumRequestWithAnnotatedModel(EnumServiceRequest) returns (EnumServiceResponse) {}
+    rpc BasicEnumRequestWithAnnotatedSerializer(EnumServiceAnnotatedSerializerRequest) returns (EnumServiceAnnotatedSerializerResponse) {}
+    rpc Create(EnumServiceRequest) returns (EnumServiceResponse) {}
+    rpc Retrieve(EnumServiceRetrieveRequest) returns (EnumServiceResponse) {}
+}
+
 service ExceptionController {
     rpc APIException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GRPCException(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -369,6 +377,60 @@ message DefaultValueResponse {
 }
 
 message DefaultValueRetrieveRequest {
+    int32 id = 1;
+}
+
+message EnumBasicEnumRequest {
+    // This is my GRPC Action Enum
+    message MyGRPCActionEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // This is value 1
+            VALUE_1 = 1;
+            VALUE_2 = 2;
+        }
+    }
+    
+    MyGRPCActionEnum.Enum enum = 1;
+}
+
+message EnumBasicEnumRequestResponse {
+    // This is my GRPC Action Enum
+    message MyGRPCActionEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // This is value 1
+            VALUE_1 = 1;
+            VALUE_2 = 2;
+        }
+    }
+    
+    MyGRPCActionEnum.Enum enum = 1;
+}
+
+message EnumServiceAnnotatedSerializerRequest {
+    MyTestStrEnum.Enum char_choices_in_serializer = 1;
+}
+
+message EnumServiceAnnotatedSerializerResponse {
+    MyTestStrEnum.Enum char_choices_in_serializer = 1;
+}
+
+message EnumServiceRequest {
+    optional int32 id = 1;
+    optional MyTestStrEnum.Enum char_choices = 2;
+    optional MyTestIntEnum.Enum int_choices = 3;
+    optional string char_choices_not_annotated = 4;
+}
+
+message EnumServiceResponse {
+    optional int32 id = 1;
+    optional MyTestStrEnum.Enum char_choices = 2;
+    optional MyTestIntEnum.Enum int_choices = 3;
+    optional string char_choices_not_annotated = 4;
+}
+
+message EnumServiceRetrieveRequest {
     int32 id = 1;
 }
 
@@ -752,5 +814,29 @@ message UnitTestModelWithStructFilterRetrieveRequest {
 }
 
 message UnitTestModelWithStructFilterStreamRequest {
+}
+
+// My Test str Enum
+message MyTestStrEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // My exemple value 1
+        VALUE_1 = 1;
+        // My exemple value 2
+        // on two lines
+        VALUE_2 = 2;
+    }
+}
+
+// My Test int Enum
+message MyTestIntEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // My exemple value 1
+        ONE = 1;
+        // My exemple value 2
+        // on two lines
+        TWO = 2;
+    }
 }
 

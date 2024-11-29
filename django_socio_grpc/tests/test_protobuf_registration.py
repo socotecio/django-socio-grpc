@@ -1,5 +1,6 @@
 from decimal import Decimal
-from typing import Optional
+from enum import Enum
+from typing import Annotated, Optional
 from unittest import mock
 
 import pytest
@@ -42,6 +43,16 @@ from django_socio_grpc.tests.fakeapp.serializers import (
 )
 
 
+class MyIntegerChoices(models.IntegerChoices):
+    """
+    This is a test enum
+    """
+
+    VALUE_1: Annotated[int, ["My comment", "on two lines"]] = 1
+    VALUE_2: Annotated[int, "My comment"] = 2
+    VALUE_3 = 3
+
+
 class CustomMessageNameConstructor(DefaultMessageNameConstructor):
     def construct_response_name(self, before_suffix=""):
         name = super().construct_response_name(before_suffix=before_suffix)
@@ -52,24 +63,6 @@ class CustomMessageNameConstructor(DefaultMessageNameConstructor):
 
 class WrongMessageNameConstructor(MessageNameConstructor):
     pass
-
-
-class MyIntModel(models.Model):
-    class Choices(models.IntegerChoices):
-        ONE = 1
-        TWO = 2
-        THREE = 3
-
-    choice_field = models.IntegerField(
-        choices=Choices.choices,
-        default=Choices.ONE,
-    )
-
-
-class MyIntSerializer(proto_serializers.ModelProtoSerializer):
-    class Meta:
-        model = MyIntModel
-        fields = "__all__"
 
 
 class MyPropertyModel(models.Model):
@@ -307,17 +300,6 @@ class TestFields:
         assert proto_field.name == "smf_with_decimal"
         assert proto_field.field_type == "double"
 
-    def test_from_field_serializer_choice_field(self):
-        ser = MyIntSerializer()
-        field = ser.fields["choice_field"]
-
-        proto_field = ProtoField.from_field(field)
-
-        assert proto_field.name == "choice_field"
-        assert proto_field.field_type == "int32"
-        # INFO - AM - 04/01/2024 - OPTIONAL because a default is specified in the model
-        assert proto_field.cardinality == FieldCardinality.OPTIONAL
-
     def test_from_property_field(self):
         ser = MyPropertySerializer()
         field = ser.fields["str_property"]
@@ -345,6 +327,30 @@ class TestFields:
         assert proto_field_char.name == "default_char"
         assert proto_field_char.field_type == "string"
         assert proto_field_char.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_int_choices(self):
+        from django_socio_grpc.tests.test_enum_generation_plugin import MyIntModelSerializer
+
+        ser = MyIntModelSerializer()
+        field = ser.fields["choice_field"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "choice_field"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+
+    def test_from_field_serializer_str_choices(self):
+        from django_socio_grpc.tests.test_enum_generation_plugin import MyStrModelSerializer
+
+        ser = MyStrModelSerializer()
+        field = ser.fields["choice_field"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "choice_field"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
 
     # FROM_SERIALIZER
 
@@ -436,6 +442,33 @@ class TestFields:
             }
 
             ProtoField.from_field_dict(field_dict)
+
+    def test_from_field_dict_enum(self):
+        field_dict = {
+            "name": "my_enum",
+            "type": MyIntegerChoices,
+            "comment": ["my_enum comment"],
+        }
+
+        proto_field = ProtoField.from_field_dict(field_dict)
+
+        assert proto_field.name == "my_enum"
+        assert proto_field.cardinality == FieldCardinality.NONE
+        assert proto_field.comments == ["my_enum comment"]
+
+        assert issubclass(proto_field.field_type, Enum)
+        assert proto_field.field_type.__annotations__[
+            MyIntegerChoices.VALUE_1.name
+        ].__metadata__[0] == [
+            "My comment",
+            "on two lines",
+        ]
+        assert (
+            proto_field.field_type.__annotations__[MyIntegerChoices.VALUE_2.name].__metadata__[
+                0
+            ]
+            == "My comment"
+        )
 
 
 class TestProtoMessage:

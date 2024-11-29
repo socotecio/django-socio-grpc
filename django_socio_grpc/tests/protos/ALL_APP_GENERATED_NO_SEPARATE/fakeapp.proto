@@ -21,6 +21,14 @@ service BasicController {
     rpc TestNoMetaSerializer(NoMeta) returns (BasicTestNoMetaSerializer) {}
 }
 
+service EnumController {
+    rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequest) {}
+    rpc BasicEnumRequestWithAnnotatedModel(EnumService) returns (EnumService) {}
+    rpc BasicEnumRequestWithAnnotatedSerializer(EnumServiceAnnotatedSerializer) returns (EnumServiceAnnotatedSerializer) {}
+    rpc Create(EnumService) returns (EnumService) {}
+    rpc Retrieve(EnumServiceRetrieveRequest) returns (EnumService) {}
+}
+
 service ForeignModelController {
     rpc List(ForeignModelListRequest) returns (ForeignModelList) {}
     rpc Retrieve(ForeignModelRetrieveCustomRetrieveRequest) returns (ForeignModelRetrieveCustom) {}
@@ -230,6 +238,35 @@ message CustomRetrieveResponseSpecialFieldsModel {
     optional string uuid = 1;
     int32 default_method_field = 2;
     repeated google.protobuf.Struct custom_method_field = 3;
+}
+
+message EnumBasicEnumRequest {
+    // This is my GRPC Action Enum
+    message MyGRPCActionEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // This is value 1
+            VALUE_1 = 1;
+            VALUE_2 = 2;
+        }
+    }
+    
+    MyGRPCActionEnum.Enum enum = 1;
+}
+
+message EnumService {
+    optional int32 id = 1;
+    optional MyTestStrEnum.Enum char_choices = 2;
+    optional MyTestIntEnum.Enum int_choices = 3;
+    optional string char_choices_not_annotated = 4;
+}
+
+message EnumServiceAnnotatedSerializer {
+    MyTestStrEnum.Enum char_choices_in_serializer = 1;
+}
+
+message EnumServiceRetrieveRequest {
+    int32 id = 1;
 }
 
 message ForeignModel {
@@ -542,5 +579,29 @@ message UnitTestModelWithStructFilterRetrieveRequest {
 }
 
 message UnitTestModelWithStructFilterStreamRequest {
+}
+
+// My Test str Enum
+message MyTestStrEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // My exemple value 1
+        VALUE_1 = 1;
+        // My exemple value 2
+        // on two lines
+        VALUE_2 = 2;
+    }
+}
+
+// My Test int Enum
+message MyTestIntEnum {
+    enum Enum {
+        ENUM_UNSPECIFIED = 0;
+        // My exemple value 1
+        ONE = 1;
+        // My exemple value 2
+        // on two lines
+        TWO = 2;
+    }
 }
 

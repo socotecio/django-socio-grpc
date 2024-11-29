@@ -1,4 +1,5 @@
 import uuid
+from typing import Annotated
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -220,3 +221,39 @@ class DefaultValueModel(models.Model):
     boolean_default_false = models.BooleanField(default=False)
     boolean_default_true = models.BooleanField(default=True)
     boolean_required_but_serializer_default = models.BooleanField()
+
+
+class EnumModel(models.Model):
+    class MyTestStrEnum(models.TextChoices):
+        """My Test str Enum"""
+
+        VALUE_1: Annotated[tuple, "My exemple value 1"] = ("VALUE_1", "Human readable value 1")
+        VALUE_2: Annotated[tuple, ["My exemple value 2", "on two lines"]] = (
+            "VALUE_2",
+            "Human readable value 2",
+        )
+
+    class MyNotAnnotatedTestStrEnum(models.TextChoices):
+        VALUE_1 = ("VALUE_1", "Human readable value 1")
+        VALUE_2 = (
+            "VALUE_2",
+            "Human readable value 2",
+        )
+
+    class MyTestIntEnum(models.IntegerChoices):
+        """My Test int Enum"""
+
+        ONE: Annotated[tuple, "My exemple value 1"] = (1, "Human readable 1")
+        TWO: Annotated[tuple, ["My exemple value 2", "on two lines"]] = (2, "Human readable 2")
+
+    char_choices: Annotated[models.CharField, MyTestStrEnum] = models.CharField(
+        choices=MyTestStrEnum.choices, default=MyTestStrEnum.VALUE_1
+    )
+
+    int_choices: Annotated[models.IntegerField, MyTestIntEnum] = models.IntegerField(
+        choices=MyTestIntEnum.choices, default=MyTestIntEnum.ONE
+    )
+
+    char_choices_not_annotated = models.CharField(
+        choices=MyNotAnnotatedTestStrEnum.choices, default=MyNotAnnotatedTestStrEnum.VALUE_1
+    )

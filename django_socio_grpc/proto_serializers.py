@@ -5,7 +5,7 @@ from django.core.validators import MaxLengthValidator
 from django.db.models.fields import NOT_PROVIDED
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import empty
+from rest_framework.fields import ChoiceField, empty
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (
     LIST_SERIALIZER_KWARGS,
@@ -20,6 +20,7 @@ from rest_framework.settings import api_settings
 from rest_framework.utils.formatting import lazy_format
 
 from django_socio_grpc.protobuf.exceptions import (
+    EnumProtoMismatchError,
     FutureAnnotationError,
     ListWithMultipleArgsError,
     NoReturnTypeError,
@@ -27,7 +28,11 @@ from django_socio_grpc.protobuf.exceptions import (
     UnknownTypeError,
 )
 from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
-from django_socio_grpc.protobuf.proto_classes import ProtoField, ProtoFieldConvertible
+from django_socio_grpc.protobuf.proto_classes import (
+    ProtoEnum,
+    ProtoField,
+    ProtoFieldConvertible,
+)
 from django_socio_grpc.utils.constants import (
     DEFAULT_LIST_FIELD_NAME,
     LIST_ATTR_MESSAGE_NAME,
@@ -78,6 +83,20 @@ class BaseProtoSerializer(BaseSerializer):
         assert hasattr(
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
+
+        # Choice doesn't store the Enum keys, but the Enum values
+        # We need to convert the Enum values to the Enum keys before creating the message
+        for field_name, field in self.fields.items():
+            if isinstance(field, ChoiceField) and (
+                enum := ProtoEnum.get_enum_from_annotation(field)
+            ):
+                try:
+                    data[field_name] = enum(data[field_name]).name
+                except Exception as e:
+                    raise EnumProtoMismatchError(
+                        "Enum value not found, did you forget to generate your protos ?"
+                    ) from e
+
         return parse_dict(data, self.Meta.proto_class())
 
     @property
@@ -211,8 +230,20 @@ class BaseProtoSerializer(BaseSerializer):
                 raise _NoDictData
 
             if field.field_name in self.base_data:
-                return self.base_data[field.field_name]
+                field_value = self.base_data[field.field_name]
 
+                # Choice doesn't store the Enum keys, but the Enum values
+                # We need to convert the Enum key to the Enum value before giving it to DRF
+                if isinstance(field, ChoiceField) and (
+                    enum := ProtoEnum.get_enum_from_annotation(field)
+                ):
+                    try:
+                        return enum[field_value].value
+                    except Exception as e:
+                        raise EnumProtoMismatchError(
+                            "Enum key not found, did you forget to generate your protos ?"
+                        ) from e
+                return field_value
             try:
                 return self.get_partial_field_value(field)
             except _NoDictData:

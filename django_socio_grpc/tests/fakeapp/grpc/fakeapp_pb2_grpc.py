@@ -906,6 +906,250 @@ class DefaultValueController(object):
             _registered_method=True)
 
 
+class EnumControllerStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.BasicEnumRequest = channel.unary_unary(
+                '/myproject.fakeapp.EnumController/BasicEnumRequest',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumBasicEnumRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumBasicEnumRequestResponse.FromString,
+                _registered_method=True)
+        self.BasicEnumRequestWithAnnotatedModel = channel.unary_unary(
+                '/myproject.fakeapp.EnumController/BasicEnumRequestWithAnnotatedModel',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.FromString,
+                _registered_method=True)
+        self.BasicEnumRequestWithAnnotatedSerializer = channel.unary_unary(
+                '/myproject.fakeapp.EnumController/BasicEnumRequestWithAnnotatedSerializer',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceAnnotatedSerializerRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceAnnotatedSerializerResponse.FromString,
+                _registered_method=True)
+        self.Create = channel.unary_unary(
+                '/myproject.fakeapp.EnumController/Create',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.FromString,
+                _registered_method=True)
+        self.Retrieve = channel.unary_unary(
+                '/myproject.fakeapp.EnumController/Retrieve',
+                request_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRetrieveRequest.SerializeToString,
+                response_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.FromString,
+                _registered_method=True)
+
+
+class EnumControllerServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def BasicEnumRequest(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def BasicEnumRequestWithAnnotatedModel(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def BasicEnumRequestWithAnnotatedSerializer(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Create(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Retrieve(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_EnumControllerServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'BasicEnumRequest': grpc.unary_unary_rpc_method_handler(
+                    servicer.BasicEnumRequest,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumBasicEnumRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumBasicEnumRequestResponse.SerializeToString,
+            ),
+            'BasicEnumRequestWithAnnotatedModel': grpc.unary_unary_rpc_method_handler(
+                    servicer.BasicEnumRequestWithAnnotatedModel,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.SerializeToString,
+            ),
+            'BasicEnumRequestWithAnnotatedSerializer': grpc.unary_unary_rpc_method_handler(
+                    servicer.BasicEnumRequestWithAnnotatedSerializer,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceAnnotatedSerializerRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceAnnotatedSerializerResponse.SerializeToString,
+            ),
+            'Create': grpc.unary_unary_rpc_method_handler(
+                    servicer.Create,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.SerializeToString,
+            ),
+            'Retrieve': grpc.unary_unary_rpc_method_handler(
+                    servicer.Retrieve,
+                    request_deserializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRetrieveRequest.FromString,
+                    response_serializer=django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'myproject.fakeapp.EnumController', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('myproject.fakeapp.EnumController', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class EnumController(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def BasicEnumRequest(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myproject.fakeapp.EnumController/BasicEnumRequest',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumBasicEnumRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumBasicEnumRequestResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def BasicEnumRequestWithAnnotatedModel(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myproject.fakeapp.EnumController/BasicEnumRequestWithAnnotatedModel',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def BasicEnumRequestWithAnnotatedSerializer(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myproject.fakeapp.EnumController/BasicEnumRequestWithAnnotatedSerializer',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceAnnotatedSerializerRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceAnnotatedSerializerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Create(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myproject.fakeapp.EnumController/Create',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Retrieve(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/myproject.fakeapp.EnumController/Retrieve',
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceRetrieveRequest.SerializeToString,
+            django__socio__grpc_dot_tests_dot_fakeapp_dot_grpc_dot_fakeapp__pb2.EnumServiceResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+
 class ExceptionControllerStub(object):
     """Missing associated documentation comment in .proto file."""
 

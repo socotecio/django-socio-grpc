@@ -154,6 +154,13 @@ Use Cases
 
 .. _grpc-action-basic-example:
 
+=======================================
+``override_default_generation_plugins``
+=======================================
+
+This argument allows to override the default generation plugins used in the DSG settings.
+By default it's False so your services using the "use_generation_plugins" argument will also use the default generation plugins.
+
 ===========================================================================================
 Basic :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>` request and response:
 ===========================================================================================

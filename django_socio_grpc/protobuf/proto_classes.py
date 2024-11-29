@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from decimal import Decimal
+from enum import Enum
 from typing import (
     ClassVar,
     Union,
@@ -78,7 +79,7 @@ class ProtoField:
     """
 
     name: str
-    field_type: Union[str, "ProtoMessage"]
+    field_type: Union[str, "ProtoMessage", "ProtoEnum"]
     cardinality: FieldCardinality = FieldCardinality.NONE
     comments: list[str] | None = None
     index: int = 0
@@ -116,30 +117,12 @@ class ProtoField:
         cardinality = field_dict.get("cardinality", FieldCardinality.NONE)
         name = field_dict["name"]
         field_type = field_dict["type"]
-        type_parts = field_type.split(" ")
-        if len(type_parts) == 2:
-            if cardinality:
-                raise ProtoRegistrationError(
-                    f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({name})"
-                )
-            cardinality, field_type = type_parts
 
-            stack = traceback.StackSummary.extract(
-                traceback.walk_stack(None), capture_locals=True
+        if isinstance(field_type, str):
+            cardinality, field_type = cls.from_field_dict_handle_str_field_type(
+                field_type, name, cardinality
             )
-            for frame in stack:
-                if frame.name == "make_proto_rpc":
-                    logger.warning(
-                        f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({name})"
-                        " Please set it in the `cardinality` key instead.\n"
-                        f"`{frame.locals['self']}`"
-                    )
-                    break
 
-        elif len(type_parts) > 2:
-            raise ProtoRegistrationError(
-                f"Unknown field type `{field_type}` for field `{name}`"
-            )
         if cardinality not in FieldCardinality.__members__.values():
             raise ProtoRegistrationError(
                 f"Unknown cardinality `{cardinality}` for field `{name}`"
@@ -157,6 +140,37 @@ class ProtoField:
             cardinality=cardinality,
             comments=comments,
         )
+
+    @classmethod
+    def from_field_dict_handle_str_field_type(
+        cls, field_type: str, field_name: str, cardinality: FieldCardinality
+    ):
+        type_parts = field_type.split(" ")
+        if len(type_parts) == 2:
+            if cardinality:
+                raise ProtoRegistrationError(
+                    f"Cardinality `{cardinality}` is set in both `cardinality` and `type` field. ({field_name})"
+                )
+            cardinality, field_type = type_parts
+
+            stack = traceback.StackSummary.extract(
+                traceback.walk_stack(None), capture_locals=True
+            )
+            for frame in stack:
+                if frame.name == "make_proto_rpc":
+                    logger.warning(
+                        f"Setting cardinality `{cardinality}` in `type` field is deprecated. ({field_name})"
+                        " Please set it in the `cardinality` key instead.\n"
+                        f"`{frame.locals['self']}`"
+                    )
+                    break
+
+        elif len(type_parts) > 2:
+            raise ProtoRegistrationError(
+                f"Unknown field type `{field_type}` for field `{field_name}`"
+            )
+
+        return cardinality, field_type
 
     @classmethod
     def from_field(
@@ -217,9 +231,7 @@ class ProtoField:
             ProtoGeneratorPrintHelper.print(f"{field.field_name} is simple type")
             field_type = get_proto_type(field)
 
-        comments = None
-        if isinstance(help_text := getattr(field, "help_text", None), ProtoComment):
-            comments = help_text.comments
+        comments = cls.get_field_comments(field)
 
         return cls(
             name=field.field_name,
@@ -227,6 +239,12 @@ class ProtoField:
             cardinality=cardinality,
             comments=comments,
         )
+
+    @classmethod
+    def get_field_comments(cls, field: serializers.Field):
+        if isinstance(help_text := getattr(field, "help_text", None), ProtoComment):
+            return help_text.comments
+        return None
 
     @classmethod
     def from_serializer(
@@ -403,6 +421,60 @@ class ProtoField:
             field_type=field_type,
             cardinality=cardinality,
         )
+
+
+class ProtoEnumLocations(Enum):
+    MESSAGE = 1
+    GLOBAL = 2
+
+
+@dataclass
+class ProtoEnum:
+    enum: Enum
+    wrap_in_message: bool = False
+    location: ProtoEnumLocations = ProtoEnumLocations.GLOBAL
+
+    @property
+    def name(self) -> str:
+        name = self.enum.__name__
+        if self.wrap_in_message:
+            name += ".Enum"
+        return name
+
+    @staticmethod
+    def get_enum_from_annotation(field: serializers.ChoiceField):
+        # Try to get the enum from the serializer annotations
+        serializer_annotations = field.parent.__class__.__annotations__
+        annotation = serializer_annotations.get(field.field_name, None)
+
+        # Else try to get the enum from the model annotations
+        if not annotation and hasattr(field.parent.Meta, "model"):
+            model_annotations = field.parent.Meta.model.__annotations__
+            annotation = model_annotations.get(field.field_name, None)
+
+        if annotation is None or len(annotation.__metadata__) == 0:
+            return None
+
+        return annotation.__metadata__[0]
+
+    def __eq__(self, other):
+        if not isinstance(other, ProtoEnum):
+            return NotImplemented
+
+        # Enums may be created on the fly and so we need to compare the enum members
+        self_enum = (self.enum.__name__, tuple(self.enum.__members__.items()))
+        other_enum = (other.enum.__name__, tuple(other.enum.__members__.items()))
+
+        return (
+            self_enum == other_enum
+            and self.wrap_in_message == other.wrap_in_message
+            and self.name == other.name
+            and self.location == other.location
+        )
+
+    def __hash__(self):
+        enum_hash = hash((self.enum.__name__, tuple(self.enum.__members__.items())))
+        return hash((enum_hash, self.wrap_in_message, self.name, self.location))
 
 
 # TODO Frozen
@@ -715,11 +787,10 @@ def get_proto_type(
     if isinstance(field, serializers.ModelField):
         return get_proto_type(field.model_field)
 
-    # ChoiceFields need to look into the choices to determine the type
     if isinstance(field, serializers.ChoiceField):
-        choices = field.choices
-        first_type = type(list(choices.keys())[0])
-        if all(isinstance(choice, first_type) for choice in choices):
+        first_type = type(list(field.choices.keys())[0])
+
+        if all(isinstance(choice, first_type) for choice in field.choices):
             return TYPING_TO_PROTO_TYPES.get(first_type, "string")
 
     proto_type = None

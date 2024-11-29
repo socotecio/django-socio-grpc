@@ -69,6 +69,7 @@ def grpc_action(
     use_response_list=False,
     message_name_constructor_class: type[MessageNameConstructor] = None,
     use_generation_plugins: list["BaseGenerationPlugin"] = None,
+    override_default_generation_plugins: bool = False,
 ):
     """
     Easily register a grpc action into the registry to generate it into the proto file.
@@ -90,6 +91,11 @@ def grpc_action(
         use_request_list, use_response_list, use_generation_plugins
     )
 
+    if not override_default_generation_plugins:
+        use_generation_plugins = (
+            grpc_settings.DEFAULT_GENERATION_PLUGINS + use_generation_plugins
+        )
+
     def wrapper(function):
         return GRPCAction(
             function,
@@ -101,8 +107,7 @@ def grpc_action(
             response_stream,
             message_name_constructor_class=message_name_constructor_class
             or grpc_settings.DEFAULT_MESSAGE_NAME_CONSTRUCTOR,
-            use_generation_plugins=use_generation_plugins
-            or grpc_settings.DEFAULT_GENERATION_PLUGINS.copy(),
+            use_generation_plugins=use_generation_plugins,
         )
 
     return wrapper

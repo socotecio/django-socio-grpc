@@ -88,6 +88,12 @@ def error_service_unkown_handler_hook(server):
     app_registry.register("UnknowService")
 
 
+def enum_service_handler_hook(server):
+    from fakeapp.services.enum_service import EnumService
+
+    return make_reloaded_grpc_handler("fakeapp", EnumService)(server)
+
+
 def overide_grpc_framework(name_of_function):
     return {
         "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
@@ -123,6 +129,7 @@ OVERRIDEN_SETTINGS = {
     "NO_MODEL_GENERATED": overide_grpc_framework("basicservice_handler_hook"),
     "SIMPLE_MODEL_GENERATED": overide_grpc_framework("unittestmodel_handler_hook"),
     "RECURSIVE_MODEL_GENERATED": overide_grpc_framework("recursive_handler_hook"),
+    "ENUM_GENERATED": overide_grpc_framework("enum_service_handler_hook"),
 }
 
 
@@ -354,7 +361,10 @@ class TestProtoGeneration(TestCase):
         So when regeneration with the text field it should appear in third position and not in second
         """
         args = []
-        opts = {"no_generate_pb2": True}
+        opts = {
+            "no_generate_pb2": True,
+            "directory": "./django_socio_grpc/tests/protos/SIMPLE_APP_MODEL_OLD_ORDER",
+        }
 
         with patch_open(read_data=old_order_data) as mocked_open:
             call_command("generateproto", *args, **opts)
@@ -497,3 +507,25 @@ class TestProtoGeneration(TestCase):
                 f"-I{proto_include}",
             ]
         )
+
+    @mock.patch(
+        "django_socio_grpc.protobuf.generators.RegistryToProtoGenerator.parse_proto_file",
+        mock.MagicMock(return_value=None),
+    )
+    @override_settings(GRPC_FRAMEWORK=OVERRIDEN_SETTINGS["ENUM_GENERATED"])
+    def test_generate_proto_with_enum(self):
+        reload_all()
+        args = []
+        opts = {"no_generate_pb2": True}
+        with patch_open() as mocked_open:
+            call_command("generateproto", *args, **opts)
+
+        assert mocked_open.mock_calls[0].args[0] == "w+"
+
+        handle = mocked_open()
+
+        called_with_data = handle.write.call_args[0][0]
+
+        proto_file_content = get_proto_file_content("ENUM_GENERATED")
+
+        self.assertEqual(called_with_data, proto_file_content)

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from rest_framework import serializers
 
@@ -6,6 +8,7 @@ from django_socio_grpc.protobuf import ProtoComment
 
 from .models import (
     DefaultValueModel,
+    EnumModel,
     ForeignModel,
     ImportStructEvenInArrayModel,
     ManyManyModel,
@@ -239,3 +242,20 @@ class DefaultValueSerializer(proto_serializers.ModelProtoSerializer):
 
 class NoMetaSerializer(proto_serializers.ProtoSerializer):
     my_field = serializers.CharField()
+
+
+class EnumServiceSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = EnumModel
+        proto_class = fakeapp_pb2.EnumServiceResponse
+        fields = "__all__"
+
+
+class EnumServiceAnnotatedSerializerSerializer(proto_serializers.ProtoSerializer):
+    char_choices_in_serializer: Annotated[serializers.ChoiceField, EnumModel.MyTestStrEnum] = (
+        serializers.ChoiceField(choices=EnumModel.MyTestStrEnum.choices)
+    )
+
+    class Meta:
+        proto_class = fakeapp_pb2.EnumServiceAnnotatedSerializerResponse
+        fields = "__all__"

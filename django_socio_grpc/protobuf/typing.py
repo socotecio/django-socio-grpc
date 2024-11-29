@@ -27,6 +27,6 @@ class FieldDict(TypedDict):
     """
 
     name: str
-    type: str
+    type: str | Enum
     cardinality: NotRequired[FieldCardinality]  # noqa: UP007
     comment: NotRequired[str | list[str]]  # noqa: UP007

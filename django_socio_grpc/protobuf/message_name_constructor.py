@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from rest_framework.serializers import BaseSerializer
 
-from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.constants import REQUEST_SUFFIX, RESPONSE_SUFFIX
 from django_socio_grpc.utils.tools import rreplace
 
@@ -106,6 +105,8 @@ class DefaultMessageNameConstructor(MessageNameConstructor):
         """
         Construct the ProtoMessage name from the message and potentialy the name the user specified
         """
+
+        from django_socio_grpc.settings import grpc_settings
 
         message_name = self.request_name if is_request else self.response_name
         suffix = REQUEST_SUFFIX if is_request else RESPONSE_SUFFIX

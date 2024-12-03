@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from concurrent import futures
+from time import perf_counter
 
 import grpc
 from django.conf import settings
@@ -75,7 +76,6 @@ class Command(BaseCommand):
             else:
                 autoreload.main(self.inner_run, None, options)
         else:
-            logger.info(f"Starting gRPC server at {self.address}\n")
             self._serve()
 
     def _serve(self):
@@ -83,6 +83,11 @@ class Command(BaseCommand):
         Effective start of gRPC server (normal or reflection Mode)
         """
 
+        logger.info(
+            (f"Starting gRPC server at {self.address}... \n"),
+            extra={"emit_to_server": False},
+        )
+        server_launch_time = perf_counter()
         # ----------------------------------------------
         # --- Instantiate the gRPC server itself     ---
         server = grpc.server(
@@ -106,6 +111,10 @@ class Command(BaseCommand):
         else:
             server.add_insecure_port(self.address)
         server.start()
+        server_launched_time = perf_counter()
+        logger.info(
+            f"Server started in {server_launched_time - server_launch_time} second and is now ready to accept incoming request"
+        )
         server.wait_for_termination()
 
     def inner_run(self, *args, **options):

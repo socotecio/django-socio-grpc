@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 from concurrent import futures
+from time import perf_counter
 
 import grpc
 from asgiref.sync import sync_to_async
@@ -68,14 +69,15 @@ class Command(BaseCommand):
             else:
                 autoreload.main(self.inner_run, None, options)
         else:
-            logger.info(
-                (f"Starting async gRPC server at {self.address}\n"),
-                extra={"emit_to_server": False},
-            )
             await self._serve()
 
     async def _serve(self):
         try:
+            logger.info(
+                (f"Starting async gRPC server at {self.address}... \n"),
+                extra={"emit_to_server": False},
+            )
+            server_launch_time = perf_counter()
             server = grpc.aio.server(
                 futures.ThreadPoolExecutor(max_workers=self.max_workers),
                 interceptors=grpc_settings.SERVER_INTERCEPTORS,
@@ -99,6 +101,10 @@ class Command(BaseCommand):
             else:
                 server.add_insecure_port(self.address)
             await server.start()
+            server_launched_time = perf_counter()
+            logger.info(
+                f"Server started in {server_launched_time - server_launch_time} second and is now ready to accept incoming request"
+            )
             await server.wait_for_termination()
         except OSError as e:
             # Use helpful error messages instead of ugly tracebacks.

@@ -40,6 +40,7 @@ Then, add ``django_socio_grpc`` to your ``INSTALLED_APPS`` setting:
 
 ```
 docker compose up
+docker compose exec django-socio-grpc poetry run python test_utils/migrate.py
 ```
 
 For local documentation go to http://localhost:6001
@@ -50,4 +51,14 @@ For local documentation go to http://localhost:6001
 
 ```
 docker compose exec django-socio-grpc poetry run tests
+```
+
+
+## Commands if changing models or serializers
+
+```
+
+docker compose exec django-socio-grpc poetry run python test_utils/makemigrations.py
+docker compose exec django-socio-grpc poetry run python test_utils/migrate.py
+docker compose exec django-socio-grpc poetry run python test_utils/generateproto.py
 ```

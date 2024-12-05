@@ -48,6 +48,9 @@ class _NoDictData(Exception):
 
 
 def get_default_value(field_default):
+    # empty is a callable and should not be instanciated
+    if field_default is empty:
+        return field_default
     if callable(field_default):
         return field_default()
     else:
@@ -91,7 +94,15 @@ class BaseProtoSerializer(BaseSerializer):
                 enum := ProtoEnum.get_enum_from_annotation(field)
             ):
                 try:
-                    data[field_name] = enum(data[field_name]).name
+                    # If the data is None or blank we use the unspecified enum key
+                    if not data[field_name]:
+                        data[field_name] = (
+                            self.Meta.proto_class.DESCRIPTOR.fields_by_name[field.field_name]
+                            .enum_type.values[0]
+                            .name
+                        )
+                    else:
+                        data[field_name] = enum(data[field_name]).name
                 except Exception as e:
                     raise EnumProtoMismatchError(
                         "Enum value not found, did you forget to generate your protos ?"
@@ -197,11 +208,40 @@ class BaseProtoSerializer(BaseSerializer):
 
             return cleaned_data
 
-        def get_nullable_field_value(self, field: Field):
-            if field.allow_null or (field.default in [None, empty] and field.required):
+        def is_field_accept_null_value(self, field: Field) -> bool:
+            return field.allow_null or (field.default in [None, empty] and field.required)
+
+        def get_default_field_value(self, field: Field):
+            return get_default_value(field.default)
+
+        def get_nullable_field_value(self, field: Field, force_default: bool = False):
+            """
+            Check the possibility of a field to be a nullable field, considering its default value and nullability.
+
+            Args:
+                field (Field): The field object whose value is being accessed. It should contain
+                    information about the field's default value and nullability.
+                force_default (bool, optional): If True, bypasses the nullability check and
+                    forces the use of the field's default value. If still no default value raise a _NoDictData. Defaults to False.
+
+            Returns:
+                Any: None if the field is nullable, default value if force_default or raise if none of the first two options.
+
+            Raises:
+                _NoDictData:
+                    - If the field cannot accept a null value and `force_default` is False.
+                    - If the field has no presence, cannot accept null values, and has no default value.
+            """
+            if self.is_field_accept_null_value(field=field):
                 return None
 
-            raise _NoDictData
+            default_value = self.get_default_field_value(field)
+            if force_default and default_value is not empty:
+                return default_value
+
+            raise _NoDictData(
+                f"Field {field.field_name} has no presence but cannot be null and has no default"
+            )
 
         def get_partial_field_value(self, field: Field):
             # INFO - AM - 04/01/2024 - if field is not in the data_dict but in PARTIAL_UPDATE_FIELD_NAME
@@ -216,7 +256,9 @@ class BaseProtoSerializer(BaseSerializer):
                 # We debated about raising a ValidationError but prefered this behavior.
                 # Can be changed if it create issue with users
                 return self.message.DESCRIPTOR.fields_by_name[field.field_name].default_value
-            raise _NoDictData
+            raise _NoDictData(
+                f"Field {field.field_name} has no presence in partial serializer but cannot be null and has no default"
+            )
 
         def get_cleaned_field_value(
             self,
@@ -227,7 +269,7 @@ class BaseProtoSerializer(BaseSerializer):
             # in the data. Meaning deleting fields that should not be here and not adding
             # None to allow_null field that are not specified
             if self.serializer.partial and field.field_name not in self.partial_fields:
-                raise _NoDictData
+                raise _NoDictData(f"Field {field.field_name} will be deletes from data.")
 
             if field.field_name in self.base_data:
                 field_value = self.base_data[field.field_name]
@@ -238,7 +280,19 @@ class BaseProtoSerializer(BaseSerializer):
                     enum := ProtoEnum.get_enum_from_annotation(field)
                 ):
                     try:
-                        return enum[field_value].value
+                        # If the data specified is the first one (meaning no value) it can be not present in the enum as we always generate a default value for enum for unspecified option
+                        if (
+                            field_value not in enum.__members__
+                            and self.message.DESCRIPTOR.fields_by_name[field.field_name]
+                            .enum_type.values_by_name[field_value]
+                            .number
+                            == 0
+                        ):
+                            return self.get_nullable_field_value(
+                                field=field, force_default=True
+                            )
+                        else:
+                            return enum[field_value].value
                     except Exception as e:
                         raise EnumProtoMismatchError(
                             "Enum key not found, did you forget to generate your protos ?"
@@ -390,19 +444,61 @@ class ModelProtoSerializer(ProtoSerializer, ModelSerializer):
         def updating(self):
             return get_model_pk(self.model).name in self.base_data
 
-        def get_nullable_field_value(
-            self,
-            field: Field,
-        ):
-            value = super().get_nullable_field_value(field)
-            if self.updating or field.default not in [None, empty]:
-                return value
+        def get_default_field_value(self, field: Field):
+            default_value = super().get_default_field_value(field)
+            if default_value is not empty:
+                return default_value
             try:
                 deferred_attribute = getattr(self.model, field.field_name)
                 if deferred_attribute.field.default != NOT_PROVIDED:
                     return get_default_value(deferred_attribute.field.default)
             except AttributeError:
-                return value
+                return empty
+
+        def get_nullable_field_value(self, field: Field, force_default: bool = False):
+            """
+            Check the possibility of a field to be a nullable field, considering its default value, nullability,
+            and the current state of the instance (e.g., updating).
+            This override the ProtoSerializer._MessageToData.get_nullable_field_value that doesn't know about model for default value
+
+            Args:
+                field (Field): The field object whose value is being accessed. It should contain
+                    information about the field's default value and nullability.
+                force_default (bool, optional): If True, bypasses the nullability check and
+                    forces the use of the field's default value. If still no default value raise a _NoDictData. Defaults to False.
+
+            Returns:
+                Any: The resolved default value of the field if it is nullable or if `force_default`
+                is set to True.
+
+            Raises:
+                _NoDictData:
+                    - If the field cannot accept a null value and `force_default` is False.
+                    - If the field has no presence, cannot accept null values, and has no default value.
+
+            Notes:
+                - If the instance is in an updating state (`self.updating` is True) or the field's
+                default is `None` or `empty`, the method returns None.
+                - The method checks if the field is nullable using `self.is_field_accept_null_value`.
+            """
+            accept_null_value = self.is_field_accept_null_value(field=field)
+            if not accept_null_value and not force_default:
+                raise _NoDictData(
+                    f"Field {field.field_name} has no presence but cannot be null"
+                )
+            if self.updating or field.default not in [None, empty]:
+                return None
+
+            default_value = self.get_default_field_value(field)
+            if default_value is empty:
+                if accept_null_value:
+                    return None
+                else:
+                    raise _NoDictData(
+                        f"Field {field.field_name} has no presence but cannot be null and has no default"
+                    ) from None
+
+            return default_value
 
 
 class BinaryField(Field):

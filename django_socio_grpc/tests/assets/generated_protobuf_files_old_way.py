@@ -335,8 +335,10 @@ message DefaultValueModelDestroyRequest {
 message EnumModel {
     string id = 1;
     string char_choices = 2;
-    int32 int_choices = 3;
-    string char_choices_not_annotated = 4;
+    string char_choices_nullable = 3;
+    string char_choices_no_default_no_null = 4;
+    int32 int_choices = 5;
+    string char_choices_not_annotated = 6;
 }
 
 message EnumModelListRequest {

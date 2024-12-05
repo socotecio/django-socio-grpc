@@ -49,15 +49,19 @@ message EnumServiceAnnotatedSerializerResponse {
 message EnumServiceRequest {
     optional int32 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
-    optional MyTestIntEnum.Enum int_choices = 3;
-    optional string char_choices_not_annotated = 4;
+    optional MyTestStrEnum.Enum char_choices_nullable = 3;
+    MyTestStrEnum.Enum char_choices_no_default_no_null = 4;
+    optional MyTestIntEnum.Enum int_choices = 5;
+    optional string char_choices_not_annotated = 6;
 }
 
 message EnumServiceResponse {
     optional int32 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
-    optional MyTestIntEnum.Enum int_choices = 3;
-    optional string char_choices_not_annotated = 4;
+    optional MyTestStrEnum.Enum char_choices_nullable = 3;
+    MyTestStrEnum.Enum char_choices_no_default_no_null = 4;
+    optional MyTestIntEnum.Enum int_choices = 5;
+    optional string char_choices_not_annotated = 6;
 }
 
 message EnumServiceRetrieveRequest {

@@ -250,6 +250,14 @@ class EnumModel(models.Model):
         choices=MyTestStrEnum.choices, default=MyTestStrEnum.VALUE_1
     )
 
+    char_choices_nullable: Annotated[models.CharField, MyTestStrEnum] = models.CharField(
+        choices=MyTestStrEnum.choices, null=True, blank=True
+    )
+
+    char_choices_no_default_no_null: Annotated[models.CharField, MyTestStrEnum] = (
+        models.CharField(choices=MyTestStrEnum.choices)
+    )
+
     int_choices: Annotated[models.IntegerField, MyTestIntEnum] = models.IntegerField(
         choices=MyTestIntEnum.choices, default=MyTestIntEnum.ONE
     )

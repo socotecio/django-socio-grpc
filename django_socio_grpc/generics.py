@@ -6,9 +6,12 @@ from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from rest_framework.filters import BaseFilterBackend
+from rest_framework.pagination import BasePagination
 
 from django_socio_grpc import mixins, services
 from django_socio_grpc.exceptions import NotFound
+from django_socio_grpc.proto_serializers import ProtoSerializer
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils import model_meta
 from django_socio_grpc.utils.tools import rreplace
@@ -22,20 +25,19 @@ class GenericService(services.Service):
     """
 
     # Either set this attribute or override ``get_queryset()``.
-    queryset = None
+    queryset: QuerySet | None = None
     # Either set this attribute or override ``get_serializer_class()``.
-    serializer_class = None
+    serializer_class: ProtoSerializer | None = None
     # Set this if you want to use object lookups other than id
-    lookup_field = None
-    lookup_request_field = None
-
+    lookup_field: str | None = None
+    lookup_request_field: str | None = None
     # The filter backend classes to use for queryset filtering
-    filter_backends = grpc_settings.DEFAULT_FILTER_BACKENDS
+    filter_backends: list[BaseFilterBackend] = grpc_settings.DEFAULT_FILTER_BACKENDS
 
     # The style to use for queryset pagination.
-    pagination_class = grpc_settings.DEFAULT_PAGINATION_CLASS
+    pagination_class: BasePagination | None = grpc_settings.DEFAULT_PAGINATION_CLASS
 
-    service_name = None
+    service_name: str | None = None
 
     @classmethod
     def get_service_name(cls):

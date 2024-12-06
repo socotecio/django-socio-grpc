@@ -236,11 +236,11 @@ In this quickstart, we will register our services in the ``quickstart/handlers.p
         app_registry.register(UserService)
         app_registry.register(PostService)
 
-Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`settings <Available Settings>`:
+Set its path as the ``ROOT_HANDLERS_HOOK`` of the ``GRPC_FRAMEWORK`` :ref:`settings <Available Settings>` section of your ``dsg_tutorial/settings.py`` file:
 
 .. code-block:: python
 
-    # quickstart/settings.py
+    # dsg_tutorial/settings.py
     ...
     GRPC_FRAMEWORK = {
         "ROOT_HANDLERS_HOOK" : 'quickstart.handlers.grpc_handlers',

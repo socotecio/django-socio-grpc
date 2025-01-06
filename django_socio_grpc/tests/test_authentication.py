@@ -15,6 +15,11 @@ class FakeAuthentication:
         return ({"email": "john.doe@johndoe.com"}, context.META.get("HTTP_AUTHORIZATION"))
 
 
+class FakeNotHandlingAuthentication:
+    def authenticate(self, context):
+        return None
+
+
 class DummyService(Service):
     def DummyMethod(service, request, context):
         pass
@@ -52,6 +57,15 @@ class TestAuthenticationUnitary(TestCase):
         dummy_service.context = FakeContext()
         dummy_service.context.META = {"HTTP_AUTHORIZATION": "faketoken"}
         dummy_service.authentication_classes = [FakeAuthentication]
+
+        auth_user_tuple = dummy_service.resolve_user()
+        self.assertEqual(auth_user_tuple, ({"email": "john.doe@johndoe.com"}, "faketoken"))
+
+    def test_resolve_user_with_multiple_authentications(self):
+        dummy_service = DummyService()
+        dummy_service.context = FakeContext()
+        dummy_service.context.META = {"HTTP_AUTHORIZATION": "faketoken"}
+        dummy_service.authentication_classes = [FakeNotHandlingAuthentication, FakeAuthentication]
 
         auth_user_tuple = dummy_service.resolve_user()
         self.assertEqual(auth_user_tuple, ({"email": "john.doe@johndoe.com"}, "faketoken"))

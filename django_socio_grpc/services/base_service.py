@@ -68,7 +68,9 @@ class Service(GRPCActionMixin):
 
     def resolve_user(self):
         auth_responses = [
-            auth().authenticate(self.context) for auth in self.authentication_classes
+            response
+            for auth in self.authentication_classes
+            if (response := auth().authenticate(self.context))
         ]
         if auth_responses:
             return auth_responses[0]

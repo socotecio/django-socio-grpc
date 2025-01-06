@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.10 AS builder
+FROM python:3.10 AS builder
 
 ENV PYTHONUNBUFFERED 1
 
@@ -12,7 +12,7 @@ RUN sed -i 's/^# *\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
 RUN sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen
 RUN locale-gen
 
-RUN pip install --no-cache-dir psycopg2 poetry
+RUN pip install --no-cache-dir psycopg2 'poetry<2.0.0'
 
 RUN poetry config virtualenvs.create false
 

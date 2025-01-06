@@ -43,7 +43,7 @@ myst-parser = "^2.0.0"
 sphinx-autodoc2 = "^0.5"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0,<2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff.lint.isort]

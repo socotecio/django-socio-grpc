@@ -65,7 +65,10 @@ class TestAuthenticationUnitary(TestCase):
         dummy_service = DummyService()
         dummy_service.context = FakeContext()
         dummy_service.context.META = {"HTTP_AUTHORIZATION": "faketoken"}
-        dummy_service.authentication_classes = [FakeNotHandlingAuthentication, FakeAuthentication]
+        dummy_service.authentication_classes = [
+            FakeNotHandlingAuthentication,
+            FakeAuthentication,
+        ]
 
         auth_user_tuple = dummy_service.resolve_user()
         self.assertEqual(auth_user_tuple, ({"email": "john.doe@johndoe.com"}, "faketoken"))

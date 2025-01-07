@@ -1,12 +1,15 @@
 [project]
-requires-python = ">=3.10"
-
-[tool.poetry]
 name = "django-socio-grpc"
 version = "0.1.1"
 description = "Fork of django-grpc-framework with more feature maintained by the socio team. Make GRPC with django easy."
-authors = ["Adrien Montagu <adrienmontagu@gmail.com>"]
+authors = [
+    {name = "Adrien Montagu ", email = "adrienmontagu@gmail.com"}
+]
 license = "Apache-2.0"
+requires-python = ">=3.10"
+
+[tool.poetry]
+package-mode = false
 
 [tool.poetry.scripts]
 tests = "test_utils.load_tests:launch"
@@ -43,7 +46,7 @@ myst-parser = "^2.0.0"
 sphinx-autodoc2 = "^0.5"
 
 [build-system]
-requires = ["poetry-core>=1.0.0,<2.0.0"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff.lint.isort]

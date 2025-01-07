@@ -29,7 +29,7 @@ jobs:
       - name: Install pip dependencies
         if: steps.pip-cache.outputs.cache-hit != 'true'
         run: |
-          pip install psycopg2 poetry proto-parser
+          pip install psycopg2 'poetry<3.0.0' proto-parser
 
       - name: Install poetry
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'

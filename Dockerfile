@@ -14,7 +14,6 @@ RUN locale-gen
 
 RUN pip install --no-cache-dir psycopg2 'poetry<3.0.0'
 
-RUN poetry config virtualenvs.create false
 
 COPY pyproject.toml .
 COPY poetry.lock .
@@ -31,5 +30,6 @@ RUN apt update \
   && apt clean
 
 COPY docs docs
-RUN poetry install --with docs --with dev
+RUN poetry config virtualenvs.create false
+RUN poetry install --with docs
 RUN cd docs && make html

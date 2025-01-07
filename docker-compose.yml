@@ -19,6 +19,7 @@ services:
       - test-database
     volumes:
       - .:/opt/code
+      - ./.venv:/opt/code/.venv:delegated
       - ./test_utils:/opt/code/test_utils
     # ports:
       # - "7000:80"

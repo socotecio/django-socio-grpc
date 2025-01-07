@@ -1,6 +1,5 @@
 from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.tests.protobuf.protos import test_proto_pb2
-from google.protobuf.json_format import MessageToDict
 
 
 def test_message_to_dict_include_optional_not_one_of():

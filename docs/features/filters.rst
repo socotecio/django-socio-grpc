@@ -178,7 +178,7 @@ You can register it **by service** or **globally**:
     # settings.py
     GRPC_FRAMEWORK = {
         ...
-        "DEFAULT_FILTER_BACKENDS": [DjangoFilterBackend],
+        "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
         "FILTER_BEHAVIOR": FilterAndPaginationBehaviorOptions.METADATA_AND_REQUEST_STRUCT
         ...
     }

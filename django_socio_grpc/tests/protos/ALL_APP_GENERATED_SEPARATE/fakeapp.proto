@@ -32,6 +32,7 @@ service DefaultValueController {
 
 service EnumController {
     rpc BasicEnumRequest(EnumBasicEnumRequest) returns (EnumBasicEnumRequestResponse) {}
+    rpc BasicEnumRequestInSerializerOut(EnumBasicEnumRequestInSerializerOutRequest) returns (EnumServiceOnlyOneFieldResponse) {}
     rpc BasicEnumRequestWithAnnotatedModel(EnumServiceRequest) returns (EnumServiceResponse) {}
     rpc BasicEnumRequestWithAnnotatedSerializer(EnumServiceAnnotatedSerializerRequest) returns (EnumServiceAnnotatedSerializerResponse) {}
     rpc Create(EnumServiceRequest) returns (EnumServiceResponse) {}
@@ -394,6 +395,22 @@ message EnumBasicEnumRequest {
     MyGRPCActionEnum.Enum enum = 1;
 }
 
+message EnumBasicEnumRequestInSerializerOutRequest {
+    // My Test str Enum
+    message MyTestStrEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // My exemple value 1
+            VALUE_1 = 1;
+            // My exemple value 2
+            // on two lines
+            VALUE_2 = 2;
+        }
+    }
+    
+    MyTestStrEnum.Enum char_choices = 1;
+}
+
 message EnumBasicEnumRequestResponse {
     // This is my GRPC Action Enum
     message MyGRPCActionEnum {
@@ -414,6 +431,22 @@ message EnumServiceAnnotatedSerializerRequest {
 
 message EnumServiceAnnotatedSerializerResponse {
     MyTestStrEnum.Enum char_choices_in_serializer = 1;
+}
+
+message EnumServiceOnlyOneFieldResponse {
+    // My Test str Enum
+    message MyTestStrEnum {
+        enum Enum {
+            ENUM_UNSPECIFIED = 0;
+            // My exemple value 1
+            VALUE_1 = 1;
+            // My exemple value 2
+            // on two lines
+            VALUE_2 = 2;
+        }
+    }
+    
+    optional MyTestStrEnum.Enum char_choices = 1;
 }
 
 message EnumServiceRequest {

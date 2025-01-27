@@ -251,6 +251,13 @@ class EnumServiceSerializer(proto_serializers.ModelProtoSerializer):
         fields = "__all__"
 
 
+class EnumServiceSerializerOnlyOneField(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = EnumModel
+        proto_class = fakeapp_pb2.EnumServiceOnlyOneFieldResponse
+        fields = ["char_choices"]
+
+
 class EnumServiceAnnotatedSerializerSerializer(proto_serializers.ProtoSerializer):
     char_choices_in_serializer: Annotated[serializers.ChoiceField, EnumModel.MyTestStrEnum] = (
         serializers.ChoiceField(choices=EnumModel.MyTestStrEnum.choices)

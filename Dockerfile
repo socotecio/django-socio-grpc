@@ -21,6 +21,7 @@ COPY poetry.lock .
 
 FROM builder AS server
 
+COPY ./django_socio_grpc /opt/code/django_socio_grpc
 RUN poetry install --with dev
 
 FROM builder AS docs
@@ -30,6 +31,7 @@ RUN apt update \
   && apt clean
 
 COPY docs docs
+COPY ./django_socio_grpc /opt/code/django_socio_grpc
 RUN poetry config virtualenvs.create false
 RUN poetry install --with docs
 RUN cd docs && make html

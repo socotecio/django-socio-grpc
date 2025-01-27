@@ -6,10 +6,8 @@ from google.protobuf.json_format import MessageToDict, ParseDict
 
 # Since protobuf>=26 we have to use the "always_print_fields_with_no_presence" argument
 if "including_default_value_fields" in signature(MessageToDict).parameters:
-    print(1)
     _NO_PRESENCE_ARG = "including_default_value_fields"
 else:
-    print(2)
     _NO_PRESENCE_ARG = "always_print_fields_with_no_presence"
 
 

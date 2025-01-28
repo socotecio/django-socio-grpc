@@ -12,9 +12,8 @@ RUN sed -i 's/^# *\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
 RUN sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen
 RUN locale-gen
 
-RUN pip install --no-cache-dir psycopg2 'poetry<2.0.0'
+RUN pip install --no-cache-dir psycopg2 'poetry<3.0.0'
 
-RUN poetry config virtualenvs.create false
 
 COPY pyproject.toml .
 COPY poetry.lock .
@@ -22,7 +21,8 @@ COPY poetry.lock .
 
 FROM builder AS server
 
-RUN poetry install
+COPY ./django_socio_grpc /opt/code/django_socio_grpc
+RUN poetry install --with dev
 
 FROM builder AS docs
 
@@ -31,5 +31,7 @@ RUN apt update \
   && apt clean
 
 COPY docs docs
+COPY ./django_socio_grpc /opt/code/django_socio_grpc
+RUN poetry config virtualenvs.create false
 RUN poetry install --with docs
 RUN cd docs && make html

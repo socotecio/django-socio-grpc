@@ -1,55 +1,25 @@
 [project]
-name = "django-socio-grpc"
-version = "0.1.1"
-description = "Fork of django-grpc-framework with more feature maintained by the socio team. Make GRPC with django easy."
 authors = [
-    {name = "Adrien Montagu ", email = "adrienmontagu@gmail.com"}
+  {name = "Adrien Montagu", email = "adrienmontagu@gmail.com"},
 ]
+dependencies = [
+  "django>=4.2",
+  "djangorestframework",
+  "grpcio-tools<2.0.0,>=1.50.0",
+  "lark<2.0.0,>=1.0.0",
+  "grpcio-health-checking",
+]
+description = "Fork of django-grpc-framework with more feature maintained by the socio team. Make GRPC with django easy."
 license = "Apache-2.0"
-requires-python = ">=3.10"
+name = "django-socio-grpc"
+requires-python = "<4.0,>=3.10"
+version = "0.1.1"
 
-[tool.poetry]
-packages = [
-    { include = "django_socio_grpc" },
-]
-
-[tool.poetry.scripts]
+[project.scripts]
 tests = "test_utils.load_tests:launch"
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-django = ">=4.2"
-djangorestframework = "*"
-grpcio-tools = "^1.50.0"
-lark = "^1.0.0"
-grpcio-health-checking = "*"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "*"
-django-filter = "^2.4.0"
-psycopg2-binary = "^2.8.6"
-pytest-django = "^4.2.0"
-freezegun = "^1.1.0"
-pre-commit = "^2.19.0"
-ruff = "^0.3.4"
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-auto-pytabs = "*"
-sphinx = "*"
-sphinx-rtd-theme = "*"
-sphinx-autodoc-typehints = "*"
-sphinxcontrib-apidoc = "*"
-sphinxcontrib-spelling = "*"
-sphinx-autobuild = "*"
-myst-parser = "^2.0.0"
-sphinx-autodoc2 = "^0.5"
-
-[build-system]
-requires = ["poetry-core>=2.0.1,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+default-groups = ["dev"]
 
 [tool.ruff.lint.isort]
 known-third-party = ["django"]
@@ -71,4 +41,26 @@ select = [
   "B",
   "SIM",
   "I",
+]
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "django-filter<3.0.0,>=2.4.0",
+  "psycopg2-binary<3.0.0,>=2.8.6",
+  "pytest-django<5.0.0,>=4.2.0",
+  "freezegun<2.0.0,>=1.1.0",
+  "pre-commit<3.0.0,>=2.19.0",
+  "ruff<1.0.0,>=0.3.4",
+]
+docs = [
+  "auto-pytabs",
+  "sphinx",
+  "sphinx-rtd-theme",
+  "sphinx-autodoc-typehints",
+  "sphinxcontrib-apidoc",
+  "sphinxcontrib-spelling",
+  "sphinx-autobuild",
+  "myst-parser<3.0.0,>=2.0.0",
+  "sphinx-autodoc2<1.0,>=0.5",
 ]

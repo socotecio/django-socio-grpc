@@ -66,5 +66,5 @@ jobs:
           poetry run pre-commit run --all-files --show-diff-on-failure
       - name: Run tests
         run: |
-          poetry add django@^${{ matrix.django-version }}
+          poetry add django==${{ matrix.django-version }}
           poetry run tests

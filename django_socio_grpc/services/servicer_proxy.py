@@ -1,7 +1,7 @@
 import abc
 import asyncio
 import logging
-from collections.abc import AsyncIterable, Awaitable, Callable
+from collections.abc import AsyncIterable, Awaitable, Callable, Iterable
 from typing import TYPE_CHECKING
 
 import grpc
@@ -14,6 +14,7 @@ from django.utils.module_loading import import_string
 from google.protobuf.message import Message
 from rest_framework.exceptions import APIException
 
+from django_socio_grpc import signals
 from django_socio_grpc.exceptions import (
     GRPCException,
     Unimplemented,
@@ -182,6 +183,10 @@ class ServicerProxy(MiddlewareCapable):
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
+            await signals.grpc_action_started.asend(
+                sender=self.__class__,
+                context=context,
+            )
             request_container = GRPCRequestContainer(
                 request, proxy_context, action, service_instance
             )
@@ -195,6 +200,7 @@ class ServicerProxy(MiddlewareCapable):
                 exc = e
                 await self.async_process_exception(e, context)
             finally:
+                await signals.grpc_action_finished.asend(sender=self.__class__)
                 self.log_response(exc, request_container)
 
         return handler
@@ -207,6 +213,10 @@ class ServicerProxy(MiddlewareCapable):
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
+            await signals.grpc_action_started.asend(
+                sender=self.__class__,
+                context=context,
+            )
             request_container = GRPCRequestContainer(
                 request, proxy_context, action, service_instance
             )
@@ -218,6 +228,7 @@ class ServicerProxy(MiddlewareCapable):
                 exc = e
                 await self.async_process_exception(e, context)
             finally:
+                await signals.grpc_action_finished.asend(sender=self.__class__)
                 self.log_response(exc, request_container)
 
         return handler
@@ -233,6 +244,10 @@ class ServicerProxy(MiddlewareCapable):
             request_container = GRPCRequestContainer(
                 request, proxy_context, action, service_instance
             )
+            signals.grpc_action_started.send(
+                sender=self.__class__,
+                context=context,
+            )
             try:
                 exc = None
                 response = self._middleware_chain(request_container)
@@ -241,17 +256,22 @@ class ServicerProxy(MiddlewareCapable):
                 exc = e
                 self.process_exception(e, context)
             finally:
+                signals.grpc_action_finished.send(sender=self.__class__)
                 self.log_response(exc, request_container)
 
         return handler
 
     def _get_stream_handler(self, action: str) -> Callable:
-        def handler(request: Message, context) -> AsyncIterable[Message]:
+        def handler(request: Message, context) -> Iterable[Message]:
             proxy_context = GRPCInternalProxyContext(
                 context, request, action, self.service_class.__name__
             )
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
+            )
+            signals.grpc_action_started.send(
+                sender=self.__class__,
+                context=context,
             )
             request_container = GRPCRequestContainer(
                 request, proxy_context, action, service_instance
@@ -264,6 +284,7 @@ class ServicerProxy(MiddlewareCapable):
                 exc = e
                 self.process_exception(e, context)
             finally:
+                signals.grpc_action_finished.send(sender=self.__class__)
                 self.log_response(exc, request_container)
 
         return handler

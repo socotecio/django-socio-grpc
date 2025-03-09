@@ -100,6 +100,7 @@ For directly working with the database, use the usual Django API (see `Query cre
         full_name = models.CharField(max_length=70)
 
     class Post(models.Model):
+        # If you are using Django >= 5.0, consider using `db_default` instead of `auto_now_add`: https://docs.djangoproject.com/en/5.1/ref/models/fields/#django.db.models.Field.db_default
         pub_date = models.DateField(auto_now_add=True)
         headline = models.CharField(max_length=200)
         content = models.TextField()

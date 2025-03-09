@@ -100,7 +100,7 @@ For directly working with the database, use the usual Django API (see `Query cre
         full_name = models.CharField(max_length=70)
 
     class Post(models.Model):
-        pub_date = models.DateField()
+        pub_date = models.DateField(auto_now_add=True)
         headline = models.CharField(max_length=200)
         content = models.TextField()
         user = models.ForeignKey(User, on_delete=models.CASCADE)

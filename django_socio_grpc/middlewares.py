@@ -11,7 +11,6 @@ import logging
 from collections.abc import Callable
 
 from asgiref.sync import async_to_sync, sync_to_async
-from django import db
 from django.utils import translation
 from django.utils.decorators import sync_and_async_middleware
 from django.utils.translation import get_language_from_request
@@ -23,44 +22,22 @@ from django_socio_grpc.utils.utils import safe_async_response
 logger = logging.getLogger("django_socio_grpc.middlewares")
 
 
-def _close_old_connections():
-    for conn in db.connections.all():
-        if conn.connection is None:
-            continue
-        if conn.get_autocommit():
-            conn.close_if_unusable_or_obsolete()
+_HAS_LOGGED_OLD_CONNECTIONS_DEPRECATION = False
 
 
 @sync_and_async_middleware
 def close_old_connections_middleware(get_response: Callable):
     """
-    This middleware allow to correctly close the db old_connection before and after grpc action
-    to avoid using closed connection.
-    Sync and Async supported.
+    Deprecated middleware to close old connections.
     """
-    if asyncio.iscoroutinefunction(get_response):
-
-        async def middleware(request: GRPCRequestContainer):
-            db.reset_queries()
-            await sync_to_async(_close_old_connections)()
-            try:
-                # INFO - L.G. - 03/01/2023 - We need to use safe_async_response here
-                # because get_response might return a generator
-                return await safe_async_response(get_response, request)
-            finally:
-                await sync_to_async(_close_old_connections)()
-
-    else:
-
-        def middleware(request: GRPCRequestContainer):
-            db.reset_queries()
-            _close_old_connections()
-            try:
-                return get_response(request)
-            finally:
-                _close_old_connections()
-
-    return middleware
+    global _HAS_LOGGED_OLD_CONNECTIONS_DEPRECATION
+    if not _HAS_LOGGED_OLD_CONNECTIONS_DEPRECATION:
+        logger.warning(
+            "The 'django._socio_grpc.close_old_connections' middleware is deprecated and obsolete, "
+            "remove it from your GRPC_MIDDLEWARE setting."
+        )
+        _HAS_LOGGED_OLD_CONNECTIONS_DEPRECATION = True
+    return get_response
 
 
 def _log_requests(request: GRPCRequestContainer):

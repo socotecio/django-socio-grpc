@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from decimal import Decimal
 from enum import Enum
 from typing import Annotated, Optional
@@ -470,6 +471,54 @@ class TestFields:
             == "My comment"
         )
 
+    def test_from_typing(self):
+        proto_field = ProtoField.from_typing(bool, "MyBoolField")
+        assert proto_field.name == "MyBoolField"
+        assert proto_field.field_type == "bool"
+        assert proto_field.cardinality == FieldCardinality.NONE
+        assert proto_field.comments is None
+
+        proto_field = ProtoField.from_typing(list[int], "MyListIntField")
+        assert proto_field.name == "MyListIntField"
+        assert proto_field.field_type == "int32"
+        assert proto_field.cardinality == FieldCardinality.REPEATED
+        assert proto_field.comments is None
+
+        proto_field = ProtoField.from_typing(
+            str | None, "MyOptionalStrField", comments="my comment"
+        )
+        assert proto_field.name == "MyOptionalStrField"
+        assert proto_field.field_type == "string"
+        assert proto_field.cardinality == FieldCardinality.OPTIONAL
+        assert proto_field.comments == "my comment"
+
+        proto_field = ProtoField.from_typing(dict[str, int], "MyDictField")
+        assert proto_field.name == "MyDictField"
+        assert proto_field.field_type is StructMessage
+        assert proto_field.cardinality == FieldCardinality.NONE
+
+        class MyEnum(Enum):
+            VALUE_1 = 1
+            VALUE_2 = 2
+            VALUE_3 = 3
+
+        proto_field = ProtoField.from_typing(MyEnum, "MyEnumField")
+        assert proto_field.name == "MyEnumField"
+        assert proto_field.field_type.enum == MyEnum
+
+        proto_field = ProtoField.from_typing(None, "MyNoneField")
+        assert proto_field.name == "MyNoneField"
+        assert proto_field.field_type is EmptyMessage
+        assert proto_field.cardinality == FieldCardinality.NONE
+        assert proto_field.comments is None
+
+    def test_from_typing_should_raise_when_not_supported(self):
+        with pytest.raises(ProtoRegistrationError):
+            ProtoField.from_typing(str | int, "MyUnionField")
+
+        with pytest.raises(ProtoRegistrationError):
+            ProtoField.from_typing(tuple[str, int], "MyTupleField")
+
 
 class TestProtoMessage:
     def test_from_field_dicts(self):
@@ -514,6 +563,40 @@ class TestProtoMessage:
 
         assert proto_message.name == "My"
         assert len(proto_message.fields) == 15
+
+    def test_from_dataclass(self):
+        @dataclass
+        class User:
+            """
+            This is a user comment
+            """
+
+            name: str
+            age: int
+
+        @dataclass
+        class MyMessage:
+            title: Annotated[str, "This is a comment"]
+            users: list[User]
+
+        proto_message = ProtoMessage.from_dataclass(MyMessage, name="MyMessage")
+
+        assert proto_message.fields[0].name == "title"
+        assert proto_message.fields[0].field_type == "string"
+        assert proto_message.fields[0].cardinality == FieldCardinality.NONE
+        assert proto_message.fields[0].comments == ["This is a comment"]
+        assert proto_message.comments is None
+
+        assert proto_message["users"].cardinality == FieldCardinality.REPEATED
+        user_field_type = proto_message["users"].field_type
+        assert user_field_type.name == "User"
+        assert user_field_type.comments == ["This is a user comment"]
+        assert user_field_type.fields[0].name == "name"
+        assert user_field_type.fields[0].field_type == "string"
+        assert user_field_type.fields[0].cardinality == FieldCardinality.NONE
+        assert user_field_type.fields[1].name == "age"
+        assert user_field_type.fields[1].field_type == "int32"
+        assert user_field_type.fields[1].cardinality == FieldCardinality.NONE
 
     def test_from_serializer_request(self):
         proto_message = RequestProtoMessage.from_serializer(MySerializer, name="MyRequest")
@@ -971,3 +1054,91 @@ class TestGrpcActionProto(TestCase):
 
         with self.assertRaises(TypeError):
             MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
+
+    def test_register_with_proto_message_in_request_response(self):
+        my_message = ProtoMessage(
+            name="MyMessage",
+            fields=[
+                ProtoField(name="title", field_type="string"),
+                ProtoField(
+                    name="optional_title",
+                    field_type="string",
+                    cardinality=FieldCardinality.OPTIONAL,
+                ),
+            ],
+        )
+
+        class MyActionBis(GenericService):
+            @grpc_action(
+                request=my_message,
+                response=my_message,
+            )
+            async def Optional(self, request, context): ...
+
+        proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
+        request = proto_rpc.request
+
+        assert request.name == "MyMessage"
+        assert request["title"].cardinality == FieldCardinality.NONE
+        assert request["optional_title"].cardinality == FieldCardinality.OPTIONAL
+        assert request["title"].field_type == "string"
+        assert request["optional_title"].field_type == "string"
+
+    def test_register_with_dataclass_in_request_response(self):
+        @dataclass
+        class User:
+            name: str
+            age: int
+
+        @dataclass
+        class MyMessage:
+            title: str
+            optional_title: str | None
+            users: list[User]
+
+        class MyActionBis(GenericService):
+            @grpc_action(
+                request=MyMessage,
+                response=MyMessage,
+            )
+            async def Optional(self, request, context): ...
+
+        proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
+        request = proto_rpc.request
+
+        assert request.name == "MyActionBisOptionalRequest"
+        assert request["title"].cardinality == FieldCardinality.NONE
+        assert request["optional_title"].cardinality == FieldCardinality.OPTIONAL
+        assert request["title"].field_type == "string"
+        assert request["optional_title"].field_type == "string"
+
+        assert proto_rpc.response.name == "MyActionBisOptionalResponse"
+
+    def test_register_with_dataclass_in_typing(self):
+        @dataclass
+        class User:
+            name: str
+            age: int
+
+        @dataclass
+        class MyMessage:
+            title: str
+            optional_title: str | None
+            users: list[User]
+
+        class MyActionBis(GenericService):
+            @grpc_action()
+            async def Optional(self, request: MyMessage, context) -> User: ...
+
+        proto_rpc = MyActionBis.Optional.make_proto_rpc("Optional", MyActionBis)
+        request = proto_rpc.request
+        assert request.name == "MyActionBisOptionalRequest"
+        assert request["title"].cardinality == FieldCardinality.NONE
+        assert request["optional_title"].cardinality == FieldCardinality.OPTIONAL
+        assert request["title"].field_type == "string"
+        assert request["optional_title"].field_type == "string"
+
+        response = proto_rpc.response
+        assert response.name == "MyActionBisOptionalResponse"
+        assert response["name"].cardinality == FieldCardinality.NONE
+        assert response["age"].cardinality == FieldCardinality.NONE

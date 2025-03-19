@@ -3,12 +3,14 @@ import logging
 import traceback
 from collections import OrderedDict
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass, make_dataclass
 from dataclasses import field as dataclass_field
 from decimal import Decimal
 from enum import Enum
 from typing import (
+    Annotated,
     ClassVar,
+    Protocol,
     Union,
     get_args,
     get_origin,
@@ -42,6 +44,10 @@ except ImportError:
     UnionType = object()
 
 logger = logging.getLogger("django_socio_grpc.generation")
+
+
+@dataclass
+class DataclassType(Protocol): ...
 
 
 class ProtoComment:
@@ -139,6 +145,59 @@ class ProtoField:
             field_type=field_type,
             cardinality=cardinality,
             comments=comments,
+        )
+
+    @classmethod
+    def from_typing(
+        cls,
+        field_typing: "type | type[Enum] | ProtoEnum",
+        field_name: str,
+        comments: list[str] | None = None,
+    ) -> "ProtoField":
+        """
+        Handle typing annotations
+        """
+        cardinality = FieldCardinality.NONE
+        field_type: str | ProtoMessage | ProtoEnum | None = None
+        if field_typing is list or get_origin(field_typing) is list:
+            cardinality = FieldCardinality.REPEATED
+            if len(get_args(field_typing)) > 1:
+                raise ListWithMultipleArgsError
+            (field_typing,) = get_args(field_typing) or [str]
+
+        # When a method returns an Optional, it is considered as an Union of the return_type with None
+        # get_origin(... | None) returns UnionType
+        elif (
+            get_origin(field_typing) in (Union, UnionType)
+            and len(get_args(field_typing)) == 2
+            and type(None) in get_args(field_typing)
+        ):
+            cardinality = FieldCardinality.OPTIONAL
+            (field_typing,) = (
+                t for t in get_args(field_typing) if not issubclass(t, type(None))
+            )
+
+        if proto_type := TYPING_TO_PROTO_TYPES.get(get_origin(field_typing) or field_typing):
+            field_type = proto_type
+
+        if isinstance(field_typing, ProtoEnum):
+            field_type = field_typing
+        elif isinstance(field_typing, type) and issubclass(field_typing, Enum):
+            field_type = ProtoEnum(field_typing)
+
+        if not field_type:
+            # Handle nested dataclasses
+            if hasattr(field_typing, "__dataclass_fields__"):
+                field_type = ProtoMessage.from_dataclass(
+                    field_typing, name=field_typing.__name__
+                )
+            else:
+                raise ProtoRegistrationError(
+                    f"Unknown field type `{field_typing}` for field `{field_name}`"
+                )
+
+        return cls(
+            name=field_name, field_type=field_type, cardinality=cardinality, comments=comments
         )
 
     @classmethod
@@ -430,7 +489,7 @@ class ProtoEnumLocations(Enum):
 
 @dataclass
 class ProtoEnum:
-    enum: Enum
+    enum: type[Enum]
     wrap_in_message: bool = False
     location: ProtoEnumLocations = ProtoEnumLocations.GLOBAL
 
@@ -529,7 +588,7 @@ class ProtoMessage:
     @classmethod
     def create(
         cls,
-        value: type[serializers.BaseSerializer] | list[FieldDict] | str | None,
+        value: type[serializers.BaseSerializer] | list[FieldDict] | str | DataclassType | None,
         name: str,
     ) -> Union["ProtoMessage", str]:
         if isinstance(value, type) and issubclass(value, serializers.BaseSerializer):
@@ -543,6 +602,10 @@ class ProtoMessage:
         elif isinstance(value, list) or not value:
             ProtoGeneratorPrintHelper.print("Message from field dicts")
             proto_message = cls.from_field_dicts(value, name=name)
+            return proto_message
+        elif is_dataclass(value):
+            ProtoGeneratorPrintHelper.print("Message from dataclass")
+            proto_message = cls.from_dataclass(value, name=name)
             return proto_message
         else:
             raise TypeError()
@@ -641,6 +704,67 @@ class ProtoMessage:
         )
 
         return proto_message
+
+    @classmethod
+    def _get_doc_from_dataclass(cls, dataclass_type: DataclassType) -> list[str] | None:
+        """
+        Get the docstring from the dataclass, because using @dataclass adds a default docstring
+        to the class, we need to compare it to the original docstring to see if it has changed.
+        """
+        dc_fields = [(field.name, field.type) for field in fields(dataclass_type)]
+        original_doc = make_dataclass(dataclass_type.__name__, dc_fields)
+
+        if not dataclass_type.__doc__ or original_doc.__doc__ == dataclass_type.__doc__:
+            return None
+        return dataclass_type.__doc__.strip().splitlines()
+
+    @classmethod
+    def from_dataclass(
+        cls,
+        dataclass_type: DataclassType,
+        name: str,
+    ) -> "ProtoMessage":
+        """
+        Create a ProtoMessage from a dataclass.
+
+        This method inspects the type annotations of the class and creates ProtoFields
+        for each attribute. It also processes docstrings as comments for fields.
+
+        Args:
+            dataclass_type: The dataclass type to convert.
+            name: Optional name for the message (defaults to class name)
+
+        Returns:
+            A ProtoMessage representing the type class
+        """
+        if not is_dataclass(dataclass_type):
+            raise TypeError(f"{dataclass_type} is not a dataclass")
+
+        message_comments = cls._get_doc_from_dataclass(dataclass_type)
+
+        annotations = get_type_hints(dataclass_type, include_extras=True)
+        fields = []
+
+        # Process each field in the class
+        for field_name, field_type in annotations.items():
+            # Try to get docstring for the field from class attributes
+            comments = None
+            # Check if the field type uses Annotated for documentation
+            if get_origin(field_type) is Annotated:
+                # Extract the actual type and metadata from Annotated
+                args = get_args(field_type)
+                [field_type, comments] = args
+                comments = comments.strip().splitlines()
+
+            # Create a ProtoField from the field type
+            proto_field = ProtoField.from_typing(field_type, field_name, comments=comments)
+            fields.append(proto_field)
+
+        return cls(
+            name=name,
+            fields=fields,
+            comments=message_comments,
+        )
 
     @classmethod
     def skip_field(
@@ -849,7 +973,7 @@ PRIMITIVE_TYPES = {
     "google.protobuf.Empty": EmptyMessage,
 }
 
-TYPING_TO_PROTO_TYPES = {
+TYPING_TO_PROTO_TYPES: dict[type | None, str | ProtoMessage] = {
     int: "int32",
     str: "string",
     bool: "bool",
@@ -857,6 +981,7 @@ TYPING_TO_PROTO_TYPES = {
     dict: StructMessage,
     bytes: "bytes",
     Decimal: "double",
+    None: EmptyMessage,
 }
 
 

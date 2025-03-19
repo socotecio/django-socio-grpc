@@ -42,7 +42,7 @@ import functools
 import logging
 from asyncio.coroutines import _is_coroutine
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, is_dataclass
 from typing import TYPE_CHECKING, Any
 
 from asgiref.sync import SyncToAsync
@@ -74,7 +74,7 @@ if TYPE_CHECKING:
     from django_socio_grpc.services import Service
 
 
-RequestResponseType = str | type[BaseSerializer] | Placeholder | list[FieldDict]
+RequestResponseType = str | type[BaseSerializer] | Placeholder | list[FieldDict] | ProtoMessage
 
 
 @dataclass
@@ -179,14 +179,29 @@ class GRPCAction:
             response_name=self.response_name,
         )
 
-        # INFO - AM - 22/02/2024 - Get the actual request name
-        request_name: str = message_name_constructor.construct_request_name()
-        request: ProtoMessage | str = req_class.create(value=self.request, name=request_name)
+        annotations = self.function.__annotations__
 
-        response_name: str = message_name_constructor.construct_response_name()
-        response: ProtoMessage | str = res_class.create(
-            value=self.response, name=response_name
-        )
+        if not self.request and is_dataclass(annotations.get("request")):
+            self.request = annotations.get("request")
+        if not self.response and is_dataclass(annotations.get("return")):
+            self.response = annotations.get("return")
+
+        if isinstance(self.request, ProtoMessage):
+            request = self.request
+        else:
+            # INFO - AM - 22/02/2024 - Get the actual request name
+            request_name: str = message_name_constructor.construct_request_name()
+            request: ProtoMessage | str = req_class.create(
+                value=self.request, name=request_name
+            )
+
+        if isinstance(self.response, ProtoMessage):
+            response = self.response
+        else:
+            response_name: str = message_name_constructor.construct_response_name()
+            response: ProtoMessage | str = res_class.create(
+                value=self.response, name=response_name
+            )
 
         for generation_plugin in self.use_generation_plugins:
             request, response = generation_plugin.run_validation_and_transform(

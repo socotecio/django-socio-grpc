@@ -77,8 +77,10 @@ The ``request`` and ``response`` arguments can be:
     - a ``str``: the name of the message if already defined in the proto file.
     - a ``Placeholder``: a placeholder to use in the proto file
       (See :ref:`placeholder`).
+    - a :func:`ProtoMessage <django_socio_grpc.protobuf.proto_classes.ProtoMessage>`: a raw proto message.
+    - a ``dataclass``: a dataclass describing the message. It will be converted to a proto message.
 
-This 4 possibilies are typed like this (to help you understand where the different options and class come from. To see examples refer to :ref:`Use Cases section<grpc-action-use-cases>`):
+These 6 possibilities are typed like this (to help you understand where the different options and class come from. To see examples refer to :ref:`Use Cases section<grpc-action-use-cases>`):
 
 .. code-block:: python
 
@@ -86,8 +88,13 @@ This 4 possibilies are typed like this (to help you understand where the differe
     from django_socio_grpc.protobuf.typing import FieldDict
     from django_socio_grpc.proto_serializers import BaseProtoSerializer
     from django_socio_grpc.grpc_actions.placeholders import Placeholder
+    from django_socio_grpc.protobuf.proto_classes import ProtoMessage
+    from dataclasses import dataclass
 
-    RequestResponseType = Union[List[FieldDict], Type[BaseProtoSerializer], str, Placeholder]
+    @dataclass
+    class DataclassType(Protocol): ...
+
+    RequestResponseType = Union[List[FieldDict], Type[BaseProtoSerializer], str, Placeholder, ProtoMessage, DataclassType]
 
 
 .. _grpc-action-request-name-response-name:
@@ -160,6 +167,55 @@ Use Cases
 
 This argument allows to override the default generation plugins used in the DSG settings.
 By default it's False so your services using the "use_generation_plugins" argument will also use the default generation plugins.
+
+=======================================
+Basic `dataclass` request and response:
+=======================================
+
+This ExampleService has a Retrieve action (RPC)
+that takes a uuid as argument and returns a username and a list of items:
+.. code-block:: python
+
+    from django_socio_grpc.decorators import grpc_action
+    from django_socio_grpc.generics import GenericService
+    from dataclasses import dataclass
+
+    @dataclass
+    class RetrieveRequest:
+        uuid: str
+
+    @dataclass
+    class RetrieveResponse:
+        username: str
+        items: list[str]
+
+    class ExampleService(GenericService):
+        ...
+
+        @grpc_action()
+        async def Retrieve(self, request: RetrieveRequest, context) -> RetrieveResponse:
+            ...
+
+.. note::
+    With this example, you have automatic type checking and autocompletion in your IDE.
+    You can also set the dataclasses directly in the `request` and `response` arguments of the decorator.
+
+This results in the following proto code after the proto generation with the ``generateproto`` command:
+
+.. code-block:: proto
+
+    service ExampleService {
+        rpc Retrieve(RetrieveRequest) returns (RetrieveResponse) {}
+    }
+
+    message RetrieveRequest {
+        string uuid = 1;
+    }
+
+    message RetrieveResponse {
+        string username = 1;
+        repeated string items = 2;
+    }
 
 ===========================================================================================
 Basic :func:`FieldDict <django_socio_grpc.protobuf.typing.FieldDict>` request and response:

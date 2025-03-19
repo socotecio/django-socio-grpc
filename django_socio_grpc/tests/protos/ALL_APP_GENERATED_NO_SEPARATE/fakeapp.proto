@@ -17,8 +17,11 @@ service BasicController {
     rpc MixParamWithSerializer(BasicParamWithSerializerRequestList) returns (BasicMixParamWithSerializerList) {}
     rpc MyMethod(CustomNameForRequest) returns (CustomNameForResponse) {}
     rpc TestBaseProtoSerializer(BaseProtoExample) returns (BaseProtoExampleList) {}
+    rpc TestDataclassInReqRes(BasicTestDataclassInReqRes) returns (BasicTestDataclassInReqRes) {}
+    rpc TestDataclassInTypeHints(BasicTestDataclassInTypeHints) returns (BasicTestDataclassInTypeHints) {}
     rpc TestEmptyMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc TestNoMetaSerializer(NoMeta) returns (BasicTestNoMetaSerializer) {}
+    rpc TestProtoMessage(MyMessage) returns (MyMessage) {}
 }
 
 service EnumController {
@@ -211,6 +214,20 @@ message BasicServiceList {
     int32 count = 2;
 }
 
+// Example dataclass for testing
+message BasicTestDataclassInReqRes {
+    string title = 1;
+    optional string optional_title = 2;
+    repeated User users = 3;
+}
+
+// Example dataclass for testing
+message BasicTestDataclassInTypeHints {
+    string title = 1;
+    optional string optional_title = 2;
+    repeated User users = 3;
+}
+
 message BasicTestNoMetaSerializer {
     string value = 1;
 }
@@ -302,6 +319,10 @@ message ManyManyModel {
     optional string uuid = 1;
     string name = 2;
     string test_write_only_on_nested = 3;
+}
+
+message MyMessage {
+    string title = 1;
 }
 
 message NoMeta {
@@ -581,6 +602,13 @@ message UnitTestModelWithStructFilterRetrieveRequest {
 }
 
 message UnitTestModelWithStructFilterStreamRequest {
+}
+
+// ok
+message User {
+    // Name Comment
+    string name = 1;
+    int32 age = 2;
 }
 
 // My Test str Enum

@@ -107,6 +107,27 @@ class TestSyncModelService(TestCase):
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
 
+    def test_admin_partial_update(self):
+        instance = UnitTestModel.objects.first()
+
+        old_text = instance.text
+        old_title = instance.title
+
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+
+        # Test partial update does not update fields not specified
+        request = fakeapp_pb2.UnitTestModelAdminOnlyRequest(
+            id=instance.id,
+            title="newTitle",
+            admin_text="newAdminText",
+            **{PARTIAL_UPDATE_FIELD_NAME: ["admin_text"]},
+        )
+        response = grpc_stub.AdminOnlyPartialUpdate(request=request)
+
+        self.assertEqual(response.title, old_title)
+        self.assertEqual(response.text, old_text)
+        self.assertEqual(response.admin_text, "newAdminText")
+
         # Test partial update does not update fields not specified even if passed in request
         request = fakeapp_pb2.UnitTestModelPartialUpdateRequest(
             id=instance.id,

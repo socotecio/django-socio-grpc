@@ -81,6 +81,7 @@ service StreamInController {
 }
 
 service SyncUnitTestModelController {
+    rpc AdminOnlyPartialUpdate(UnitTestModelAdminOnly) returns (UnitTestModelAdminOnly) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelList) {}
@@ -92,6 +93,7 @@ service SyncUnitTestModelController {
 }
 
 service UnitTestModelController {
+    rpc AdminOnlyPartialUpdate(UnitTestModelAdminOnly) returns (UnitTestModelAdminOnly) {}
     rpc Create(UnitTestModel) returns (UnitTestModel) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelList) {}
@@ -188,6 +190,7 @@ message BasicProtoListChild {
     optional int32 id = 1;
     string title = 2;
     optional string text = 3;
+    optional string admin_text = 4;
 }
 
 message BasicProtoListChildList {
@@ -470,6 +473,14 @@ message UnitTestModel {
     string title = 2;
     optional string text = 3;
     int32 model_property = 4;
+}
+
+message UnitTestModelAdminOnly {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    int32 model_property = 4;
+    optional string admin_text = 5;
 }
 
 message UnitTestModelDestroyRequest {

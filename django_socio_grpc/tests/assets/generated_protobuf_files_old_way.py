@@ -17,6 +17,7 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+    string admin_text = 4;
 }
 
 message UnitTestModelListRequest {
@@ -65,6 +66,7 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+    string admin_text = 4;
 }
 
 message UnitTestModelListRequest {
@@ -161,6 +163,7 @@ message UnitTestModel {
     int32 id = 1;
     string title = 2;
     string text = 3;
+    string admin_text = 4;
 }
 
 message UnitTestModelListRequest {
@@ -502,6 +505,7 @@ message UnitTestModel {
     int32 id = 1;
     string text = 2;
     string title = 3;
+    string admin_text = 4;
 }
 
 message UnitTestModelListRequest {

@@ -17,6 +17,7 @@ class UnitTestModel(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=20)
     text = models.CharField(max_length=100, null=True)
+    admin_text = models.CharField(max_length=100, null=True)
 
     @property
     def model_property(self) -> int:

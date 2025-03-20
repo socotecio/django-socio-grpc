@@ -5,12 +5,29 @@ package myproject.fakeapp;
 import "google/protobuf/empty.proto";
 
 service UnitTestModelController {
+    rpc AdminOnlyPartialUpdate(UnitTestModelAdminOnlyRequest) returns (UnitTestModelAdminOnlyResponse) {}
     rpc List(UnitTestModelListRequest) returns (UnitTestModelListResponse) {}
     rpc Create(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Retrieve(UnitTestModelRetrieveRequest) returns (UnitTestModelResponse) {}
     rpc Update(UnitTestModelRequest) returns (UnitTestModelResponse) {}
     rpc Destroy(UnitTestModelDestroyRequest) returns (google.protobuf.Empty) {}
     rpc Stream(UnitTestModelStreamRequest) returns (stream UnitTestModelResponse) {}
+}
+
+message UnitTestModelAdminOnlyRequest {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    optional string admin_text = 4;
+    repeated string _partial_update_fields = 5;
+}
+
+message UnitTestModelAdminOnlyResponse {
+    optional int32 id = 1;
+    string title = 2;
+    optional string text = 3;
+    int32 model_property = 4;
+    optional string admin_text = 5;
 }
 
 message UnitTestModelRequest {

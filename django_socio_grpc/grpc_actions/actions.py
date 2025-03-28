@@ -43,6 +43,7 @@ import logging
 from asyncio.coroutines import _is_coroutine
 from collections.abc import Callable
 from dataclasses import dataclass, field, is_dataclass
+from inspect import signature
 from typing import TYPE_CHECKING, Any
 
 from asgiref.sync import SyncToAsync
@@ -52,6 +53,7 @@ from django_socio_grpc.protobuf.exceptions import ProtoRegistrationError
 from django_socio_grpc.protobuf.generation_plugin import BaseGenerationPlugin
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
+    DataclassType,
     EmptyMessage,
     FieldDict,
     ProtoMessage,
@@ -74,7 +76,9 @@ if TYPE_CHECKING:
     from django_socio_grpc.services import Service
 
 
-RequestResponseType = str | type[BaseSerializer] | Placeholder | list[FieldDict] | ProtoMessage
+RequestResponseType = (
+    str | type[BaseSerializer] | Placeholder | list[FieldDict] | ProtoMessage | DataclassType
+)
 
 
 @dataclass
@@ -181,8 +185,12 @@ class GRPCAction:
 
         annotations = self.function.__annotations__
 
-        if not self.request and is_dataclass(annotations.get("request")):
-            self.request = annotations.get("request")
+        if not self.request:
+            params = signature(self.function).parameters
+            params_request_name = list(params)[1]
+            params_annotation = annotations.get(params_request_name)
+            if is_dataclass(params_annotation):
+                self.request = params_annotation
         if not self.response and is_dataclass(annotations.get("return")):
             self.response = annotations.get("return")
 

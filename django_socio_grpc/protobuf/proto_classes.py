@@ -47,7 +47,10 @@ logger = logging.getLogger("django_socio_grpc.generation")
 
 
 @dataclass
-class DataclassType(Protocol): ...
+class DataclassType(Protocol):
+    """
+    This is a workaround for the fact that Python does not have a built-in way for dataclass typing.
+    """
 
 
 class ProtoComment:
@@ -179,22 +182,17 @@ class ProtoField:
 
         if proto_type := TYPING_TO_PROTO_TYPES.get(get_origin(field_typing) or field_typing):
             field_type = proto_type
-
-        if isinstance(field_typing, ProtoEnum):
+        elif isinstance(field_typing, ProtoEnum):
             field_type = field_typing
         elif isinstance(field_typing, type) and issubclass(field_typing, Enum):
             field_type = ProtoEnum(field_typing)
-
-        if not field_type:
+        elif is_dataclass(field_typing):
             # Handle nested dataclasses
-            if hasattr(field_typing, "__dataclass_fields__"):
-                field_type = ProtoMessage.from_dataclass(
-                    field_typing, name=field_typing.__name__
-                )
-            else:
-                raise ProtoRegistrationError(
-                    f"Unknown field type `{field_typing}` for field `{field_name}`"
-                )
+            field_type = ProtoMessage.from_dataclass(field_typing, name=field_typing.__name__)
+        else:
+            raise ProtoRegistrationError(
+                f"Unknown field type `{field_typing}` for field `{field_name}`"
+            )
 
         return cls(
             name=field_name, field_type=field_type, cardinality=cardinality, comments=comments
@@ -742,6 +740,7 @@ class ProtoMessage:
 
         message_comments = cls._get_doc_from_dataclass(dataclass_type)
 
+        # include_extras=True to keep Annotation data
         annotations = get_type_hints(dataclass_type, include_extras=True)
         fields = []
 
@@ -752,8 +751,7 @@ class ProtoMessage:
             # Check if the field type uses Annotated for documentation
             if get_origin(field_type) is Annotated:
                 # Extract the actual type and metadata from Annotated
-                args = get_args(field_type)
-                [field_type, comments] = args
+                [field_type, comments] = get_args(field_type)
                 comments = comments.strip().splitlines()
 
             # Create a ProtoField from the field type

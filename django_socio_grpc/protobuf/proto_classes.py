@@ -708,7 +708,7 @@ class ProtoMessage:
     @classmethod
     def _get_doc_from_dataclass(cls, dataclass_type: DataclassType) -> list[str] | None:
         """
-        Get the docstring from the dataclass, because using @dataclass adds a default docstring
+        Get the docstring from the dataclass to help generate proto comments, because using @dataclass adds a default docstring
         to the class, we need to compare it to the original docstring to see if it has changed.
         """
         dc_fields = [(field.name, field.type) for field in fields(dataclass_type)]

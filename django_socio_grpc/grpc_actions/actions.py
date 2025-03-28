@@ -42,7 +42,8 @@ import functools
 import logging
 from asyncio.coroutines import _is_coroutine
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, is_dataclass
+from inspect import signature
 from typing import TYPE_CHECKING, Any
 
 from asgiref.sync import SyncToAsync
@@ -52,6 +53,7 @@ from django_socio_grpc.protobuf.exceptions import ProtoRegistrationError
 from django_socio_grpc.protobuf.generation_plugin import BaseGenerationPlugin
 from django_socio_grpc.protobuf.message_name_constructor import MessageNameConstructor
 from django_socio_grpc.protobuf.proto_classes import (
+    DataclassType,
     EmptyMessage,
     FieldDict,
     ProtoMessage,
@@ -74,7 +76,9 @@ if TYPE_CHECKING:
     from django_socio_grpc.services import Service
 
 
-RequestResponseType = str | type[BaseSerializer] | Placeholder | list[FieldDict]
+RequestResponseType = (
+    str | type[BaseSerializer] | Placeholder | list[FieldDict] | ProtoMessage | DataclassType
+)
 
 
 @dataclass
@@ -179,14 +183,33 @@ class GRPCAction:
             response_name=self.response_name,
         )
 
-        # INFO - AM - 22/02/2024 - Get the actual request name
-        request_name: str = message_name_constructor.construct_request_name()
-        request: ProtoMessage | str = req_class.create(value=self.request, name=request_name)
+        annotations = self.function.__annotations__
 
-        response_name: str = message_name_constructor.construct_response_name()
-        response: ProtoMessage | str = res_class.create(
-            value=self.response, name=response_name
-        )
+        if not self.request:
+            params = signature(self.function).parameters
+            params_request_name = list(params)[1]
+            params_annotation = annotations.get(params_request_name)
+            if is_dataclass(params_annotation):
+                self.request = params_annotation
+        if not self.response and is_dataclass(annotations.get("return")):
+            self.response = annotations.get("return")
+
+        if isinstance(self.request, ProtoMessage):
+            request = self.request
+        else:
+            # INFO - AM - 22/02/2024 - Get the actual request name
+            request_name: str = message_name_constructor.construct_request_name()
+            request: ProtoMessage | str = req_class.create(
+                value=self.request, name=request_name
+            )
+
+        if isinstance(self.response, ProtoMessage):
+            response = self.response
+        else:
+            response_name: str = message_name_constructor.construct_response_name()
+            response: ProtoMessage | str = res_class.create(
+                value=self.response, name=response_name
+            )
 
         for generation_plugin in self.use_generation_plugins:
             request, response = generation_plugin.run_validation_and_transform(

@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+from typing import Annotated
+
 from django.utils.translation import gettext as _
 from fakeapp.grpc import fakeapp_pb2
 from fakeapp.serializers import (
@@ -12,6 +15,7 @@ from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.protobuf.generation_plugin import (
     ListGenerationPlugin,
 )
+from django_socio_grpc.protobuf.proto_classes import ProtoField, ProtoMessage
 
 from .basic_mixins import ListIdsMixin, ListNameMixin
 
@@ -148,3 +152,49 @@ class BasicService(ListIdsMixin, ListNameMixin, generics.AsyncCreateService):
         serializer = NoMetaSerializer(message=request)
         serializer.is_valid(raise_exception=True)
         return fakeapp_pb2.BasicTestNoMetaSerializerResponse(value=serializer.data["my_field"])
+
+    my_message = ProtoMessage(
+        name="MyMessage",
+        fields=[
+            ProtoField(
+                name="title",
+                field_type="string",
+            ),
+        ],
+    )
+
+    @grpc_action(
+        request=my_message,
+        response=my_message,
+    )
+    async def TestProtoMessage(self, request, context): ...
+
+    @dataclass
+    class User:
+        """
+        ok
+        """
+
+        name: Annotated[str, "Name Comment"]
+        age: int
+
+    @dataclass
+    class MyMessage:
+        """
+        Example dataclass for testing
+        """
+
+        title: str
+        optional_title: str | None
+        users: "list[BasicService.User]"
+
+    @grpc_action(
+        request=MyMessage,
+        response=MyMessage,
+    )
+    async def TestDataclassInReqRes(self, request, context): ...
+
+    @grpc_action()
+    async def TestDataclassInTypeHints(
+        self, request_test: MyMessage, context
+    ) -> MyMessage: ...

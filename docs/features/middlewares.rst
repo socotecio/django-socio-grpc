@@ -15,13 +15,6 @@ To use a middleware, you need to add it to the :ref:`GRPC_MIDDLEWARE<settings-gr
 Available Middlewares
 ---------------------
 
-=========================================================================================================
-:func:`close_old_connections_middleware <django_socio_grpc.middlewares.close_old_connections_middleware>`
-=========================================================================================================
-
-- This middleware is responsible for closing old database connections at the beginning and end of a request/response cycle.
-- It resets database queries and ensures that unused database connections are closed.
-
 .. _middlewares-log-requests-middleware:
 
 =======================================================================================

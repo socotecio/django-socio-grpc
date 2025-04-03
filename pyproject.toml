@@ -64,3 +64,7 @@ docs = [
   "myst-parser<3.0.0,>=2.0.0",
   "sphinx-autodoc2<1.0,>=0.5",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

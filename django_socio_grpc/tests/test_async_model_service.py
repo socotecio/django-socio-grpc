@@ -134,6 +134,26 @@ class TestAsyncModelService(TestCase):
         self.assertEqual(response.title, "newTitle")
         self.assertEqual(response.text, old_text)
 
+    async def test_async_admin_only_partial_update(self):
+        instance = await sync_to_async(UnitTestModel.objects.first)()
+
+        old_text = instance.text
+        old_title = instance.title
+
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+
+        request = fakeapp_pb2.UnitTestModelAdminOnlyRequest(
+            id=instance.id,
+            title="newTitle",
+            admin_text="newAdminText",
+            **{PARTIAL_UPDATE_FIELD_NAME: ["admin_text"]},
+        )
+        response = await grpc_stub.AdminOnlyPartialUpdate(request=request)
+
+        self.assertEqual(response.title, old_title)
+        self.assertEqual(response.text, old_text)
+        self.assertEqual(response.admin_text, "newAdminText")
+
     async def test_optional_field(self):
         grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
         request = fakeapp_pb2.UnitTestModelRequest(title="fake")

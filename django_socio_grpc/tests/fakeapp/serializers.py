@@ -48,6 +48,13 @@ class UnitTestModelSerializer(proto_serializers.ModelProtoSerializer):
         fields = ["id", "title", "text", "model_property"]
 
 
+class UnitTestModelAdminOnlySerializer(UnitTestModelSerializer):
+    class Meta:
+        model = UnitTestModel
+        proto_class = fakeapp_pb2.UnitTestModelAdminOnlyResponse
+        fields = UnitTestModelSerializer.Meta.fields + ["admin_text"]
+
+
 # INFO - AM - 14/02/2024 - This serializer exist just to be sure we do not override UnitTestModelSerializer in the proto
 class UnitTestModelWithStructFilterSerializer(UnitTestModelSerializer): ...
 

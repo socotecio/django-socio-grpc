@@ -212,14 +212,9 @@ class TestRunServer(TestCase):
         ]
         don't ask me why
         """
-        self.assertEqual(mocked_open.mock_calls[0].args[0], "server-key.pem")
-        self.assertEqual(mocked_open.mock_calls[0].args[1], "rb")
-
-        self.assertEqual(mocked_open.mock_calls[4].args[0], "server.pem")
-        self.assertEqual(mocked_open.mock_calls[4].args[1], "rb")
-
-        self.assertEqual(mocked_open.mock_calls[8].args[0], "certificates.pem")
-        self.assertEqual(mocked_open.mock_calls[8].args[1], "rb")
+        mocked_open.assert_any_call("server-key.pem", "rb")
+        mocked_open.assert_any_call("server.pem", "rb")
+        mocked_open.assert_any_call("certificates.pem", "rb")
 
         # verfiy that we added a secure port
         fake_async_aio_server.add_secure_port.assert_called_with(

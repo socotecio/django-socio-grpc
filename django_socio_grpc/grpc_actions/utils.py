@@ -59,6 +59,8 @@ def get_partial_update_request_from_serializer_class(serializer_class):
             attrs[PARTIAL_UPDATE_FIELD_NAME] = serializers.ListField(
                 child=serializers.CharField()
             )
+            for base in bases:
+                cls.__annotations__ = {**base.__annotations__, **cls.__annotations__}
             return super().__new__(cls, name, bases, attrs)
 
     # Dynamically create the inner Meta class

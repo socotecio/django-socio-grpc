@@ -7,6 +7,9 @@ from rest_framework import serializers
 from django_socio_grpc import proto_serializers
 from django_socio_grpc.decorators import grpc_action
 from django_socio_grpc.generics import GenericService
+from django_socio_grpc.grpc_actions.utils import (
+    get_partial_update_request_from_serializer_class,
+)
 from django_socio_grpc.protobuf.exceptions import ProtoRegistrationError
 from django_socio_grpc.protobuf.generation_plugin import (
     GlobalScopeEnumGenerationPlugin,
@@ -266,6 +269,70 @@ class TestEnumGenerationPlugin(TestCase):
             proto_rpc_str.request["choice_field"].field_type.location
             == ProtoEnumLocations.GLOBAL
         )
+
+        assert proto_rpc_str.response["choice_field"].field_type.name == "MyStrEnum.Enum"
+        assert proto_rpc_str.response["choice_field"].field_type.wrap_in_message is True
+        assert proto_rpc_str.response["choice_field"].field_type.enum == MyStrEnum
+        assert (
+            proto_rpc_str.response["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
+
+    def test_proto_enum_generation_from_annotated_serializer_in_partial_update(self):
+        class MyService(GenericService):
+            @grpc_action(
+                request=get_partial_update_request_from_serializer_class(
+                    MyAnnotatedIntSerializer
+                ),
+                response=MyAnnotatedIntSerializer,
+                use_generation_plugins=[GlobalScopeEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
+            )
+            async def MyIntActionPartial(self, request, context): ...
+
+            @grpc_action(
+                request=get_partial_update_request_from_serializer_class(
+                    MyAnnotatedStrSerializer
+                ),
+                response=MyAnnotatedStrSerializer,
+                use_generation_plugins=[GlobalScopeWrappedEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
+            )
+            async def MyStrActionPartial(self, request, context): ...
+
+        proto_rpc_int = MyService.MyIntActionPartial.make_proto_rpc(
+            "MyIntActionPartial", MyService
+        )
+
+        assert proto_rpc_int.request["choice_field"].field_type.name == "MyIntEnum"
+        assert proto_rpc_int.request["choice_field"].field_type.wrap_in_message is False
+        assert proto_rpc_int.request["choice_field"].field_type.enum == MyIntEnum
+        assert (
+            proto_rpc_int.request["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
+        assert "_partial_update_fields" in proto_rpc_int.request
+
+        assert proto_rpc_int.response["choice_field"].field_type.name == "MyIntEnum"
+        assert proto_rpc_int.response["choice_field"].field_type.wrap_in_message is False
+        assert proto_rpc_int.response["choice_field"].field_type.enum == MyIntEnum
+        assert (
+            proto_rpc_int.response["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
+
+        proto_rpc_str = MyService.MyStrActionPartial.make_proto_rpc(
+            "MyStrActionPartial", MyService
+        )
+
+        assert proto_rpc_str.request["choice_field"].field_type.name == "MyStrEnum.Enum"
+        assert proto_rpc_str.request["choice_field"].field_type.wrap_in_message is True
+        assert proto_rpc_str.request["choice_field"].field_type.enum == MyStrEnum
+        assert (
+            proto_rpc_str.request["choice_field"].field_type.location
+            == ProtoEnumLocations.GLOBAL
+        )
+        assert "_partial_update_fields" in proto_rpc_str.request
 
         assert proto_rpc_str.response["choice_field"].field_type.name == "MyStrEnum.Enum"
         assert proto_rpc_str.response["choice_field"].field_type.wrap_in_message is True

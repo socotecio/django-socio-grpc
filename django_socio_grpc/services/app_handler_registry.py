@@ -132,15 +132,14 @@ class AppHandlerRegistry:
         try:
             path = self.get_pb2_grpc_module()
             pb2_grpc = import_module(path)
-
-            controller_name = service_class.get_controller_name()
-            add_server = getattr(pb2_grpc, f"add_{controller_name}Servicer_to_server")
-
-            add_server(service_class.as_servicer(), self.server)
         except ModuleNotFoundError:
             logger.error(
                 f"PB2 module {path} not found. Please generate proto before launching server"
             )
+
+        controller_name = service_class.get_controller_name()
+        add_server = getattr(pb2_grpc, f"add_{controller_name}Servicer_to_server")
+        add_server(service_class.as_servicer(), self.server)
 
     def get_grpc_folder(self):
         base_dir = Path(settings.BASE_DIR)

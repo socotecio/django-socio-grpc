@@ -2,7 +2,9 @@ import asyncio
 import errno
 import logging
 import os
+import signal
 import sys
+import time
 from concurrent import futures
 from time import perf_counter
 
@@ -36,8 +38,13 @@ class Command(BaseCommand):
             "--max-workers",
             type=int,
             default=10,
-            dest="max_workers",
             help="Number of maximum worker threads.",
+        )
+        parser.add_argument(
+            "--grace-period",
+            type=float,
+            default=10.0,
+            help="Time of grace period when receiving a SIGTERM signal.",
         )
         parser.add_argument(
             "--dev",
@@ -53,11 +60,19 @@ class Command(BaseCommand):
         self.address = options["address"]
         self.development_mode = options["development_mode"]
         self.max_workers = options["max_workers"]
+        self.grace_period = options["grace_period"]
+        self.server = None
 
         # set GRPC_ASYNC to "true" in order to start server asynchronously
         grpc_settings.GRPC_ASYNC = True
         # INFO - AM - 25/07/2025 - Make sure that the port in the settings is the correct one
         grpc_settings.GRPC_CHANNEL_PORT = self.address.split(":")[-1]
+
+        # Set up signal handler after server is created
+        signal.signal(
+            signal.SIGTERM,
+            lambda signum, frame: self.stop_server(grace_period=self.grace_period),
+        )
 
         asyncio.run(self.run(**options))
 
@@ -71,7 +86,21 @@ class Command(BaseCommand):
         else:
             await self._serve()
 
+    async def stop_server(self, grace_period: float = 10.0):
+        logger.info(
+            f"Shutdown signal received (KeyboardInterrupt/SIGTERM), shutting down the server gracefully with {grace_period=}..."
+        )
+        start_time = time.time()
+        try:
+            if self.server:
+                await self.server.stop(grace=grace_period)
+        except Exception as e:
+            logger.warning(f"Error during shutdown: {e}")
+        elapsed_time = time.time() - start_time
+        logger.info(f"Server gracefully shut down with  in {elapsed_time:.2f} seconds.")
+
     async def _serve(self):
+        server = None
         try:
             logger.info(
                 (f"Starting async gRPC server at {self.address}... \n"),
@@ -83,7 +112,7 @@ class Command(BaseCommand):
                 interceptors=grpc_settings.SERVER_INTERCEPTORS,
                 options=grpc_settings.SERVER_OPTIONS,
             )
-
+            self.server = server
             if grpc_settings.ENABLE_HEALTH_CHECK:
                 health_pb2_grpc.add_HealthServicer_to_server(
                     health.aio.HealthServicer(), server
@@ -125,11 +154,8 @@ class Command(BaseCommand):
         # ---------------------------------------
         # ----  EXIT OF GRPC SERVER           ---
         except KeyboardInterrupt:
-            # Shuts down the server with 0 seconds of grace period. During the
-            # grace period, the server won't accept new connections and allow
-            # existing RPCs to continue within the grace period.
-            await server.stop(0)
-            logger.warning("Exit gRPC Server")
+            # Shuts down the server with 0 seconds of grace period because it's an user interrupt action.
+            await self.stop_server(grace_period=0)
 
     def inner_run(self, *args, **options):
         # ------------------------------------------------------------------------

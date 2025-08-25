@@ -1,7 +1,9 @@
 import errno
 import logging
 import os
+import signal
 import sys
+import time
 from concurrent import futures
 from time import perf_counter
 
@@ -38,10 +40,10 @@ class Command(BaseCommand):
             help="Number of maximum worker threads.",
         )
         parser.add_argument(
-            "--reflection",
-            default="",
-            dest="reflection",
-            help="Start gRPC Server Reflection.",
+            "--grace-period",
+            type=float,
+            default=10.0,
+            help="Time of grace period when receiving a SIGTERM signal.",
         )
         parser.add_argument(
             "--dev",
@@ -59,12 +61,19 @@ class Command(BaseCommand):
         """
 
         self.address = options["address"]
-        self.reflection = options["reflection"]
         self.development_mode = options["development_mode"]
         self.max_workers = options["max_workers"]
+        self.grace_period = options["grace_period"]
+        self.server = None
 
         # set GRPC_ASYNC to "False" in order to start server synchronously
         grpc_settings.GRPC_ASYNC = False
+
+        # Set up signal handler after server is created
+        signal.signal(
+            signal.SIGTERM,
+            lambda signum, frame: self.stop_server(grace_period=self.grace_period),
+        )
 
         self.run(**options)
 
@@ -78,44 +87,76 @@ class Command(BaseCommand):
         else:
             self._serve()
 
+    def stop_server(self, grace_period: float = 10.0):
+        logger.info(
+            f"Shutdown signal received (KeyboardInterrupt/SIGTERM), shutting down the server gracefully with {grace_period=}..."
+        )
+        start_time = time.time()
+        try:
+            if self.server:
+                self.server.stop(grace=grace_period)
+        except Exception as e:
+            logger.warning(f"Error during shutdown: {e}")
+        elapsed_time = time.time() - start_time
+        logger.info(f"Server gracefully shut down with  in {elapsed_time:.2f} seconds.")
+
     def _serve(self):
-        """
-        Effective start of gRPC server (normal or reflection Mode)
-        """
+        try:
+            logger.info(
+                (f"Starting gRPC server at {self.address}... \n"),
+                extra={"emit_to_server": False},
+            )
+            server_launch_time = perf_counter()
+            # ----------------------------------------------
+            # --- Instantiate the gRPC server itself     ---
+            server = grpc.server(
+                futures.ThreadPoolExecutor(max_workers=self.max_workers),
+                interceptors=grpc_settings.SERVER_INTERCEPTORS,
+                options=grpc_settings.SERVER_OPTIONS,
+            )
+            self.server = server
 
-        logger.info(
-            (f"Starting gRPC server at {self.address}... \n"),
-            extra={"emit_to_server": False},
-        )
-        server_launch_time = perf_counter()
-        # ----------------------------------------------
-        # --- Instantiate the gRPC server itself     ---
-        server = grpc.server(
-            futures.ThreadPoolExecutor(max_workers=self.max_workers),
-            interceptors=grpc_settings.SERVER_INTERCEPTORS,
-            options=grpc_settings.SERVER_OPTIONS,
-        )
+            if grpc_settings.ENABLE_HEALTH_CHECK:
+                health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
 
-        if grpc_settings.ENABLE_HEALTH_CHECK:
-            health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
+            # ------------------------------------------------------------
+            # ---  add PB2 GRPC handler (Services) to the gRPC server  ---
+            grpc_settings.ROOT_HANDLERS_HOOK(server)
 
-        # ------------------------------------------------------------
-        # ---  add PB2 GRPC handler (Services) to the gRPC server  ---
-        grpc_settings.ROOT_HANDLERS_HOOK(server)
+            # ------------------------------------------------
+            # ---  common start of the gRPC server itself  ---
+            ssl_server_credentials = get_server_credentials()
+            if ssl_server_credentials:
+                server.add_secure_port(self.address, ssl_server_credentials)
+            else:
+                server.add_insecure_port(self.address)
+            server.start()
+            server_launched_time = perf_counter()
+            logger.info(
+                f"Server started in {server_launched_time - server_launch_time} second and is now ready to accept incoming request"
+            )
+            server.wait_for_termination()
+        except OSError as e:
+            # Use helpful error messages instead of ugly tracebacks.
+            ERRORS = {
+                errno.EACCES: "You don't have permission to access that port.",
+                errno.EADDRINUSE: "That port is already in use.",
+                errno.EADDRNOTAVAIL: "That IP address can't be assigned to.",
+            }
+            try:
+                error_text = ERRORS[e.errno]
+            except KeyError:
+                error_text = e
+            error_data = f"Error: {error_text}"
+            logger.error(error_data)
+            # Need to use an OS exit because sys.exit doesn't work in a thread
+            os._exit(1)
 
-        # ------------------------------------------------
-        # ---  common start of the gRPC server itself  ---
-        ssl_server_credentials = get_server_credentials()
-        if ssl_server_credentials:
-            server.add_secure_port(self.address, ssl_server_credentials)
-        else:
-            server.add_insecure_port(self.address)
-        server.start()
-        server_launched_time = perf_counter()
-        logger.info(
-            f"Server started in {server_launched_time - server_launch_time} second and is now ready to accept incoming request"
-        )
-        server.wait_for_termination()
+        # ---------------------------------------
+        # ----  EXIT OF GRPC SERVER           ---
+        except KeyboardInterrupt:
+            # Shuts down the server with 0 seconds of grace period because it's an user interrupt action.
+            self.stop_server(grace_period=0)
 
     def inner_run(self, *args, **options):
         # ------------------------------------------------------------------------
@@ -142,26 +183,4 @@ class Command(BaseCommand):
         # ---  START GRPC   SERVER                 ---
         # --------------------------------------------
         logger.info(server_start_data)
-        try:
-            self._serve()
-        except OSError as e:
-            # Use helpful error messages instead of ugly tracebacks.
-            ERRORS = {
-                errno.EACCES: "You don't have permission to access that port.",
-                errno.EADDRINUSE: "That port is already in use.",
-                errno.EADDRNOTAVAIL: "That IP address can't be assigned to.",
-            }
-            try:
-                error_text = ERRORS[e.errno]
-            except KeyError:
-                error_text = e
-            error_data = f"Error: {error_text}"
-            logger.error(error_data)
-            # Need to use an OS exit because sys.exit doesn't work in a thread
-            os._exit(1)
-
-        # ---------------------------------------
-        # ----  EXIT OF GRPC SERVER           ---
-        except KeyboardInterrupt:
-            logger.warning("Exit gRPC Server")
-            sys.exit(0)
+        self._serve()

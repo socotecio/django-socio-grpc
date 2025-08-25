@@ -1,3 +1,5 @@
+import asyncio
+import signal
 from unittest import mock
 
 import grpc
@@ -5,6 +7,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
+from django_socio_grpc.management.commands.grpcrunaioserver import Command
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.tests.utils import patch_open
 
@@ -232,3 +235,110 @@ class TestRunServer(TestCase):
             root_certificates=read_file_mock_data,
             require_client_auth=True,
         )
+
+    @mock.patch("signal.signal")
+    @mock.patch("grpc.aio.server")
+    @override_settings(
+        GRPC_FRAMEWORK={
+            **settings.GRPC_FRAMEWORK,
+            "ROOT_HANDLERS_HOOK": mock.AsyncMock(),
+        }
+    )
+    def test_sigterm_signal_handler_setup(self, grpc_aio_server_mock, signal_mock):
+        """Test that SIGTERM signal handler is properly set up."""
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
+        grpc_aio_server_mock.return_value = fake_async_aio_server
+
+        # Launch command
+        call_command("grpcrunaioserver", grace_period=10.0)
+
+        # Verify signal handler was set up for SIGTERM in handle method
+        # Check all calls to signal.signal() for SIGTERM
+        sigterm_calls = [
+            call for call in signal_mock.call_args_list if call[0][0] == signal.SIGTERM
+        ]
+        self.assertTrue(len(sigterm_calls) > 0, "SIGTERM signal handler was not set up")
+
+        # Verify the SIGTERM handler is callable
+        sigterm_call = sigterm_calls[0]
+        self.assertTrue(callable(sigterm_call[0][1]))
+
+    @mock.patch("signal.signal")
+    @mock.patch("grpc.aio.server")
+    @override_settings(
+        GRPC_FRAMEWORK={
+            **settings.GRPC_FRAMEWORK,
+            "ROOT_HANDLERS_HOOK": mock.AsyncMock(),
+        }
+    )
+    def test_sigterm_signal_calls_stop_server_with_grace_period(
+        self, grpc_aio_server_mock, signal_mock
+    ):
+        """Test that SIGTERM signal handler calls stop_server with configured grace period."""
+
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
+        grpc_aio_server_mock.return_value = fake_async_aio_server
+
+        with mock.patch.object(Command, "stop_server") as mock_stop_server:
+            # Mock the async method to return an AsyncMock
+            mock_stop_server.return_value = mock.AsyncMock()
+
+            # Launch command with specific grace period
+            call_command("grpcrunaioserver", grace_period=15.0)
+
+            # Extract the SIGTERM signal handler that was registered
+            sigterm_calls = [
+                call for call in signal_mock.call_args_list if call[0][0] == signal.SIGTERM
+            ]
+            self.assertTrue(len(sigterm_calls) > 0, "SIGTERM signal handler was not set up")
+
+            signal_handler = sigterm_calls[0][0][1]
+
+            # Simulate SIGTERM signal being received
+            signal_handler(signal.SIGTERM, None)
+
+            # Verify stop_server was called with the configured grace period
+            mock_stop_server.assert_called_with(grace_period=15.0)
+
+    @mock.patch("grpc.aio.server")
+    @override_settings(
+        GRPC_FRAMEWORK={
+            **settings.GRPC_FRAMEWORK,
+            "ROOT_HANDLERS_HOOK": mock.AsyncMock(),
+        }
+    )
+    def test_keyboard_interrupt_calls_stop_server_with_zero_grace(self, grpc_aio_server_mock):
+        """Test that KeyboardInterrupt calls stop_server with 0 grace period (immediate shutdown)."""
+        fake_async_aio_server = mock.MagicMock(spec=grpc.aio._server.Server)
+        grpc_aio_server_mock.return_value = fake_async_aio_server
+
+        # Mock wait_for_termination to raise KeyboardInterrupt
+        fake_async_aio_server.wait_for_termination.side_effect = KeyboardInterrupt()
+
+        with mock.patch.object(Command, "stop_server") as mock_stop_server:
+            # Mock the async method to return an AsyncMock
+            mock_stop_server.return_value = mock.AsyncMock()
+
+            # Launch command and expect KeyboardInterrupt to be handled
+            call_command("grpcrunaioserver", grace_period=10.0)
+
+            # Verify stop_server was called with 0 grace period (immediate shutdown for user interrupt)
+            mock_stop_server.assert_called_with(grace_period=0)
+
+    def test_stop_server_method_calls_server_stop_correctly(self):
+        """Test that the stop_server method calls server.stop() with the correct grace period."""
+        command = Command()
+        mock_server = mock.AsyncMock()
+        command.server = mock_server  # Set the server on the command instance
+
+        grace_period = 30.0
+        mock_server.reset_mock()
+
+        # Run the async method
+        async def run_test():
+            await command.stop_server(grace_period=grace_period)
+
+        asyncio.run(run_test())
+
+        # Verify server.stop was called with correct grace period
+        mock_server.stop.assert_called_once_with(grace=grace_period)

@@ -71,7 +71,9 @@ class Command(BaseCommand):
         # Set up signal handler after server is created
         signal.signal(
             signal.SIGTERM,
-            lambda signum, frame: self.stop_server(grace_period=self.grace_period),
+            lambda signum, frame: asyncio.run(
+                self.stop_server(grace_period=self.grace_period)
+            ),
         )
 
         asyncio.run(self.run(**options))

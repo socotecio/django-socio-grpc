@@ -147,6 +147,17 @@ class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
         )
 
 
+class BigIntPKModel(models.Model):
+    id = models.BigIntegerField(primary_key=True)
+    name = models.CharField(max_length=100)
+
+
+class BigIntPKModelSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = BigIntPKModel
+        fields = ["id", "name"]
+
+
 class TestFields:
     # FROM_FIELD
     def test_from_field_basic(self):
@@ -469,6 +480,17 @@ class TestFields:
             ]
             == "My comment"
         )
+
+    def test_biginteger_primary_key_generates_int64_proto_type(self):
+        """Test that a BigIntegerField primary key generates int64 proto type"""
+        serializer = BigIntPKModelSerializer()
+        field = serializer.fields["id"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "id"
+        assert proto_field.field_type == "int64"
+        assert proto_field.cardinality == FieldCardinality.NONE
 
 
 class TestProtoMessage:

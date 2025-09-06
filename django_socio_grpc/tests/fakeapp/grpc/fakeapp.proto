@@ -302,7 +302,7 @@ message CustomRetrieveResponseSpecialFieldsModelResponse {
 }
 
 message DefaultValueDestroyRequest {
-    int32 id = 1;
+    int64 id = 1;
 }
 
 message DefaultValueListRequest {
@@ -314,7 +314,7 @@ message DefaultValueListResponse {
 }
 
 message DefaultValuePartialUpdateRequest {
-    optional int32 id = 1;
+    optional int64 id = 1;
     optional string string_required_but_serializer_default = 2;
     optional int32 int_required_but_serializer_default = 3;
     optional bool boolean_required_but_serializer_default = 4;
@@ -337,7 +337,7 @@ message DefaultValuePartialUpdateRequest {
 }
 
 message DefaultValueRequest {
-    optional int32 id = 1;
+    optional int64 id = 1;
     optional string string_required_but_serializer_default = 2;
     optional int32 int_required_but_serializer_default = 3;
     optional bool boolean_required_but_serializer_default = 4;
@@ -359,7 +359,7 @@ message DefaultValueRequest {
 }
 
 message DefaultValueResponse {
-    optional int32 id = 1;
+    optional int64 id = 1;
     optional string string_required_but_serializer_default = 2;
     optional int32 int_required_but_serializer_default = 3;
     optional bool boolean_required_but_serializer_default = 4;
@@ -381,7 +381,7 @@ message DefaultValueResponse {
 }
 
 message DefaultValueRetrieveRequest {
-    int32 id = 1;
+    int64 id = 1;
 }
 
 message EnumBasicEnumRequest {
@@ -421,7 +421,7 @@ message EnumServiceAnnotatedSerializerResponse {
 }
 
 message EnumServiceRequest {
-    optional int32 id = 1;
+    optional int64 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
     optional MyTestStrEnum.Enum char_choices_nullable = 3;
     MyTestStrEnum.Enum char_choices_no_default_no_null = 4;
@@ -430,7 +430,7 @@ message EnumServiceRequest {
 }
 
 message EnumServiceResponse {
-    optional int32 id = 1;
+    optional int64 id = 1;
     optional MyTestStrEnum.Enum char_choices = 2;
     optional MyTestStrEnum.Enum char_choices_nullable = 3;
     MyTestStrEnum.Enum char_choices_no_default_no_null = 4;
@@ -439,7 +439,7 @@ message EnumServiceResponse {
 }
 
 message EnumServiceRetrieveRequest {
-    int32 id = 1;
+    int64 id = 1;
 }
 
 message ExceptionStreamRaiseExceptionResponse {

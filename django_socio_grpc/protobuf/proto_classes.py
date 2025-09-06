@@ -793,8 +793,25 @@ def get_proto_type(
         if all(isinstance(choice, first_type) for choice in field.choices):
             return TYPING_TO_PROTO_TYPES.get(first_type, "string")
 
-    proto_type = None
+    # For serializer fields that come from a model, try to get the underlying model field
+    if (
+        isinstance(field, serializers.Field)
+        and hasattr(field, "parent")
+        and hasattr(field.parent, "Meta")
+        and hasattr(field.parent.Meta, "model")
+    ):
+        try:
+            model = field.parent.Meta.model
+            model_field = model._meta.get_field(field.source or field.field_name)
+            if isinstance(model_field, models.Field):
+                return get_proto_type(model_field)
+        except Exception:
+            # If we can't get the model field, fall back to the serializer field
+            pass
+
     field_mro = field.__class__.mro()
+
+    proto_type = None
     while proto_type is None:
         try:
             parent_class_name = field_mro.pop(0).__name__

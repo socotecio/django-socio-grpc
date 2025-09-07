@@ -4,6 +4,7 @@ from typing import Annotated, Optional
 from unittest import mock
 
 import pytest
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.test import TestCase, override_settings
 from django_filters.rest_framework import DjangoFilterBackend
@@ -150,12 +151,18 @@ class MyOtherSerializer(proto_serializers.ModelProtoSerializer):
 class BigIntPKModel(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=100)
+    ids = ArrayField(
+        models.BigIntegerField(),
+        blank=True,
+        null=True,
+        default=list,
+    )
 
 
 class BigIntPKModelSerializer(proto_serializers.ModelProtoSerializer):
     class Meta:
         model = BigIntPKModel
-        fields = ["id", "name"]
+        fields = ["id", "name", "ids"]
 
 
 class TestFields:
@@ -491,6 +498,17 @@ class TestFields:
         assert proto_field.name == "id"
         assert proto_field.field_type == "int64"
         assert proto_field.cardinality == FieldCardinality.NONE
+
+    def test_biginteger_as_array_field_child_key_generates_int64_repeated_proto_type(self):
+        """Test that a BigIntegerField primary key generates int64 proto type"""
+        serializer = BigIntPKModelSerializer()
+        field = serializer.fields["ids"]
+
+        proto_field = ProtoField.from_field(field)
+
+        assert proto_field.name == "ids"
+        assert proto_field.field_type == "int64"
+        assert proto_field.cardinality == FieldCardinality.REPEATED
 
 
 class TestProtoMessage:

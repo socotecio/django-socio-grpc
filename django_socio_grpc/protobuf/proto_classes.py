@@ -793,6 +793,16 @@ def get_proto_type(
         if all(isinstance(choice, first_type) for choice in field.choices):
             return TYPING_TO_PROTO_TYPES.get(first_type, "string")
 
+    # Special case for IntegerField with BigInteger limits (from ArrayField(BigIntegerField))
+    if (
+        isinstance(field, serializers.IntegerField)
+        and hasattr(field, "max_value")
+        and hasattr(field, "min_value")
+        and field.max_value == 9223372036854775807  # BigInteger max
+        and field.min_value == -9223372036854775808  # BigInteger min
+    ):
+        return "int64"
+
     # For serializer fields that come from a model, try to get the underlying model field
     if (
         isinstance(field, serializers.Field)

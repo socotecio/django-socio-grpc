@@ -488,6 +488,38 @@ class TestFields:
             == "My comment"
         )
 
+    def test_from_field_dict_with_serializer_class(self):
+        """Test from_field_dict with a serializer class as field_type"""
+        field_dict = {
+            "name": "my_serializer",
+            "type": MySerializer,
+            "comment": "A nested serializer field",
+        }
+
+        proto_field = ProtoField.from_field_dict(field_dict)
+
+        assert proto_field.name == "my_serializer"
+        assert isinstance(proto_field.field_type, ProtoMessage)
+        assert proto_field.field_type.name == "MySerializer"
+        assert proto_field.cardinality == FieldCardinality.NONE
+        assert proto_field.comments == ["A nested serializer field"]
+
+    def test_from_field_dict_with_serializer_class_and_cardinality(self):
+        """Test from_field_dict with a serializer class and cardinality"""
+        field_dict = {
+            "name": "my_serializers",
+            "type": MySerializer,
+            "cardinality": "repeated",
+        }
+
+        proto_field = ProtoField.from_field_dict(field_dict)
+
+        assert proto_field.name == "my_serializers"
+        assert isinstance(proto_field.field_type, ProtoMessage)
+        assert proto_field.field_type.name == "MySerializer"
+        assert proto_field.cardinality == FieldCardinality.REPEATED
+        assert proto_field.comments is None
+
     def test_biginteger_primary_key_generates_int64_proto_type(self):
         """Test that a BigIntegerField primary key generates int64 proto type"""
         serializer = BigIntPKModelSerializer()

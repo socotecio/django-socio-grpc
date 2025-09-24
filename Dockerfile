@@ -1,4 +1,5 @@
 FROM python:3.10 AS builder
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 ENV PYTHONUNBUFFERED 1
 
@@ -12,26 +13,24 @@ RUN sed -i 's/^# *\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
 RUN sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen
 RUN locale-gen
 
-RUN pip install --no-cache-dir psycopg2 'poetry<3.0.0'
-
-
 COPY pyproject.toml .
-COPY poetry.lock .
-
+COPY uv.lock .
 
 FROM builder AS server
 
 COPY ./django_socio_grpc /opt/code/django_socio_grpc
-RUN poetry install --with dev
+ENV UV_PROJECT_ENVIRONMENT /opt/venv
+RUN uv sync
 
 FROM builder AS docs
 
 RUN apt update \
-  && apt -y install enchant-2 entr \
-  && apt clean
+&& apt -y install enchant-2 entr \
+&& apt clean
 
 COPY docs docs
 COPY ./django_socio_grpc /opt/code/django_socio_grpc
-RUN poetry config virtualenvs.create false
-RUN poetry install --with docs
-RUN cd docs && make html
+RUN uv sync --group docs
+WORKDIR /opt/code/docs
+RUN uv run make html
+WORKDIR /opt/code

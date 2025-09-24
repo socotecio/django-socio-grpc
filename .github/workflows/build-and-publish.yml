@@ -4,15 +4,13 @@ name: DSG build and deploy to pypi
 on:
   push:
     tags:
-      - '*'
-
+      - "*"
 
 jobs:
   build-publish:
     name: Build, Publish
     runs-on: ubuntu-latest
     environment: production
-
 
     strategy:
       max-parallel: 4
@@ -26,21 +24,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install pip dependencies
-        if: steps.pip-cache.outputs.cache-hit != 'true'
-        run: |
-          pip install psycopg2 'poetry<3.0.0' proto-parser
-
-      - name: Install poetry
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: |
-          poetry install
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.5.30"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: ${{ matrix.python-version }}
 
       - name: build and publish
         run: |
           echo ${{github.ref_name}}
           echo $GITHUB_REF_NAME
           sed -i 's/version = "0.1.1"/version = "'$GITHUB_REF_NAME'"/g' pyproject.toml
-          poetry build
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish
+          uv build
+          uv publish --token ${{ secrets.PYPI_TOKEN }}

@@ -26,7 +26,6 @@ See the documentation on django settings if your not familiar with it: `Django s
     "SEPARATE_READ_WRITE_MODEL": True,
     "GRPC_MIDDLEWARE": [
       "django_socio_grpc.middlewares.log_requests_middleware",
-      "django_socio_grpc.middlewares.close_old_connections_middleware",
     ],
     "ROOT_GRPC_FOLDER": "grpc_folder",
     "MAP_METADATA_KEYS": {

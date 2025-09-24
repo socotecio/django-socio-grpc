@@ -80,7 +80,6 @@ DEFAULTS = {
     # List of all middleware classes to be used for gRPC framework
     "GRPC_MIDDLEWARE": [
         "django_socio_grpc.middlewares.log_requests_middleware",
-        "django_socio_grpc.middlewares.close_old_connections_middleware",
     ],
     # Root GRPC folder for external grpc handlers
     "ROOT_GRPC_FOLDER": "grpc_folder",

@@ -33,6 +33,7 @@ it accepts the following arguments:
 
 - ``address`` : Optional address for which to open a port.
 - ``--max-workers``: Number of maximum worker threads. Only needed for migration from sync to async server. Using it will have no effect if server fully async. See `gRPC doc migration_thread_pool argument <https://grpc.github.io/grpc/python/grpc_asyncio.html#grpc.aio.server>_`
+- ``--grace-period``: Time in seconds for the grace period when receiving a SIGTERM signal. Default is 10.0 seconds.
 - ``--dev`` Run the server in development mode. This tells Django to use the auto-reloader and run checks.
 
 

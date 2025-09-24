@@ -127,6 +127,49 @@ class MyAnnotatedStrSerializer(proto_serializers.ProtoSerializer):
         fields = "__all__"
 
 
+class MyIntricatedAnnotatedSerializer(proto_serializers.ProtoSerializer):
+    my_str_instances = MyAnnotatedStrModelSerializer(many=True)
+
+    class Meta:
+        fields = ["my_str_instances"]
+
+
+# -- ABSTRACT MODEL WITH ENUM --
+
+
+class MyAbstractModel(models.Model):
+    """Abstract model with annotated enum field"""
+
+    choice_field: Annotated[models.CharField, MyStrEnum] = models.CharField(
+        max_length=20,
+        choices=MyStrEnum.choices,
+        default=MyStrEnum.VALUE_1,
+    )
+    some_int = models.IntegerField()
+
+    class Meta:
+        abstract = True
+
+
+class MyConcreteModel(MyAbstractModel):
+    """Concrete model inheriting from abstract model with enum"""
+
+    name = models.CharField(max_length=100)
+
+
+class MyConcreteModelSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = MyConcreteModel
+        fields = "__all__"
+
+
+class MyNestedAbstractSerializer(proto_serializers.ProtoSerializer):
+    concrete_instances = MyConcreteModelSerializer(many=True)
+
+    class Meta:
+        fields = ["concrete_instances"]
+
+
 class TestEnumGenerationPlugin(TestCase):
     def test_proto_enum_generation_from_field_dict(self):
         class MyService(GenericService):
@@ -405,3 +448,167 @@ class TestEnumGenerationPlugin(TestCase):
 
         with self.assertRaises(ProtoRegistrationError):
             MyService.MyIntAction.make_proto_rpc("MyIntAction", MyService)
+
+    def test_proto_enum_generation_from_nested_annotated_model(self):
+        class MyService(GenericService):
+            @grpc_action(
+                request=[],
+                response=MyIntricatedAnnotatedSerializer,
+                use_generation_plugins=[InMessageEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
+            )
+            async def MyStrAction(self, request, context): ...
+
+        proto_rpc_str = MyService.MyStrAction.make_proto_rpc("MyStrAction", MyService)
+
+        assert (
+            proto_rpc_str.response["my_str_instances"].field_type.name
+            == "MyAnnotatedStrModelResponse"
+        )
+
+        intricated_choice_field = None
+        for field in proto_rpc_str.response["my_str_instances"].field_type.fields:
+            if field.name == "choice_field":
+                intricated_choice_field = field
+                break
+
+        assert intricated_choice_field is not None
+
+        assert intricated_choice_field.field_type.name == "MyStrEnum"
+        assert intricated_choice_field.field_type.wrap_in_message is False
+        assert intricated_choice_field.field_type.enum == MyStrEnum
+        assert intricated_choice_field.field_type.location == ProtoEnumLocations.MESSAGE
+
+    def test_proto_enum_generation_from_nested_abstract_model(self):
+        class MyService(GenericService):
+            @grpc_action(
+                request=[],
+                response=MyNestedAbstractSerializer,
+                use_generation_plugins=[InMessageWrappedEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
+            )
+            async def MyAbstractAction(self, request, context): ...
+
+        proto_rpc = MyService.MyAbstractAction.make_proto_rpc("MyAbstractAction", MyService)
+
+        assert (
+            proto_rpc.response["concrete_instances"].field_type.name
+            == "MyConcreteModelResponse"
+        )
+
+        # Find the choice_field in the nested concrete model
+        concrete_choice_field = None
+        for field in proto_rpc.response["concrete_instances"].field_type.fields:
+            if field.name == "choice_field":
+                concrete_choice_field = field
+                break
+
+        assert concrete_choice_field is not None
+
+        # Test that the enum from the abstract model is correctly processed
+        assert concrete_choice_field.field_type.name == "MyStrEnum.Enum"
+        assert concrete_choice_field.field_type.wrap_in_message is True
+        assert concrete_choice_field.field_type.enum == MyStrEnum
+        assert concrete_choice_field.field_type.location == ProtoEnumLocations.MESSAGE
+
+    def test_proto_enum_generation_with_none_serializer(self):
+        """Test that enum generation handles ProtoMessage with None serializer gracefully"""
+        from django_socio_grpc.protobuf.proto_classes import (
+            FieldCardinality,
+            ProtoField,
+            ProtoMessage,
+        )
+
+        # Create a ProtoMessage with None serializer (like those generated from field dicts)
+        nested_message = ProtoMessage(
+            name="TestMessage",
+            fields=[
+                ProtoField(
+                    name="test_field",
+                    field_type="string",
+                    cardinality=FieldCardinality.OPTIONAL,
+                )
+            ],
+            serializer=None,  # This is the key - None serializer
+        )
+
+        # Create a parent message that contains the nested message
+        parent_message = ProtoMessage(
+            name="ParentMessage",
+            fields=[
+                ProtoField(
+                    name="nested",
+                    field_type=nested_message,
+                    cardinality=FieldCardinality.OPTIONAL,
+                )
+            ],
+            serializer=MyAnnotatedStrModelSerializer,
+        )
+
+        # This should not raise an exception even with nested None serializer
+        plugin = InMessageEnumGenerationPlugin()
+        result = plugin.handle_serializer(parent_message)
+
+        # Verify the method completed successfully
+        assert result is not None
+        assert result.name == "ParentMessage"
+
+        # The nested message should still be accessible
+        nested_field = result.fields[0]
+        assert nested_field.name == "nested"
+        assert isinstance(nested_field.field_type, ProtoMessage)
+        assert nested_field.field_type.name == "TestMessage"
+
+    def test_abstract_model_field_types_preserved(self):
+        """Test that field types from abstract models are correctly preserved in proto generation"""
+
+        class MyService(GenericService):
+            @grpc_action(
+                request=MyConcreteModelSerializer,
+                response=MyConcreteModelSerializer,
+                use_generation_plugins=[InMessageEnumGenerationPlugin()],
+                override_default_generation_plugins=True,
+            )
+            async def MyConcreteAction(self, request, context): ...
+
+        proto_rpc = MyService.MyConcreteAction.make_proto_rpc("MyConcreteAction", MyService)
+
+        # Verify that choice_field from abstract model is processed as enum
+        choice_field = None
+        some_int_field = None
+        name_field = None
+        id_field = None
+
+        for field in proto_rpc.response.fields:
+            if field.name == "choice_field":
+                choice_field = field
+            elif field.name == "some_int":
+                some_int_field = field
+            elif field.name == "name":
+                name_field = field
+            elif field.name == "id":
+                id_field = field
+
+        # Verify all expected fields are present
+        assert choice_field is not None, "choice_field should be present"
+        assert some_int_field is not None, "some_int field should be present"
+        assert name_field is not None, "name field should be present"
+        assert id_field is not None, "id field should be present"
+
+        # Test that choice_field from abstract model is correctly processed as enum
+        assert choice_field.field_type.name == "MyStrEnum"
+        assert choice_field.field_type.wrap_in_message is False
+        assert choice_field.field_type.enum == MyStrEnum
+
+        # Test that some_int field from abstract model is correctly transformed to int32, not string
+        assert (
+            some_int_field.field_type == "int32"
+        ), f"Expected 'int32', but got '{some_int_field.field_type}'"
+
+        # Test that other fields have correct types
+        assert (
+            name_field.field_type == "string"
+        ), f"Expected 'string', but got '{name_field.field_type}'"
+        assert (
+            id_field.field_type == "int32"
+        ), f"Expected 'int32', but got '{id_field.field_type}'"

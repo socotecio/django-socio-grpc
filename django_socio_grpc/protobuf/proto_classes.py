@@ -456,8 +456,16 @@ class ProtoEnum:
 
         # Else try to get the enum from the model annotations
         if not annotation and hasattr(field.parent.Meta, "model"):
-            model_annotations = field.parent.Meta.model.__annotations__
-            annotation = model_annotations.get(field.field_name, None)
+            model = field.parent.Meta.model
+            annotation = model.__annotations__.get(field.field_name, None)
+
+            # If not found in the concrete model, check parent classes (including abstract models)
+            if not annotation:
+                for parent_class in model.__mro__[1:]:  # Skip the model itself (index 0)
+                    if hasattr(parent_class, "__annotations__"):
+                        annotation = parent_class.__annotations__.get(field.field_name, None)
+                        if annotation:
+                            break
 
         if annotation is None or len(annotation.__metadata__) == 0:
             return None

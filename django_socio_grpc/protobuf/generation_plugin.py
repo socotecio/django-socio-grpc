@@ -365,6 +365,14 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
         - A ChoiceField with string choices (e.g. ["CHOICE_1", "CHOICE_2"]) if non_annotated_generation is True
         """
 
+        # Check if the proto_message has a serializer before proceeding
+        if proto_message.serializer is None:
+            # No serializer available, just recursively handle nested ProtoMessages
+            for field in proto_message.fields:
+                if isinstance(field.field_type, ProtoMessage):
+                    self.handle_serializer(field.field_type)
+            return proto_message
+
         # Find serializer fields that contain enums
         field_name_to_type: dict[str:Enum] = {}
         for field_name, field_instance in proto_message.serializer().fields.items():
@@ -376,10 +384,11 @@ class BaseEnumGenerationPlugin(BaseGenerationPlugin):
 
         # Map ProtoMessage fields to serializer fields, and set fields type
         for field in proto_message.fields:
-            if field.name not in field_name_to_type:
-                continue
-
-            self.set_field_type(field, field_name_to_type[field.name])
+            if field.name in field_name_to_type:
+                self.set_field_type(field, field_name_to_type[field.name])
+            # Recursively handle nested ProtoMessages
+            elif isinstance(field.field_type, ProtoMessage):
+                self.handle_serializer(field.field_type)
 
         return proto_message
 

@@ -118,10 +118,20 @@ class ProtoField:
         name = field_dict["name"]
         field_type = field_dict["type"]
 
-        if isinstance(field_type, str):
-            cardinality, field_type = cls.from_field_dict_handle_str_field_type(
-                field_type, name, cardinality
+        if isinstance(field_type, type) and issubclass(field_type, serializers.BaseSerializer):
+            ProtoGeneratorPrintHelper.print(
+                "ProtoField from field dict, field_type is a serializer"
             )
+            field_type = ProtoMessage.from_serializer(
+                serializer=field_type, name=field_type.__name__
+            )
+        else:
+            if isinstance(field_type, str):
+                cardinality, field_type = cls.from_field_dict_handle_str_field_type(
+                    field_type, name, cardinality
+                )
+            if field_type in PRIMITIVE_TYPES:
+                field_type = PRIMITIVE_TYPES[field_type]
 
         if cardinality not in FieldCardinality.__members__.values():
             raise ProtoRegistrationError(
@@ -130,9 +140,6 @@ class ProtoField:
 
         if (comments := field_dict.get("comment")) and isinstance(comments, str):
             comments = [comments]
-
-        if field_type in PRIMITIVE_TYPES:
-            field_type = PRIMITIVE_TYPES[field_type]
 
         return cls(
             name=name,
@@ -541,7 +548,6 @@ class ProtoMessage:
             return PRIMITIVE_TYPES.get(value, value)
         # Empty value means an EmptyMessage, this is handled in the from_field_dicts
         elif isinstance(value, list) or not value:
-            ProtoGeneratorPrintHelper.print("Message from field dicts")
             proto_message = cls.from_field_dicts(value, name=name)
             return proto_message
         else:
@@ -589,7 +595,6 @@ class ProtoMessage:
                 if cls.skip_field(field, pk_name):
                     ProtoGeneratorPrintHelper.print(f"field {field.field_name} is skipped")
                     continue
-
                 if isinstance(field, serializers.BaseSerializer):
                     ProtoGeneratorPrintHelper.print(f"field {field.field_name} is serializer")
                     fields.append(

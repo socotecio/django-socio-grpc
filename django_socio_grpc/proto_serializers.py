@@ -91,13 +91,16 @@ class BaseProtoSerializer(BaseSerializer):
         if not isinstance(data, dict):
             return parse_dict(data, self.Meta.proto_class())
 
-        # Hybrid approach: Handle nested serializers recursively, but use parse_dict for regular fields
-        # This gives us enum transformation in nested serializers while maintaining parse_dict reliability
+        # Efficient hybrid approach:
+        # 1. Remove nested serializer fields and store as protobuf messages
+        # 2. Use parse_dict for remaining fields
+        # 3. Assign nested messages directly to the final message
 
-        # Copy data and process nested serializers first
+        # Copy data and separate nested serializers from regular fields
         processed_data = data.copy()
+        nested_messages = {}  # Store processed nested messages
 
-        # Process nested serializers and convert them to protobuf messages
+        # Process nested serializers and remove them from processed_data
         for field_name, field in self.fields.items():
             if field_name not in processed_data:
                 continue
@@ -109,20 +112,19 @@ class BaseProtoSerializer(BaseSerializer):
                 if hasattr(field, 'child'):
                     # This is a ListProtoSerializer (many=True case)
                     if field_value:
-                        nested_messages = []
+                        nested_messages[field_name] = []
                         for item_data in field_value:
                             # Recursively call data_to_message on the child serializer
                             nested_msg = field.child.data_to_message(item_data)
-                            nested_messages.append(nested_msg)
-                        # Convert protobuf messages back to dict for parse_dict
-                        processed_data[field_name] = [message_to_dict(msg) for msg in nested_messages]
+                            nested_messages[field_name].append(nested_msg)
                 else:
                     # Handle single nested serializer
                     if field_value is not None:
                         # Recursively call data_to_message on the nested serializer
-                        nested_msg = field.data_to_message(field_value)
-                        # Convert protobuf message back to dict for parse_dict
-                        processed_data[field_name] = message_to_dict(nested_msg)
+                        nested_messages[field_name] = field.data_to_message(field_value)
+
+                # Remove nested field from processed_data since we'll handle it separately
+                del processed_data[field_name]
 
         # Apply enum transformations to current level fields
         for field_name, field in self.fields.items():
@@ -148,8 +150,20 @@ class BaseProtoSerializer(BaseSerializer):
                         "Enum value not found, did you forget to generate your protos ?"
                     ) from e
 
-        # Use parse_dict for final message creation - handles all edge cases correctly
-        return parse_dict(processed_data, self.Meta.proto_class())
+        # Create message with regular fields using parse_dict
+        message = parse_dict(processed_data, self.Meta.proto_class())
+
+        # Assign nested messages directly to the final message
+        for field_name, nested_value in nested_messages.items():
+            if isinstance(nested_value, list):
+                # Handle many=True case (list of nested messages)
+                nested_list = getattr(message, field_name)
+                nested_list.extend(nested_value)
+            else:
+                # Handle single nested message
+                getattr(message, field_name).CopyFrom(nested_value)
+
+        return message
 
     @property
     def message(self):

@@ -109,7 +109,7 @@ class BaseProtoSerializer(BaseSerializer):
 
             # Handle nested serializers recursively - this is where enum transformation happens
             if isinstance(field, BaseProtoSerializer):
-                if hasattr(field, 'child'):
+                if hasattr(field, "child"):
                     # This is a ListProtoSerializer (many=True case)
                     if field_value:
                         nested_messages[field_name] = []

@@ -2,13 +2,12 @@
 Test cases for proto serializer enum transformation, especially nested enum behavior.
 """
 
-import pytest
-from rest_framework import serializers
+import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 from django.test import TestCase
+from rest_framework import serializers
 
 from django_socio_grpc import proto_serializers
 from django_socio_grpc.tests.fakeapp.models import EnumModel
-import fakeapp.grpc.fakeapp_pb2 as fakeapp_pb2
 
 
 class NestedEnumModelSerializer(proto_serializers.ModelProtoSerializer):
@@ -44,11 +43,13 @@ class TestProtoSerializerEnumTransformation(TestCase):
             "id": 100,
             "char_choices": "VALUE_2",  # Enum value that needs transformation
             "int_choices": 2,  # Enum value that needs transformation
-            "char_choices_nullable": "VALUE_1"
+            "char_choices_nullable": "VALUE_1",
         }
 
         serializer = NestedEnumModelSerializer(data=test_data)
-        self.assertTrue(serializer.is_valid(), f"Serializer validation failed: {serializer.errors}")
+        self.assertTrue(
+            serializer.is_valid(), f"Serializer validation failed: {serializer.errors}"
+        )
 
         message = serializer.data_to_message(test_data)
         self.assertIsNotNone(message)
@@ -63,12 +64,15 @@ class TestProtoSerializerEnumTransformation(TestCase):
             "id": 1,
             "char_choices": "VALUE_2",  # This is an enum value that should be transformed
             "int_choices": 2,  # This is an enum value that should be transformed
-            "char_choices_nullable": "VALUE_1"
+            "char_choices_nullable": "VALUE_1",
         }
 
         # Test the nested serializer directly first
         nested_serializer = NestedEnumModelSerializer(data=nested_data)
-        self.assertTrue(nested_serializer.is_valid(), f"Nested serializer validation failed: {nested_serializer.errors}")
+        self.assertTrue(
+            nested_serializer.is_valid(),
+            f"Nested serializer validation failed: {nested_serializer.errors}",
+        )
 
         nested_message = nested_serializer.data_to_message(nested_data)
         self.assertIsNotNone(nested_message)
@@ -76,16 +80,17 @@ class TestProtoSerializerEnumTransformation(TestCase):
 
         # Test that the recursive enum transformation logic works by testing the processing part
         # without the final protobuf assignment (which fails due to structure mismatch)
-        test_data = {
-            "nested_enum_field": nested_data
-        }
+        test_data = {"nested_enum_field": nested_data}
 
         parent_serializer = ParentWithNestedEnumSerializer(data=test_data)
-        self.assertTrue(parent_serializer.is_valid(), f"Parent serializer validation failed: {parent_serializer.errors}")
+        self.assertTrue(
+            parent_serializer.is_valid(),
+            f"Parent serializer validation failed: {parent_serializer.errors}",
+        )
 
         # Test that the nested enum transformation processing works correctly
         # We'll test the logic by accessing the field and calling data_to_message on it directly
-        nested_field = parent_serializer.fields['nested_enum_field']
+        nested_field = parent_serializer.fields["nested_enum_field"]
         self.assertIsInstance(nested_field, NestedEnumModelSerializer)
 
         # This tests that the recursive call to data_to_message works correctly for enum transformation
@@ -106,27 +111,27 @@ class TestProtoSerializerEnumTransformation(TestCase):
                 "id": 1,
                 "char_choices": "VALUE_1",  # Enum value
                 "int_choices": 1,  # Enum value
-                "char_choices_nullable": None
+                "char_choices_nullable": None,
             },
             {
                 "id": 2,
                 "char_choices": "VALUE_2",  # Enum value
                 "int_choices": 2,  # Enum value
-                "char_choices_nullable": "VALUE_2"
-            }
+                "char_choices_nullable": "VALUE_2",
+            },
         ]
 
-        test_data = {
-            "nested_enum_list": nested_items
-        }
+        test_data = {"nested_enum_list": nested_items}
 
         # Create serializer and test data_to_message transformation
         serializer = ParentWithNestedEnumSerializer(data=test_data)
-        self.assertTrue(serializer.is_valid(), f"Serializer validation failed: {serializer.errors}")
+        self.assertTrue(
+            serializer.is_valid(), f"Serializer validation failed: {serializer.errors}"
+        )
 
         # Test the many=True enum transformation logic by accessing the field directly
-        nested_list_field = serializer.fields['nested_enum_list']
-        self.assertTrue(hasattr(nested_list_field, 'child'))
+        nested_list_field = serializer.fields["nested_enum_list"]
+        self.assertTrue(hasattr(nested_list_field, "child"))
 
         # Test that each item in the list can be processed with enum transformation
         for item_data in nested_items:
@@ -141,7 +146,7 @@ class TestProtoSerializerEnumTransformation(TestCase):
             "id": 10,
             "char_choices": "VALUE_1",
             "int_choices": 1,
-            "char_choices_nullable": "VALUE_2"
+            "char_choices_nullable": "VALUE_2",
         }
 
         nested_list_data = [
@@ -149,21 +154,23 @@ class TestProtoSerializerEnumTransformation(TestCase):
                 "id": 20,
                 "char_choices": "VALUE_2",
                 "int_choices": 2,
-                "char_choices_nullable": None
+                "char_choices_nullable": None,
             }
         ]
 
         test_data = {
             "nested_enum_field": nested_field_data,
-            "nested_enum_list": nested_list_data
+            "nested_enum_list": nested_list_data,
         }
 
         serializer = ParentWithNestedEnumSerializer(data=test_data)
-        self.assertTrue(serializer.is_valid(), f"Serializer validation failed: {serializer.errors}")
+        self.assertTrue(
+            serializer.is_valid(), f"Serializer validation failed: {serializer.errors}"
+        )
 
         # Test both single and many nested enum transformations work correctly
-        nested_field = serializer.fields['nested_enum_field']
-        nested_list_field = serializer.fields['nested_enum_list']
+        nested_field = serializer.fields["nested_enum_field"]
+        nested_list_field = serializer.fields["nested_enum_list"]
 
         # Test single nested serializer
         processed_single = nested_field.data_to_message(nested_field_data)
@@ -179,13 +186,12 @@ class TestProtoSerializerEnumTransformation(TestCase):
     def test_empty_nested_enum_handling(self):
         """Test that empty/None nested values are handled correctly"""
 
-        test_data = {
-            "nested_enum_field": None,
-            "nested_enum_list": []
-        }
+        test_data = {"nested_enum_field": None, "nested_enum_list": []}
 
         serializer = ParentWithNestedEnumSerializer(data=test_data)
-        self.assertTrue(serializer.is_valid(), f"Serializer validation failed: {serializer.errors}")
+        self.assertTrue(
+            serializer.is_valid(), f"Serializer validation failed: {serializer.errors}"
+        )
 
         message = serializer.data_to_message(test_data)
         self.assertIsNotNone(message)
@@ -195,23 +201,27 @@ class TestProtoSerializerEnumTransformation(TestCase):
 
         # Create test data with multiple nested items
         nested_items = []
-        for i in range(10):  # Not too large for test performance, but enough to test efficiency
-            nested_items.append({
-                "id": i,
-                "char_choices": "VALUE_1" if i % 2 == 0 else "VALUE_2",
-                "int_choices": 1 if i % 2 == 0 else 2,
-                "char_choices_nullable": "VALUE_1" if i % 3 == 0 else None
-            })
+        for i in range(
+            10
+        ):  # Not too large for test performance, but enough to test efficiency
+            nested_items.append(
+                {
+                    "id": i,
+                    "char_choices": "VALUE_1" if i % 2 == 0 else "VALUE_2",
+                    "int_choices": 1 if i % 2 == 0 else 2,
+                    "char_choices_nullable": "VALUE_1" if i % 3 == 0 else None,
+                }
+            )
 
-        test_data = {
-            "nested_enum_list": nested_items
-        }
+        test_data = {"nested_enum_list": nested_items}
 
         serializer = ParentWithNestedEnumSerializer(data=test_data)
-        self.assertTrue(serializer.is_valid(), f"Serializer validation failed: {serializer.errors}")
+        self.assertTrue(
+            serializer.is_valid(), f"Serializer validation failed: {serializer.errors}"
+        )
 
         # Test performance by processing each nested item's enums
-        nested_list_field = serializer.fields['nested_enum_list']
+        nested_list_field = serializer.fields["nested_enum_list"]
         processed_count = 0
 
         for item_data in nested_items:
@@ -229,9 +239,7 @@ class TestProtoSerializerBackwardCompatibility(TestCase):
     def test_regular_fields_still_work(self):
         """Test that regular (non-nested) fields still work correctly"""
 
-        test_data = {
-            "title": "test_regular"
-        }
+        test_data = {"title": "test_regular"}
 
         class SimpleSerializer(proto_serializers.ProtoSerializer):
             title = serializers.CharField()

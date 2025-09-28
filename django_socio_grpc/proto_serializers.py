@@ -27,7 +27,7 @@ from django_socio_grpc.protobuf.exceptions import (
     ProtoRegistrationError,
     UnknownTypeError,
 )
-from django_socio_grpc.protobuf.json_format import message_to_dict
+from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
 from django_socio_grpc.protobuf.proto_classes import (
     ProtoEnum,
     ProtoField,
@@ -87,65 +87,69 @@ class BaseProtoSerializer(BaseSerializer):
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
 
-        # Transform enums at all levels before using parse_dict
-        transformed_data = self._transform_enums_recursively(data)
-
-        # Use parse_dict for backward compatibility with existing behavior
-        from django_socio_grpc.protobuf.json_format import parse_dict
-        return parse_dict(transformed_data, self.Meta.proto_class())
-
-    def _transform_enums_recursively(self, data):
-        """Recursively transform enum values to enum names at all nesting levels"""
-        # Handle non-dict data (like QuerySets) by returning as-is for parse_dict to handle
+        # Handle non-dict data by falling back to parse_dict for backward compatibility
         if not isinstance(data, dict):
-            return data
+            return parse_dict(data, self.Meta.proto_class())
 
-        # Make a copy to avoid mutating the original
-        transformed_data = data.copy()
+        # Hybrid approach: Handle nested serializers recursively, but use parse_dict for regular fields
+        # This gives us enum transformation in nested serializers while maintaining parse_dict reliability
 
-        # Process each field in this serializer
+        # Copy data and process nested serializers first
+        processed_data = data.copy()
+
+        # Process nested serializers and convert them to protobuf messages
         for field_name, field in self.fields.items():
-            if field_name not in transformed_data:
+            if field_name not in processed_data:
                 continue
 
-            field_value = transformed_data[field_name]
+            field_value = processed_data[field_name]
 
-            # Handle nested serializers recursively
+            # Handle nested serializers recursively - this is where enum transformation happens
             if isinstance(field, BaseProtoSerializer):
                 if hasattr(field, 'child'):
                     # This is a ListProtoSerializer (many=True case)
-                    if field_value and isinstance(field_value, list):
-                        transformed_nested_list = []
+                    if field_value:
+                        nested_messages = []
                         for item_data in field_value:
-                            # Recursively transform enums in nested data using the child serializer
-                            transformed_item = field.child._transform_enums_recursively(item_data)
-                            transformed_nested_list.append(transformed_item)
-                        transformed_data[field_name] = transformed_nested_list
+                            # Recursively call data_to_message on the child serializer
+                            nested_msg = field.child.data_to_message(item_data)
+                            nested_messages.append(nested_msg)
+                        # Convert protobuf messages back to dict for parse_dict
+                        processed_data[field_name] = [message_to_dict(msg) for msg in nested_messages]
                 else:
                     # Handle single nested serializer
                     if field_value is not None:
-                        transformed_data[field_name] = field._transform_enums_recursively(field_value)
+                        # Recursively call data_to_message on the nested serializer
+                        nested_msg = field.data_to_message(field_value)
+                        # Convert protobuf message back to dict for parse_dict
+                        processed_data[field_name] = message_to_dict(nested_msg)
 
-            # Handle current level enum fields
-            elif isinstance(field, ChoiceField) and (
+        # Apply enum transformations to current level fields
+        for field_name, field in self.fields.items():
+            if field_name not in processed_data:
+                continue
+
+            if isinstance(field, ChoiceField) and (
                 enum := ProtoEnum.get_enum_from_annotation(field)
             ):
+                field_value = processed_data[field_name]
                 try:
                     # If the data is None or blank we use the unspecified enum key
                     if not field_value:
-                        transformed_data[field_name] = (
+                        processed_data[field_name] = (
                             self.Meta.proto_class.DESCRIPTOR.fields_by_name[field.field_name]
                             .enum_type.values[0]
                             .name
                         )
                     else:
-                        transformed_data[field_name] = enum(field_value).name
+                        processed_data[field_name] = enum(field_value).name
                 except Exception as e:
                     raise EnumProtoMismatchError(
                         "Enum value not found, did you forget to generate your protos ?"
                     ) from e
 
-        return transformed_data
+        # Use parse_dict for final message creation - handles all edge cases correctly
+        return parse_dict(processed_data, self.Meta.proto_class())
 
     @property
     def message(self):

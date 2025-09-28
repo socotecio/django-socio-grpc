@@ -27,7 +27,7 @@ from django_socio_grpc.protobuf.exceptions import (
     ProtoRegistrationError,
     UnknownTypeError,
 )
-from django_socio_grpc.protobuf.json_format import message_to_dict, parse_dict
+from django_socio_grpc.protobuf.json_format import message_to_dict
 from django_socio_grpc.protobuf.proto_classes import (
     ProtoEnum,
     ProtoField,
@@ -87,28 +87,65 @@ class BaseProtoSerializer(BaseSerializer):
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
 
-        # Choice doesn't store the Enum keys, but the Enum values
-        # We need to convert the Enum values to the Enum keys before creating the message
+        # Transform enums at all levels before using parse_dict
+        transformed_data = self._transform_enums_recursively(data)
+
+        # Use parse_dict for backward compatibility with existing behavior
+        from django_socio_grpc.protobuf.json_format import parse_dict
+        return parse_dict(transformed_data, self.Meta.proto_class())
+
+    def _transform_enums_recursively(self, data):
+        """Recursively transform enum values to enum names at all nesting levels"""
+        # Handle non-dict data (like QuerySets) by returning as-is for parse_dict to handle
+        if not isinstance(data, dict):
+            return data
+
+        # Make a copy to avoid mutating the original
+        transformed_data = data.copy()
+
+        # Process each field in this serializer
         for field_name, field in self.fields.items():
-            if isinstance(field, ChoiceField) and (
+            if field_name not in transformed_data:
+                continue
+
+            field_value = transformed_data[field_name]
+
+            # Handle nested serializers recursively
+            if isinstance(field, BaseProtoSerializer):
+                if hasattr(field, 'child'):
+                    # This is a ListProtoSerializer (many=True case)
+                    if field_value and isinstance(field_value, list):
+                        transformed_nested_list = []
+                        for item_data in field_value:
+                            # Recursively transform enums in nested data using the child serializer
+                            transformed_item = field.child._transform_enums_recursively(item_data)
+                            transformed_nested_list.append(transformed_item)
+                        transformed_data[field_name] = transformed_nested_list
+                else:
+                    # Handle single nested serializer
+                    if field_value is not None:
+                        transformed_data[field_name] = field._transform_enums_recursively(field_value)
+
+            # Handle current level enum fields
+            elif isinstance(field, ChoiceField) and (
                 enum := ProtoEnum.get_enum_from_annotation(field)
             ):
                 try:
                     # If the data is None or blank we use the unspecified enum key
-                    if not data[field_name]:
-                        data[field_name] = (
+                    if not field_value:
+                        transformed_data[field_name] = (
                             self.Meta.proto_class.DESCRIPTOR.fields_by_name[field.field_name]
                             .enum_type.values[0]
                             .name
                         )
                     else:
-                        data[field_name] = enum(data[field_name]).name
+                        transformed_data[field_name] = enum(field_value).name
                 except Exception as e:
                     raise EnumProtoMismatchError(
                         "Enum value not found, did you forget to generate your protos ?"
                     ) from e
 
-        return parse_dict(data, self.Meta.proto_class())
+        return transformed_data
 
     @property
     def message(self):

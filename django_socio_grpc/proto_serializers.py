@@ -87,28 +87,78 @@ class BaseProtoSerializer(BaseSerializer):
             self.Meta, "proto_class"
         ), f'Class {self.__class__.__name__} missing "Meta.proto_class" attribute'
 
-        # Choice doesn't store the Enum keys, but the Enum values
-        # We need to convert the Enum values to the Enum keys before creating the message
+        # Handle non-dict data by falling back to parse_dict for backward compatibility
+        if not isinstance(data, dict):
+            return parse_dict(data, self.Meta.proto_class())
+
+        # Efficient hybrid approach:
+        # 1. Remove nested serializer fields and store as protobuf messages
+        # 2. Use parse_dict for remaining fields
+        # 3. Assign nested messages directly to the final message
+
+        # Copy data and separate nested serializers from regular fields
+        processed_data = data.copy()
+        nested_messages = {}  # Store processed nested messages
+
+        # Process all fields: handle nested serializers and apply enum transformations
         for field_name, field in self.fields.items():
-            if isinstance(field, ChoiceField) and (
+            if field_name not in processed_data:
+                continue
+
+            field_value = processed_data[field_name]
+
+            # Handle nested serializers recursively - this is where enum transformation happens
+            if isinstance(field, BaseProtoSerializer):
+                if hasattr(field, "child"):
+                    # This is a ListProtoSerializer (many=True case)
+                    if field_value:
+                        nested_messages[field_name] = []
+                        for item_data in field_value:
+                            # Recursively call data_to_message on the child serializer
+                            nested_msg = field.child.data_to_message(item_data)
+                            nested_messages[field_name].append(nested_msg)
+                else:
+                    # Handle single nested serializer
+                    if field_value is not None:
+                        # Recursively call data_to_message on the nested serializer
+                        nested_messages[field_name] = field.data_to_message(field_value)
+
+                # Remove nested field from processed_data since we'll handle it separately
+                del processed_data[field_name]
+
+            # Apply enum transformations to current level fields (non-nested only)
+            elif isinstance(field, ChoiceField) and (
                 enum := ProtoEnum.get_enum_from_annotation(field)
             ):
                 try:
                     # If the data is None or blank we use the unspecified enum key
-                    if not data[field_name]:
-                        data[field_name] = (
+                    if not field_value:
+                        processed_data[field_name] = (
                             self.Meta.proto_class.DESCRIPTOR.fields_by_name[field.field_name]
                             .enum_type.values[0]
                             .name
                         )
                     else:
-                        data[field_name] = enum(data[field_name]).name
+                        processed_data[field_name] = enum(field_value).name
                 except Exception as e:
                     raise EnumProtoMismatchError(
                         "Enum value not found, did you forget to generate your protos ?"
                     ) from e
 
-        return parse_dict(data, self.Meta.proto_class())
+        # Create message with regular fields using parse_dict
+        message = parse_dict(processed_data, self.Meta.proto_class())
+
+        # Assign nested messages directly to the final message
+        for field_name, nested_value in nested_messages.items():
+            if isinstance(nested_value, list):
+                # Handle many=True case (list of nested messages)
+                nested_list = getattr(message, field_name)
+                nested_list.extend(nested_value)
+            else:
+                # Handle single nested message
+                getattr(message, field_name).CopyFrom(nested_value)
+
+        return message
 
     @property
     def message(self):

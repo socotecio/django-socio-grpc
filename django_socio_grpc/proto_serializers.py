@@ -100,7 +100,7 @@ class BaseProtoSerializer(BaseSerializer):
         processed_data = data.copy()
         nested_messages = {}  # Store processed nested messages
 
-        # Process nested serializers and remove them from processed_data
+        # Process all fields: handle nested serializers and apply enum transformations
         for field_name, field in self.fields.items():
             if field_name not in processed_data:
                 continue
@@ -126,15 +126,10 @@ class BaseProtoSerializer(BaseSerializer):
                 # Remove nested field from processed_data since we'll handle it separately
                 del processed_data[field_name]
 
-        # Apply enum transformations to current level fields
-        for field_name, field in self.fields.items():
-            if field_name not in processed_data:
-                continue
-
-            if isinstance(field, ChoiceField) and (
+            # Apply enum transformations to current level fields (non-nested only)
+            elif isinstance(field, ChoiceField) and (
                 enum := ProtoEnum.get_enum_from_annotation(field)
             ):
-                field_value = processed_data[field_name]
                 try:
                     # If the data is None or blank we use the unspecified enum key
                     if not field_value:
